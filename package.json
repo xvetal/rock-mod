@@ -1,0 +1,17 @@
+{
+  "name": "rock-mod",
+  "version": "0.0.0",
+  "description": "Rock-Mod is a powerful framework designed for creating and managing mods for Grand Theft Auto (GTA) games.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gta"
+  ],
+  "author": "xvetal",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}
