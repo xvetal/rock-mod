@@ -3,7 +3,7 @@ import { RagePlayer } from "./RagePlayer";
 import { IPlayersManager } from "../../common/player/IPlayersManager";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
-  constructor() {
+  public constructor() {
     super({
       entitiesType: "player",
     });

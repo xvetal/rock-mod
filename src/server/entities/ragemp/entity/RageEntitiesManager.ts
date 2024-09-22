@@ -12,7 +12,7 @@ export abstract class RageEntitiesManager<T extends RageEntity> implements IEnti
     this._entitiesType = options.entitiesType;
   }
 
-  getByID(id: number): T {
+  public getByID(id: number): T {
     const entity = this._entities.get(id);
 
     if (!entity) {

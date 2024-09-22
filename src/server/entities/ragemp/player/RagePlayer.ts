@@ -6,23 +6,23 @@ export class RagePlayer extends RageEntity implements IPlayer {
 
   private _health: number;
 
-  get name(): string {
+  public get name(): string {
     return this._name;
   }
 
-  set name(name: string) {
+  public set name(name: string) {
     this._name = name;
   }
 
-  get health(): number {
+  public get health(): number {
     return this._health;
   }
 
-  set health(value: number) {
+  public set health(value: number) {
     this._health = value;
   }
 
-  constructor(options: IPlayerOptions) {
+  public constructor(options: IPlayerOptions) {
     super(options);
     this._name = options.name;
     this._health = 100;
