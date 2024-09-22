@@ -18,11 +18,11 @@ export class RockMod {
 
   private readonly _vehicles: IVehiclesManager;
 
-  get players() {
+  get players(): IPlayersManager {
     return this._players;
   }
 
-  get vehicles() {
+  get vehicles(): IVehiclesManager {
     return this._vehicles;
   }
 
@@ -32,7 +32,7 @@ export class RockMod {
     this._vehicles = this._initVehiclesManager();
   }
 
-  init() {
+  init(): void {
     console.log("RockMod init");
   }
 
