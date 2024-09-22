@@ -1,8 +1,8 @@
 import { AltVEntity } from "./AltVEntity";
 import { IEntitiesManager, IEntitiesManagerOptions } from "../../common/entity/IEntitiesManager";
-import { EntityType, IEntity } from "../../common/entity/IEntity";
+import { EntityType } from "../../common/entity/IEntity";
 
-export abstract class AltVEntitiesManager<T extends AltVEntity> implements IEntitiesManager {
+export abstract class AltVEntitiesManager<T extends AltVEntity> implements IEntitiesManager<AltVEntity> {
   protected readonly _entities: Map<number, T>;
 
   private readonly _entitiesType: `${EntityType}`;
@@ -12,7 +12,7 @@ export abstract class AltVEntitiesManager<T extends AltVEntity> implements IEnti
     this._entitiesType = options.entitiesType;
   }
 
-  public getByID(id: number): IEntity {
+  public getByID(id: number): T {
     const entity = this._entities.get(id);
 
     if (!entity) {
