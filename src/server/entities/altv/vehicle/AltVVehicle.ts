@@ -1,7 +1,7 @@
-import { RageEntity } from "../entity/RageEntity";
+import { AltVEntity } from "../entity/AltVEntity";
 import { IVehicle, IVehicleOptions } from "../../common/vehicle/IVehicle";
 
-export class RageVehicle extends RageEntity implements IVehicle {
+export class AltVVehicle extends AltVEntity implements IVehicle {
   private _bodyHealth: number;
 
   get bodyHealth() {

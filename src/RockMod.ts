@@ -2,6 +2,8 @@ import { IPlayersManager } from "./server/entities/common/player/IPlayersManager
 import { RagePlayersManager } from "./server/entities/ragemp/player/RagePlayersManager";
 import { IVehiclesManager } from "./server/entities/common/vehicle/IVehiclesManager";
 import { RageVehiclesManager } from "./server/entities/ragemp/vehicle/RageVehiclesManager";
+import { AltVPlayersManager } from "./server/entities/altv/player/AltVPlayersManager";
+import { AltVVehiclesManager } from "./server/entities/altv/vehicle/AltVVehiclesManager";
 
 type MultiplayerType = "RageMP" | "AltV";
 
@@ -37,24 +39,26 @@ export class RockMod {
   private _initPlayersManager(): IPlayersManager {
     const { multiplayer } = this._options;
 
-    switch (this._options.multiplayer) {
+    switch (multiplayer) {
       case "RageMP": {
         return new RagePlayersManager();
       }
+      case "AltV": {
+        return new AltVPlayersManager();
+      }
     }
-
-    throw new Error(`${multiplayer} is not supported`);
   }
 
   private _initVehiclesManager(): IVehiclesManager {
     const { multiplayer } = this._options;
 
-    switch (this._options.multiplayer) {
+    switch (multiplayer) {
       case "RageMP": {
         return new RageVehiclesManager();
       }
+      case "AltV": {
+        return new AltVVehiclesManager();
+      }
     }
-
-    throw new Error(`${multiplayer} is not supported`);
   }
 }

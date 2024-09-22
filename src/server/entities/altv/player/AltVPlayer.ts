@@ -1,7 +1,7 @@
-import { RageEntity } from "../entity/RageEntity";
+import { AltVEntity } from "../entity/AltVEntity";
 import { IPlayer, IPlayerOptions } from "../../common/player/IPlayer";
 
-export class RagePlayer extends RageEntity implements IPlayer {
+export class AltVPlayer extends AltVEntity implements IPlayer {
   private _name: string;
 
   private _health: number;
