@@ -44,7 +44,8 @@
         "format": ["camelCase"],
         "leadingUnderscore": "require"
       }
-    ]
+    ],
+    "@typescript-eslint/explicit-function-return-type": ["error"]
   },
   "settings": {
     "import/resolver": {

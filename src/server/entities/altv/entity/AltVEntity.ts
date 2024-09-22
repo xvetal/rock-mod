@@ -5,11 +5,11 @@ export abstract class AltVEntity implements IEntity {
 
   private readonly _type: EntityType;
 
-  get id() {
+  get id(): number {
     return this._id;
   }
 
-  get type() {
+  get type(): EntityType {
     return this._type;
   }
 

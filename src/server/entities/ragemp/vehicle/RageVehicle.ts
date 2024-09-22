@@ -4,7 +4,7 @@ import { IVehicle, IVehicleOptions } from "../../common/vehicle/IVehicle";
 export class RageVehicle extends RageEntity implements IVehicle {
   private _bodyHealth: number;
 
-  get bodyHealth() {
+  get bodyHealth(): number {
     return this._bodyHealth;
   }
 

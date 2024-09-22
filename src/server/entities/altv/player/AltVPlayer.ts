@@ -6,7 +6,7 @@ export class AltVPlayer extends AltVEntity implements IPlayer {
 
   private _health: number;
 
-  get name() {
+  get name(): string {
     return this._name;
   }
 
@@ -14,7 +14,7 @@ export class AltVPlayer extends AltVEntity implements IPlayer {
     this._name = name;
   }
 
-  get health() {
+  get health(): number {
     return this._health;
   }
 
