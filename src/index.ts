@@ -1,9 +1,7 @@
-const x = 2;
-const y = 2;
-const obj = {
-  a: "test",
-};
+import { RockMod } from "./RockMod";
 
-// const x = 123;
+const rockMod = new RockMod({
+  multiplayer: "RageMP",
+});
 
-console.log(x + y, obj);
+rockMod.init();
