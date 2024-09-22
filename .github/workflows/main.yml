@@ -1,0 +1,35 @@
+name: Code style
+on:
+  push:
+    branches:
+      - stable
+      - testing
+      - development
+  pull_request:
+    branches:
+      - stable
+      - testing
+      - development
+jobs:
+  main:
+    name: Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20.x]
+    env:
+      NODE_ENV: cicd
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Dependencies
+        run: npm ci
+      - name: Check code format
+        run: npm run format:check
+      - name: Check code style
+        run: npm run lint:check
+      - name: Check type definitions
+        run: npm run type:check
