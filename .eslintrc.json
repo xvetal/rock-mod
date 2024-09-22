@@ -13,7 +13,15 @@
     "plugin:import/recommended"
   ],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": [
+      "error",
+      {
+        "semi": true,
+        "trailingComma": "all",
+        "printWidth": 120,
+        "tabWidth": 2
+      }
+    ],
     "import/prefer-default-export": "off",
     "import/extensions": [
       "error",
@@ -25,12 +33,16 @@
     "import/no-extraneous-dependencies": [
       "error",
       {
-        "devDependencies": [
-          "**/*.test.ts",
-          "**/*.spec.ts",
-          "**/tests/**",
-          "tsconfig.json"
-        ]
+        "devDependencies": ["**/*.test.ts", "**/*.spec.ts", "**/tests/**", "tsconfig.json"]
+      }
+    ],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "memberLike",
+        "modifiers": ["private"],
+        "format": ["camelCase"],
+        "leadingUnderscore": "require"
       }
     ]
   },
