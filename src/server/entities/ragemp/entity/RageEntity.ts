@@ -5,11 +5,11 @@ export abstract class RageEntity implements IEntity {
 
   private readonly _type: EntityType;
 
-  get id(): number {
+  public get id(): number {
     return this._id;
   }
 
-  get type(): EntityType {
+  public get type(): EntityType {
     return this._type;
   }
 

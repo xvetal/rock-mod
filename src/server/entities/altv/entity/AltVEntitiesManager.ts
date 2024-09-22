@@ -12,7 +12,7 @@ export abstract class AltVEntitiesManager<T extends AltVEntity> implements IEnti
     this._entitiesType = options.entitiesType;
   }
 
-  getByID(id: number): IEntity {
+  public getByID(id: number): IEntity {
     const entity = this._entities.get(id);
 
     if (!entity) {
