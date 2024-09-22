@@ -2,7 +2,7 @@ import { IEntitiesManager, IEntitiesManagerOptions } from "../../common/entity/I
 import { RageEntity } from "./RageEntity";
 import { EntityType } from "../../common/entity/IEntity";
 
-export abstract class RageEntitiesManager<T extends RageEntity> implements IEntitiesManager {
+export abstract class RageEntitiesManager<T extends RageEntity> implements IEntitiesManager<RageEntity> {
   protected readonly _entities: Map<number, T>;
 
   private readonly _entitiesType: `${EntityType}`;
