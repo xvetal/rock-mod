@@ -28,4 +28,24 @@ export class AltVPlayersManager extends AltVEntitiesManager<AltVPlayer> implemen
 
     return null;
   }
+
+  public getBySocialClub(socialClub: string): AltVPlayer {
+    const player = this.findByName(socialClub);
+
+    if (!player) {
+      throw new Error(`Player with socialClub ${socialClub} not found`);
+    }
+
+    return player;
+  }
+
+  public findBySocialClub(socialClub: string): AltVPlayer | null {
+    for (const player of this.iterator.all()) {
+      if (player.socialClub === socialClub) {
+        return player;
+      }
+    }
+
+    return null;
+  }
 }

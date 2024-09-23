@@ -4,10 +4,16 @@ import { IPlayer, IPlayerOptions } from "../../common/player/IPlayer";
 export class RagePlayer extends RageEntity implements IPlayer {
   private _name: string;
 
+  private readonly _socialClub: string;
+
   private _health: number;
 
   public get name(): string {
     return this._name;
+  }
+
+  public get socialClub(): string {
+    return this._socialClub;
   }
 
   public get health(): number {
@@ -17,6 +23,7 @@ export class RagePlayer extends RageEntity implements IPlayer {
   public constructor(options: IPlayerOptions) {
     super(options);
     this._name = options.name;
+    this._socialClub = options.socialClub;
     this._health = 100;
   }
 
