@@ -8,12 +8,12 @@ export class RageVehicle extends RageEntity implements IVehicle {
     return this._bodyHealth;
   }
 
-  public set bodyHealth(value: number) {
-    this._bodyHealth = value;
-  }
-
   public constructor(options: IVehicleOptions) {
     super(options);
     this._bodyHealth = 100;
+  }
+
+  public setBodyHealth(value: number): void {
+    this._bodyHealth = value;
   }
 }

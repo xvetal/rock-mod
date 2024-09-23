@@ -6,7 +6,7 @@ export interface IPlayerOptions extends IEntityOptions {
 
 export interface IPlayer extends IEntity {
   get name(): string;
-  set name(value: string);
   get health(): number;
-  set health(value: number);
+  setName(value: string): void;
+  setHealth(value: number): void;
 }
