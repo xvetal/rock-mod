@@ -1,5 +1,5 @@
 import { IWorldObject, IWorldObjectOptions } from "../../common/worldObject/IWorldObject";
-import { Vector3D } from "../../../common/utils/math/Vector3D";
+import { Vector3D } from "../../../common/utils/math/Vectors";
 import { AltVBaseObject } from "../baseObject/AltVBaseObject";
 
 export abstract class AltVWorldObject extends AltVBaseObject implements IWorldObject {
