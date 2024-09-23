@@ -6,4 +6,5 @@ export interface IBaseObjectsManagerOptions {
 
 export interface IBaseObjectsManager<T extends IBaseObject> {
   getByID(id: number): T;
+  findByID(id: number): T | null;
 }
