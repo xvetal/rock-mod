@@ -1,9 +1,7 @@
-export class Vector3D {
+export class Vector2D {
   private readonly _x: number;
 
   private readonly _y: number;
-
-  private readonly _z: number;
 
   public get x(): number {
     return this._x;
@@ -13,13 +11,21 @@ export class Vector3D {
     return this._y;
   }
 
+  public constructor(x: number, y: number) {
+    this._x = x;
+    this._y = y;
+  }
+}
+
+export class Vector3D extends Vector2D {
+  private readonly _z: number;
+
   public get z(): number {
     return this._z;
   }
 
   public constructor(x: number, y: number, z: number) {
-    this._x = x;
-    this._y = y;
+    super(x, y);
     this._z = z;
   }
 }
