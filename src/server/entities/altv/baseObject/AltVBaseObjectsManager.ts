@@ -1,22 +1,30 @@
 import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
 import { BaseObjectType } from "../../common/baseObject/IBaseObject";
 import { AltVBaseObject } from "./AltVBaseObject";
+import { AltVBaseObjectsIterator } from "./AltVBaseObjectsIterator";
 
 export abstract class AltVBaseObjectsManager<T extends AltVBaseObject> implements IBaseObjectsManager<T> {
-  protected readonly _baseObjects: Map<number, T>;
+  private readonly _baseObjects: Map<number, T>;
 
   private readonly _baseObjectsType: `${BaseObjectType}`;
+
+  private readonly _iterator: AltVBaseObjectsIterator<T>;
+
+  public get iterator(): AltVBaseObjectsIterator<T> {
+    return this._iterator;
+  }
 
   protected constructor(options: IBaseObjectsManagerOptions) {
     this._baseObjects = new Map();
     this._baseObjectsType = options.baseObjectsType;
+    this._iterator = new AltVBaseObjectsIterator(this._baseObjects);
   }
 
   public getByID(id: number): T {
     const baseObject = this.findByID(id);
 
     if (!baseObject) {
-      throw new Error(`BaseObject ${this._baseObjectsType} #${id} not found`);
+      throw new Error(`BaseObject [${this._baseObjectsType}] with id ${id} not found`);
     }
 
     return baseObject;
