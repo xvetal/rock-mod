@@ -5,7 +5,7 @@ import { IPlayersManager } from "../../common/player/IPlayersManager";
 export class AltVPlayersManager extends AltVEntitiesManager<AltVPlayer> implements IPlayersManager {
   public constructor() {
     super({
-      entitiesType: "player",
+      baseObjectsType: "player",
     });
   }
 }

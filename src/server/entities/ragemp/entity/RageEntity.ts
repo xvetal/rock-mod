@@ -1,20 +1,19 @@
-import { EntityType, IEntity, IEntityOptions } from "../../common/entity/IEntity";
+import { IEntity, IEntityOptions } from "../../common/entity/IEntity";
+import { RageWorldObject } from "../worldObject/RageWorldObject";
 
-export abstract class RageEntity implements IEntity {
-  private readonly _id: number;
+export abstract class RageEntity extends RageWorldObject implements IEntity {
+  private _model: string;
 
-  private readonly _type: EntityType;
-
-  public get id(): number {
-    return this._id;
-  }
-
-  public get type(): EntityType {
-    return this._type;
+  public get model(): string {
+    return this._model;
   }
 
   protected constructor(options: IEntityOptions) {
-    this._id = options.id;
-    this._type = options.type;
+    super(options);
+    this._model = options.model;
+  }
+
+  public setModel(value: string): void {
+    this._model = value;
   }
 }

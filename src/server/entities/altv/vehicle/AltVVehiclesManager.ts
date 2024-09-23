@@ -5,7 +5,7 @@ import { IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
 export class AltVVehiclesManager extends AltVEntitiesManager<AltVVehicle> implements IVehiclesManager {
   public constructor() {
     super({
-      entitiesType: "vehicle",
+      baseObjectsType: "vehicle",
     });
   }
 }

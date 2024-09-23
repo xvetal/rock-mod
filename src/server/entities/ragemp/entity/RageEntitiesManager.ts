@@ -1,24 +1,12 @@
 import { IEntitiesManager, IEntitiesManagerOptions } from "../../common/entity/IEntitiesManager";
 import { RageEntity } from "./RageEntity";
-import { EntityType } from "../../common/entity/IEntity";
+import { RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
 
-export abstract class RageEntitiesManager<T extends RageEntity> implements IEntitiesManager<RageEntity> {
-  protected readonly _entities: Map<number, T>;
-
-  private readonly _entitiesType: `${EntityType}`;
-
+export abstract class RageEntitiesManager<T extends RageEntity>
+  extends RageWorldObjectsManager<T>
+  implements IEntitiesManager<T>
+{
   protected constructor(options: IEntitiesManagerOptions) {
-    this._entities = new Map();
-    this._entitiesType = options.entitiesType;
-  }
-
-  public getByID(id: number): T {
-    const entity = this._entities.get(id);
-
-    if (!entity) {
-      throw new Error(`Entity ${this._entitiesType} #${id} not found`);
-    }
-
-    return entity;
+    super(options);
   }
 }
