@@ -13,12 +13,18 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject> implement
   }
 
   public getByID(id: number): T {
-    const entity = this._baseObjects.get(id);
+    const baseObject = this.findByID(id);
 
-    if (!entity) {
+    if (!baseObject) {
       throw new Error(`BaseObject ${this._baseObjectsType} #${id} not found`);
     }
 
-    return entity;
+    return baseObject;
+  }
+
+  public findByID(id: number): T | null {
+    const baseObject = this._baseObjects.get(id);
+
+    return baseObject ?? null;
   }
 }
