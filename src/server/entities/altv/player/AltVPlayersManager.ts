@@ -8,4 +8,24 @@ export class AltVPlayersManager extends AltVEntitiesManager<AltVPlayer> implemen
       baseObjectsType: "player",
     });
   }
+
+  public getByName(name: string): AltVPlayer {
+    const player = this.findByName(name);
+
+    if (!player) {
+      throw new Error(`Player with name ${name} not found`);
+    }
+
+    return player;
+  }
+
+  public findByName(name: string): AltVPlayer | null {
+    for (const player of this.iterator.all()) {
+      if (player.name === name) {
+        return player;
+      }
+    }
+
+    return null;
+  }
 }
