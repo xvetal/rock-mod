@@ -20,30 +20,22 @@ export class AltVWorldObjectsIterator<T extends AltVWorldObject>
   }
 
   public *range2D(center: Vector2D, range: number): IterableIterator<T> {
-    const rangeSquared = range * range;
-
     for (const worldObject of this.all()) {
       const { position } = worldObject;
-      const distanceSquared =
-        (center.x - position.x) * (center.x - position.x) + (center.y - position.y) * (center.y - position.y);
+      const isInRange = center.isInRange(position, range);
 
-      if (distanceSquared <= rangeSquared) {
+      if (isInRange) {
         yield worldObject;
       }
     }
   }
 
   public *range3D(center: Vector3D, range: number): IterableIterator<T> {
-    const rangeSquared = range * range;
-
     for (const worldObject of this.all()) {
       const { position } = worldObject;
-      const distanceSquared =
-        (center.x - position.x) * (center.x - position.x) +
-        (center.y - position.y) * (center.y - position.y) +
-        (center.z - position.z) * (center.z - position.z);
+      const isInRange = center.isInRange(position, range);
 
-      if (distanceSquared <= rangeSquared) {
+      if (isInRange) {
         yield worldObject;
       }
     }
