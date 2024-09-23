@@ -10,21 +10,21 @@ export class AltVPlayer extends AltVEntity implements IPlayer {
     return this._name;
   }
 
-  public set name(name: string) {
-    this._name = name;
-  }
-
   public get health(): number {
     return this._health;
-  }
-
-  public set health(value: number) {
-    this._health = value;
   }
 
   public constructor(options: IPlayerOptions) {
     super(options);
     this._name = options.name;
     this._health = 100;
+  }
+
+  public setName(value: string): void {
+    this._name = value;
+  }
+
+  public setHealth(value: number): void {
+    this._health = value;
   }
 }
