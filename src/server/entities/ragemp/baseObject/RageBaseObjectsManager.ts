@@ -1,22 +1,30 @@
 import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
 import { RageBaseObject } from "./RageBaseObject";
 import { BaseObjectType } from "../../common/baseObject/IBaseObject";
+import { RageBaseObjectsIterator } from "./RageBaseObjectsIterator";
 
 export abstract class RageBaseObjectsManager<T extends RageBaseObject> implements IBaseObjectsManager<RageBaseObject> {
-  protected readonly _baseObjects: Map<number, T>;
+  private readonly _baseObjects: Map<number, T>;
 
   private readonly _baseObjectsType: `${BaseObjectType}`;
+
+  private readonly _iterator: RageBaseObjectsIterator<T>;
+
+  public get iterator(): RageBaseObjectsIterator<T> {
+    return this._iterator;
+  }
 
   protected constructor(options: IBaseObjectsManagerOptions) {
     this._baseObjects = new Map();
     this._baseObjectsType = options.baseObjectsType;
+    this._iterator = new RageBaseObjectsIterator(this._baseObjects);
   }
 
   public getByID(id: number): T {
     const baseObject = this.findByID(id);
 
     if (!baseObject) {
-      throw new Error(`BaseObject ${this._baseObjectsType} #${id} not found`);
+      throw new Error(`BaseObject [${this._baseObjectsType}] with id ${id} not found`);
     }
 
     return baseObject;
