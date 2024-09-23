@@ -1,9 +1,6 @@
-import { EntityType, IEntity } from "./IEntity";
+import { IWorldObjectsManager, IWorldObjectsManagerOptions } from "../worldObject/IWorldObjectsManager";
+import { IEntity } from "./IEntity";
 
-export interface IEntitiesManagerOptions {
-  entitiesType: `${EntityType}`;
-}
+export interface IEntitiesManagerOptions extends IWorldObjectsManagerOptions {}
 
-export interface IEntitiesManager<T extends IEntity> {
-  getByID(id: number): T;
-}
+export interface IEntitiesManager<T extends IEntity> extends IWorldObjectsManager<T> {}

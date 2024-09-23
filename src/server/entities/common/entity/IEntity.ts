@@ -1,15 +1,10 @@
-export enum EntityType {
-  Player = "player",
-  Vehicle = "vehicle",
-}
+import { IWorldObject, IWorldObjectOptions } from "../worldObject/IWorldObject";
 
-export interface IEntityOptions {
-  id: number;
-  type: EntityType;
+export interface IEntityOptions extends IWorldObjectOptions {
   model: string;
 }
 
-export interface IEntity {
-  get id(): number;
-  get type(): EntityType;
+export interface IEntity extends IWorldObject {
+  get model(): string;
+  setModel(value: string): void;
 }
