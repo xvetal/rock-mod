@@ -1,6 +1,6 @@
 import { IWorldObject, IWorldObjectOptions } from "../../common/worldObject/IWorldObject";
 import { RageBaseObject } from "../baseObject/RageBaseObject";
-import { Vector3D } from "../../../common/utils/math/Vector3D";
+import { Vector3D } from "../../../common/utils/math/Vectors";
 
 export abstract class RageWorldObject extends RageBaseObject implements IWorldObject {
   private readonly _position: Vector3D;

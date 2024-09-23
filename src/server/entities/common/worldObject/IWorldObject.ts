@@ -1,5 +1,5 @@
 import { IBaseObject, IBaseObjectOptions } from "../baseObject/IBaseObject";
-import { Vector3D } from "../../../common/utils/math/Vector3D";
+import { Vector3D } from "../../../common/utils/math/Vectors";
 
 export interface IWorldObjectOptions extends IBaseObjectOptions {
   position: Vector3D;
