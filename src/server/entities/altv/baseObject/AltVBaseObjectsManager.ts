@@ -8,7 +8,11 @@ export abstract class AltVBaseObjectsManager<T extends AltVBaseObject> implement
 
   private readonly _baseObjectsType: `${BaseObjectType}`;
 
-  private readonly _iterator: AltVBaseObjectsIterator<T>;
+  protected readonly _iterator: AltVBaseObjectsIterator<T>;
+
+  protected get baseObjects(): ReadonlyMap<number, T> {
+    return this._baseObjects;
+  }
 
   public get iterator(): AltVBaseObjectsIterator<T> {
     return this._iterator;
