@@ -28,4 +28,24 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
 
     return null;
   }
+
+  public getBySocialClub(socialClub: string): RagePlayer {
+    const player = this.findBySocialClub(socialClub);
+
+    if (!player) {
+      throw new Error(`Player with socialClub ${socialClub} not found`);
+    }
+
+    return player;
+  }
+
+  public findBySocialClub(socialClub: string): RagePlayer | null {
+    for (const player of this.iterator.all()) {
+      if (player.socialClub === socialClub) {
+        return player;
+      }
+    }
+
+    return null;
+  }
 }
