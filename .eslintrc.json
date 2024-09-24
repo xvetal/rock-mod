@@ -52,5 +52,6 @@
     "import/resolver": {
       "typescript": {}
     }
-  }
+  },
+  "ignorePatterns": ["dist"]
 }
