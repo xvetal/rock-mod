@@ -1,9 +1,8 @@
 import { IPlayersManager } from "./entities/common/player/IPlayersManager";
-import { RagePlayersManager } from "./entities/ragemp/player/RagePlayersManager";
 import { IVehiclesManager } from "./entities/common/vehicle/IVehiclesManager";
-import { RageVehiclesManager } from "./entities/ragemp/vehicle/RageVehiclesManager";
-import { AltVPlayersManager } from "./entities/altv/player/AltVPlayersManager";
-import { AltVVehiclesManager } from "./entities/altv/vehicle/AltVVehiclesManager";
+import { IManagersFactory } from "./entities/common/IManagersFactory";
+import { AltVManagersFactory } from "./entities/altv/AltVManagersFactory";
+import { RageManagersFactory } from "./entities/ragemp/RageManagersFactory";
 
 type MultiplayerType = "RageMP" | "AltV";
 
@@ -28,36 +27,26 @@ export class RockMod {
 
   public constructor(options: RockModOptions) {
     this._options = options;
-    this._players = this._initPlayersManager();
-    this._vehicles = this._initVehiclesManager();
+
+    const managersFactory = this._initManagersFactory();
+
+    this._players = managersFactory.createPlayersManager();
+    this._vehicles = managersFactory.createVehiclesManager();
   }
 
   public init(): void {
     console.log("RockMod init");
   }
 
-  private _initPlayersManager(): IPlayersManager {
+  private _initManagersFactory(): IManagersFactory {
     const { multiplayer } = this._options;
 
     switch (multiplayer) {
-      case "RageMP": {
-        return new RagePlayersManager();
-      }
       case "AltV": {
-        return new AltVPlayersManager();
+        return new AltVManagersFactory();
       }
-    }
-  }
-
-  private _initVehiclesManager(): IVehiclesManager {
-    const { multiplayer } = this._options;
-
-    switch (multiplayer) {
       case "RageMP": {
-        return new RageVehiclesManager();
-      }
-      case "AltV": {
-        return new AltVVehiclesManager();
+        return new RageManagersFactory();
       }
     }
   }
