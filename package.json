@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsx src/index.ts",
+    "build": "npm run build:server && npm run build:client",
     "build:server": "tsc --project tsconfig.server.json",
     "build:client": "tsc --project tsconfig.client.json",
     "lint:check": "eslint . --ext .ts",
@@ -26,6 +27,9 @@
       "npm run format:fix"
     ]
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "gta"
   ],
