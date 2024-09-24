@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsx src/index.ts",
+    "build:server": "tsc --project tsconfig.server.json",
+    "build:client": "tsc --project tsconfig.client.json",
     "lint:check": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format:check": "prettier --check .",
