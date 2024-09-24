@@ -1,4 +1,4 @@
-import { RockMod } from "./RockMod";
+import { RockMod } from "./server/RockMod";
 
 const rockMod = new RockMod({
   multiplayer: "RageMP",
