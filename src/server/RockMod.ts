@@ -1,9 +1,9 @@
-import { IPlayersManager } from "./server/entities/common/player/IPlayersManager";
-import { RagePlayersManager } from "./server/entities/ragemp/player/RagePlayersManager";
-import { IVehiclesManager } from "./server/entities/common/vehicle/IVehiclesManager";
-import { RageVehiclesManager } from "./server/entities/ragemp/vehicle/RageVehiclesManager";
-import { AltVPlayersManager } from "./server/entities/altv/player/AltVPlayersManager";
-import { AltVVehiclesManager } from "./server/entities/altv/vehicle/AltVVehiclesManager";
+import { IPlayersManager } from "./entities/common/player/IPlayersManager";
+import { RagePlayersManager } from "./entities/ragemp/player/RagePlayersManager";
+import { IVehiclesManager } from "./entities/common/vehicle/IVehiclesManager";
+import { RageVehiclesManager } from "./entities/ragemp/vehicle/RageVehiclesManager";
+import { AltVPlayersManager } from "./entities/altv/player/AltVPlayersManager";
+import { AltVVehiclesManager } from "./entities/altv/vehicle/AltVVehiclesManager";
 
 type MultiplayerType = "RageMP" | "AltV";
 
