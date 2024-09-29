@@ -1,4 +1,5 @@
 import { IEntity, IEntityOptions } from "../entity/IEntity";
+import { IPlayerNetManager } from "./IPlayerNetManager";
 
 export interface IPlayerOptions extends IEntityOptions {
   name: string;
@@ -6,6 +7,7 @@ export interface IPlayerOptions extends IEntityOptions {
 }
 
 export interface IPlayer extends IEntity {
+  get net(): IPlayerNetManager;
   get name(): string;
   get socialClub(): string;
   get health(): number;
