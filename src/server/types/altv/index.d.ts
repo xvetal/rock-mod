@@ -5,4 +5,10 @@ declare namespace AltV {
   }
 }
 
-declare const alt: AltV;
+declare const alt: {
+  on(eventName: string, listener: unknown): void;
+  onRpc(rpcName: string, listener: unknown): void;
+  off(rpcName: string, listener: unknown): void;
+  offRpc(rpcName: string): void;
+  emit(eventName: string, ...args: unknown[]): void;
+};
