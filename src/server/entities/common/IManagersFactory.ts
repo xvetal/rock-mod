@@ -4,6 +4,6 @@ import { IVehiclesManager } from "./vehicle/IVehiclesManager";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;
-  createPlayersManager(): IPlayersManager;
+  createPlayersManager(net: INetManager): IPlayersManager;
   createVehiclesManager(): IVehiclesManager;
 }

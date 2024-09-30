@@ -38,7 +38,7 @@ export class RockMod {
     const managersFactory = this._initManagersFactory();
 
     this._net = managersFactory.createNetManager();
-    this._players = managersFactory.createPlayersManager();
+    this._players = managersFactory.createPlayersManager(this._net);
     this._vehicles = managersFactory.createVehiclesManager();
   }
 
