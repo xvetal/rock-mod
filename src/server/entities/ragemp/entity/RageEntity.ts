@@ -1,19 +1,18 @@
-import { IEntity, IEntityOptions } from "../../common/entity/IEntity";
-import { RageWorldObject } from "../worldObject/RageWorldObject";
+import { IEntity } from "../../common/entity/IEntity";
+import { IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
 
-export abstract class RageEntity extends RageWorldObject implements IEntity {
-  private _model: string;
+export interface IRageEntityOptions<T extends EntityMp> extends IRageWorldObjectOptions<T> {}
 
-  public get model(): string {
-    return this._model;
+export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> implements IEntity {
+  public get model(): number {
+    return this.mpEntity.model;
   }
 
-  protected constructor(options: IEntityOptions) {
+  protected constructor(options: IRageEntityOptions<T>) {
     super(options);
-    this._model = options.model;
   }
 
-  public setModel(value: string): void {
-    this._model = value;
+  public setModel(value: number): void {
+    this.mpEntity.model = value;
   }
 }

@@ -2,8 +2,9 @@ import { IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIte
 import { AltVWorldObject } from "./AltVWorldObject";
 import { AltVBaseObjectsIterator } from "../baseObject/AltVBaseObjectsIterator";
 import { Vector2D, Vector3D } from "../../../common/utils/math/Vectors";
+import WorldObject = AltVServer.WorldObject;
 
-export class AltVWorldObjectsIterator<T extends AltVWorldObject>
+export class AltVWorldObjectsIterator<T extends AltVWorldObject<WorldObject>>
   extends AltVBaseObjectsIterator<T>
   implements IWorldObjectsIterator<T>
 {

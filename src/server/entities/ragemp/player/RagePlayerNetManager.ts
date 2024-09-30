@@ -1,10 +1,9 @@
 import { IPlayerNetManager } from "../../common/player/IPlayerNetManager";
-import PlayerMP = RageMP.PlayerMP;
 
 export class RagePlayerNetManager implements IPlayerNetManager {
-  private readonly _player: PlayerMP;
+  private readonly _player: PlayerMp;
 
-  public constructor(player: PlayerMP) {
+  public constructor(player: PlayerMp) {
     this._player = player;
   }
 

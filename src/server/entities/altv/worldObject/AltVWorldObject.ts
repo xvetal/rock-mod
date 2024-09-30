@@ -1,23 +1,22 @@
-import { IWorldObject, IWorldObjectOptions } from "../../common/worldObject/IWorldObject";
+import { IWorldObject } from "../../common/worldObject/IWorldObject";
 import { Vector3D } from "../../../common/utils/math/Vectors";
-import { AltVBaseObject } from "../baseObject/AltVBaseObject";
+import { AltVBaseObject, IAltVBaseObjectOptions } from "../baseObject/AltVBaseObject";
+import WorldObject = AltVServer.WorldObject;
 
-export abstract class AltVWorldObject extends AltVBaseObject implements IWorldObject {
-  private readonly _position: Vector3D;
+export interface IAltVWorldObjectOptions<T extends WorldObject> extends IAltVBaseObjectOptions<T> {}
 
-  private readonly _dimension: number;
-
+export abstract class AltVWorldObject<T extends WorldObject> extends AltVBaseObject<T> implements IWorldObject {
   public get position(): Vector3D {
-    return this._position;
+    const { x, y, z } = this.mpEntity.pos;
+
+    return new Vector3D(x, y, z);
   }
 
   public get dimension(): number {
-    return this._dimension;
+    return this.mpEntity.dimension;
   }
 
-  protected constructor(options: IWorldObjectOptions) {
+  protected constructor(options: IAltVWorldObjectOptions<T>) {
     super(options);
-    this._position = options.position;
-    this._dimension = options.dimension;
   }
 }

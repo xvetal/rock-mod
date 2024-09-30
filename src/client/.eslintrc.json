@@ -53,5 +53,5 @@
       "typescript": {}
     }
   },
-  "ignorePatterns": ["dist"]
+  "ignorePatterns": ["dist", "@types"]
 }

@@ -8,11 +8,11 @@ export class AltVManagersFactory implements IManagersFactory {
     return new AltVNetManager();
   }
 
-  public createPlayersManager(): AltVPlayersManager {
-    return new AltVPlayersManager();
+  public createPlayersManager(net: AltVNetManager): AltVPlayersManager {
+    return new AltVPlayersManager(net);
   }
 
-  public createVehiclesManager(): AltVVehiclesManager {
-    return new AltVVehiclesManager();
+  public createVehiclesManager(net: AltVNetManager): AltVVehiclesManager {
+    return new AltVVehiclesManager(net);
   }
 }

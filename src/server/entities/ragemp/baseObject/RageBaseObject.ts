@@ -1,21 +1,26 @@
 import { BaseObjectType, IBaseObject, IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
 
-export abstract class RageBaseObject implements IBaseObject {
-  private readonly _id: number;
+export interface IRageBaseObjectOptions<T extends EntityMp> extends IBaseObjectOptions {
+  mpEntity: T;
+}
 
-  private readonly _type: BaseObjectType;
+export abstract class RageBaseObject<T extends EntityMp = EntityMp> implements IBaseObject {
+  private readonly _mpEntity: T;
 
   public get id(): number {
-    return this._id;
+    return this._mpEntity.id;
   }
 
   public get type(): BaseObjectType {
-    return this._type;
+    return this._mpEntity.type as unknown as BaseObjectType;
   }
 
-  protected constructor(options: IBaseObjectOptions) {
-    this._id = options.id;
-    this._type = options.type;
+  protected get mpEntity(): T {
+    return this._mpEntity;
+  }
+
+  protected constructor(options: IRageBaseObjectOptions<T>) {
+    this._mpEntity = options.mpEntity;
   }
 
   public destroy(): void {

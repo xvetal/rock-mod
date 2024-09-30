@@ -1,11 +1,12 @@
+import BaseObject = AltVServer.BaseObject;
+
 export enum BaseObjectType {
   Player = "player",
   Vehicle = "vehicle",
 }
 
 export interface IBaseObjectOptions {
-  id: number;
-  type: BaseObjectType;
+  mpEntity: EntityMp | BaseObject;
 }
 
 export interface IBaseObject {

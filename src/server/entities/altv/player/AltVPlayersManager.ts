@@ -1,11 +1,13 @@
 import { AltVEntitiesManager } from "../entity/AltVEntitiesManager";
 import { AltVPlayer } from "./AltVPlayer";
 import { IPlayersManager } from "../../common/player/IPlayersManager";
+import { AltVNetManager } from "../../../net/altv/AltVNetManager";
 
 export class AltVPlayersManager extends AltVEntitiesManager<AltVPlayer> implements IPlayersManager {
-  public constructor() {
+  public constructor(net: AltVNetManager) {
     super({
       baseObjectsType: "player",
+      net,
     });
   }
 

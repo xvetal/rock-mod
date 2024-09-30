@@ -1,9 +1,12 @@
-import { IWorldObjectsManager, IWorldObjectsManagerOptions } from "../../common/worldObject/IWorldObjectsManager";
+import { IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
 import { AltVWorldObject } from "./AltVWorldObject";
-import { AltVBaseObjectsManager } from "../baseObject/AltVBaseObjectsManager";
+import { AltVBaseObjectsManager, IAltVBaseObjectsManagerOptions } from "../baseObject/AltVBaseObjectsManager";
 import { AltVWorldObjectsIterator } from "./AltVWorldObjectsIterator";
+import WorldObject = AltVServer.WorldObject;
 
-export abstract class AltVWorldObjectsManager<T extends AltVWorldObject>
+export interface IAltVWorldObjectsManagerOptions extends IAltVBaseObjectsManagerOptions {}
+
+export abstract class AltVWorldObjectsManager<T extends AltVWorldObject<WorldObject>>
   extends AltVBaseObjectsManager<T>
   implements IWorldObjectsManager<T>
 {
@@ -13,7 +16,7 @@ export abstract class AltVWorldObjectsManager<T extends AltVWorldObject>
     return this._iterator;
   }
 
-  protected constructor(options: IWorldObjectsManagerOptions) {
+  protected constructor(options: IAltVWorldObjectsManagerOptions) {
     super(options);
     this._iterator = new AltVWorldObjectsIterator(this.baseObjects);
   }

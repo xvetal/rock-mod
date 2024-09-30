@@ -3,7 +3,7 @@ import { RageBaseObjectsIterator } from "../baseObject/RageBaseObjectsIterator";
 import { IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
 import { Vector2D, Vector3D } from "../../../common/utils/math/Vectors";
 
-export class RageWorldObjectsIterator<T extends RageWorldObject>
+export class RageWorldObjectsIterator<T extends RageWorldObject<EntityMp>>
   extends RageBaseObjectsIterator<T>
   implements IWorldObjectsIterator<T>
 {

@@ -1,7 +1,8 @@
 import { AltVBaseObject } from "./AltVBaseObject";
 import { IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
+import BaseObject = AltVServer.BaseObject;
 
-export class AltVBaseObjectsIterator<T extends AltVBaseObject> implements IBaseObjectsIterator<T> {
+export class AltVBaseObjectsIterator<T extends AltVBaseObject<BaseObject>> implements IBaseObjectsIterator<T> {
   private readonly _baseObjects: ReadonlyMap<number, T>;
 
   public constructor(baseObjects: ReadonlyMap<number, T>) {
