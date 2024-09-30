@@ -39,7 +39,7 @@ export class RockMod {
 
     this._net = managersFactory.createNetManager();
     this._players = managersFactory.createPlayersManager(this._net);
-    this._vehicles = managersFactory.createVehiclesManager();
+    this._vehicles = managersFactory.createVehiclesManager(this._net);
   }
 
   public init(): void {

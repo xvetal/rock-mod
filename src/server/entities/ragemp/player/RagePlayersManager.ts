@@ -2,18 +2,13 @@ import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePlayer } from "./RagePlayer";
 import { IPlayersManager } from "../../common/player/IPlayersManager";
 import { RageNetManager } from "../../../net/ragemp/RageNetManager";
-import { BaseObjectType } from "../../common/baseObject/IBaseObject";
-import PlayerMP = RageMP.PlayerMP;
-import { Vector3D } from "../../../common/utils/math/Vectors";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
-  private readonly _net: RageNetManager;
-
   public constructor(net: RageNetManager) {
     super({
       baseObjectsType: "player",
+      net,
     });
-    this._net = net;
     this._init();
   }
 
@@ -58,27 +53,19 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
   }
 
   private _init(): void {
-    this._net.events.on("playerJoin", (mpPlayer: PlayerMP) => {
-      const { x, y, z } = mpPlayer.position;
+    this.net.events.on("playerJoin", (mpPlayer: PlayerMp) => {
       const player = new RagePlayer({
-        entity: mpPlayer,
-        id: mpPlayer.id,
-        type: BaseObjectType.Player,
-        model: mpPlayer.model,
-        name: mpPlayer.name,
-        socialClub: mpPlayer.socialClub,
-        dimension: mpPlayer.dimension,
-        position: new Vector3D(x, y, z),
+        mpEntity: mpPlayer,
       });
 
-      this.baseObjects.set(player.id, player);
-      this._net.events.emit("playerConnected", player);
+      this.registerBaseObject(player);
+      this.net.events.emit("playerConnected", player);
     });
-    this._net.events.on("playerQuit", (mpPlayer: PlayerMP) => {
+    this.net.events.on("playerQuit", (mpPlayer: PlayerMp) => {
       const player = this.getByID(mpPlayer.id);
 
-      this.baseObjects.delete(player.id);
-      this._net.events.emit("playerDisconnected", player);
+      this.unregisterBaseObject(player);
+      this.net.events.emit("playerDisconnected", player);
     });
   }
 }

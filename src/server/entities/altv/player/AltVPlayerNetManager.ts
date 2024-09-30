@@ -1,10 +1,10 @@
 import { IPlayerNetManager } from "../../common/player/IPlayerNetManager";
-import PlayerMP = AltV.PlayerMP;
+import Player = AltVServer.Player;
 
 export class AltVPlayerNetManager implements IPlayerNetManager {
-  private readonly _player: PlayerMP;
+  private readonly _player: Player;
 
-  public constructor(player: PlayerMP) {
+  public constructor(player: Player) {
     this._player = player;
   }
 

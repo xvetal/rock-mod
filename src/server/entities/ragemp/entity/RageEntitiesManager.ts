@@ -1,12 +1,14 @@
-import { IEntitiesManager, IEntitiesManagerOptions } from "../../common/entity/IEntitiesManager";
+import { IEntitiesManager } from "../../common/entity/IEntitiesManager";
 import { RageEntity } from "./RageEntity";
-import { RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
+import { IRageWorldObjectsManagerOptions, RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
 
-export abstract class RageEntitiesManager<T extends RageEntity>
+export interface IRageEntitiesManagerOptions extends IRageWorldObjectsManagerOptions {}
+
+export abstract class RageEntitiesManager<T extends RageEntity<EntityMp>>
   extends RageWorldObjectsManager<T>
   implements IEntitiesManager<T>
 {
-  protected constructor(options: IEntitiesManagerOptions) {
+  protected constructor(options: IRageEntitiesManagerOptions) {
     super(options);
   }
 }

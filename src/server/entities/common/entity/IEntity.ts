@@ -1,10 +1,8 @@
 import { IWorldObject, IWorldObjectOptions } from "../worldObject/IWorldObject";
 
-export interface IEntityOptions extends IWorldObjectOptions {
-  model: string;
-}
+export interface IEntityOptions extends IWorldObjectOptions {}
 
 export interface IEntity extends IWorldObject {
-  get model(): string;
-  setModel(value: string): void;
+  get model(): number;
+  setModel(value: number): void;
 }
