@@ -1,53 +1,34 @@
-import { RageEntity } from "../entity/RageEntity";
-import { IPlayer, IPlayerOptions } from "../../common/player/IPlayer";
+import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { IPlayer } from "../../common/player/IPlayer";
 import { RagePlayerNetManager } from "./RagePlayerNetManager";
-import PlayerMP = RageMP.PlayerMP;
 
-interface IRagePlayerOptions extends IPlayerOptions {
-  entity: PlayerMP;
-}
+interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 
-export class RagePlayer extends RageEntity implements IPlayer {
-  private readonly _entity: PlayerMP;
-
+export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
   private readonly _net: RagePlayerNetManager;
-
-  private _name: string;
-
-  private readonly _socialClub: string;
-
-  private _health: number;
 
   public get net(): RagePlayerNetManager {
     return this._net;
   }
 
   public get name(): string {
-    return this._name;
+    return this.mpEntity.name;
   }
 
   public get socialClub(): string {
-    return this._socialClub;
+    return this.mpEntity.socialClub;
   }
 
   public get health(): number {
-    return this._health;
+    return this.mpEntity.health;
   }
 
   public constructor(options: IRagePlayerOptions) {
     super(options);
-    this._entity = options.entity;
-    this._net = new RagePlayerNetManager(this._entity);
-    this._name = options.name;
-    this._socialClub = options.socialClub;
-    this._health = 100;
-  }
-
-  public setName(value: string): void {
-    this._name = value;
+    this._net = new RagePlayerNetManager(this.mpEntity);
   }
 
   public setHealth(value: number): void {
-    this._health = value;
+    this.mpEntity.health = value;
   }
 }

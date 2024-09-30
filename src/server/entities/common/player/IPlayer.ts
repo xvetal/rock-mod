@@ -11,6 +11,5 @@ export interface IPlayer extends IEntity {
   get name(): string;
   get socialClub(): string;
   get health(): number;
-  setName(value: string): void;
   setHealth(value: number): void;
 }

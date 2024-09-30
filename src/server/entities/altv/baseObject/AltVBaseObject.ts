@@ -1,21 +1,37 @@
 import { BaseObjectType, IBaseObject, IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
+import BaseObject = AltVServer.BaseObject;
+import BaseObjectTypeMP = AltVShared.BaseObjectType;
 
-export abstract class AltVBaseObject implements IBaseObject {
-  private readonly _id: number;
+export interface IAltVBaseObjectOptions<T extends BaseObject> extends IBaseObjectOptions {
+  mpEntity: T;
+}
 
-  private readonly _type: BaseObjectType;
+export abstract class AltVBaseObject<T extends BaseObject> implements IBaseObject {
+  private readonly _mpEntity: T;
 
   public get id(): number {
-    return this._id;
+    return this._mpEntity.id;
   }
 
   public get type(): BaseObjectType {
-    return this._type;
+    switch (this._mpEntity.type) {
+      case BaseObjectTypeMP.Player: {
+        return BaseObjectType.Player;
+      }
+      case BaseObjectTypeMP.Vehicle: {
+        return BaseObjectType.Vehicle;
+      }
+    }
+
+    throw new Error(`BaseObject type ${this._mpEntity.type} not supported`);
   }
 
-  protected constructor(options: IBaseObjectOptions) {
-    this._id = options.id;
-    this._type = options.type;
+  protected get mpEntity(): T {
+    return this._mpEntity;
+  }
+
+  protected constructor(options: IAltVBaseObjectOptions<T>) {
+    this._mpEntity = options.mpEntity;
   }
 
   public destroy(): void {

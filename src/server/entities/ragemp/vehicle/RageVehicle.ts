@@ -1,19 +1,18 @@
-import { RageEntity } from "../entity/RageEntity";
-import { IVehicle, IVehicleOptions } from "../../common/vehicle/IVehicle";
+import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { IVehicle } from "../../common/vehicle/IVehicle";
 
-export class RageVehicle extends RageEntity implements IVehicle {
-  private _bodyHealth: number;
+export interface IRageVehicleOptions extends IRageEntityOptions<VehicleMp> {}
 
+export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
   public get bodyHealth(): number {
-    return this._bodyHealth;
+    return this.mpEntity.bodyHealth;
   }
 
-  public constructor(options: IVehicleOptions) {
+  public constructor(options: IRageVehicleOptions) {
     super(options);
-    this._bodyHealth = 100;
   }
 
   public setBodyHealth(value: number): void {
-    this._bodyHealth = value;
+    this.mpEntity.bodyHealth = value;
   }
 }

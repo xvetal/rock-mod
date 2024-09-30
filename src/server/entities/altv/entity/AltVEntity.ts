@@ -1,19 +1,19 @@
-import { IEntity, IEntityOptions } from "../../common/entity/IEntity";
-import { AltVWorldObject } from "../worldObject/AltVWorldObject";
+import { IEntity } from "../../common/entity/IEntity";
+import { AltVWorldObject, IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
+import Entity = AltVServer.Entity;
 
-export abstract class AltVEntity extends AltVWorldObject implements IEntity {
-  private _model: string;
+export interface IAltVEntityOptions<T extends Entity> extends IAltVWorldObjectOptions<T> {}
 
-  public get model(): string {
-    return this._model;
+export abstract class AltVEntity<T extends Entity> extends AltVWorldObject<T> implements IEntity {
+  public get model(): number {
+    return this.mpEntity.model;
   }
 
-  protected constructor(options: IEntityOptions) {
+  protected constructor(options: IAltVEntityOptions<T>) {
     super(options);
-    this._model = options.model;
   }
 
-  public setModel(value: string): void {
-    this._model = value;
+  public setModel(value: number): void {
+    this.mpEntity.model = value;
   }
 }

@@ -1,9 +1,11 @@
-import { IWorldObjectsManager, IWorldObjectsManagerOptions } from "../../common/worldObject/IWorldObjectsManager";
-import { RageBaseObjectsManager } from "../baseObject/RageBaseObjectsManager";
+import { IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
+import { IRageBaseObjectsManagerOptions, RageBaseObjectsManager } from "../baseObject/RageBaseObjectsManager";
 import { RageWorldObject } from "./RageWorldObject";
 import { RageWorldObjectsIterator } from "./RageWorldObjectsIterator";
 
-export abstract class RageWorldObjectsManager<T extends RageWorldObject>
+export interface IRageWorldObjectsManagerOptions extends IRageBaseObjectsManagerOptions {}
+
+export abstract class RageWorldObjectsManager<T extends RageWorldObject<EntityMp>>
   extends RageBaseObjectsManager<T>
   implements IWorldObjectsManager<T>
 {
@@ -13,7 +15,7 @@ export abstract class RageWorldObjectsManager<T extends RageWorldObject>
     return this._iterator;
   }
 
-  protected constructor(options: IWorldObjectsManagerOptions) {
+  protected constructor(options: IRageWorldObjectsManagerOptions) {
     super(options);
     this._iterator = new RageWorldObjectsIterator(this.baseObjects);
   }

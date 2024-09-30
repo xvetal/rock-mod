@@ -2,8 +2,9 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "commonjs",
-    "outDir": "dist/client",
-    "rootDir": "src/client",
+    "baseUrl": "./",
+    "outDir": "dist",
+    "rootDir": "src",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -26,6 +27,6 @@
     "exactOptionalPropertyTypes": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["src/client/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

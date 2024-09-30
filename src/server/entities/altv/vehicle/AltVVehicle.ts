@@ -1,19 +1,19 @@
-import { AltVEntity } from "../entity/AltVEntity";
-import { IVehicle, IVehicleOptions } from "../../common/vehicle/IVehicle";
+import { AltVEntity, IAltVEntityOptions } from "../entity/AltVEntity";
+import { IVehicle } from "../../common/vehicle/IVehicle";
+import Vehicle = AltVServer.Vehicle;
 
-export class AltVVehicle extends AltVEntity implements IVehicle {
-  private _bodyHealth: number;
+export interface IAltVVehicleOptions extends IAltVEntityOptions<Vehicle> {}
 
+export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
   public get bodyHealth(): number {
-    return this._bodyHealth;
+    return this.mpEntity.bodyHealth;
   }
 
-  public constructor(options: IVehicleOptions) {
+  public constructor(options: IAltVVehicleOptions) {
     super(options);
-    this._bodyHealth = 100;
   }
 
   public setBodyHealth(value: number): void {
-    this._bodyHealth = value;
+    this.mpEntity.bodyHealth = value;
   }
 }
