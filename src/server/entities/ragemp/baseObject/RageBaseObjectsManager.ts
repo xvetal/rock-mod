@@ -10,7 +10,7 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject> implement
 
   protected readonly _iterator: RageBaseObjectsIterator<T>;
 
-  protected get baseObjects(): ReadonlyMap<number, T> {
+  protected get baseObjects(): Map<number, T> {
     return this._baseObjects;
   }
 
