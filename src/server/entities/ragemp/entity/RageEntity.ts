@@ -12,7 +12,7 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
     super(options);
   }
 
-  public setModel(value: number): void {
-    this.mpEntity.model = value;
+  public setModel(value: string): void {
+    this.mpEntity.model = mp.joaat(value);
   }
 }

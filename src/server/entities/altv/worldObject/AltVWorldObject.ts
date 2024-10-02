@@ -2,6 +2,7 @@ import { IWorldObject } from "../../common/worldObject/IWorldObject";
 import { Vector3D } from "../../../common/utils/math/Vectors";
 import { AltVBaseObject, IAltVBaseObjectOptions } from "../baseObject/AltVBaseObject";
 import WorldObject = AltVServer.WorldObject;
+import Vector3 = AltVShared.Vector3;
 
 export interface IAltVWorldObjectOptions<T extends WorldObject> extends IAltVBaseObjectOptions<T> {}
 
@@ -18,5 +19,13 @@ export abstract class AltVWorldObject<T extends WorldObject> extends AltVBaseObj
 
   protected constructor(options: IAltVWorldObjectOptions<T>) {
     super(options);
+  }
+
+  public setPosition(value: Vector3D): void {
+    this.mpEntity.pos = new Vector3(value);
+  }
+
+  public setDimension(value: number): void {
+    this.mpEntity.dimension = value;
   }
 }
