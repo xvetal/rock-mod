@@ -18,4 +18,12 @@ export abstract class RageWorldObject<T extends EntityMp> extends RageBaseObject
   protected constructor(options: IRageWorldObjectOptions<T>) {
     super(options);
   }
+
+  public setPosition(value: Vector3D): void {
+    this.mpEntity.position = new Vector3(value);
+  }
+
+  public setDimension(value: number): void {
+    this.mpEntity.dimension = value;
+  }
 }

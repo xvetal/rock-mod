@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "start": "npx tsx src/index.ts",
+    "start": "npx tsx src/server/index.ts",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc --project src/server/tsconfig.json",
     "build:client": "tsc --project src/client/tsconfig.json",
