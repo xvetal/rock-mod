@@ -1,6 +1,12 @@
 import { IPlayer } from "../../../entities/common/player/IPlayer";
+import { IBaseObject } from "../../../entities/common/baseObject/IBaseObject";
 
-export interface INetServerEvents {}
+export interface INetServerEvents {
+  "rm::playerConnected"(player: IPlayer): void;
+  "rm:playerDisconnected"(player: IPlayer): void;
+  "rm::entityCreated"(entity: IBaseObject): void;
+  "rm::entityDestroyed"(entity: IBaseObject): void;
+}
 
 export interface IEventsManager {
   on<K extends keyof INetServerEvents>(
