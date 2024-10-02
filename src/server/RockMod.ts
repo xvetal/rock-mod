@@ -10,10 +10,26 @@ export interface RockModOptions {
 }
 
 export class RockMod {
+  private static _instance?: RockMod;
+
   public static async create(options: RockModOptions): Promise<RockMod> {
+    if (this._instance) {
+      throw new Error("RockMod already created");
+    }
+
     const managersFactory = await this._initManagersFactory(options);
 
-    return new RockMod(managersFactory);
+    this._instance = new RockMod(managersFactory);
+
+    return this._instance;
+  }
+
+  public static get instance(): RockMod {
+    if (!this._instance) {
+      throw new Error("RockMod not created");
+    }
+
+    return this._instance;
   }
 
   private static async _initManagersFactory(options: RockModOptions): Promise<IManagersFactory> {
@@ -51,8 +67,8 @@ export class RockMod {
 
   private constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
-    this._players = managersFactory.createPlayersManager(this._net);
-    this._vehicles = managersFactory.createVehiclesManager(this._net);
+    this._players = managersFactory.createPlayersManager();
+    this._vehicles = managersFactory.createVehiclesManager();
   }
 
   public init(): void {
