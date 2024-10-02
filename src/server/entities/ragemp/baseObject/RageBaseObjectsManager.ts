@@ -59,13 +59,13 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
     }
     this._baseObjects.set(baseObject.id, baseObject);
-    this._net.events.emit("entityCreated", baseObject);
+    this._net.events.emit("rm::entityCreated", baseObject);
   }
 
   protected unregisterBaseObject(baseObject: T): void {
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
-    this._net.events.emit("entityDestroyed", baseObject);
+    this._net.events.emit("rm::entityDestroyed", baseObject);
   }
 }
