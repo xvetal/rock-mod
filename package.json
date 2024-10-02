@@ -13,6 +13,7 @@
     "lint:server:fix": "cd src/server && eslint . --ext .ts --fix",
     "lint:client:check": "cd src/client && eslint . --ext .ts",
     "lint:client:fix": "cd src/client && eslint . --ext .ts --fix",
+    "lint:check": "npm run lint:server:check && npm run lint:client:check",
     "lint:fix": "npm run lint:server:fix && npm run lint:client:fix",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
