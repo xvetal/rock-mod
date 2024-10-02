@@ -8,11 +8,11 @@ export class RageManagersFactory implements IManagersFactory {
     return new RageNetManager();
   }
 
-  public createPlayersManager(net: RageNetManager): RagePlayersManager {
-    return new RagePlayersManager(net);
+  public createPlayersManager(): RagePlayersManager {
+    return new RagePlayersManager();
   }
 
-  public createVehiclesManager(net: RageNetManager): RageVehiclesManager {
-    return new RageVehiclesManager(net);
+  public createVehiclesManager(): RageVehiclesManager {
+    return new RageVehiclesManager();
   }
 }
