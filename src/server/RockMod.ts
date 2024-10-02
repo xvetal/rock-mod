@@ -47,11 +47,13 @@ export class RockMod {
     }
   }
 
+  private readonly _managersFactory: IManagersFactory;
+
   private readonly _net: INetManager;
 
-  private readonly _players: IPlayersManager;
+  private _players!: IPlayersManager;
 
-  private readonly _vehicles: IVehiclesManager;
+  private _vehicles!: IVehiclesManager;
 
   public get net(): INetManager {
     return this._net;
@@ -66,12 +68,13 @@ export class RockMod {
   }
 
   private constructor(managersFactory: IManagersFactory) {
+    this._managersFactory = managersFactory;
     this._net = managersFactory.createNetManager();
-    this._players = managersFactory.createPlayersManager();
-    this._vehicles = managersFactory.createVehiclesManager();
   }
 
   public init(): void {
     console.log("RockMod init");
+    this._players = this._managersFactory.createPlayersManager();
+    this._vehicles = this._managersFactory.createVehiclesManager();
   }
 }

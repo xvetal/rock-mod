@@ -4,5 +4,5 @@ export interface IEntityOptions extends IWorldObjectOptions {}
 
 export interface IEntity extends IWorldObject {
   get model(): number;
-  setModel(value: number): void;
+  setModel(value: string): void;
 }

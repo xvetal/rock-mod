@@ -1,4 +1,19 @@
-export class Vector2D {
+export interface IVector2D {
+  get x(): number;
+  get y(): number;
+  distanceTo(position: IVector2D): number;
+  squaredDistanceTo(position: IVector2D): number;
+  isInRange(position: IVector2D, range: number): boolean;
+}
+
+export interface IVector3D extends IVector2D {
+  get z(): number;
+  distanceTo(position: IVector3D): number;
+  squaredDistanceTo(position: IVector3D): number;
+  isInRange(position: IVector3D, range: number): boolean;
+}
+
+export class Vector2D implements IVector2D {
   private readonly _x: number;
 
   private readonly _y: number;
@@ -33,7 +48,7 @@ export class Vector2D {
   }
 }
 
-export class Vector3D extends Vector2D {
+export class Vector3D extends Vector2D implements IVector3D {
   private readonly _z: number;
 
   public get z(): number {
