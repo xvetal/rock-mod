@@ -59,13 +59,13 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
       });
 
       this.registerBaseObject(player);
-      this.net.events.emit("playerConnected", player);
+      this.net.events.emit("rm::playerConnected", player);
     });
     this.net.events.on("playerQuit", (mpPlayer: PlayerMp) => {
       const player = this.getByID(mpPlayer.id);
 
       this.unregisterBaseObject(player);
-      this.net.events.emit("playerDisconnected", player);
+      this.net.events.emit("rm:playerDisconnected", player);
     });
   }
 }
