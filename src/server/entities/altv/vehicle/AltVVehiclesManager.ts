@@ -1,17 +1,15 @@
 import { AltVEntitiesManager } from "../entity/AltVEntitiesManager";
 import { AltVVehicle } from "./AltVVehicle";
 import { IVehicleCreateOptions, IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
-import { AltVNetManager } from "../../../net/altv/AltVNetManager";
 import { IVehicle } from "../../common/vehicle/IVehicle";
 import alt = AltVServer;
 
 export interface IAltVVehicleCreateOptions extends IVehicleCreateOptions {}
 
 export class AltVVehiclesManager extends AltVEntitiesManager<AltVVehicle> implements IVehiclesManager {
-  public constructor(net: AltVNetManager) {
+  public constructor() {
     super({
       baseObjectsType: "vehicle",
-      net,
     });
   }
 

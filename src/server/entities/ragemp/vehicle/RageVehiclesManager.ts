@@ -1,15 +1,13 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RageVehicle } from "./RageVehicle";
 import { IVehicleCreateOptions, IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
-import { RageNetManager } from "../../../net/ragemp/RageNetManager";
 
 export interface IRageVehicleCreateOptions extends IVehicleCreateOptions {}
 
 export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implements IVehiclesManager {
-  public constructor(net: RageNetManager) {
+  public constructor() {
     super({
       baseObjectsType: "vehicle",
-      net,
     });
   }
 

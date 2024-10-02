@@ -1,13 +1,13 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePlayer } from "./RagePlayer";
 import { IPlayersManager } from "../../common/player/IPlayersManager";
+import { RockMod } from "../../../RockMod";
 import { RageNetManager } from "../../../net/ragemp/RageNetManager";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
-  public constructor(net: RageNetManager) {
+  public constructor() {
     super({
       baseObjectsType: "player",
-      net,
     });
     this._init();
   }
@@ -53,19 +53,21 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
   }
 
   private _init(): void {
-    this.net.events.on("playerJoin", (mpPlayer: PlayerMp) => {
+    const net = RockMod.instance.net as RageNetManager;
+
+    net.events.on("playerJoin", (mpPlayer: PlayerMp) => {
       const player = new RagePlayer({
         mpEntity: mpPlayer,
       });
 
       this.registerBaseObject(player);
-      this.net.events.emit("rm::playerConnected", player);
+      RockMod.instance.net.events.emit("rm::playerConnected", player);
     });
-    this.net.events.on("playerQuit", (mpPlayer: PlayerMp) => {
+    net.events.on("playerQuit", (mpPlayer: PlayerMp) => {
       const player = this.getByID(mpPlayer.id);
 
       this.unregisterBaseObject(player);
-      this.net.events.emit("rm:playerDisconnected", player);
+      net.events.emit("rm:playerDisconnected", player);
     });
   }
 }
