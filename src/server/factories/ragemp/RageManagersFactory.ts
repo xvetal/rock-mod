@@ -1,7 +1,7 @@
 import { IManagersFactory } from "../common/IManagersFactory";
 import { RageNetManager } from "../../net/ragemp/RageNetManager";
-import { RagePlayersManager } from "./player/RagePlayersManager";
-import { RageVehiclesManager } from "./vehicle/RageVehiclesManager";
+import { RagePlayersManager } from "../../entities/ragemp/player/RagePlayersManager";
+import { RageVehiclesManager } from "../../entities/ragemp/vehicle/RageVehiclesManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
