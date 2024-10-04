@@ -55,19 +55,21 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
   private _init(): void {
     const net = RockMod.instance.net as RageNetManager;
 
-    net.events.on("playerJoin", (mpPlayer: PlayerMp) => {
-      const player = new RagePlayer({
-        mpEntity: mpPlayer,
-      });
+    net.events.on({
+      playerJoin: (mpPlayer) => {
+        const player = new RagePlayer({
+          mpEntity: mpPlayer,
+        });
 
-      this.registerBaseObject(player);
-      RockMod.instance.net.events.emit("rm::playerConnected", player);
-    });
-    net.events.on("playerQuit", (mpPlayer: PlayerMp) => {
-      const player = this.getByID(mpPlayer.id);
+        this.registerBaseObject(player);
+        RockMod.instance.net.events.emit("rm::playerConnected", player);
+      },
+      playerQuit: (mpPlayer) => {
+        const player = this.getByID(mpPlayer.id);
 
-      this.unregisterBaseObject(player);
-      net.events.emit("rm:playerDisconnected", player);
+        this.unregisterBaseObject(player);
+        net.events.emit("rm::playerDisconnected", player);
+      },
     });
   }
 }

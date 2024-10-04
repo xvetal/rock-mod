@@ -1,29 +1,28 @@
 import { IEventsManager, INetServerEvents } from "../../common/events/IEventsManager";
 import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
 import alt = AltVServer;
+import { AltVBaseObject } from "../../../entities/altv/baseObject/AltVBaseObject";
 
 interface IAltVServerEvent extends alt.IServerEvent, INetServerEvents {
-  entityCreated(baseObject: alt.BaseObject): void;
-  entityDestroyed(baseObject: alt.BaseObject): void;
+  "rm::entityCreated"(baseObject: AltVBaseObject<alt.BaseObject>): void;
+  "rm::entityDestroyed"(baseObject: AltVBaseObject<alt.BaseObject>): void;
 }
 
 export class AltVEventsManager implements IEventsManager {
   public on<K extends keyof IAltVServerEvent>(
-    eventName: K,
-    listener: (...args: Parameters<IAltVServerEvent[K]>) => void,
+    events: Record<K, (...args: Parameters<IAltVServerEvent[K]>) => void>,
   ): void {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return alt.on(eventName, listener);
+    for (const eventName of Object.keys(events)) {
+      alt.on(eventName, events[eventName as K]);
+    }
   }
 
   public onServer<K extends keyof IAltVServerEvent>(
-    eventName: K,
-    listener: (...args: Parameters<IAltVServerEvent[K]>) => void,
+    events: Record<K, (...args: Parameters<IAltVServerEvent[K]>) => void>,
   ): void {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return alt.on(eventName, listener);
+    for (const eventName of Object.keys(events)) {
+      alt.on(eventName, events[eventName as K]);
+    }
   }
 
   public off(eventName: keyof IAltVServerEvent, listener: (...args: unknown[]) => void): void {
