@@ -4,6 +4,6 @@
     "baseUrl": "./",
     "paths": {}
   },
-  "include": ["./**/*.ts", "../shared/**/*.ts"],
+  "include": ["./**/*.ts", "../shared/**/*.ts", "../index.ts"],
   "exclude": ["../shared/**/*.d.ts"]
 }

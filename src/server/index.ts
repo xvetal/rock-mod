@@ -1,3 +1,3 @@
 export * from "./RockMod";
-export * from "./entities/common/player/IPlayer";
-export * from "./common/utils/math/Vectors";
+export * from "./entities";
+export * from "./common/utils";
