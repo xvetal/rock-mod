@@ -4,7 +4,7 @@ import { RageBaseObject } from "../../../entities/ragemp/baseObject/RageBaseObje
 
 interface RageServerEvents extends IServerEvents, INetServerEvents {
   "rm::playerConnected"(player: RagePlayer): void;
-  "rm:playerDisconnected"(player: RagePlayer): void;
+  "rm::playerDisconnected"(player: RagePlayer): void;
   "rm::entityCreated"(entity: RageBaseObject): void;
   "rm::entityDestroyed"(entity: RageBaseObject): void;
   playerJoin(player: PlayerMp): void;
@@ -13,17 +13,19 @@ interface RageServerEvents extends IServerEvents, INetServerEvents {
 
 export class RageEventsManager implements IEventsManager {
   public on<K extends keyof RageServerEvents>(
-    eventName: K,
-    listener: (...args: Parameters<RageServerEvents[K]>) => void,
+    events: Record<K, (...args: Parameters<RageServerEvents[K]>) => void>,
   ): void {
-    return mp.events.add(eventName, listener);
+    for (const eventName of Object.keys(events)) {
+      mp.events.add(eventName, events[eventName as K]);
+    }
   }
 
   public onServer<K extends keyof RageServerEvents>(
-    eventName: K,
-    listener: (...args: RageServerEvents[K][]) => void,
+    events: Record<K, (...args: Parameters<RageServerEvents[K]>) => void>,
   ): void {
-    return mp.events.add(eventName, listener);
+    for (const eventName of Object.keys(events)) {
+      mp.events.add(eventName, events[eventName as K]);
+    }
   }
 
   public off(eventName: keyof RageServerEvents, listener: (...args: unknown[]) => void): void {
