@@ -8,12 +8,18 @@ export interface INetServerEvents {
   "rm::entityDestroyed"(entity: IBaseObject): void;
 }
 
+export interface INetClientEvents {}
+
 export interface IEventsManager {
   on<K extends keyof INetServerEvents>(events: Record<K, (...args: Parameters<INetServerEvents[K]>) => void>): void;
-  onServer<K extends keyof INetServerEvents>(
-    events: Record<K, (...args: Parameters<INetServerEvents[K]>) => void>,
+  off<K extends keyof INetServerEvents>(
+    eventName: K,
+    listener: (...args: Parameters<INetServerEvents[K]>) => void,
   ): void;
-  off(eventName: string, listener: (...args: unknown[]) => void): void;
-  emit(eventName: string, ...args: unknown[]): void;
-  emitClient(player: IPlayer, eventName: string, ...args: unknown[]): void;
+  emit<K extends keyof INetServerEvents>(eventName: K, ...args: Parameters<INetServerEvents[K]>): void;
+  emitClient<K extends keyof INetClientEvents>(
+    player: IPlayer,
+    eventName: K,
+    ...args: Parameters<INetClientEvents[K]>
+  ): void;
 }
