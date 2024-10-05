@@ -20,7 +20,7 @@ export abstract class RageWorldObject<T extends EntityMp> extends RageBaseObject
   }
 
   public setPosition(value: Vector3D): void {
-    this.mpEntity.position = new Vector3(value);
+    this.mpEntity.position = new mp.Vector3(value);
   }
 
   public setDimension(value: number): void {
