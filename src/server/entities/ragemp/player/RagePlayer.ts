@@ -1,19 +1,14 @@
 import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { ICustomization, IPlayer } from "../../common/player/IPlayer";
-import { RagePlayerNetManager } from "./RagePlayerNetManager";
 import { RockMod } from "../../../RockMod";
 import { RageVehicle } from "../vehicle/RageVehicle";
 import { Vector3D } from "../../../common/utils/math/Vectors";
+import { IRageClientEvents } from "../../../net/ragemp/events/RageEventsManager";
+import { IRageClientRPC } from "../../../net/ragemp/rpc/RageRPCManager";
 
 interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 
 export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
-  private readonly _net: RagePlayerNetManager;
-
-  public get net(): RagePlayerNetManager {
-    return this._net;
-  }
-
   public get name(): string {
     return this.mpEntity.name;
   }
@@ -79,7 +74,17 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
 
   public constructor(options: IRagePlayerOptions) {
     super(options);
-    this._net = new RagePlayerNetManager(this.mpEntity);
+  }
+
+  public emitEvent<K extends keyof IRageClientEvents>(eventName: K, ...args: Parameters<IRageClientEvents[K]>): void {
+    return RockMod.instance.net.events.emitClient(this, eventName, ...args);
+  }
+
+  public emitRPC<K extends keyof IRageClientRPC>(
+    rpcName: K,
+    ...args: Parameters<IRageClientRPC[K]>
+  ): Promise<ReturnType<IRageClientRPC[K]>> {
+    return RockMod.instance.net.rpc.emitClient(this, rpcName, ...args);
   }
 
   public spawn(position: Vector3D): void {
