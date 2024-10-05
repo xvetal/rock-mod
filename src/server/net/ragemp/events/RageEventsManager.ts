@@ -33,7 +33,7 @@ export class RageEventsManager implements IEventsManager {
   }
 
   public emit(eventName: keyof RageServerEvents, ...args: unknown[]): void {
-    return mp.events.call(eventName, args);
+    return mp.events.call(eventName, ...args);
   }
 
   public emitClient(player: RagePlayer, eventName: keyof RageServerEvents, ...args: unknown[]): void {
