@@ -1,6 +1,6 @@
 {
   "name": "rock-mod",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rock-Mod is a powerful framework designed for creating and managing mods for Grand Theft Auto (GTA) games.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
