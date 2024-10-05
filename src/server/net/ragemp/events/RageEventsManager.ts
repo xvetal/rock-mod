@@ -38,6 +38,12 @@ export class RageEventsManager implements IEventsManager {
     eventName: K,
     ...args: Parameters<IRageClientEvents[K]>
   ): void {
-    return player.net.emitEvent(eventName, ...args);
+    const mpPlayer = mp.players.at(player.id);
+
+    if (!mpPlayer) {
+      throw new Error(`Player with id ${player.id} not found`);
+    }
+
+    return mpPlayer.call(eventName, args);
   }
 }

@@ -1,6 +1,5 @@
 import { AltVEntity, IAltVEntityOptions } from "../entity/AltVEntity";
 import { ICustomization, IPlayer } from "../../common/player/IPlayer";
-import { AltVPlayerNetManager } from "./AltVPlayerNetManager";
 import { AltVVehicle } from "../vehicle/AltVVehicle";
 import { RockMod } from "../../../RockMod";
 import Player = AltVServer.Player;
@@ -8,16 +7,12 @@ import Vehicle = AltVServer.Vehicle;
 import Vector3 = AltVShared.Vector3;
 import hash = AltVShared.hash;
 import { Vector3D } from "../../../common/utils/math/Vectors";
+import { IAltVClientEvents } from "../../../net/altv/events/AltVEventsManager";
+import { IAltVClientRPC } from "../../../net/altv/rpc/AltVRPCManager";
 
 interface AltVPlayerOptions extends IAltVEntityOptions<Player> {}
 
 export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
-  private readonly _net: AltVPlayerNetManager;
-
-  public get net(): AltVPlayerNetManager {
-    return this._net;
-  }
-
   public get name(): string {
     return this.mpEntity.name;
   }
@@ -85,7 +80,17 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
 
   public constructor(options: AltVPlayerOptions) {
     super(options);
-    this._net = new AltVPlayerNetManager(this.mpEntity);
+  }
+
+  public emitEvent<K extends keyof IAltVClientEvents>(eventName: K, ...args: Parameters<IAltVClientEvents[K]>): void {
+    return RockMod.instance.net.events.emitClient(this, eventName, ...args);
+  }
+
+  public emitRPC<K extends keyof IAltVClientRPC>(
+    rpcName: K,
+    ...args: Parameters<IAltVClientRPC[K]>
+  ): Promise<ReturnType<IAltVClientRPC[K]>> {
+    return RockMod.instance.net.rpc.emitClient(this, rpcName, ...args);
   }
 
   public spawn(position: Vector3D): void {
