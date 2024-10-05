@@ -5,6 +5,8 @@ export interface IBaseObjectsManagerOptions {
   baseObjectsType: `${BaseObjectType}`;
 }
 
+export interface IBaseObjectCreateOptions {}
+
 export interface IBaseObjectsManager<T extends IBaseObject> {
   get iterator(): IBaseObjectsIterator<T>;
   getByID(id: number): T;
