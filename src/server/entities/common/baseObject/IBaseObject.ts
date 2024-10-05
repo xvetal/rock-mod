@@ -10,7 +10,8 @@ export interface IBaseObjectOptions {
 }
 
 export interface IBaseObject {
-  id: number;
-  type: BaseObjectType;
+  get id(): number;
+  get type(): BaseObjectType;
+  get isExists(): boolean;
   destroy(): void;
 }

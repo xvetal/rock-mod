@@ -37,7 +37,6 @@ export interface IPlayer extends IEntity {
   get weaponAmmo(): number;
   get eyeColor(): number;
   get streamedPlayers(): IPlayer[];
-  get isExists(): boolean;
   spawn(position: IVector3D): void;
   setName(name: string): void;
   setHeading(value: number): void;

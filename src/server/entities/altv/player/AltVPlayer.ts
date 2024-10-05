@@ -83,10 +83,6 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     return players;
   }
 
-  public get isExists(): boolean {
-    return this.mpEntity.valid;
-  }
-
   public constructor(options: AltVPlayerOptions) {
     super(options);
     this._net = new AltVPlayerNetManager(this.mpEntity);
