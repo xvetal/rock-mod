@@ -15,6 +15,10 @@ export abstract class RageBaseObject<T extends EntityMp = EntityMp> implements I
     return this._mpEntity.type as unknown as BaseObjectType;
   }
 
+  public get isExists(): boolean {
+    return this._mpEntity.isExists();
+  }
+
   protected get mpEntity(): T {
     return this._mpEntity;
   }
