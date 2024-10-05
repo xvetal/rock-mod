@@ -14,9 +14,12 @@ export class AltVVehiclesManager extends AltVEntitiesManager<AltVVehicle> implem
   }
 
   public create(options: IAltVVehicleCreateOptions): IVehicle {
-    const { model, position, rotation } = options;
+    const { model, position, dimension, rotation, engine, locked } = options;
 
-    const mpEntity = new alt.Vehicle(model, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z);
+    const mpEntity = new alt.Vehicle(model, position, rotation);
+    mpEntity.dimension = dimension;
+    mpEntity.engineOn = engine;
+    mpEntity.lockState = locked ? 2 : 1;
 
     const vehicle = new AltVVehicle({ mpEntity });
     this.registerBaseObject(vehicle);
