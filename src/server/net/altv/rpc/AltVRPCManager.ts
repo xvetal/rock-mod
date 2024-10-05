@@ -2,6 +2,7 @@ import { INetClientRPC, INetServerRPC, IRPCManager } from "../../common/rpc/IRPC
 import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
 import alt = AltVServer;
 import shared = AltVShared;
+import Player = AltVServer.Player;
 
 export interface IAltVServerRPC extends shared.ICustomClientServerRpc, INetServerRPC {}
 
@@ -26,6 +27,12 @@ export class AltVRPCManager implements IRPCManager {
     rpcName: K,
     ...args: Parameters<IAltVClientRPC[K]>
   ): Promise<ReturnType<IAltVClientRPC[K]>> {
-    return player.net.emitRPC(rpcName, ...args);
+    const mpPlayer = Player.getByID(player.id);
+
+    if (!mpPlayer) {
+      throw new Error(`Player with id ${player.id} not found`);
+    }
+
+    return mpPlayer.emitRpc(rpcName, ...args);
   }
 }

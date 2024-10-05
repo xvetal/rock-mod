@@ -2,6 +2,7 @@ import { IEventsManager, INetClientEvents, INetServerEvents } from "../../common
 import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
 import alt = AltVServer;
 import { AltVBaseObject } from "../../../entities/altv/baseObject/AltVBaseObject";
+import Player = AltVServer.Player;
 
 export interface IAltVServerEvents extends alt.IServerEvent, INetServerEvents {
   "rm::entityCreated"(baseObject: AltVBaseObject<alt.BaseObject>): void;
@@ -37,6 +38,12 @@ export class AltVEventsManager implements IEventsManager {
     eventName: K,
     ...args: Parameters<IAltVClientEvents[K]>
   ): void {
-    return player.net.emitEvent(eventName, ...args);
+    const mpPlayer = Player.getByID(player.id);
+
+    if (!mpPlayer) {
+      throw new Error(`Player with id ${player.id} not found`);
+    }
+
+    return mpPlayer.emit(eventName, ...args);
   }
 }

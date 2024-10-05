@@ -1,7 +1,8 @@
 import { IEntity, IEntityOptions } from "../entity/IEntity";
-import { IPlayerNetManager } from "./IPlayerNetManager";
 import { IVehicle } from "../vehicle/IVehicle";
 import { IVector3D } from "../../../common/utils/math/Vectors";
+import { INetClientEvents } from "../../../net/common/events/IEventsManager";
+import { INetClientRPC } from "../../../net/common/rpc/IRPCManager";
 
 export interface ICustomization {
   gender: boolean;
@@ -23,7 +24,6 @@ export interface ICustomization {
 export interface IPlayerOptions extends IEntityOptions {}
 
 export interface IPlayer extends IEntity {
-  get net(): IPlayerNetManager;
   get name(): string;
   get socialClub(): string;
   get heading(): number;
@@ -37,6 +37,11 @@ export interface IPlayer extends IEntity {
   get weaponAmmo(): number;
   get eyeColor(): number;
   get streamedPlayers(): IPlayer[];
+  emitEvent<K extends keyof INetClientEvents>(eventName: K, ...args: Parameters<INetClientEvents[K]>): void;
+  emitRPC<K extends keyof INetClientEvents>(
+    rpcName: K,
+    ...args: Parameters<INetClientEvents[K]>
+  ): Promise<ReturnType<INetClientRPC[K]>>;
   spawn(position: IVector3D): void;
   setName(name: string): void;
   setHeading(value: number): void;
