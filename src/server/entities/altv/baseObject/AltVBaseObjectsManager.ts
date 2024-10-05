@@ -49,13 +49,13 @@ export abstract class AltVBaseObjectsManager<T extends AltVBaseObject<BaseObject
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
     }
     this._baseObjects.set(baseObject.id, baseObject);
-    RockMod.instance.net.events.emit("entityCreated", baseObject);
+    RockMod.instance.net.events.emit("rm::entityCreated", baseObject);
   }
 
   protected unregisterBaseObject(baseObject: T): void {
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
-    RockMod.instance.net.events.emit("entityDestroyed", baseObject);
+    RockMod.instance.net.events.emit("rm::entityCreated", baseObject);
   }
 }
