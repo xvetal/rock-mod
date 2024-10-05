@@ -1,4 +1,6 @@
 import { IEntity, IEntityOptions } from "../entity/IEntity";
+import { IRGBA } from "../../../common/utils";
+import { IPlayer } from "../player";
 
 export enum VehicleSeat {
   NONE = 255,
@@ -25,5 +27,24 @@ export interface IVehicleOptions extends IEntityOptions {}
 
 export interface IVehicle extends IEntity {
   get bodyHealth(): number;
+  get engineHealth(): number;
+  get numberPlate(): string;
+  get isLocked(): boolean;
+  get isDead(): boolean;
+  get primaryColor(): number;
+  get secondaryColor(): number;
+  get customPrimaryColor(): IRGBA;
+  get customSecondaryColor(): IRGBA;
+  get driver(): IPlayer | null;
+  get passengers(): Set<IPlayer>;
   setBodyHealth(value: number): void;
+  setEngineHealth(value: number): void;
+  setNumberPlate(value: string): void;
+  setLocked(value: boolean): void;
+  setPrimaryColor(value: number): void;
+  setSecondaryColor(value: number): void;
+  setCustomPrimaryColor(value: IRGBA): void;
+  setCustomSecondaryColor(value: IRGBA): void;
+  explode(): void;
+  repair(): void;
 }
