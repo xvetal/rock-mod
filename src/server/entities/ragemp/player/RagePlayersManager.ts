@@ -57,6 +57,7 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
 
     net.events.on({
       playerJoin: (mpPlayer) => {
+        mpPlayer.isExists = (): boolean => mp.players.exists(mpPlayer);
         const player = new RagePlayer({
           mpEntity: mpPlayer,
         });

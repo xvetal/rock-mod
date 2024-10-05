@@ -26,6 +26,10 @@ export abstract class AltVBaseObject<T extends BaseObject> implements IBaseObjec
     throw new Error(`BaseObject type ${this._mpEntity.type} not supported`);
   }
 
+  public get isExists(): boolean {
+    return this.mpEntity.valid;
+  }
+
   protected get mpEntity(): T {
     return this._mpEntity;
   }

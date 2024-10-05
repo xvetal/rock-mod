@@ -77,10 +77,6 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     return players;
   }
 
-  public get isExists(): boolean {
-    return mp.players.exists(this.mpEntity);
-  }
-
   public constructor(options: IRagePlayerOptions) {
     super(options);
     this._net = new RagePlayerNetManager(this.mpEntity);
