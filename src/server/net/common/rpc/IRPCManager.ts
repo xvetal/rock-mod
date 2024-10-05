@@ -1,7 +1,18 @@
 import { IPlayer } from "../../../entities/common/player/IPlayer";
 
+export interface INetServerRPC {}
+
+export interface INetClientRPC {}
+
 export interface IRPCManager {
-  register(rpcName: string, handler: (player: IPlayer, ...args: unknown[]) => unknown): void;
-  unregister(rpcName: string): void;
-  callClient(player: IPlayer, rpcName: string, ...args: unknown[]): Promise<unknown>;
+  register<K extends keyof INetServerRPC>(
+    rpcName: K,
+    handler: (player: IPlayer, ...args: Parameters<INetServerRPC[K]>) => ReturnType<INetServerRPC[K]>,
+  ): void;
+  unregister<K extends keyof INetServerRPC>(rpcName: K): void;
+  emitClient<K extends keyof INetClientRPC>(
+    player: IPlayer,
+    rpcName: K,
+    ...args: Parameters<INetClientRPC[K]>
+  ): Promise<ReturnType<INetClientRPC[K]>>;
 }
