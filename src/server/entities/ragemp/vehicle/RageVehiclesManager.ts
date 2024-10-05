@@ -12,9 +12,15 @@ export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implem
   }
 
   public create(options: IRageVehicleCreateOptions): RageVehicle {
-    const { model, position } = options;
+    const { model, position, dimension, rotation, engine, locked } = options;
 
-    const mpEntity = mp.vehicles.new(model, new mp.Vector3(position));
+    const mpEntity = mp.vehicles.new(model, new mp.Vector3(position), {
+      dimension,
+      heading: rotation.z,
+      engine,
+      locked,
+    });
+    mpEntity.rotation = new mp.Vector3(rotation);
     const vehicle = new RageVehicle({ mpEntity });
     this.registerBaseObject(vehicle);
 
