@@ -1,9 +1,9 @@
 import { INetManager } from "../../net/common/INetManager";
-import { IPlayersManager } from "../../entities/common/player/IPlayersManager";
-import { IVehiclesManager } from "../../entities/common/vehicle/IVehiclesManager";
+import { IObjectsManager, IPlayersManager, IVehiclesManager } from "../../entities";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;
+  createObjectsManager(): IObjectsManager;
   createPlayersManager(): IPlayersManager;
   createVehiclesManager(): IVehiclesManager;
 }

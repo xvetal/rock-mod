@@ -1,6 +1,5 @@
 import { INetManager } from "./net/common/INetManager";
-import { IPlayersManager } from "./entities/common/player/IPlayersManager";
-import { IVehiclesManager } from "./entities/common/vehicle/IVehiclesManager";
+import { IObjectsManager, IPlayersManager, IVehiclesManager } from "./entities";
 import { IManagersFactory } from "./factories/common/IManagersFactory";
 
 type MultiplayerType = "RageMP" | "AltV";
@@ -51,12 +50,18 @@ export class RockMod {
 
   private readonly _net: INetManager;
 
+  private _objects!: IObjectsManager;
+
   private _players!: IPlayersManager;
 
   private _vehicles!: IVehiclesManager;
 
   public get net(): INetManager {
     return this._net;
+  }
+
+  public get objects(): IObjectsManager {
+    return this._objects;
   }
 
   public get players(): IPlayersManager {
@@ -74,6 +79,7 @@ export class RockMod {
 
   public init(): void {
     console.log("RockMod init");
+    this._objects = this._managersFactory.createObjectsManager();
     this._players = this._managersFactory.createPlayersManager();
     this._vehicles = this._managersFactory.createVehiclesManager();
   }
