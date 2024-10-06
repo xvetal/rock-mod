@@ -1,6 +1,7 @@
 import BaseObject = AltVServer.BaseObject;
 
 export enum BaseObjectType {
+  Object = "object",
   Player = "player",
   Vehicle = "vehicle",
 }
