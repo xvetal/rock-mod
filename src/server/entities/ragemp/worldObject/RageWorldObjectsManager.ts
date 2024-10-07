@@ -1,4 +1,4 @@
-import { IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
+import { IWorldObjectsManager } from "../../common";
 import { IRageBaseObjectsManagerOptions, RageBaseObjectsManager } from "../baseObject/RageBaseObjectsManager";
 import { RageWorldObject } from "./RageWorldObject";
 import { RageWorldObjectsIterator } from "./RageWorldObjectsIterator";
