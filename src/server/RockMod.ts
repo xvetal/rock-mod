@@ -1,5 +1,5 @@
 import { INetManager } from "./net/common/INetManager";
-import { IObjectsManager, IPedsManager, IPlayersManager, IVehiclesManager } from "./entities";
+import { IBlipsManager, IObjectsManager, IPedsManager, IPlayersManager, IVehiclesManager } from "./entities";
 import { IManagersFactory } from "./factories/common/IManagersFactory";
 
 type MultiplayerType = "RageMP" | "AltV";
@@ -46,9 +46,9 @@ export class RockMod {
     }
   }
 
-  private readonly _managersFactory: IManagersFactory;
-
   private readonly _net: INetManager;
+
+  private readonly _blips: IBlipsManager;
 
   private readonly _objects: IObjectsManager;
 
@@ -60,6 +60,10 @@ export class RockMod {
 
   public get net(): INetManager {
     return this._net;
+  }
+
+  public get blips(): IBlipsManager {
+    return this._blips;
   }
 
   public get objects(): IObjectsManager {
@@ -79,12 +83,12 @@ export class RockMod {
   }
 
   private constructor(managersFactory: IManagersFactory) {
-    this._managersFactory = managersFactory;
     this._net = managersFactory.createNetManager();
-    this._objects = this._managersFactory.createObjectsManager();
-    this._peds = this._managersFactory.createPedsManager();
-    this._players = this._managersFactory.createPlayersManager();
-    this._vehicles = this._managersFactory.createVehiclesManager();
+    this._blips = managersFactory.createBlipsManager();
+    this._objects = managersFactory.createObjectsManager();
+    this._peds = managersFactory.createPedsManager();
+    this._players = managersFactory.createPlayersManager();
+    this._vehicles = managersFactory.createVehiclesManager();
   }
 
   public init(): void {
