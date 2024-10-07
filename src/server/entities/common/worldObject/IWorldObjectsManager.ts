@@ -1,8 +1,4 @@
-import {
-  IBaseObjectCreateOptions,
-  IBaseObjectsManager,
-  IBaseObjectsManagerOptions,
-} from "../baseObject/IBaseObjectsManager";
+import { IBaseObjectCreateOptions, IBaseObjectsManager, IBaseObjectsManagerOptions } from "../baseObject";
 import { IWorldObject } from "./IWorldObject";
 import { IWorldObjectsIterator } from "./IWorldObjectsIterator";
 import { IVector3D } from "../../../common/utils";
