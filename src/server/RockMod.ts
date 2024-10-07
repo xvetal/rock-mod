@@ -90,8 +90,4 @@ export class RockMod {
     this._players = managersFactory.createPlayersManager();
     this._vehicles = managersFactory.createVehiclesManager();
   }
-
-  public init(): void {
-    console.log("RockMod init");
-  }
 }
