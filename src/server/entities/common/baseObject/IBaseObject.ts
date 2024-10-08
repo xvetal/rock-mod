@@ -2,6 +2,7 @@ import BaseObject = AltVServer.BaseObject;
 
 export enum BaseObjectType {
   Blip = "blip",
+  Marker = "marker",
   Object = "object",
   Ped = "ped",
   Player = "player",
