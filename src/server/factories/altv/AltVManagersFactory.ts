@@ -1,6 +1,7 @@
 import { IManagersFactory } from "../common/IManagersFactory";
 import { AltVNetManager } from "../../net/altv/AltVNetManager";
 import { AltVBlipsManager } from "../../entities/altv/blip/AltVBlipsManager";
+import { AltVMarkersManager } from "../../entities/altv/marker/AltVMarkersManager";
 import { AltVObjectsManager } from "../../entities/altv/object/AltVObjectsManager";
 import { AltVPedsManager } from "../../entities/altv/ped/AltVPedsManager";
 import { AltVPlayersManager } from "../../entities/altv/player/AltVPlayersManager";
@@ -13,6 +14,10 @@ export class AltVManagersFactory implements IManagersFactory {
 
   public createBlipsManager(): AltVBlipsManager {
     return new AltVBlipsManager();
+  }
+
+  public createMarkersManager(): AltVMarkersManager {
+    return new AltVMarkersManager();
   }
 
   public createObjectsManager(): AltVObjectsManager {
