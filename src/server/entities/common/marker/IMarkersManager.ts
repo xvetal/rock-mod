@@ -51,7 +51,7 @@ export enum IMarkerType {
   MarkerPitLane = 44,
 }
 
-export interface IMarkerCreateOptions extends IEntityCreateOptions {
+export interface IMarkerCreateOptions extends Omit<IEntityCreateOptions, "model"> {
   type: IMarkerType;
   scale: number;
   color: IRGBA;
