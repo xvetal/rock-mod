@@ -5,11 +5,11 @@ import { RockMod } from "../../../RockMod";
 import { RageNetManager } from "../../../net/ragemp/RageNetManager";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
-  public constructor() {
+  public constructor(net: RageNetManager) {
     super({
       baseObjectsType: "player",
     });
-    this._init();
+    this._init(net);
   }
 
   public getByName(name: string): RagePlayer {
@@ -52,9 +52,7 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
     return null;
   }
 
-  private _init(): void {
-    const net = RockMod.instance.net as RageNetManager;
-
+  private _init(net: RageNetManager): void {
     net.events.on({
       playerJoin: (mpPlayer) => {
         mpPlayer.isExists = (): boolean => mp.players.exists(mpPlayer);

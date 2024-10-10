@@ -1,6 +1,7 @@
 import { INetManager } from "../../net/common/INetManager";
 import {
   IBlipsManager,
+  IColshapesManager,
   IMarkersManager,
   IObjectsManager,
   IPedsManager,
@@ -11,9 +12,10 @@ import {
 export interface IManagersFactory {
   createNetManager(): INetManager;
   createBlipsManager(): IBlipsManager;
+  createColshapesManager(): IColshapesManager;
   createMarkersManager(): IMarkersManager;
   createObjectsManager(): IObjectsManager;
   createPedsManager(): IPedsManager;
-  createPlayersManager(): IPlayersManager;
+  createPlayersManager(net: INetManager): IPlayersManager;
   createVehiclesManager(): IVehiclesManager;
 }
