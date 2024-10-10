@@ -1,6 +1,7 @@
 import { INetManager } from "./net/common/INetManager";
 import {
   IBlipsManager,
+  IColshapesManager,
   IMarkersManager,
   IObjectsManager,
   IPedsManager,
@@ -57,6 +58,8 @@ export class RockMod {
 
   private readonly _blips: IBlipsManager;
 
+  private readonly _colshapes: IColshapesManager;
+
   private readonly _markers: IMarkersManager;
 
   private readonly _objects: IObjectsManager;
@@ -73,6 +76,10 @@ export class RockMod {
 
   public get blips(): IBlipsManager {
     return this._blips;
+  }
+
+  public get colshapes(): IColshapesManager {
+    return this._colshapes;
   }
 
   public get markers(): IMarkersManager {
@@ -98,10 +105,11 @@ export class RockMod {
   private constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
+    this._colshapes = managersFactory.createColshapesManager();
     this._markers = managersFactory.createMarkersManager();
     this._objects = managersFactory.createObjectsManager();
     this._peds = managersFactory.createPedsManager();
-    this._players = managersFactory.createPlayersManager();
+    this._players = managersFactory.createPlayersManager(this._net);
     this._vehicles = managersFactory.createVehiclesManager();
   }
 }

@@ -1,5 +1,6 @@
 export * from "./baseObject";
 export * from "./blip";
+export * from "./colshape";
 export * from "./entity";
 export * from "./marker";
 export * from "./object";
