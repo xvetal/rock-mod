@@ -6,6 +6,7 @@ import { AltVMarkersManager } from "../../entities/altv/marker/AltVMarkersManage
 import { AltVObjectsManager } from "../../entities/altv/object/AltVObjectsManager";
 import { AltVPedsManager } from "../../entities/altv/ped/AltVPedsManager";
 import { AltVPlayersManager } from "../../entities/altv/player/AltVPlayersManager";
+import { AltVUtilsManager } from "../../utils/altv/AltVUtilsManager";
 import { AltVVehiclesManager } from "../../entities/altv/vehicle/AltVVehiclesManager";
 
 export class AltVManagersFactory implements IManagersFactory {
@@ -35,6 +36,10 @@ export class AltVManagersFactory implements IManagersFactory {
 
   public createPlayersManager(): AltVPlayersManager {
     return new AltVPlayersManager();
+  }
+
+  public createUtilsManager(): AltVUtilsManager {
+    return new AltVUtilsManager();
   }
 
   public createVehiclesManager(): AltVVehiclesManager {

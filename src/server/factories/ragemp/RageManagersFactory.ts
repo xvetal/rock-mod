@@ -6,6 +6,7 @@ import { RageMarkersManager } from "../../entities/ragemp/marker/RageMarkersMana
 import { RageObjectsManager } from "../../entities/ragemp/object/RageObjectsManager";
 import { RagePedsManager } from "../../entities/ragemp/ped/RagePedsManager";
 import { RagePlayersManager } from "../../entities/ragemp/player/RagePlayersManager";
+import { RageUtilsManager } from "../../utils/ragemp/RageUtilsManager";
 import { RageVehiclesManager } from "../../entities/ragemp/vehicle/RageVehiclesManager";
 
 export class RageManagersFactory implements IManagersFactory {
@@ -35,6 +36,10 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createPlayersManager(net: RageNetManager): RagePlayersManager {
     return new RagePlayersManager(net);
+  }
+
+  public createUtilsManager(): RageUtilsManager {
+    return new RageUtilsManager();
   }
 
   public createVehiclesManager(): RageVehiclesManager {

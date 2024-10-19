@@ -8,6 +8,7 @@ import {
   IPlayersManager,
   IVehiclesManager,
 } from "./entities";
+import { IUtilsManager } from "./utils";
 import { IManagersFactory } from "./factories/common/IManagersFactory";
 
 type MultiplayerType = "RageMP" | "AltV";
@@ -68,6 +69,8 @@ export class RockMod {
 
   private readonly _players: IPlayersManager;
 
+  private readonly _utils: IUtilsManager;
+
   private readonly _vehicles: IVehiclesManager;
 
   public get net(): INetManager {
@@ -98,6 +101,10 @@ export class RockMod {
     return this._players;
   }
 
+  public get utils(): IUtilsManager {
+    return this._utils;
+  }
+
   public get vehicles(): IVehiclesManager {
     return this._vehicles;
   }
@@ -110,6 +117,7 @@ export class RockMod {
     this._objects = managersFactory.createObjectsManager();
     this._peds = managersFactory.createPedsManager();
     this._players = managersFactory.createPlayersManager(this._net);
+    this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
   }
 }
