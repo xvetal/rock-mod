@@ -14,12 +14,17 @@ export class AltVBlipsManager extends AltVWorldObjectsManager<AltVBlip> implemen
   }
 
   public create(options: IAltVBlipCreateOptions): AltVBlip {
-    const { sprite, position, dimension, alpha } = options;
+    const { alpha, color, dimension, name, position, rotation, scale, shortRange, sprite } = options;
 
     const mpEntity = new PointBlip(new Vector3(position), true);
-    mpEntity.sprite = sprite;
+    mpEntity.alpha = alpha ?? 255;
+    mpEntity.color = color ?? 1;
     mpEntity.dimension = dimension;
-    mpEntity.alpha = alpha;
+    mpEntity.name = name ?? "";
+    mpEntity.heading = rotation ?? 0;
+    mpEntity.scale = scale ?? 1;
+    mpEntity.shortRange = shortRange ?? false;
+    mpEntity.sprite = sprite;
 
     const blip = new AltVBlip({ mpEntity });
     this.registerBaseObject(blip);
