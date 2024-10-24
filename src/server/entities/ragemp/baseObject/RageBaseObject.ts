@@ -1,5 +1,8 @@
 import { BaseObjectType, IBaseObject, IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
 
+// RAGEMP BUG: event 'entityDestroyed' is not callable
+const unsupportedRageEntityTypes: Set<`${BaseObjectType}`> = new Set(["blip", "colshape"]);
+
 export interface IRageBaseObjectOptions<T extends EntityMp> extends IBaseObjectOptions {
   mpEntity: T;
 }
@@ -28,6 +31,10 @@ export abstract class RageBaseObject<T extends EntityMp = EntityMp> implements I
   }
 
   public destroy(): void {
-    console.log("destroy");
+    this._mpEntity.destroy();
+
+    if (unsupportedRageEntityTypes.has(this.type)) {
+      mp.events.call("entityDestroyed", this._mpEntity);
+    }
   }
 }

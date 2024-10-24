@@ -27,6 +27,13 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
     this._baseObjects = new Map();
     this._baseObjectsType = options.baseObjectsType;
     this._iterator = new RageBaseObjectsIterator(this._baseObjects);
+
+    mp.events.add("entityDestroyed", (mpEntity) => {
+      if (mpEntity.type === this._baseObjectsType) {
+        const baseObject = this.getByID(mpEntity.id);
+        this.unregisterBaseObject(baseObject);
+      }
+    });
   }
 
   public getByID(id: number): T {

@@ -26,6 +26,13 @@ export abstract class AltVBaseObjectsManager<T extends AltVBaseObject<BaseObject
     this._baseObjects = new Map();
     this._baseObjectsType = options.baseObjectsType;
     this._iterator = new AltVBaseObjectsIterator(this._baseObjects);
+
+    AltVServer.on("removeEntity", (mpEntity) => {
+      if ((mpEntity.type as unknown as BaseObjectType) === this._baseObjectsType) {
+        const baseObject = this.getByID(mpEntity.id);
+        this.unregisterBaseObject(baseObject);
+      }
+    });
   }
 
   public getByID(id: number): T {
@@ -56,6 +63,6 @@ export abstract class AltVBaseObjectsManager<T extends AltVBaseObject<BaseObject
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
-    RockMod.instance.net.events.emit("rm::entityCreated", baseObject);
+    RockMod.instance.net.events.emit("rm::entityDestroyed", baseObject);
   }
 }

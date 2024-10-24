@@ -39,6 +39,6 @@ export abstract class AltVBaseObject<T extends BaseObject> implements IBaseObjec
   }
 
   public destroy(): void {
-    console.log("destroy");
+    this._mpEntity.destroy();
   }
 }
