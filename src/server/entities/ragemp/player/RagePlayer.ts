@@ -112,11 +112,11 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
   }
 
   public giveWeapon(weapon: string, ammo: number): void {
-    return this.mpEntity.giveWeapon(weapon, ammo);
+    return this.mpEntity.giveWeapon(mp.joaat(weapon), ammo);
   }
 
   public removeWeapon(weapon: string): void {
-    return this.mpEntity.removeWeapon(weapon);
+    return this.mpEntity.removeWeapon(mp.joaat(weapon));
   }
 
   public enableVoiceTo(player: RagePlayer): void {
