@@ -36,12 +36,12 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
   }
 
   public get customPrimaryColor(): RGBA {
-    const [r, g, b] = this.mpEntity.getColorRGB(0);
+    const [r, g, b] = this.mpEntity.getColorRGB(0) ?? [0, 0, 0];
     return new RGBA(r, g, b);
   }
 
   public get customSecondaryColor(): RGBA {
-    const [r, g, b] = this.mpEntity.getColorRGB(1);
+    const [r, g, b] = this.mpEntity.getColorRGB(1) ?? [0, 0, 0];
     return new RGBA(r, g, b);
   }
 
