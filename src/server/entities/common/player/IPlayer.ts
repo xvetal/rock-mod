@@ -29,6 +29,7 @@ export interface IPlayer extends IEntity {
   get heading(): number;
   get health(): number;
   get armour(): number;
+  get isDead(): boolean;
   get ip(): string;
   get serial(): string;
   get vehicle(): IVehicle | null;
