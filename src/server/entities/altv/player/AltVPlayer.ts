@@ -33,6 +33,10 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     return this.mpEntity.armour;
   }
 
+  public get isDead(): boolean {
+    return this.mpEntity.isDead;
+  }
+
   public get ip(): string {
     return this.mpEntity.ip;
   }

@@ -29,6 +29,10 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     return this.mpEntity.armour;
   }
 
+  public get isDead(): boolean {
+    return this.mpEntity.health <= 0;
+  }
+
   public get ip(): string {
     return this.mpEntity.ip;
   }

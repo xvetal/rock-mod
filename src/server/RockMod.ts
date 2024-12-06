@@ -34,7 +34,7 @@ export class RockMod {
 
   public static get instance(): RockMod {
     if (!this._instance) {
-      throw new Error("RockMod not created");
+      throw new Error("RockMod is not created");
     }
 
     return this._instance;

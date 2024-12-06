@@ -1,6 +1,7 @@
 export * from "./RockMod";
 export * from "./common/utils";
 export {
+  BaseObjectType,
   IBaseObject as IRockModBaseObject,
   IBlip as IRockModBlip,
   IColshape as IRockModColshape,
