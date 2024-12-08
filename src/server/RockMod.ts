@@ -11,7 +11,7 @@ import {
 import { IUtilsManager } from "./utils";
 import { IManagersFactory } from "./factories/common/IManagersFactory";
 
-type MultiplayerType = "RageMP" | "AltV";
+type MultiplayerType = "RageMP" | "AltV" | "Mock";
 
 export interface RockModOptions {
   multiplayer: MultiplayerType;
@@ -51,6 +51,10 @@ export class RockMod {
       case "RageMP": {
         const { RageManagersFactory } = await import("./factories/ragemp/RageManagersFactory");
         return new RageManagersFactory();
+      }
+      case "Mock": {
+        const { MockManagersFactory } = await import("./factories/mock/MockManagersFactory");
+        return new MockManagersFactory();
       }
     }
   }
