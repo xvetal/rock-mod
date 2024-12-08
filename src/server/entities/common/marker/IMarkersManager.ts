@@ -1,7 +1,6 @@
-import { IEntityCreateOptions } from "../entity";
 import { IMarker } from "./IMarker";
-import { IWorldObjectsManager } from "../worldObject";
-import { IRGBA } from "../../../common/utils";
+import { IWorldObjectCreateOptions, IWorldObjectsManager } from "../worldObject";
+import { IRGBA, IVector3D } from "../../../common/utils";
 
 export enum IMarkerType {
   MarkerCone = 0,
@@ -51,10 +50,11 @@ export enum IMarkerType {
   MarkerPitLane = 44,
 }
 
-export interface IMarkerCreateOptions extends Omit<IEntityCreateOptions, "model"> {
+export interface IMarkerCreateOptions extends IWorldObjectCreateOptions {
   type: IMarkerType;
   scale: number;
   color: IRGBA;
+  rotation: IVector3D;
 }
 
 export interface IMarkersManager extends IWorldObjectsManager<IMarker> {
