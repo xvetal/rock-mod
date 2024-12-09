@@ -15,3 +15,4 @@ export {
 } from "./entities";
 export { INetServerEvents, INetClientEvents } from "./net/common/events/IEventsManager";
 export { INetServerRPC, INetClientRPC } from "./net/common/rpc/IRPCManager";
+export * from "./testing";

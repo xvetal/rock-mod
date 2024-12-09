@@ -36,10 +36,13 @@ Mock mode provides a complete mock environment for testing your mods without req
 - All entity types (Blip, Colshape, Marker, Object, Ped, Player, Vehicle)
 - Type-safe events and RPC system
 - In-memory state management
+- Player connection simulation
 
-Example using Mock mode:
+Example using Mock mode for development:
 
 ```typescript
+import { RockMod } from "rock-mod";
+
 // Initialize in Mock mode
 const rockMod = await RockMod.create({
   multiplayer: "Mock",
@@ -50,8 +53,8 @@ rockMod.net.events.on({
   "rm::playerConnected": (player) => {
     console.log(`Player ${player.name} connected`);
   },
-  "rm::entityCreated": (entity) => {
-    console.log(`Entity ${entity.id} created`);
+  "rm::playerDisconnected": (player) => {
+    console.log(`Player ${player.name} disconnected`);
   },
 });
 
@@ -65,13 +68,37 @@ rockMod.net.rpc.register("getPlayerInfo", (player) => {
 });
 ```
 
+Example using Mock mode for testing:
+
+```typescript
+import { TestRockMod } from "rock-mod/testing";
+
+// Initialize test environment
+const rockMod = await TestRockMod.create({
+  multiplayer: "Mock",
+});
+
+// Simulate player connection
+const player = rockMod.simulatePlayerConnect({
+  name: "TestPlayer",
+  position: { x: 0, y: 0, z: 0 },
+  health: 100,
+});
+
+// Test your mod logic here
+// ...
+
+// Simulate player disconnection
+rockMod.simulatePlayerDisconnect(player);
+```
+
 ### Features
 
 - **Cross-Platform Support**: Write once, run on any supported platform
 - **Type Safety**: Full TypeScript support with proper type definitions
 - **Entity Management**: Unified API for managing game entities
 - **Networking**: Type-safe events and RPC system
-- **Testing**: Mock mode for development and testing
+- **Testing**: Dedicated testing API through `rock-mod/testing`
 - **Modular Design**: Easy to extend and customize
 
 ### Documentation

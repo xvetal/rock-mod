@@ -8,6 +8,7 @@ import { MockMarkersManager } from "../../entities/mock/marker/MockMarkersManage
 import { MockObjectsManager } from "../../entities/mock/object/MockObjectsManager";
 import { MockPedsManager } from "../../entities/mock/ped/MockPedsManager";
 import { MockVehiclesManager } from "../../entities/mock/vehicle/MockVehiclesManager";
+import { MockUtilsManager } from "../../utils/mock/MockUtilsManager";
 
 export class MockManagersFactory implements IManagersFactory {
   public createNetManager(): MockNetManager {
@@ -39,7 +40,7 @@ export class MockManagersFactory implements IManagersFactory {
   }
 
   public createUtilsManager(): IUtilsManager {
-    throw new Error("Utils manager not implemented in mock mode");
+    return new MockUtilsManager();
   }
 
   public createVehiclesManager(): MockVehiclesManager {
