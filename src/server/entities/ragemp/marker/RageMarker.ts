@@ -1,7 +1,6 @@
 import { IMarker, IMarkerType } from "../../common";
 import { IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
-import { IRGBA, IVector3D, Vector3D } from "../../../common/utils";
-import RGBA = AltVShared.RGBA;
+import { IRGBA, IVector3D, RGBA, Vector3D } from "../../../common/utils";
 
 export interface IRageMarkerOptions extends IRageWorldObjectOptions<MarkerMp> {}
 
