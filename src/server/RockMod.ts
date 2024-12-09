@@ -113,7 +113,7 @@ export class RockMod {
     return this._vehicles;
   }
 
-  private constructor(managersFactory: IManagersFactory) {
+  protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
     this._colshapes = managersFactory.createColshapesManager();

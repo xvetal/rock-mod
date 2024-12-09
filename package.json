@@ -4,6 +4,23 @@
   "description": "Rock-Mod is a powerful framework designed for creating and managing mods for Grand Theft Auto (GTA) games.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "default": "./dist/testing.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "testing": [
+        "./dist/testing.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "start": "npx tsx src/server/index.ts",
     "build": "npm run build:server && npm run build:client",
