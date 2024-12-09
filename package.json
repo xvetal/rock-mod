@@ -33,7 +33,7 @@
     "lint:check": "npm run lint:server:check && npm run lint:client:check",
     "lint:fix": "npm run lint:server:fix && npm run lint:client:fix",
     "format:check": "prettier --check .",
-    "format:fix": "prettier --write . --loglevel=silent",
+    "format:fix": "prettier --write . --log-level=silent",
     "type:server:check": "tsc --noEmit --project src/server/tsconfig.json",
     "type:client:check": "tsc --noEmit --project src/client/tsconfig.json",
     "type:check": "npm run type:server:check && npm run type:client:check",
