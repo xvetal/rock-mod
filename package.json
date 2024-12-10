@@ -25,7 +25,8 @@
     "start": "npx tsx src/server/index.ts",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc --project src/server/tsconfig.json",
-    "build:client": "tsc --project src/client/tsconfig.json",
+    "build:client": "rollup -c",
+    "build:client:watch": "rollup -c -w",
     "lint:server:check": "cd src/server && eslint . --ext .ts",
     "lint:server:fix": "cd src/server && eslint . --ext .ts --fix",
     "lint:client:check": "cd src/client && eslint . --ext .ts",
@@ -63,6 +64,11 @@
   "author": "xvetal",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^20.10.4",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.1",
@@ -74,7 +80,7 @@
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
-    "typescript": "^5.6.2",
-    "@types/node": "^20.10.4"
+    "rollup": "^4.9.1",
+    "typescript": "^5.6.2"
   }
 }

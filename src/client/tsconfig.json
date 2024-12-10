@@ -1,9 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {}
+    "target": "es2015",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "outDir": "../../dist/client",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
-  "include": ["./**/*.ts", "../shared/**/*.ts"],
-  "exclude": ["../shared/**/*.d.ts"]
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules"]
 }
