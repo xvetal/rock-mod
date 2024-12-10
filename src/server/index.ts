@@ -1,5 +1,11 @@
 export * from "./RockMod";
-export * from "./common/utils";
+export { IRGBA as IRockModRGBA, RGBA as RockModRGBA } from "./common/utils/color";
+export {
+  IVector2D as IRockModVector2D,
+  IVector3D as IRockModVector3D,
+  Vector2D as RockModVector2D,
+  Vector3D as RockModVector3D,
+} from "./common/utils/math";
 export {
   BaseObjectType,
   IBaseObject as IRockModBaseObject,
