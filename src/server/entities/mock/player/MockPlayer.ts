@@ -1,6 +1,6 @@
 import { IPlayer } from "../../common/player/IPlayer";
 import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
-import { Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { RockMod } from "../../../RockMod";
 import { RageVehicle } from "../../ragemp/vehicle/RageVehicle";
 import { IMockClientEvents } from "../../../net/mock/events/MockEventsManager";

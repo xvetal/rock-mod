@@ -1,14 +1,5 @@
 import BaseObject = AltVServer.BaseObject;
-
-export enum BaseObjectType {
-  Blip = "blip",
-  Colshape = "colshape",
-  Marker = "marker",
-  Object = "object",
-  Ped = "ped",
-  Player = "player",
-  Vehicle = "vehicle",
-}
+import { BaseObjectType } from "../../../../shared";
 
 export interface IBaseObjectOptions {
   mpEntity: EntityMp | BaseObject;

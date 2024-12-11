@@ -4,7 +4,7 @@ import {
   IWorldObjectsManagerOptions,
 } from "../worldObject/IWorldObjectsManager";
 import { IEntity } from "./IEntity";
-import { IVector3D } from "../../../common/utils";
+import { IVector3D } from "../../../../shared/common/utils";
 
 export interface IEntitiesManagerOptions extends IWorldObjectsManagerOptions {}
 

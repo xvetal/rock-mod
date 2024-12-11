@@ -2,7 +2,7 @@ import { AltVEntity, IAltVEntityOptions } from "../entity/AltVEntity";
 import { IVehicle } from "../../common/vehicle/IVehicle";
 import Vehicle = AltVServer.Vehicle;
 import VehicleLockState = AltVShared.VehicleLockState;
-import { RGBA } from "../../../common/utils";
+import { RGBA } from "../../../../shared/common/utils";
 import { AltVPlayer } from "../player/AltVPlayer";
 import { RockMod } from "../../../RockMod";
 

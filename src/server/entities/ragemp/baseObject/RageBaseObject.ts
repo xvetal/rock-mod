@@ -1,4 +1,5 @@
-import { BaseObjectType, IBaseObject, IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
+import { IBaseObject, IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
+import { BaseObjectType } from "../../../../shared";
 
 // RAGEMP BUG: event 'entityDestroyed' is not callable
 const unsupportedRageEntityTypes: Set<`${BaseObjectType}`> = new Set(["blip", "colshape", "object", "vehicle"]);

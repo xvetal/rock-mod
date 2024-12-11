@@ -1,8 +1,8 @@
 import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
 import { RageBaseObject } from "./RageBaseObject";
-import { BaseObjectType } from "../../common/baseObject/IBaseObject";
 import { RageBaseObjectsIterator } from "./RageBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IRageBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 

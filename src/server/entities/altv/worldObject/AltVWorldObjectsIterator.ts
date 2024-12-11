@@ -1,7 +1,7 @@
 import { IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
 import { AltVWorldObject } from "./AltVWorldObject";
 import { AltVBaseObjectsIterator } from "../baseObject/AltVBaseObjectsIterator";
-import { Vector2D, Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector2D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import WorldObject = AltVServer.WorldObject;
 
 export class AltVWorldObjectsIterator<T extends AltVWorldObject<WorldObject>>

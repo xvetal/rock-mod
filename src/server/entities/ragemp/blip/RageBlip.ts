@@ -1,5 +1,6 @@
 import { IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
-import { IBlip, IBlipColor, IBlipSprite } from "../../common";
+import { IBlip } from "../../common";
+import { IBlipColor, IBlipSprite } from "../../../../shared";
 
 export interface IRageBlipOptions extends IRageWorldObjectOptions<EntityMp> {}
 

@@ -1,6 +1,6 @@
 import { IVehicle } from "../../common/vehicle/IVehicle";
 import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
-import { IRGBA, RGBA } from "../../../common/utils";
+import { IRGBA, RGBA } from "../../../../shared/common/utils";
 import { MockPlayer } from "../player/MockPlayer";
 
 export interface IMockVehicleOptions extends IMockEntityOptions {

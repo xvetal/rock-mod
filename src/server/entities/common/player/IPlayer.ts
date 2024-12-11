@@ -1,6 +1,6 @@
 import { IEntity, IEntityOptions } from "../entity/IEntity";
 import { IVehicle } from "../vehicle/IVehicle";
-import { IVector3D } from "../../../common/utils/math/Vectors";
+import { IVector3D } from "../../../../shared/common/utils/math/Vectors";
 import { INetClientEvents } from "../../../net/common/events/IEventsManager";
 import { INetClientRPC } from "../../../net/common/rpc/IRPCManager";
 

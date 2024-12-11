@@ -1,7 +1,7 @@
 import { IMarker } from "../../common/marker/IMarker";
 import { MockWorldObject, IMockWorldObjectOptions } from "../worldObject/MockWorldObject";
-import { IRGBA, IVector3D, RGBA, Vector3D } from "../../../common/utils";
-import { IMarkerType } from "../../common";
+import { IRGBA, IVector3D, RGBA, Vector3D } from "../../../../shared/common/utils";
+import { IMarkerType } from "../../../../shared";
 
 export interface IMockMarkerOptions extends IMockWorldObjectOptions {
   markerType?: IMarkerType;

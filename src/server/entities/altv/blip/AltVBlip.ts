@@ -1,6 +1,7 @@
 import { AltVWorldObject, IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
-import { IBlip, IBlipColor, IBlipSprite } from "../../common";
+import { IBlip } from "../../common";
 import BlipSprite = AltVShared.BlipSprite;
+import { IBlipColor, IBlipSprite } from "../../../../shared";
 
 export interface IAltVBlipOptions extends IAltVWorldObjectOptions<AltVServer.Blip> {}
 

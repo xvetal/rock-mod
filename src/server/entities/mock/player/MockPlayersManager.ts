@@ -2,8 +2,8 @@ import { IPlayersManager } from "../../common/player/IPlayersManager";
 import { MockPlayer } from "./MockPlayer";
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { RockMod } from "../../../RockMod";
-import { BaseObjectType } from "../../common";
-import { Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockPlayerConnectOptions {
   id?: number;

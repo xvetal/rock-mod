@@ -1,7 +1,7 @@
 import { IBaseObjectCreateOptions, IBaseObjectsManager, IBaseObjectsManagerOptions } from "../baseObject";
 import { IWorldObject } from "./IWorldObject";
 import { IWorldObjectsIterator } from "./IWorldObjectsIterator";
-import { IVector3D } from "../../../common/utils";
+import { IVector3D } from "../../../../shared/common/utils";
 
 export interface IWorldObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 

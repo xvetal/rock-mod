@@ -1,7 +1,7 @@
 import { IMarkerCreateOptions, IMarkersManager } from "../../common/marker/IMarkersManager";
 import { MockWorldObjectsManager } from "../worldObject/MockWorldObjectsManager";
 import { MockMarker } from "./MockMarker";
-import { BaseObjectType } from "../../common";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockMarkerCreateOptions extends IMarkerCreateOptions {}
 

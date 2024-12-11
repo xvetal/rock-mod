@@ -2,7 +2,7 @@ import { IPedCreateOptions, IPedsManager } from "../../common/ped/IPedsManager";
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { MockPed } from "./MockPed";
 import { RockMod } from "../../../RockMod";
-import { BaseObjectType } from "../../common";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockPedCreateOptions extends IPedCreateOptions {}
 

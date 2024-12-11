@@ -6,7 +6,7 @@ import Player = AltVServer.Player;
 import Vehicle = AltVServer.Vehicle;
 import Vector3 = AltVShared.Vector3;
 import hash = AltVShared.hash;
-import { Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { IAltVClientEvents } from "../../../net/altv/events/AltVEventsManager";
 import { IAltVClientRPC } from "../../../net/altv/rpc/AltVRPCManager";
 

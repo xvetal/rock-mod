@@ -1,5 +1,5 @@
 import { IWorldObject, IWorldObjectOptions } from "../worldObject/IWorldObject";
-import { IVector3D } from "../../../common/utils";
+import { IVector3D } from "../../../../shared/common/utils";
 
 export interface IEntityOptions extends IWorldObjectOptions {}
 

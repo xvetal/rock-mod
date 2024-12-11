@@ -1,6 +1,6 @@
 import { IWorldObjectCreateOptions, IWorldObjectsManager } from "../worldObject";
 import { IColshape } from "./IColshape";
-import { IVector2D } from "../../../common/utils";
+import { IVector2D } from "../../../../shared/common/utils";
 import { ICircleColshape } from "./ICircleColshape";
 import { ICuboidColshape } from "./ICuboidColshape";
 import { ICylinderColshape } from "./ICylinderColshape";
