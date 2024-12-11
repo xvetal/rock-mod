@@ -1,7 +1,7 @@
 import { IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
 import { MockWorldObject } from "./MockWorldObject";
 import { MockBaseObjectsIterator } from "../baseObject/MockBaseObjectsIterator";
-import { Vector2D, Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector2D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export class MockWorldObjectsIterator<T extends MockWorldObject>
   extends MockBaseObjectsIterator<T>

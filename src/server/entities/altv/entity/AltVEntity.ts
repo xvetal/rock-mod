@@ -2,7 +2,7 @@ import { IEntity } from "../../common/entity/IEntity";
 import { AltVWorldObject, IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
 import hash = AltVShared.hash;
 import Entity = AltVServer.Entity;
-import { Vector3D } from "../../../common/utils";
+import { Vector3D } from "../../../../shared/common/utils";
 import Vector3 = AltVShared.Vector3;
 
 export interface IAltVEntityOptions<T extends Entity> extends IAltVWorldObjectOptions<T> {}

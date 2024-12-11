@@ -1,7 +1,7 @@
 import { IBlipCreateOptions, IBlipsManager } from "../../common/blip/IBlipsManager";
 import { MockWorldObjectsManager } from "../worldObject/MockWorldObjectsManager";
 import { MockBlip } from "./MockBlip";
-import { BaseObjectType } from "../../common";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockBlipCreateOptions extends IBlipCreateOptions {}
 

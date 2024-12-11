@@ -2,7 +2,7 @@ import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { ICustomization, IPlayer } from "../../common/player/IPlayer";
 import { RockMod } from "../../../RockMod";
 import { RageVehicle } from "../vehicle/RageVehicle";
-import { Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector3D } from "@shared/common/utils";
 import { IRageClientEvents } from "../../../net/ragemp/events/RageEventsManager";
 import { IRageClientRPC } from "../../../net/ragemp/rpc/RageRPCManager";
 

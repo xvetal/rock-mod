@@ -1,6 +1,6 @@
 import { IWorldObject } from "../../common/worldObject/IWorldObject";
 import { MockBaseObject, IMockBaseObjectOptions } from "../baseObject/MockBaseObject";
-import { IVector3D } from "../../../common/utils/math/Vectors";
+import { IVector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export interface IMockWorldObjectOptions extends IMockBaseObjectOptions {
   position: IVector3D;

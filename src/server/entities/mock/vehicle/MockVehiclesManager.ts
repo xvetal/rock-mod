@@ -2,7 +2,7 @@ import { IVehicleCreateOptions, IVehiclesManager } from "../../common/vehicle/IV
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { MockVehicle } from "./MockVehicle";
 import { RockMod } from "../../../RockMod";
-import { BaseObjectType } from "../../common";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockVehicleCreateOptions extends IVehicleCreateOptions {}
 

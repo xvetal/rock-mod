@@ -1,5 +1,5 @@
 import { IBaseObject, IBaseObjectOptions } from "../baseObject";
-import { IVector3D } from "../../../common/utils";
+import { IVector3D } from "../../../../shared/common/utils";
 
 export interface IWorldObjectOptions extends IBaseObjectOptions {}
 

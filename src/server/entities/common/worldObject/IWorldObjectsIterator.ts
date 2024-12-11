@@ -1,6 +1,6 @@
 import { IBaseObjectsIterator } from "../baseObject/IBaseObjectsIterator";
 import { IWorldObject } from "./IWorldObject";
-import { Vector2D, Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector2D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export interface IWorldObjectsIterator<T extends IWorldObject> extends IBaseObjectsIterator<T> {
   dimension(value: number): IterableIterator<T>;

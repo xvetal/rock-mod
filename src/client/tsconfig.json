@@ -8,9 +8,11 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@RockMod/client/*": ["./*"],
+      "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["./**/*.ts"],
+  "references": [{ "path": "../shared" }],
+  "include": ["./**/*.ts", "../shared/**/*.ts"],
   "exclude": ["node_modules"]
 }

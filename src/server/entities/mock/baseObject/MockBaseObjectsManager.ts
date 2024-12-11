@@ -1,8 +1,8 @@
 import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
-import { BaseObjectType } from "../../common/baseObject/IBaseObject";
 import { MockBaseObject } from "./MockBaseObject";
 import { MockBaseObjectsIterator } from "./MockBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 

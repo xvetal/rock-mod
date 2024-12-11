@@ -6,18 +6,20 @@ import terser from "@rollup/plugin-terser";
 export default {
   input: "src/client/index.ts",
   output: {
-    file: "dist/client.js",
-    format: "iife", // Immediately-invoked function expression
-    name: "RockMod", // Global variable name for your module
+    dir: "dist/client",
+    format: "es",
+    name: "RockMod",
+    entryFileNames: "[name].js",
+    chunkFileNames: "[name]-[hash].js",
   },
   plugins: [
     typescript({
       tsconfig: "src/client/tsconfig.json",
     }),
     nodeResolve({
-      browser: true, // Указываем, что собираем для браузерного окружения
+      browser: true,
     }),
     commonjs(),
-    terser(), // Минификация кода
+    terser(),
   ],
 };

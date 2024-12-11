@@ -1,6 +1,6 @@
 import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { IVehicle } from "../../common/vehicle/IVehicle";
-import { RGBA } from "../../../common/utils";
+import { RGBA } from "../../../../shared/common/utils";
 import { RagePlayer } from "../player/RagePlayer";
 import { RockMod } from "../../../RockMod";
 

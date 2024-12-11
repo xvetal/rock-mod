@@ -1,9 +1,9 @@
 import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
-import { BaseObjectType } from "../../common/baseObject/IBaseObject";
 import { AltVBaseObject } from "./AltVBaseObject";
 import { AltVBaseObjectsIterator } from "./AltVBaseObjectsIterator";
 import BaseObject = AltVServer.BaseObject;
 import { RockMod } from "../../../RockMod";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IAltVBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 

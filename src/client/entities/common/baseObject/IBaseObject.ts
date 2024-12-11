@@ -1,8 +1,5 @@
 import BaseObject = AltVClient.BaseObject;
-
-export enum BaseObjectType {
-  Player = "player",
-}
+import { BaseObjectType } from "@shared/entities";
 
 export interface IBaseObjectOptions {
   mpEntity: EntityMp | BaseObject;

@@ -2,7 +2,7 @@ import { IObjectCreateOptions, IObjectsManager } from "../../common/object/IObje
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { MockObject } from "./MockObject";
 import { RockMod } from "../../../RockMod";
-import { BaseObjectType } from "../../common";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockObjectCreateOptions extends IObjectCreateOptions {}
 

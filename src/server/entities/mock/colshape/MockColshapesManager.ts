@@ -7,14 +7,14 @@ import {
   ISphereColshapeCreateOptions,
 } from "../../common";
 import { MockWorldObjectsManager } from "../worldObject/MockWorldObjectsManager";
-import { Vector3D } from "../../../common/utils/math/Vectors";
+import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { MockCircleColshape } from "./MockCircleColshape";
 import { MockCuboidColshape } from "./MockCuboidColshape";
 import { MockCylinderColshape } from "./MockCylinderColshape";
 import { MockRectangleColshape } from "./MockRectangleColshape";
 import { MockSphereColshape } from "./MockSphereColshape";
 import { MockColshape } from "./MockColshape";
-import { BaseObjectType } from "../../common/baseObject/IBaseObject";
+import { BaseObjectType } from "../../../../shared";
 
 export interface IMockCircleColshapeCreateOptions extends ICircleColshapeCreateOptions {}
 export interface IMockCuboidColshapeCreateOptions extends ICuboidColshapeCreateOptions {}
