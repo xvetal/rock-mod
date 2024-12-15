@@ -3,6 +3,7 @@ import { MockBaseObject } from "./MockBaseObject";
 import { MockBaseObjectsIterator } from "./MockBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
 import { BaseObjectType } from "../../../../shared";
+import { ServerInternalEventName } from "@RockMod/server/net/common/events/types";
 
 export interface IMockBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 
@@ -48,13 +49,13 @@ export abstract class MockBaseObjectsManager<T extends MockBaseObject> implement
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
     }
     this._baseObjects.set(baseObject.id, baseObject);
-    RockMod.instance.net.events.emit("rm::entityCreated", baseObject);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityCreated, baseObject);
   }
 
   protected unregisterBaseObject(baseObject: T): void {
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
-    RockMod.instance.net.events.emit("rm::entityDestroyed", baseObject);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityDestroyed, baseObject);
   }
 }

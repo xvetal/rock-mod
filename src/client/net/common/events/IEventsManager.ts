@@ -1,15 +1,15 @@
-import { IBaseObject, IPlayer } from "../../../entities/common";
-
-export interface INetClientEvents {
-  "rm::playerConnected"(player: IPlayer): void;
-  "rm::playerDisconnected"(player: IPlayer): void;
-  "rm::entityCreated"(entity: IBaseObject): void;
-  "rm::entityDestroyed"(entity: IBaseObject): void;
-}
+import { IServerToClientEvents, IClientToServerEvents } from "@shared/net/common/events/types";
+import { IClientInternalEvents } from "./types";
 
 export interface IEventsManager {
-  on(events: Record<string, (...args: unknown[]) => void>): void;
-  off(eventName: string, listener: (...args: unknown[]) => void): void;
-  emit(eventName: string, ...args: unknown[]): void;
-  emitServer(eventName: string, ...args: unknown[]): void;
+  onInternal(events: Partial<IClientInternalEvents>): void;
+  offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener: IClientInternalEvents[K]): void;
+  emitInternal<K extends keyof IClientInternalEvents>(
+    eventName: K,
+    ...args: Parameters<IClientInternalEvents[K]>
+  ): void;
+
+  onServer(events: Partial<IServerToClientEvents>): void;
+  offServer<K extends keyof IServerToClientEvents>(eventName: K, listener: IServerToClientEvents[K]): void;
+  emitServer<K extends keyof IClientToServerEvents>(eventName: K, ...args: Parameters<IClientToServerEvents[K]>): void;
 }

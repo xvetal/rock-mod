@@ -7,8 +7,8 @@ import Vehicle = AltVServer.Vehicle;
 import Vector3 = AltVShared.Vector3;
 import hash = AltVShared.hash;
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
-import { IAltVClientEvents } from "../../../net/altv/events/AltVEventsManager";
 import { IAltVClientRPC } from "../../../net/altv/rpc/AltVRPCManager";
+import { IServerToClientEvents } from "@shared/net/common/events/types";
 
 interface AltVPlayerOptions extends IAltVEntityOptions<Player> {}
 
@@ -86,7 +86,10 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     super(options);
   }
 
-  public emitEvent<K extends keyof IAltVClientEvents>(eventName: K, ...args: Parameters<IAltVClientEvents[K]>): void {
+  public emitEvent<K extends keyof IServerToClientEvents>(
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
+  ): void {
     return RockMod.instance.net.events.emitClient(this, eventName, ...args);
   }
 

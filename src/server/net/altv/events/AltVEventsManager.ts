@@ -1,42 +1,45 @@
-import { IEventsManager, INetClientEvents, INetServerEvents } from "../../common/events/IEventsManager";
-import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
-import alt = AltVServer;
-import { AltVBaseObject } from "../../../entities/altv/baseObject/AltVBaseObject";
+import { IEventsManager } from "../../common/events/IEventsManager";
+import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
+import { IServerInternalEvents } from "../../common/events/types";
+import { AltVPlayer } from "@RockMod/server/entities/altv/player/AltVPlayer";
 import Player = AltVServer.Player;
 
-export interface IAltVServerEvents extends alt.IServerEvent, INetServerEvents {
-  "rm::entityCreated"(baseObject: AltVBaseObject<alt.BaseObject>): void;
-  "rm::entityDestroyed"(baseObject: AltVBaseObject<alt.BaseObject>): void;
-}
-
-export interface IAltVClientEvents extends INetClientEvents {}
+interface IAltVServerInternalEvents extends IServerInternalEvents, AltVServer.IServerEvent {}
 
 export class AltVEventsManager implements IEventsManager {
-  public on<K extends keyof IAltVServerEvents>(
-    events: Record<K, (...args: Parameters<IAltVServerEvents[K]>) => void>,
-  ): void {
+  public onInternal(events: Partial<IAltVServerInternalEvents>): void {
     for (const eventName of Object.keys(events)) {
-      alt.on(eventName, events[eventName as K]);
+      // @ts-expect-error Add types
+      AltVServer.on(eventName, events[eventName]);
     }
   }
 
-  public off<K extends keyof IAltVServerEvents>(
+  public offInternal<K extends keyof IServerInternalEvents>(eventName: K, listener: IServerInternalEvents[K]): void {
+    AltVServer.off(eventName, listener);
+  }
+
+  public emitInternal<K extends keyof IServerInternalEvents>(
     eventName: K,
-    listener: (...args: Parameters<IAltVServerEvents[K]>) => void,
+    ...args: Parameters<IServerInternalEvents[K]>
   ): void {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return alt.off(eventName, listener);
+    AltVServer.emit(eventName, ...args);
   }
 
-  public emit<K extends keyof IAltVServerEvents>(eventName: K, ...args: Parameters<IAltVServerEvents[K]>): void {
-    return alt.emit(eventName as string, ...args);
+  public onClient(events: Partial<IClientToServerEvents>): void {
+    for (const eventName of Object.keys(events)) {
+      // @ts-expect-error Add types
+      AltVServer.onClient(eventName, events[eventName]);
+    }
   }
 
-  public emitClient<K extends keyof IAltVClientEvents>(
+  public offClient<K extends keyof IClientToServerEvents>(eventName: K, listener: IClientToServerEvents[K]): void {
+    AltVServer.offClient(eventName, listener);
+  }
+
+  public emitClient<K extends keyof IServerToClientEvents>(
     player: AltVPlayer,
     eventName: K,
-    ...args: Parameters<IAltVClientEvents[K]>
+    ...args: Parameters<IServerToClientEvents[K]>
   ): void {
     const mpPlayer = Player.getByID(player.id);
 

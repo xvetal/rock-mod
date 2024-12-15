@@ -4,6 +4,7 @@ import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { RockMod } from "../../../RockMod";
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { BaseObjectType } from "../../../../shared";
+import { ServerInternalEventName } from "@RockMod/server/net/common/events/types";
 
 export interface IMockPlayerConnectOptions {
   id?: number;
@@ -101,7 +102,7 @@ export class MockPlayersManager extends MockEntitiesManager<MockPlayer> implemen
 
   public simulateConnect(options: IMockPlayerConnectOptions = {}): MockPlayer {
     const player = this.createPlayer(options);
-    RockMod.instance.net.events.emit("rm::playerConnected", player);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
     return player;
   }
 
@@ -110,7 +111,7 @@ export class MockPlayersManager extends MockEntitiesManager<MockPlayer> implemen
       throw new Error(`Player with id ${player.id} not found`);
     }
 
-    RockMod.instance.net.events.emit("rm::playerDisconnected", player);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
     this.unregisterBaseObject(player);
   }
 }

@@ -1,42 +1,38 @@
-import { IEventsManager, INetClientEvents, INetServerEvents } from "../../common/events/IEventsManager";
-import { RagePlayer } from "../../../entities/ragemp/player/RagePlayer";
-import { RageBaseObject } from "../../../entities/ragemp/baseObject/RageBaseObject";
+import { IEventsManager } from "../../common/events/IEventsManager";
+import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
+import { IServerInternalEvents } from "../../common/events/types";
+import { RagePlayer } from "@RockMod/server/entities/ragemp/player/RagePlayer";
 
-export interface IRageServerEvents extends IServerEvents, INetServerEvents {
-  "rm::playerConnected"(player: RagePlayer): void;
-  "rm::playerDisconnected"(player: RagePlayer): void;
-  "rm::entityCreated"(entity: RageBaseObject): void;
-  "rm::entityDestroyed"(entity: RageBaseObject): void;
-  playerJoin(player: PlayerMp): void;
-  playerQuit(player: PlayerMp): void;
-}
-
-export interface IRageClientEvents extends INetClientEvents {}
+interface IRageServerInternalEvents extends IServerInternalEvents, IServerEvents {}
 
 export class RageEventsManager implements IEventsManager {
-  public on<K extends keyof IRageServerEvents>(
-    events: Record<K, (...args: Parameters<IRageServerEvents[K]>) => void>,
-  ): void {
-    for (const eventName of Object.keys(events)) {
-      mp.events.add(eventName, events[eventName as K]);
-    }
+  public onInternal(events: Partial<IRageServerInternalEvents>): void {
+    mp.events.add(events);
   }
 
-  public off<K extends keyof IRageServerEvents>(
+  public offInternal<K extends keyof IRageServerInternalEvents>(eventName: K): void {
+    mp.events.remove(eventName);
+  }
+
+  public emitInternal<K extends keyof IRageServerInternalEvents>(
     eventName: K,
-    listener: (...args: Parameters<IRageServerEvents[K]>) => void,
+    ...args: Parameters<IRageServerInternalEvents[K]>
   ): void {
-    return mp.events.remove(eventName, listener);
+    mp.events.call(eventName, ...args);
   }
 
-  public emit<K extends keyof IRageServerEvents>(eventName: K, ...args: Parameters<IRageServerEvents[K]>): void {
-    return mp.events.call(eventName, ...args);
+  public onClient(events: Partial<IClientToServerEvents>): void {
+    mp.events.add(events);
   }
 
-  public emitClient<K extends keyof IRageClientEvents>(
+  public offClient<K extends keyof IClientToServerEvents>(eventName: K): void {
+    mp.events.remove(eventName);
+  }
+
+  public emitClient<K extends keyof IServerToClientEvents>(
     player: RagePlayer,
     eventName: K,
-    ...args: Parameters<IRageClientEvents[K]>
+    ...args: Parameters<IServerToClientEvents[K]>
   ): void {
     const mpPlayer = mp.players.at(player.id);
 
