@@ -1,8 +1,8 @@
 import { IEntity, IEntityOptions } from "../entity/IEntity";
 import { IVehicle } from "../vehicle/IVehicle";
 import { IVector3D } from "../../../../shared/common/utils/math/Vectors";
-import { INetClientEvents } from "../../../net/common/events/IEventsManager";
-import { INetClientRPC } from "../../../net/common/rpc/IRPCManager";
+import { IServerToClientEvents } from "@shared/net/common/events/types";
+import { IClientRPCList } from "@shared/net/common/rpc/types";
 
 export interface ICustomization {
   gender: boolean;
@@ -38,11 +38,11 @@ export interface IPlayer extends IEntity {
   get weaponAmmo(): number;
   get eyeColor(): number;
   get streamedPlayers(): IPlayer[];
-  emitEvent<K extends keyof INetClientEvents>(eventName: K, ...args: Parameters<INetClientEvents[K]>): void;
-  emitRPC<K extends keyof INetClientEvents>(
+  emitEvent<K extends keyof IServerToClientEvents>(eventName: K, ...args: Parameters<IServerToClientEvents[K]>): void;
+  emitRPC<K extends keyof IClientRPCList>(
     rpcName: K,
-    ...args: Parameters<INetClientEvents[K]>
-  ): Promise<ReturnType<INetClientRPC[K]>>;
+    ...args: Parameters<IClientRPCList[K]>
+  ): Promise<ReturnType<IClientRPCList[K]>>;
   spawn(position: IVector3D): void;
   setName(name: string): void;
   setHeading(value: number): void;

@@ -1,9 +1,10 @@
 import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
 import { AltVBaseObject } from "./AltVBaseObject";
 import { AltVBaseObjectsIterator } from "./AltVBaseObjectsIterator";
-import BaseObject = AltVServer.BaseObject;
 import { RockMod } from "../../../RockMod";
 import { BaseObjectType } from "../../../../shared";
+import { ServerInternalEventName } from "@RockMod/server/net/common/events/types";
+import BaseObject = AltVServer.BaseObject;
 
 export interface IAltVBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 
@@ -56,13 +57,13 @@ export abstract class AltVBaseObjectsManager<T extends AltVBaseObject<BaseObject
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
     }
     this._baseObjects.set(baseObject.id, baseObject);
-    RockMod.instance.net.events.emit("rm::entityCreated", baseObject);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityCreated, baseObject);
   }
 
   protected unregisterBaseObject(baseObject: T): void {
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
-    RockMod.instance.net.events.emit("rm::entityDestroyed", baseObject);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityDestroyed, baseObject);
   }
 }

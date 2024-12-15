@@ -1,12 +1,13 @@
-import { INetClientRPC, INetServerRPC, IRPCManager } from "../../common/rpc/IRPCManager";
+import { IRPCManager } from "../../common/rpc/IRPCManager";
 import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
+import { IClientRPCList, IServerRPCList } from "@shared/net/common/rpc/types";
 import alt = AltVServer;
 import shared = AltVShared;
 import Player = AltVServer.Player;
 
-export interface IAltVServerRPC extends shared.ICustomClientServerRpc, INetServerRPC {}
+export interface IAltVServerRPC extends shared.ICustomClientServerRpc, IServerRPCList {}
 
-export interface IAltVClientRPC extends shared.ICustomServerClientRpc, INetClientRPC {}
+export interface IAltVClientRPC extends shared.ICustomServerClientRpc, IClientRPCList {}
 
 export class AltVRPCManager implements IRPCManager {
   public register<K extends keyof IAltVServerRPC>(

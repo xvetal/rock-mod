@@ -3,8 +3,8 @@ import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { RockMod } from "../../../RockMod";
 import { RageVehicle } from "../../ragemp/vehicle/RageVehicle";
-import { IMockClientEvents } from "../../../net/mock/events/MockEventsManager";
 import { IMockClientRPC } from "../../../net/mock/rpc/MockRPCManager";
+import { IServerToClientEvents } from "@shared/net/common/events/types";
 
 export interface IMockPlayerOptions extends IMockEntityOptions {
   name?: string;
@@ -117,7 +117,10 @@ export class MockPlayer extends MockEntity implements IPlayer {
     };
   }
 
-  public emitEvent<K extends keyof IMockClientEvents>(eventName: K, ...args: Parameters<IMockClientEvents[K]>): void {
+  public emitEvent<K extends keyof IServerToClientEvents>(
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
+  ): void {
     return RockMod.instance.net.events.emitClient(this, eventName, ...args);
   }
 

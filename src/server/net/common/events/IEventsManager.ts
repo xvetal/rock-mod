@@ -1,25 +1,20 @@
-import { IPlayer } from "../../../entities/common/player/IPlayer";
-import { IBaseObject } from "../../../entities/common/baseObject/IBaseObject";
-
-export interface INetServerEvents {
-  "rm::playerConnected"(player: IPlayer): void;
-  "rm::playerDisconnected"(player: IPlayer): void;
-  "rm::entityCreated"(entity: IBaseObject): void;
-  "rm::entityDestroyed"(entity: IBaseObject): void;
-}
-
-export interface INetClientEvents {}
+import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
+import { IServerInternalEvents } from "./types";
+import { IPlayer } from "@RockMod/server/entities";
 
 export interface IEventsManager {
-  on<K extends keyof INetServerEvents>(events: Record<K, (...args: Parameters<INetServerEvents[K]>) => void>): void;
-  off<K extends keyof INetServerEvents>(
+  onInternal(events: Partial<IServerInternalEvents>): void;
+  offInternal<K extends keyof IServerInternalEvents>(eventName: K, listener: IServerInternalEvents[K]): void;
+  emitInternal<K extends keyof IServerInternalEvents>(
     eventName: K,
-    listener: (...args: Parameters<INetServerEvents[K]>) => void,
+    ...args: Parameters<IServerInternalEvents[K]>
   ): void;
-  emit<K extends keyof INetServerEvents>(eventName: K, ...args: Parameters<INetServerEvents[K]>): void;
-  emitClient<K extends keyof INetClientEvents>(
+
+  onClient(events: Partial<IClientToServerEvents>): void;
+  offClient<K extends keyof IClientToServerEvents>(eventName: K, listener: IClientToServerEvents[K]): void;
+  emitClient<K extends keyof IServerToClientEvents>(
     player: IPlayer,
     eventName: K,
-    ...args: Parameters<INetClientEvents[K]>
+    ...args: Parameters<IServerToClientEvents[K]>
   ): void;
 }

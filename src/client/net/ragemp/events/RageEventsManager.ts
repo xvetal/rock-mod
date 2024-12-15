@@ -1,30 +1,40 @@
-import { IEventsManager, INetClientEvents } from "../../common/events/IEventsManager";
-import { RagePlayer } from "../../../entities/ragemp/player/RagePlayer";
-import { RageBaseObject } from "../../../entities/ragemp/baseObject/RageBaseObject";
+import { IEventsManager } from "../../common/events/IEventsManager";
+import { IClientInternalEvents } from "@RockMod/client/net/common/events/types";
+import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
 
-export interface IRageClientEvents extends IClientEvents, INetClientEvents {
-  "rm::playerConnected"(player: RagePlayer): void;
-  "rm::playerDisconnected"(player: RagePlayer): void;
-  "rm::entityCreated"(entity: RageBaseObject): void;
-  "rm::entityDestroyed"(entity: RageBaseObject): void;
-  playerJoin(player: PlayerMp): void;
-  playerQuit(player: PlayerMp): void;
-}
+interface IRageClientInternalEvents extends IClientInternalEvents, IClientEvents {}
 
 export class RageEventsManager implements IEventsManager {
-  public on(events: Record<string, (...args: unknown[]) => void>): void {
+  public onInternal(events: Partial<IRageClientInternalEvents>): void {
     mp.events.add(events);
   }
 
-  public off(eventName: string, listener: (...args: unknown[]) => void): void {
+  public offInternal<K extends keyof IRageClientInternalEvents>(
+    eventName: K,
+    listener: IRageClientInternalEvents[K],
+  ): void {
     return mp.events.remove(eventName, listener);
   }
 
-  public emit(eventName: string, ...args: unknown[]): void {
+  public emitInternal<K extends keyof IRageClientInternalEvents>(
+    eventName: K,
+    ...args: Parameters<IRageClientInternalEvents[K]>
+  ): void {
     return mp.events.call(eventName, ...args);
   }
 
-  public emitServer(eventName: string, ...args: unknown[]): void {
+  public onServer(events: Partial<IServerToClientEvents>): void {
+    return mp.events.add(events);
+  }
+
+  public offServer<K extends keyof IServerToClientEvents>(eventName: K, listener: IServerToClientEvents[K]): void {
+    return mp.events.remove(eventName, listener);
+  }
+
+  public emitServer<K extends keyof IClientToServerEvents>(
+    eventName: K,
+    ...args: Parameters<IClientToServerEvents[K]>
+  ): void {
     return mp.events.callRemote(eventName, ...args);
   }
 }

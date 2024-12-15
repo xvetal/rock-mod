@@ -6,6 +6,7 @@ export {
   Vector2D as RockModVector2D,
   Vector3D as RockModVector3D,
 } from "../shared/common/utils/math";
+export { BaseObjectType as RockModBaseObjectType } from "../shared/entities/IBaseObject";
 export {
   IBaseObject as IRockModBaseObject,
   IBlip as IRockModBlip,
@@ -18,6 +19,4 @@ export {
   IVehicle as IRockModVehicle,
   IWorldObject as IRockModWorldObject,
 } from "./entities";
-export { INetServerEvents, INetClientEvents } from "./net/common/events/IEventsManager";
-export { INetServerRPC, INetClientRPC } from "./net/common/rpc/IRPCManager";
 export * from "./testing";

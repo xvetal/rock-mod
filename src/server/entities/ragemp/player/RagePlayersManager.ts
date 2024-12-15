@@ -1,8 +1,8 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePlayer } from "./RagePlayer";
 import { IPlayersManager } from "../../common/player/IPlayersManager";
-import { RockMod } from "../../../RockMod";
 import { RageNetManager } from "../../../net/ragemp/RageNetManager";
+import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
   public constructor(net: RageNetManager) {
@@ -53,7 +53,7 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
   }
 
   private _init(net: RageNetManager): void {
-    net.events.on({
+    net.events.onInternal({
       playerJoin: (mpPlayer) => {
         mpPlayer.isExists = (): boolean => mp.players.exists(mpPlayer);
         const player = new RagePlayer({
@@ -61,13 +61,13 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
         });
 
         this.registerBaseObject(player);
-        RockMod.instance.net.events.emit("rm::playerConnected", player);
+        net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
       },
       playerQuit: (mpPlayer) => {
         const player = this.getByID(mpPlayer.id);
 
         this.unregisterBaseObject(player);
-        net.events.emit("rm::playerDisconnected", player);
+        net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
       },
     });
   }

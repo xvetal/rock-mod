@@ -1,10 +1,11 @@
-import { INetClientRPC, INetServerRPC, IRPCManager } from "../../common/rpc/IRPCManager";
+import { IRPCManager } from "../../common/rpc/IRPCManager";
 import { IPlayer } from "../../../entities/common/player/IPlayer";
 import { MockPlayer } from "../../../entities/mock/player/MockPlayer";
+import { IClientRPCList, IServerRPCList } from "@shared/net/common/rpc/types";
 
-export interface IMockServerRPC extends INetServerRPC {}
+export interface IMockServerRPC extends IServerRPCList {}
 
-export interface IMockClientRPC extends INetClientRPC {}
+export interface IMockClientRPC extends IClientRPCList {}
 
 export class MockRPCManager implements IRPCManager {
   private readonly _handlers: Map<string, (player: MockPlayer, ...args: unknown[]) => unknown> = new Map();
