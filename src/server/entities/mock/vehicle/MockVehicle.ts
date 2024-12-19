@@ -2,6 +2,7 @@ import { IVehicle } from "../../common/vehicle/IVehicle";
 import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
 import { IRGBA, RGBA } from "../../../../shared/common/utils";
 import { MockPlayer } from "../player/MockPlayer";
+import { MathClamp } from "../../../../shared/common/utils/math/Math";
 
 export interface IMockVehicleOptions extends IMockEntityOptions {
   engine?: boolean;
@@ -103,7 +104,7 @@ export class MockVehicle extends MockEntity implements IVehicle {
   }
 
   public setEngineHealth(value: number): void {
-    this._engineHealth = Math.clamp(value, 0, 1000);
+    this._engineHealth = MathClamp(value, 0, 1000);
   }
 
   public setNumberPlate(value: string): void {

@@ -9,6 +9,7 @@ import hash = AltVShared.hash;
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { IAltVClientRPC } from "../../../net/altv/rpc/AltVRPCManager";
 import { IServerToClientEvents } from "@shared/net/common/events/types";
+import { MathClamp } from "../../../../shared/common/utils/math/Math";
 
 interface AltVPlayerOptions extends IAltVEntityOptions<Player> {}
 
@@ -113,11 +114,11 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
   }
 
   public setHealth(value: number): void {
-    this.mpEntity.health = Math.clamp(value, 0, 100);
+    this.mpEntity.health = MathClamp(value, 0, 100);
   }
 
   public setArmour(value: number): void {
-    this.mpEntity.armour = Math.clamp(value, 0, 100);
+    this.mpEntity.armour = MathClamp(value, 0, 100);
   }
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
