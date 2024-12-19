@@ -5,6 +5,7 @@ import { RockMod } from "../../../RockMod";
 import { RageVehicle } from "../../ragemp/vehicle/RageVehicle";
 import { IMockClientRPC } from "../../../net/mock/rpc/MockRPCManager";
 import { IServerToClientEvents } from "@shared/net/common/events/types";
+import { MathClamp } from "../../../../shared/common/utils/math/Math";
 
 export interface IMockPlayerOptions extends IMockEntityOptions {
   name?: string;
@@ -145,11 +146,11 @@ export class MockPlayer extends MockEntity implements IPlayer {
   }
 
   public setHealth(value: number): void {
-    this._playerData.health = Math.clamp(value, 0, 100);
+    this._playerData.health = MathClamp(value, 0, 100);
   }
 
   public setArmour(value: number): void {
-    this._playerData.armour = Math.clamp(value, 0, 100);
+    this._playerData.armour = MathClamp(value, 0, 100);
   }
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
