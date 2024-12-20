@@ -8,8 +8,8 @@ import Vector3 = AltVShared.Vector3;
 import hash = AltVShared.hash;
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { IAltVClientRPC } from "../../../net/altv/rpc/AltVRPCManager";
-import { IServerToClientEvents } from "@shared/net/common/events/types";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
+import { IServerToClientEvents } from "../../../../shared";
 
 interface AltVPlayerOptions extends IAltVEntityOptions<Player> {}
 

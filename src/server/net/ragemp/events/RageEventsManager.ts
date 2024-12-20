@@ -1,7 +1,7 @@
 import { IEventsManager } from "../../common/events/IEventsManager";
-import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
 import { IServerInternalEvents } from "../../common/events/types";
-import { RagePlayer } from "@RockMod/server/entities/ragemp/player/RagePlayer";
+import { IClientToServerEvents, IServerToClientEvents } from "../../../../shared";
+import { RagePlayer } from "../../../entities/ragemp/player/RagePlayer";
 
 interface IRageServerInternalEvents extends IServerInternalEvents, IServerEvents {}
 

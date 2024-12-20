@@ -4,7 +4,7 @@ import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { RockMod } from "../../../RockMod";
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { BaseObjectType } from "../../../../shared";
-import { ServerInternalEventName } from "@RockMod/server/net/common/events/types";
+import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export interface IMockPlayerConnectOptions {
   id?: number;

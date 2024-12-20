@@ -3,8 +3,8 @@ import { AltVBaseObject } from "./AltVBaseObject";
 import { AltVBaseObjectsIterator } from "./AltVBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
 import { BaseObjectType } from "../../../../shared";
-import { ServerInternalEventName } from "@RockMod/server/net/common/events/types";
 import BaseObject = AltVServer.BaseObject;
+import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export interface IAltVBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 

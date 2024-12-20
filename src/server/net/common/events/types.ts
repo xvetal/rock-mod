@@ -1,4 +1,4 @@
-import { IBaseObject, IPlayer } from "@RockMod/server/entities";
+import { IBaseObject, IPlayer } from "../../../entities";
 
 export enum ServerInternalEventName {
   PlayerConnected = "rm::playerConnected",

@@ -1,9 +1,9 @@
 import { IRPCManager } from "../../common/rpc/IRPCManager";
 import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
-import { IClientRPCList, IServerRPCList } from "@shared/net/common/rpc/types";
 import alt = AltVServer;
 import shared = AltVShared;
 import Player = AltVServer.Player;
+import { IClientRPCList, IServerRPCList } from "../../../../shared/net/common/rpc/types";
 
 export interface IAltVServerRPC extends shared.ICustomClientServerRpc, IServerRPCList {}
 
