@@ -1,11 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "@RockMod/server/*": ["./*"],
-      "@shared/*": ["../shared/*"]
-    }
+    "baseUrl": "./"
   },
   "include": ["./**/*.ts", "../shared/**/*.ts", "../index.ts"],
   "exclude": []

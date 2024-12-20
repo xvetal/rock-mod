@@ -1,8 +1,8 @@
 import { IEntity, IEntityOptions } from "../entity/IEntity";
 import { IVehicle } from "../vehicle/IVehicle";
 import { IVector3D } from "../../../../shared/common/utils/math/Vectors";
-import { IServerToClientEvents } from "@shared/net/common/events/types";
-import { IClientRPCList } from "@shared/net/common/rpc/types";
+import { IServerToClientEvents } from "../../../../shared";
+import { IClientRPCList } from "../../../../shared/net/common/rpc/types";
 
 export interface ICustomization {
   gender: boolean;

@@ -1,6 +1,6 @@
-import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
+import { IClientToServerEvents, IServerToClientEvents } from "../../../../shared";
 import { IServerInternalEvents } from "./types";
-import { IPlayer } from "@RockMod/server/entities";
+import { IPlayer } from "../../../entities";
 
 export interface IEventsManager {
   onInternal(events: Partial<IServerInternalEvents>): void;

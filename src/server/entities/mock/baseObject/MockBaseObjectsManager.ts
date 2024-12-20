@@ -3,7 +3,7 @@ import { MockBaseObject } from "./MockBaseObject";
 import { MockBaseObjectsIterator } from "./MockBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
 import { BaseObjectType } from "../../../../shared";
-import { ServerInternalEventName } from "@RockMod/server/net/common/events/types";
+import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export interface IMockBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 

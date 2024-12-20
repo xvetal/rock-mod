@@ -1,8 +1,8 @@
 import { IEventsManager } from "../../common/events/IEventsManager";
 import { EventEmitter } from "events";
-import { IServerInternalEvents } from "@RockMod/server/net/common/events/types";
-import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
-import { MockPlayer } from "@RockMod/server/entities/mock/player/MockPlayer";
+import { IServerInternalEvents } from "../../common/events/types";
+import { IClientToServerEvents, IServerToClientEvents } from "../../../../shared";
+import { MockPlayer } from "../../../entities/mock/player/MockPlayer";
 
 export class MockEventsManager implements IEventsManager {
   private readonly _eventEmitter = new EventEmitter();

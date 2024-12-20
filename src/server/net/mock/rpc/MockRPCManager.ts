@@ -1,7 +1,7 @@
 import { IRPCManager } from "../../common/rpc/IRPCManager";
 import { IPlayer } from "../../../entities/common/player/IPlayer";
 import { MockPlayer } from "../../../entities/mock/player/MockPlayer";
-import { IClientRPCList, IServerRPCList } from "@shared/net/common/rpc/types";
+import { IClientRPCList, IServerRPCList } from "../../../../shared/net/common/rpc/types";
 
 export interface IMockServerRPC extends IServerRPCList {}
 

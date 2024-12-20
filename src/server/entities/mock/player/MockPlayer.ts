@@ -4,8 +4,8 @@ import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { RockMod } from "../../../RockMod";
 import { RageVehicle } from "../../ragemp/vehicle/RageVehicle";
 import { IMockClientRPC } from "../../../net/mock/rpc/MockRPCManager";
-import { IServerToClientEvents } from "@shared/net/common/events/types";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
+import { IServerToClientEvents } from "../../../../shared";
 
 export interface IMockPlayerOptions extends IMockEntityOptions {
   name?: string;

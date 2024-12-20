@@ -1,5 +1,5 @@
 import { IPlayer } from "../../../entities/common/player/IPlayer";
-import { IClientRPCList, IServerRPCList } from "@shared/net/common/rpc/types";
+import { IClientRPCList, IServerRPCList } from "../../../../shared/net/common/rpc/types";
 
 export interface IRPCManager {
   register<K extends keyof IServerRPCList>(

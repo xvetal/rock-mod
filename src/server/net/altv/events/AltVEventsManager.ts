@@ -1,8 +1,8 @@
 import { IEventsManager } from "../../common/events/IEventsManager";
-import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
 import { IServerInternalEvents } from "../../common/events/types";
-import { AltVPlayer } from "@RockMod/server/entities/altv/player/AltVPlayer";
 import Player = AltVServer.Player;
+import { IClientToServerEvents, IServerToClientEvents } from "../../../../shared";
+import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
 
 interface IAltVServerInternalEvents extends IServerInternalEvents, AltVServer.IServerEvent {}
 

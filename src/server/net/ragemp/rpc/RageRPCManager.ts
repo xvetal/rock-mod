@@ -1,6 +1,6 @@
 import { IRPCManager } from "../../common/rpc/IRPCManager";
 import { RagePlayer } from "../../../entities/ragemp/player/RagePlayer";
-import { IClientRPCList, IServerRPCList } from "@shared/net/common/rpc/types";
+import { IClientRPCList, IServerRPCList } from "../../../../shared/net/common/rpc/types";
 
 export class RageRPCManager implements IRPCManager {
   public register<K extends keyof IServerRPCList>(
