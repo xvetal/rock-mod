@@ -1,5 +1,5 @@
-import { ICylinderColshape } from "../../common";
-import { IMockColshapeOptions, MockColshape } from "./MockColshape";
+import { type ICylinderColshape } from "../../common";
+import { type IMockColshapeOptions, MockColshape } from "./MockColshape";
 
 export interface IMockCylinderColshapeCreateOptions extends IMockColshapeOptions {
   height: number;

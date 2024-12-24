@@ -1,8 +1,8 @@
-import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
-import { AltVBaseObject } from "./AltVBaseObject";
+import { type IBaseObjectsManager, type IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
+import { type AltVBaseObject } from "./AltVBaseObject";
 import { AltVBaseObjectsIterator } from "./AltVBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
-import { BaseObjectType } from "../../../../shared";
+import { type BaseObjectType } from "../../../../shared";
 import BaseObject = AltVServer.BaseObject;
 import { ServerInternalEventName } from "../../../net/common/events/types";
 

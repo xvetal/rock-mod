@@ -1,6 +1,6 @@
-import { IEntitiesManager } from "../../common/entity/IEntitiesManager";
-import { MockEntity } from "./MockEntity";
-import { IMockWorldObjectsManagerOptions, MockWorldObjectsManager } from "../worldObject/MockWorldObjectsManager";
+import { type IEntitiesManager } from "../../common/entity/IEntitiesManager";
+import { type MockEntity } from "./MockEntity";
+import { type IMockWorldObjectsManagerOptions, MockWorldObjectsManager } from "../worldObject/MockWorldObjectsManager";
 
 export interface IMockEntitiesManagerOptions extends IMockWorldObjectsManagerOptions {}
 

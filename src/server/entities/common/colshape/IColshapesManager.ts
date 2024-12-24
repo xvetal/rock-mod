@@ -1,11 +1,11 @@
-import { IWorldObjectCreateOptions, IWorldObjectsManager } from "../worldObject";
-import { IColshape } from "./IColshape";
-import { IVector2D } from "../../../../shared/common/utils";
-import { ICircleColshape } from "./ICircleColshape";
-import { ICuboidColshape } from "./ICuboidColshape";
-import { ICylinderColshape } from "./ICylinderColshape";
-import { IRectangleColshape } from "./IRectangleColshape";
-import { ISphereColshape } from "./ISphereColshape";
+import { type IWorldObjectCreateOptions, type IWorldObjectsManager } from "../worldObject";
+import { type IColshape } from "./IColshape";
+import { type IVector2D } from "../../../../shared/common/utils";
+import { type ICircleColshape } from "./ICircleColshape";
+import { type ICuboidColshape } from "./ICuboidColshape";
+import { type ICylinderColshape } from "./ICylinderColshape";
+import { type IRectangleColshape } from "./IRectangleColshape";
+import { type ISphereColshape } from "./ISphereColshape";
 
 export interface ICircleColshapeCreateOptions extends Omit<IWorldObjectCreateOptions, "position"> {
   position: IVector2D;

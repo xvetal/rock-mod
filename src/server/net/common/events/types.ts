@@ -1,4 +1,4 @@
-import { IBaseObject, IPlayer } from "../../../entities";
+import { type IBaseObject, type IPlayer } from "../../../entities";
 
 export enum ServerInternalEventName {
   PlayerConnected = "rm::playerConnected",

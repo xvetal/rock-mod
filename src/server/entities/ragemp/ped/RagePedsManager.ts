@@ -1,4 +1,4 @@
-import { IPedCreateOptions, IPedsManager } from "../../common";
+import { type IPedCreateOptions, type IPedsManager } from "../../common";
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePed } from "./RagePed";
 

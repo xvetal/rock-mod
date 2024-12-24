@@ -1,5 +1,5 @@
-import { AltVEntity, IAltVEntityOptions } from "../entity/AltVEntity";
-import { IObject } from "../../common/object/IObject";
+import { AltVEntity, type IAltVEntityOptions } from "../entity/AltVEntity";
+import { type IObject } from "../../common/object/IObject";
 
 export interface IAltVObjectOptions extends IAltVEntityOptions<AltVServer.Object> {}
 

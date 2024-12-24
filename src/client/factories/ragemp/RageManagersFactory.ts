@@ -1,4 +1,4 @@
-import { IManagersFactory } from "../common/IManagersFactory";
+import { type IManagersFactory } from "../common/IManagersFactory";
 import { RageBlipsManager } from "@RockMod/client/entities/ragemp/blip/RageBlipsManager";
 import { RageColshapesManager } from "@RockMod/client/entities/ragemp/colshape/RageColshapesManager";
 import { RageMarkersManager } from "@RockMod/client/entities/ragemp/marker/RageMarkersManager";

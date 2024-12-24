@@ -1,5 +1,5 @@
-import { ICuboidColshape } from "../../common";
-import { IMockColshapeOptions, MockColshape } from "./MockColshape";
+import { type ICuboidColshape } from "../../common";
+import { type IMockColshapeOptions, MockColshape } from "./MockColshape";
 
 export interface IMockCuboidColshapeCreateOptions extends IMockColshapeOptions {
   width: number;

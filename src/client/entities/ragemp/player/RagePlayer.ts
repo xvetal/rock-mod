@@ -1,5 +1,5 @@
-import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { IPlayer } from "../../common/player/IPlayer";
+import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { type IPlayer } from "../../common/player/IPlayer";
 
 interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 

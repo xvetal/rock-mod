@@ -1,5 +1,5 @@
-import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { IObject } from "../../common/object/IObject";
+import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { type IObject } from "../../common/object/IObject";
 
 export interface IRageObjectOptions extends IRageEntityOptions<ObjectMp> {}
 

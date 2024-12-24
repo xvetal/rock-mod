@@ -1,5 +1,5 @@
-import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { IVehicle } from "../../common/vehicle/IVehicle";
+import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { type IVehicle } from "../../common/vehicle/IVehicle";
 
 export interface IRageVehicleOptions extends IRageEntityOptions<VehicleMp> {}
 

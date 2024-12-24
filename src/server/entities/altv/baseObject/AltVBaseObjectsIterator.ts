@@ -1,5 +1,5 @@
-import { AltVBaseObject } from "./AltVBaseObject";
-import { IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
+import { type AltVBaseObject } from "./AltVBaseObject";
+import { type IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
 import BaseObject = AltVServer.BaseObject;
 
 export class AltVBaseObjectsIterator<T extends AltVBaseObject<BaseObject>> implements IBaseObjectsIterator<T> {

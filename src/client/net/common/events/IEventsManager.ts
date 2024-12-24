@@ -1,5 +1,5 @@
-import { IServerToClientEvents, IClientToServerEvents } from "@shared/net/common/events/types";
-import { IClientInternalEvents } from "./types";
+import { type IServerToClientEvents, type IClientToServerEvents } from "@shared/net/common/events/types";
+import { type IClientInternalEvents } from "./types";
 
 export interface IEventsManager {
   onInternal(events: Partial<IClientInternalEvents>): void;

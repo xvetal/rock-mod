@@ -1,7 +1,7 @@
-import { IEventsManager } from "../../common/events/IEventsManager";
-import { IServerInternalEvents } from "../../common/events/types";
-import { IClientToServerEvents, IServerToClientEvents } from "../../../../shared";
-import { RagePlayer } from "../../../entities/ragemp/player/RagePlayer";
+import { type IEventsManager } from "../../common/events/IEventsManager";
+import { type IServerInternalEvents } from "../../common/events/types";
+import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
+import { type RagePlayer } from "../../../entities/ragemp/player/RagePlayer";
 
 interface IRageServerInternalEvents extends IServerInternalEvents, IServerEvents {}
 

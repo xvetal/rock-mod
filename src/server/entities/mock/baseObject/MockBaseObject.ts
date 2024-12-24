@@ -1,6 +1,6 @@
-import { IBaseObject } from "../../common/baseObject/IBaseObject";
-import { IVector3D } from "../../../../shared/common/utils/math/Vectors";
-import { BaseObjectType } from "../../../../shared";
+import { type IBaseObject } from "../../common/baseObject/IBaseObject";
+import { type IVector3D } from "../../../../shared/common/utils/math/Vectors";
+import { type BaseObjectType } from "../../../../shared";
 
 export interface IMockBaseObjectOptions {
   id: number;

@@ -1,5 +1,5 @@
-import { IWorldObject, IWorldObjectOptions } from "../worldObject";
-import { IBlipColor, IBlipSprite } from "../../../../shared";
+import { type IWorldObject, type IWorldObjectOptions } from "../worldObject";
+import { type IBlipColor, type IBlipSprite } from "../../../../shared";
 
 export interface IBlipOptions extends IWorldObjectOptions {}
 

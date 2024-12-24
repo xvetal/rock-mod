@@ -1,6 +1,6 @@
-import { IBaseObject } from "./IBaseObject";
-import { IBaseObjectsIterator } from "./IBaseObjectsIterator";
-import { BaseObjectType } from "@shared/entities";
+import { type IBaseObject } from "./IBaseObject";
+import { type IBaseObjectsIterator } from "./IBaseObjectsIterator";
+import { type BaseObjectType } from "@shared/entities";
 
 export interface IBaseObjectsManagerOptions {
   baseObjectsType: `${BaseObjectType}`;

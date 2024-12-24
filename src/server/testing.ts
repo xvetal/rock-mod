@@ -1,6 +1,6 @@
-import { MockPlayer } from "entities/mock/player/MockPlayer";
+import { type MockPlayer } from "entities/mock/player/MockPlayer";
 import { RockMod } from "./RockMod";
-import { IMockPlayerConnectOptions, MockPlayersManager } from "./entities/mock/player/MockPlayersManager";
+import { IMockPlayerConnectOptions, type MockPlayersManager } from "./entities/mock/player/MockPlayersManager";
 
 export class RockModTesting {
   public static simulatePlayerConnect(options?: IMockPlayerConnectOptions): MockPlayer {

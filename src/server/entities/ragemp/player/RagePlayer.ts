@@ -1,10 +1,10 @@
-import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { ICustomization, IPlayer } from "../../common/player/IPlayer";
+import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { RockMod } from "../../../RockMod";
-import { RageVehicle } from "../vehicle/RageVehicle";
+import { type RageVehicle } from "../vehicle/RageVehicle";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
-import { IServerToClientEvents, Vector3D } from "../../../../shared";
-import { IClientRPCList } from "../../../../shared/net/common/rpc/types";
+import { type IServerToClientEvents, type Vector3D } from "../../../../shared";
+import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
 
 interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 

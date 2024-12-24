@@ -1,5 +1,5 @@
-import { ICircleColshape } from "../../common";
-import { IMockColshapeOptions, MockColshape } from "./MockColshape";
+import { type ICircleColshape } from "../../common";
+import { type IMockColshapeOptions, MockColshape } from "./MockColshape";
 
 export interface IMockCircleColshapeCreateOptions extends IMockColshapeOptions {
   range: number;

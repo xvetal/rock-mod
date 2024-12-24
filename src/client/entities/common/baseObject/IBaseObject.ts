@@ -1,5 +1,5 @@
 import BaseObject = AltVClient.BaseObject;
-import { BaseObjectType } from "@shared/entities";
+import { type BaseObjectType } from "@shared/entities";
 
 export interface IBaseObjectOptions {
   mpEntity: EntityMp | BaseObject;

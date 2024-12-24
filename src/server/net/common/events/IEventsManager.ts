@@ -1,6 +1,6 @@
-import { IClientToServerEvents, IServerToClientEvents } from "../../../../shared";
-import { IServerInternalEvents } from "./types";
-import { IPlayer } from "../../../entities";
+import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
+import { type IServerInternalEvents } from "./types";
+import { type IPlayer } from "../../../entities";
 
 export interface IEventsManager {
   onInternal(events: Partial<IServerInternalEvents>): void;

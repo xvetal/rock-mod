@@ -1,5 +1,5 @@
-import { IEntitiesManager, IEntityCreateOptions } from "../entity/IEntitiesManager";
-import { IVehicle } from "./IVehicle";
+import { type IEntitiesManager, type IEntityCreateOptions } from "../entity/IEntitiesManager";
+import { type IVehicle } from "./IVehicle";
 
 export interface IVehicleCreateOptions extends IEntityCreateOptions {
   engine: boolean;

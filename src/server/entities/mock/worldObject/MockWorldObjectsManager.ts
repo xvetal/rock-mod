@@ -1,6 +1,6 @@
-import { IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
-import { MockWorldObject } from "./MockWorldObject";
-import { IMockBaseObjectsManagerOptions, MockBaseObjectsManager } from "../baseObject/MockBaseObjectsManager";
+import { type IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
+import { type MockWorldObject } from "./MockWorldObject";
+import { type IMockBaseObjectsManagerOptions, MockBaseObjectsManager } from "../baseObject/MockBaseObjectsManager";
 import { MockWorldObjectsIterator } from "./MockWorldObjectsIterator";
 
 export interface IMockWorldObjectsManagerOptions extends IMockBaseObjectsManagerOptions {}

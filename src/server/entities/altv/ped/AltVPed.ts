@@ -1,6 +1,6 @@
-import { AltVEntity, IAltVEntityOptions } from "../entity/AltVEntity";
+import { AltVEntity, type IAltVEntityOptions } from "../entity/AltVEntity";
 import Ped = AltVServer.Ped;
-import { IPed } from "../../common";
+import { type IPed } from "../../common";
 
 export interface IAltVPedOptions extends IAltVEntityOptions<Ped> {}
 

@@ -1,8 +1,8 @@
-import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
-import { RageBaseObject } from "./RageBaseObject";
+import { type IBaseObjectsManager, type IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
+import { type RageBaseObject } from "./RageBaseObject";
 import { RageBaseObjectsIterator } from "./RageBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
-import { BaseObjectType } from "../../../../shared";
+import { type BaseObjectType } from "../../../../shared";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export interface IRageBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}

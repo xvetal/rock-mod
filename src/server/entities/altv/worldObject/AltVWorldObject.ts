@@ -1,6 +1,6 @@
-import { IWorldObject } from "../../common/worldObject/IWorldObject";
+import { type IWorldObject } from "../../common/worldObject/IWorldObject";
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
-import { AltVBaseObject, IAltVBaseObjectOptions } from "../baseObject/AltVBaseObject";
+import { AltVBaseObject, type IAltVBaseObjectOptions } from "../baseObject/AltVBaseObject";
 import WorldObject = AltVServer.WorldObject;
 import Vector3 = AltVShared.Vector3;
 

@@ -1,5 +1,5 @@
-import { IPed } from "../../common/ped/IPed";
-import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
+import { type IPed } from "../../common/ped/IPed";
+import { MockEntity, type IMockEntityOptions } from "../entity/MockEntity";
 
 export interface IMockPedOptions extends IMockEntityOptions {}
 

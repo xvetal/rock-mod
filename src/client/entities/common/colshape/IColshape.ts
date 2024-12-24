@@ -1,4 +1,4 @@
-import { IWorldObject, IWorldObjectOptions } from "../worldObject";
+import { type IWorldObject, type IWorldObjectOptions } from "../worldObject";
 
 export interface IColshapeOptions extends IWorldObjectOptions {}
 

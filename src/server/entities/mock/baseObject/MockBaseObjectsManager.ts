@@ -1,8 +1,8 @@
-import { IBaseObjectsManager, IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
-import { MockBaseObject } from "./MockBaseObject";
+import { type IBaseObjectsManager, type IBaseObjectsManagerOptions } from "../../common/baseObject/IBaseObjectsManager";
+import { type MockBaseObject } from "./MockBaseObject";
 import { MockBaseObjectsIterator } from "./MockBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
-import { BaseObjectType } from "../../../../shared";
+import { type BaseObjectType } from "../../../../shared";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export interface IMockBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}

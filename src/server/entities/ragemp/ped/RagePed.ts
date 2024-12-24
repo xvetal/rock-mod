@@ -1,5 +1,5 @@
-import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { IPed } from "../../common";
+import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { type IPed } from "../../common";
 
 export interface IRagePedOptions extends IRageEntityOptions<PedMp> {}
 

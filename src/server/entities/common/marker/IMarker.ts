@@ -1,6 +1,6 @@
-import { IWorldObject, IWorldObjectOptions } from "../worldObject";
-import { IRGBA, IVector3D } from "../../../../shared/common/utils";
-import { IMarkerType } from "../../../../shared";
+import { type IWorldObject, type IWorldObjectOptions } from "../worldObject";
+import { type IRGBA, type IVector3D } from "../../../../shared/common/utils";
+import { type IMarkerType } from "../../../../shared";
 
 export interface IMarkerOptions extends IWorldObjectOptions {
   type: IMarkerType;

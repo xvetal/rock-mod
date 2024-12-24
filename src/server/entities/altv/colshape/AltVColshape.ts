@@ -1,4 +1,4 @@
-import { AltVWorldObject, IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
+import { AltVWorldObject, type IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
 import Colshape = AltVServer.Colshape;
 
 export interface IAltVColshapeOptions extends IAltVWorldObjectOptions<Colshape> {}

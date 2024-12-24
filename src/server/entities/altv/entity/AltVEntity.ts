@@ -1,5 +1,5 @@
-import { IEntity } from "../../common/entity/IEntity";
-import { AltVWorldObject, IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
+import { type IEntity } from "../../common/entity/IEntity";
+import { AltVWorldObject, type IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
 import hash = AltVShared.hash;
 import Entity = AltVServer.Entity;
 import { Vector3D } from "../../../../shared/common/utils";

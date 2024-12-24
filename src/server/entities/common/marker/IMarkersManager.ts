@@ -1,7 +1,7 @@
-import { IMarker } from "./IMarker";
-import { IWorldObjectCreateOptions, IWorldObjectsManager } from "../worldObject";
-import { IRGBA, IVector3D } from "../../../../shared/common/utils";
-import { IMarkerType } from "../../../../shared";
+import { type IMarker } from "./IMarker";
+import { type IWorldObjectCreateOptions, type IWorldObjectsManager } from "../worldObject";
+import { type IRGBA, type IVector3D } from "../../../../shared/common/utils";
+import { type IMarkerType } from "../../../../shared";
 
 export interface IMarkerCreateOptions extends IWorldObjectCreateOptions {
   type: IMarkerType;

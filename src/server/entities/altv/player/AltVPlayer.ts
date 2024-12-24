@@ -1,15 +1,15 @@
-import { AltVEntity, IAltVEntityOptions } from "../entity/AltVEntity";
-import { ICustomization, IPlayer } from "../../common/player/IPlayer";
-import { AltVVehicle } from "../vehicle/AltVVehicle";
+import { AltVEntity, type IAltVEntityOptions } from "../entity/AltVEntity";
+import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
+import { type AltVVehicle } from "../vehicle/AltVVehicle";
 import { RockMod } from "../../../RockMod";
 import Player = AltVServer.Player;
 import Vehicle = AltVServer.Vehicle;
 import Vector3 = AltVShared.Vector3;
 import hash = AltVShared.hash;
-import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
-import { IAltVClientRPC } from "../../../net/altv/rpc/AltVRPCManager";
+import { type Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { type IAltVClientRPC } from "../../../net/altv/rpc/AltVRPCManager";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
-import { IServerToClientEvents } from "../../../../shared";
+import { type IServerToClientEvents } from "../../../../shared";
 
 interface AltVPlayerOptions extends IAltVEntityOptions<Player> {}
 

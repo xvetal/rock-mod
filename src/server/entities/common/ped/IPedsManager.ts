@@ -1,5 +1,5 @@
-import { IEntitiesManager, IEntityCreateOptions } from "../entity";
-import { IPed } from "./IPed";
+import { type IEntitiesManager, type IEntityCreateOptions } from "../entity";
+import { type IPed } from "./IPed";
 
 export interface IPedCreateOptions extends IEntityCreateOptions {
   frozen: boolean;

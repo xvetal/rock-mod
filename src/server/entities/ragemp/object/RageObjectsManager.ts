@@ -1,4 +1,4 @@
-import { IObjectCreateOptions, IObjectsManager } from "../../common/object/IObjectsManager";
+import { type IObjectCreateOptions, type IObjectsManager } from "../../common/object/IObjectsManager";
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RageObject } from "./RageObject";
 

@@ -1,5 +1,5 @@
-import { IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
-import { MockBaseObject } from "./MockBaseObject";
+import { type IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
+import { type MockBaseObject } from "./MockBaseObject";
 
 export class MockBaseObjectsIterator<T extends MockBaseObject> implements IBaseObjectsIterator<T> {
   protected readonly _baseObjects: ReadonlyMap<number, T>;

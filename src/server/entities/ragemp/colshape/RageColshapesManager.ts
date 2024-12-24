@@ -1,12 +1,12 @@
 import { RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
-import { RageColshape } from "./RageColshape";
+import { type RageColshape } from "./RageColshape";
 import {
-  ICircleColshapeCreateOptions,
-  IColshapesManager,
-  ICuboidColshapeCreateOptions,
-  ICylinderColshapeCreateOptions,
-  IRectangleColshapeCreateOptions,
-  ISphereColshapeCreateOptions,
+  type ICircleColshapeCreateOptions,
+  type IColshapesManager,
+  type ICuboidColshapeCreateOptions,
+  type ICylinderColshapeCreateOptions,
+  type IRectangleColshapeCreateOptions,
+  type ISphereColshapeCreateOptions,
 } from "../../common";
 import { RageCircleColshape } from "./RageCircleColshape";
 import { RageCuboidColshape } from "./RageCuboidColshape";

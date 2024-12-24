@@ -1,4 +1,4 @@
-import { IMarkerCreateOptions, IMarkersManager } from "../../common";
+import { type IMarkerCreateOptions, type IMarkersManager } from "../../common";
 import { AltVWorldObjectsManager } from "../worldObject/AltVWorldObjectsManager";
 import { AltVMarker } from "./AltVMarker";
 import alt = AltVServer;

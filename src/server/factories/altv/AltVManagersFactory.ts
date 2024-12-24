@@ -1,4 +1,4 @@
-import { IManagersFactory } from "../common/IManagersFactory";
+import { type IManagersFactory } from "../common/IManagersFactory";
 import { AltVNetManager } from "../../net/altv/AltVNetManager";
 import { AltVBlipsManager } from "../../entities/altv/blip/AltVBlipsManager";
 import { AltVColshapesManager } from "../../entities/altv/colshape/AltVColshapesManager";

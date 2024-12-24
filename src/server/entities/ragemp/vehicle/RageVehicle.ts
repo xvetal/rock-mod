@@ -1,7 +1,7 @@
-import { IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { IVehicle } from "../../common/vehicle/IVehicle";
+import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
+import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { RGBA } from "../../../../shared/common/utils";
-import { RagePlayer } from "../player/RagePlayer";
+import { type RagePlayer } from "../player/RagePlayer";
 import { RockMod } from "../../../RockMod";
 
 export interface IRageVehicleOptions extends IRageEntityOptions<VehicleMp> {}

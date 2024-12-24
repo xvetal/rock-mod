@@ -1,5 +1,5 @@
-import { IEntitiesManager, IEntityCreateOptions } from "../entity";
-import { IObject } from "./IObject";
+import { type IEntitiesManager, type IEntityCreateOptions } from "../entity";
+import { type IObject } from "./IObject";
 
 export interface IObjectCreateOptions extends IEntityCreateOptions {
   alpha: number;

@@ -1,4 +1,4 @@
-import { IBaseObject, IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
+import { type IBaseObject, type IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
 import BaseObject = AltVServer.BaseObject;
 import BaseObjectTypeMP = AltVShared.BaseObjectType;
 import { BaseObjectType } from "../../../../shared";

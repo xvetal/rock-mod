@@ -1,4 +1,4 @@
-import { INetManager } from "../common/INetManager";
+import { type INetManager } from "../common/INetManager";
 import { MockEventsManager } from "./events/MockEventsManager";
 import { MockRPCManager } from "./rpc/MockRPCManager";
 

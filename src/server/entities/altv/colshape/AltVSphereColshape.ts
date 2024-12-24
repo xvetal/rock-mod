@@ -1,5 +1,5 @@
-import { ISphereColshape } from "../../common";
-import { AltVColshape, IAltVColshapeOptions } from "./AltVColshape";
+import { type ISphereColshape } from "../../common";
+import { AltVColshape, type IAltVColshapeOptions } from "./AltVColshape";
 
 export interface IAltVSphereColshapeOptions extends IAltVColshapeOptions {}
 

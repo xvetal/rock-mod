@@ -1,4 +1,4 @@
-import { IUtilsManager } from "../common";
+import { type IUtilsManager } from "../common";
 
 export class MockUtilsManager implements IUtilsManager {
   public hash(value: string): number {

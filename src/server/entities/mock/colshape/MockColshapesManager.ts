@@ -1,10 +1,10 @@
 import {
-  ICircleColshapeCreateOptions,
-  IColshapesManager,
-  ICuboidColshapeCreateOptions,
-  ICylinderColshapeCreateOptions,
-  IRectangleColshapeCreateOptions,
-  ISphereColshapeCreateOptions,
+  type ICircleColshapeCreateOptions,
+  type IColshapesManager,
+  type ICuboidColshapeCreateOptions,
+  type ICylinderColshapeCreateOptions,
+  type IRectangleColshapeCreateOptions,
+  type ISphereColshapeCreateOptions,
 } from "../../common";
 import { MockWorldObjectsManager } from "../worldObject/MockWorldObjectsManager";
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
@@ -13,7 +13,7 @@ import { MockCuboidColshape } from "./MockCuboidColshape";
 import { MockCylinderColshape } from "./MockCylinderColshape";
 import { MockRectangleColshape } from "./MockRectangleColshape";
 import { MockSphereColshape } from "./MockSphereColshape";
-import { MockColshape } from "./MockColshape";
+import { type MockColshape } from "./MockColshape";
 import { BaseObjectType } from "../../../../shared";
 
 export interface IMockCircleColshapeCreateOptions extends ICircleColshapeCreateOptions {}
