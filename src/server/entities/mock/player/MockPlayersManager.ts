@@ -1,4 +1,4 @@
-import { IPlayersManager } from "../../common/player/IPlayersManager";
+import { type IPlayersManager } from "../../common/player/IPlayersManager";
 import { MockPlayer } from "./MockPlayer";
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { RockMod } from "../../../RockMod";

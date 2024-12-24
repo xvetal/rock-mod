@@ -1,7 +1,7 @@
-import { RageWorldObject } from "./RageWorldObject";
+import { type RageWorldObject } from "./RageWorldObject";
 import { RageBaseObjectsIterator } from "../baseObject/RageBaseObjectsIterator";
-import { IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
-import { Vector2D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
+import { type Vector2D, type Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export class RageWorldObjectsIterator<T extends RageWorldObject<EntityMp>>
   extends RageBaseObjectsIterator<T>

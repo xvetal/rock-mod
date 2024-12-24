@@ -1,4 +1,4 @@
-import { IMarkerCreateOptions, IMarkersManager } from "../../common";
+import { type IMarkerCreateOptions, type IMarkersManager } from "../../common";
 import { RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
 import { RageMarker } from "./RageMarker";
 

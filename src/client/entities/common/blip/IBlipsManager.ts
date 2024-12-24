@@ -1,5 +1,5 @@
-import { IWorldObjectCreateOptions, IWorldObjectsManager } from "../worldObject";
-import { IBlip } from "./IBlip";
+import { type IWorldObjectCreateOptions, type IWorldObjectsManager } from "../worldObject";
+import { type IBlip } from "./IBlip";
 
 export interface IBlipCreateOptions extends IWorldObjectCreateOptions {
   alpha?: number;

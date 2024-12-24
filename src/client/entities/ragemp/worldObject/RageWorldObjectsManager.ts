@@ -1,6 +1,6 @@
-import { IWorldObjectsManager } from "../../common";
-import { IRageBaseObjectsManagerOptions, RageBaseObjectsManager } from "../baseObject/RageBaseObjectsManager";
-import { RageWorldObject } from "./RageWorldObject";
+import { type IWorldObjectsManager } from "../../common";
+import { type IRageBaseObjectsManagerOptions, RageBaseObjectsManager } from "../baseObject/RageBaseObjectsManager";
+import { type RageWorldObject } from "./RageWorldObject";
 import { RageWorldObjectsIterator } from "./RageWorldObjectsIterator";
 
 export interface IRageWorldObjectsManagerOptions extends IRageBaseObjectsManagerOptions {}

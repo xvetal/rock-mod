@@ -1,4 +1,4 @@
-import { IPedCreateOptions, IPedsManager } from "../../common/ped/IPedsManager";
+import { type IPedCreateOptions, type IPedsManager } from "../../common/ped/IPedsManager";
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { MockPed } from "./MockPed";
 import { RockMod } from "../../../RockMod";

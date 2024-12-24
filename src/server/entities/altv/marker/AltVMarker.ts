@@ -1,9 +1,9 @@
-import { AltVWorldObject, IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
+import { AltVWorldObject, type IAltVWorldObjectOptions } from "../worldObject/AltVWorldObject";
 import Marker = AltVServer.Marker;
-import { IMarker } from "../../common";
+import { type IMarker } from "../../common";
 import Vector3 = AltVShared.Vector3;
-import { IRGBA, IVector3D, RGBA, Vector3D } from "../../../../shared/common/utils";
-import { IMarkerType } from "../../../../shared";
+import { type IRGBA, type IVector3D, RGBA, Vector3D } from "../../../../shared/common/utils";
+import { type IMarkerType } from "../../../../shared";
 
 export interface IAltVMarkerOptions extends IAltVWorldObjectOptions<Marker> {}
 

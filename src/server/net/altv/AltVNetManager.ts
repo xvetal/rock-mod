@@ -1,4 +1,4 @@
-import { INetManager } from "../common/INetManager";
+import { type INetManager } from "../common/INetManager";
 import { AltVEventsManager } from "./events/AltVEventsManager";
 import { AltVRPCManager } from "./rpc/AltVRPCManager";
 

@@ -1,4 +1,4 @@
-import { IObjectCreateOptions, IObjectsManager } from "../../common/object/IObjectsManager";
+import { type IObjectCreateOptions, type IObjectsManager } from "../../common/object/IObjectsManager";
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { MockObject } from "./MockObject";
 import { RockMod } from "../../../RockMod";

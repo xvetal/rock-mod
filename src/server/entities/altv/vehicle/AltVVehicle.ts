@@ -1,9 +1,9 @@
-import { AltVEntity, IAltVEntityOptions } from "../entity/AltVEntity";
-import { IVehicle } from "../../common/vehicle/IVehicle";
+import { AltVEntity, type IAltVEntityOptions } from "../entity/AltVEntity";
+import { type IVehicle } from "../../common/vehicle/IVehicle";
 import Vehicle = AltVServer.Vehicle;
 import VehicleLockState = AltVShared.VehicleLockState;
 import { RGBA } from "../../../../shared/common/utils";
-import { AltVPlayer } from "../player/AltVPlayer";
+import { type AltVPlayer } from "../player/AltVPlayer";
 import { RockMod } from "../../../RockMod";
 
 export interface IAltVVehicleOptions extends IAltVEntityOptions<Vehicle> {}

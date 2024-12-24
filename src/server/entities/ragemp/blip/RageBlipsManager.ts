@@ -1,4 +1,4 @@
-import { IBlipCreateOptions, IBlipsManager } from "../../common";
+import { type IBlipCreateOptions, type IBlipsManager } from "../../common";
 import { RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
 import { RageBlip } from "./RageBlip";
 

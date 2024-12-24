@@ -1,4 +1,4 @@
-import { IEntity, IEntityOptions } from "../entity/IEntity";
+import { type IEntity, type IEntityOptions } from "../entity/IEntity";
 
 export interface IVehicleOptions extends IEntityOptions {}
 

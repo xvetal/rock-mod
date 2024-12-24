@@ -1,7 +1,7 @@
-import { IManagersFactory } from "../common/IManagersFactory";
+import { type IManagersFactory } from "../common/IManagersFactory";
 import { MockNetManager } from "../../net/mock/MockNetManager";
 import { MockPlayersManager } from "../../entities/mock/player/MockPlayersManager";
-import { IUtilsManager } from "../../utils";
+import { type IUtilsManager } from "../../utils";
 import { MockBlipsManager } from "../../entities/mock/blip/MockBlipsManager";
 import { MockColshapesManager } from "../../entities/mock/colshape/MockColshapesManager";
 import { MockMarkersManager } from "../../entities/mock/marker/MockMarkersManager";

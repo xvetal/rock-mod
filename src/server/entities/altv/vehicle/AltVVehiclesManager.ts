@@ -1,7 +1,7 @@
 import { AltVEntitiesManager } from "../entity/AltVEntitiesManager";
 import { AltVVehicle } from "./AltVVehicle";
-import { IVehicleCreateOptions, IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
-import { IVehicle } from "../../common/vehicle/IVehicle";
+import { type IVehicleCreateOptions, type IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
+import { type IVehicle } from "../../common/vehicle/IVehicle";
 import alt = AltVServer;
 
 export interface IAltVVehicleCreateOptions extends IVehicleCreateOptions {}

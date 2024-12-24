@@ -1,6 +1,6 @@
 import { AltVEntitiesManager } from "../entity/AltVEntitiesManager";
-import { AltVPlayer } from "./AltVPlayer";
-import { IPlayersManager } from "../../common/player/IPlayersManager";
+import { type AltVPlayer } from "./AltVPlayer";
+import { type IPlayersManager } from "../../common/player/IPlayersManager";
 
 export class AltVPlayersManager extends AltVEntitiesManager<AltVPlayer> implements IPlayersManager {
   public constructor() {

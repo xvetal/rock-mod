@@ -1,10 +1,10 @@
 import {
-  IWorldObjectCreateOptions,
-  IWorldObjectsManager,
-  IWorldObjectsManagerOptions,
+  type IWorldObjectCreateOptions,
+  type IWorldObjectsManager,
+  type IWorldObjectsManagerOptions,
 } from "../worldObject/IWorldObjectsManager";
-import { IEntity } from "./IEntity";
-import { IVector3D } from "../../../../shared/common/utils";
+import { type IEntity } from "./IEntity";
+import { type IVector3D } from "../../../../shared/common/utils";
 
 export interface IEntitiesManagerOptions extends IWorldObjectsManagerOptions {}
 

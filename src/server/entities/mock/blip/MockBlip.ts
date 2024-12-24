@@ -1,6 +1,6 @@
-import { MockWorldObject, IMockWorldObjectOptions } from "../worldObject/MockWorldObject";
-import { IBlip } from "../../common";
-import { IBlipColor, IBlipSprite } from "../../../../shared";
+import { MockWorldObject, type IMockWorldObjectOptions } from "../worldObject/MockWorldObject";
+import { type IBlip } from "../../common";
+import { type IBlipColor, type IBlipSprite } from "../../../../shared";
 
 export interface IMockBlipOptions extends IMockWorldObjectOptions {
   alpha: number;

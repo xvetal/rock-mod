@@ -1,4 +1,4 @@
-import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { type Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export interface IMockEntity {
   id: number;

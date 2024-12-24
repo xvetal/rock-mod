@@ -1,5 +1,5 @@
-import { BaseObjectType } from "@shared/entities";
-import { IBaseObject, IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
+import { type BaseObjectType } from "@shared/entities";
+import { type IBaseObject, type IBaseObjectOptions } from "../../common/baseObject/IBaseObject";
 
 export interface IRageBaseObjectOptions<T extends EntityMp> extends IBaseObjectOptions {
   mpEntity: T;

@@ -1,4 +1,4 @@
-import { IPedCreateOptions, IPedsManager } from "../../common";
+import { type IPedCreateOptions, type IPedsManager } from "../../common";
 import { AltVEntitiesManager } from "../entity/AltVEntitiesManager";
 import { AltVPed } from "./AltVPed";
 import alt = AltVServer;

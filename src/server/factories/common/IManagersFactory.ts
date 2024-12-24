@@ -1,14 +1,14 @@
-import { INetManager } from "../../net/common/INetManager";
+import { type INetManager } from "../../net/common/INetManager";
 import {
-  IBlipsManager,
-  IColshapesManager,
-  IMarkersManager,
-  IObjectsManager,
-  IPedsManager,
-  IPlayersManager,
-  IVehiclesManager,
+  type IBlipsManager,
+  type IColshapesManager,
+  type IMarkersManager,
+  type IObjectsManager,
+  type IPedsManager,
+  type IPlayersManager,
+  type IVehiclesManager,
 } from "../../entities";
-import { IUtilsManager } from "../../utils";
+import { type IUtilsManager } from "../../utils";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;

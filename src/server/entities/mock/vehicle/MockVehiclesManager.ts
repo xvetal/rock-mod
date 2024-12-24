@@ -1,4 +1,4 @@
-import { IVehicleCreateOptions, IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
+import { type IVehicleCreateOptions, type IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
 import { MockEntitiesManager } from "../entity/MockEntitiesManager";
 import { MockVehicle } from "./MockVehicle";
 import { RockMod } from "../../../RockMod";

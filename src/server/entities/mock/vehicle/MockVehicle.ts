@@ -1,7 +1,7 @@
-import { IVehicle } from "../../common/vehicle/IVehicle";
-import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
-import { IRGBA, RGBA } from "../../../../shared/common/utils";
-import { MockPlayer } from "../player/MockPlayer";
+import { type IVehicle } from "../../common/vehicle/IVehicle";
+import { MockEntity, type IMockEntityOptions } from "../entity/MockEntity";
+import { type IRGBA, RGBA } from "../../../../shared/common/utils";
+import { type MockPlayer } from "../player/MockPlayer";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
 
 export interface IMockVehicleOptions extends IMockEntityOptions {

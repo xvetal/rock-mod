@@ -1,4 +1,4 @@
-import { IBaseObject } from "./IBaseObject";
+import { type IBaseObject } from "./IBaseObject";
 
 export interface IBaseObjectsIterator<T extends IBaseObject> {
   all(): IterableIterator<T>;

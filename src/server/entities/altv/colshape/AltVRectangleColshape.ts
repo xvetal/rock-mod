@@ -1,5 +1,5 @@
-import { IRectangleColshape } from "../../common";
-import { AltVColshape, IAltVColshapeOptions } from "./AltVColshape";
+import { type IRectangleColshape } from "../../common";
+import { AltVColshape, type IAltVColshapeOptions } from "./AltVColshape";
 
 export interface IAltVRectangleColshapeOptions extends IAltVColshapeOptions {}
 

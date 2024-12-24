@@ -1,6 +1,6 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RageVehicle } from "./RageVehicle";
-import { IVehicleCreateOptions, IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
+import { type IVehicleCreateOptions, type IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
 
 export interface IRageVehicleCreateOptions extends IVehicleCreateOptions {}
 

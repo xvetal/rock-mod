@@ -1,4 +1,4 @@
-import { IClientRPCList, IServerRPCList } from "@shared/net/common/rpc/types";
+import { type IClientRPCList, type IServerRPCList } from "@shared/net/common/rpc/types";
 
 export interface IRPCManager {
   register<K extends keyof IClientRPCList>(

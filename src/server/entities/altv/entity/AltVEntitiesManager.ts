@@ -1,5 +1,5 @@
-import { IEntitiesManager } from "../../common/entity/IEntitiesManager";
-import { AltVEntity } from "./AltVEntity";
+import { type IEntitiesManager } from "../../common/entity/IEntitiesManager";
+import { type AltVEntity } from "./AltVEntity";
 import { AltVWorldObjectsManager } from "../worldObject/AltVWorldObjectsManager";
 import Entity = AltVServer.Entity;
 

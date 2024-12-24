@@ -1,5 +1,5 @@
-import { IRectangleColshape } from "../../common";
-import { IRageColshapeOptions, RageColshape } from "./RageColshape";
+import { type IRectangleColshape } from "../../common";
+import { type IRageColshapeOptions, RageColshape } from "./RageColshape";
 
 export interface IRageRectangleColshapeOptions extends IRageColshapeOptions {}
 

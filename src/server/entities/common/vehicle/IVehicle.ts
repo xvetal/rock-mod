@@ -1,6 +1,6 @@
-import { IEntity, IEntityOptions } from "../entity/IEntity";
-import { IRGBA } from "../../../../shared/common/utils";
-import { IPlayer } from "../player";
+import { type IEntity, type IEntityOptions } from "../entity/IEntity";
+import { type IRGBA } from "../../../../shared/common/utils";
+import { type IPlayer } from "../player";
 
 export enum VehicleSeat {
   NONE = 255,

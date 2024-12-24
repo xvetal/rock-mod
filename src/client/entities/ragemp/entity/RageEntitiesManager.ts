@@ -1,6 +1,6 @@
-import { IEntitiesManager } from "../../common/entity/IEntitiesManager";
-import { RageEntity } from "./RageEntity";
-import { IRageWorldObjectsManagerOptions, RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
+import { type IEntitiesManager } from "../../common/entity/IEntitiesManager";
+import { type RageEntity } from "./RageEntity";
+import { type IRageWorldObjectsManagerOptions, RageWorldObjectsManager } from "../worldObject/RageWorldObjectsManager";
 
 export interface IRageEntitiesManagerOptions extends IRageWorldObjectsManagerOptions {}
 

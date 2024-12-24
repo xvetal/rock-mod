@@ -1,5 +1,5 @@
-import { IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
-import { RageBaseObject } from "./RageBaseObject";
+import { type IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
+import { type RageBaseObject } from "./RageBaseObject";
 
 export class RageBaseObjectsIterator<T extends RageBaseObject> implements IBaseObjectsIterator<T> {
   private readonly _baseObjects: ReadonlyMap<number, T>;

@@ -1,5 +1,5 @@
-import { IObject } from "../../common/object/IObject";
-import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
+import { type IObject } from "../../common/object/IObject";
+import { MockEntity, type IMockEntityOptions } from "../entity/MockEntity";
 
 export interface IMockObjectOptions extends IMockEntityOptions {
   alpha?: number;

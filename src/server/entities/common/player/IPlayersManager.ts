@@ -1,5 +1,5 @@
-import { IEntitiesManager } from "../entity/IEntitiesManager";
-import { IPlayer } from "./IPlayer";
+import { type IEntitiesManager } from "../entity/IEntitiesManager";
+import { type IPlayer } from "./IPlayer";
 
 export interface IPlayersManager extends IEntitiesManager<IPlayer> {
   getByName(name: string): IPlayer;

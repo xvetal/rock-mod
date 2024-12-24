@@ -1,4 +1,4 @@
-import { INetManager } from "../common/INetManager";
+import { type INetManager } from "../common/INetManager";
 import { RageEventsManager } from "./events/RageEventsManager";
 import { RageRPCManager } from "./rpc/RageRPCManager";
 

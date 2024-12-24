@@ -1,4 +1,4 @@
-import { IManagersFactory } from "../common/IManagersFactory";
+import { type IManagersFactory } from "../common/IManagersFactory";
 import { RageNetManager } from "../../net/ragemp/RageNetManager";
 import { RageBlipsManager } from "../../entities/ragemp/blip/RageBlipsManager";
 import { RageColshapesManager } from "../../entities/ragemp/colshape/RageColshapesManager";

@@ -1,5 +1,5 @@
-import { IEntity } from "../../common/entity/IEntity";
-import { IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
+import { type IEntity } from "../../common/entity/IEntity";
+import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
 import { Vector3D } from "../../../../shared/common/utils";
 
 export interface IRageEntityOptions<T extends EntityMp> extends IRageWorldObjectOptions<T> {}

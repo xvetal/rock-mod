@@ -1,13 +1,13 @@
 import {
-  ICircleColshapeCreateOptions,
-  IColshapesManager,
-  ICuboidColshapeCreateOptions,
-  ICylinderColshapeCreateOptions,
-  IRectangleColshapeCreateOptions,
-  ISphereColshapeCreateOptions,
+  type ICircleColshapeCreateOptions,
+  type IColshapesManager,
+  type ICuboidColshapeCreateOptions,
+  type ICylinderColshapeCreateOptions,
+  type IRectangleColshapeCreateOptions,
+  type ISphereColshapeCreateOptions,
 } from "../../common";
 import { AltVWorldObjectsManager } from "../worldObject/AltVWorldObjectsManager";
-import { AltVColshape } from "./AltVColshape";
+import { type AltVColshape } from "./AltVColshape";
 import { AltVCircleColshape } from "./AltVCircleColshape";
 import { AltVCuboidColshape } from "./AltVCuboidColshape";
 import { AltVCylinderColshape } from "./AltVCylinderColshape";

@@ -1,7 +1,7 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePlayer } from "./RagePlayer";
-import { IPlayersManager } from "../../common/player/IPlayersManager";
-import { RageNetManager } from "../../../net/ragemp/RageNetManager";
+import { type IPlayersManager } from "../../common/player/IPlayersManager";
+import { type RageNetManager } from "../../../net/ragemp/RageNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {

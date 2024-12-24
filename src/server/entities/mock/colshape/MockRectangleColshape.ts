@@ -1,5 +1,5 @@
-import { IRectangleColshape } from "../../common";
-import { IMockColshapeOptions, MockColshape } from "./MockColshape";
+import { type IRectangleColshape } from "../../common";
+import { type IMockColshapeOptions, MockColshape } from "./MockColshape";
 
 export interface IMockRectangleColshapeCreateOptions extends IMockColshapeOptions {
   width: number;

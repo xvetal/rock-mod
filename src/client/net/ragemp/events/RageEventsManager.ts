@@ -1,6 +1,6 @@
-import { IEventsManager } from "../../common/events/IEventsManager";
-import { IClientInternalEvents } from "@RockMod/client/net/common/events/types";
-import { IClientToServerEvents, IServerToClientEvents } from "@shared/net/common/events/types";
+import { type IEventsManager } from "../../common/events/IEventsManager";
+import { type IClientInternalEvents } from "@RockMod/client/net/common/events/types";
+import { type IClientToServerEvents, type IServerToClientEvents } from "@shared/net/common/events/types";
 
 interface IRageClientInternalEvents extends IClientInternalEvents, IClientEvents {}
 

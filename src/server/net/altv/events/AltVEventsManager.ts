@@ -1,8 +1,8 @@
-import { IEventsManager } from "../../common/events/IEventsManager";
-import { IServerInternalEvents } from "../../common/events/types";
+import { type IEventsManager } from "../../common/events/IEventsManager";
+import { type IServerInternalEvents } from "../../common/events/types";
 import Player = AltVServer.Player;
-import { IClientToServerEvents, IServerToClientEvents } from "../../../../shared";
-import { AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
+import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
+import { type AltVPlayer } from "../../../entities/altv/player/AltVPlayer";
 
 interface IAltVServerInternalEvents extends IServerInternalEvents, AltVServer.IServerEvent {}
 

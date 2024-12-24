@@ -1,5 +1,5 @@
-import { ICuboidColshape } from "../../common";
-import { AltVColshape, IAltVColshapeOptions } from "./AltVColshape";
+import { type ICuboidColshape } from "../../common";
+import { AltVColshape, type IAltVColshapeOptions } from "./AltVColshape";
 
 export interface IAltVCuboidColshapeOptions extends IAltVColshapeOptions {}
 

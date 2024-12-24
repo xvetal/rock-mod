@@ -1,11 +1,11 @@
-import { IPlayer } from "../../common/player/IPlayer";
-import { MockEntity, IMockEntityOptions } from "../entity/MockEntity";
-import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { type IPlayer } from "../../common/player/IPlayer";
+import { MockEntity, type IMockEntityOptions } from "../entity/MockEntity";
+import { type Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { RockMod } from "../../../RockMod";
-import { RageVehicle } from "../../ragemp/vehicle/RageVehicle";
-import { IMockClientRPC } from "../../../net/mock/rpc/MockRPCManager";
+import { type RageVehicle } from "../../ragemp/vehicle/RageVehicle";
+import { type IMockClientRPC } from "../../../net/mock/rpc/MockRPCManager";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
-import { IServerToClientEvents } from "../../../../shared";
+import { type IServerToClientEvents } from "../../../../shared";
 
 export interface IMockPlayerOptions extends IMockEntityOptions {
   name?: string;

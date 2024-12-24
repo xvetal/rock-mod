@@ -1,6 +1,6 @@
-import { IEntity } from "../../common/entity/IEntity";
-import { MockWorldObject, IMockWorldObjectOptions } from "../worldObject/MockWorldObject";
-import { IVector3D, Vector3D } from "../../../../shared/common/utils";
+import { type IEntity } from "../../common/entity/IEntity";
+import { MockWorldObject, type IMockWorldObjectOptions } from "../worldObject/MockWorldObject";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils";
 import { RockMod } from "../../../RockMod";
 
 export interface IMockEntityOptions extends IMockWorldObjectOptions {

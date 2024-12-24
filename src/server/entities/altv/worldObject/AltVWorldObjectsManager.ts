@@ -1,6 +1,6 @@
-import { IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
-import { AltVWorldObject } from "./AltVWorldObject";
-import { AltVBaseObjectsManager, IAltVBaseObjectsManagerOptions } from "../baseObject/AltVBaseObjectsManager";
+import { type IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
+import { type AltVWorldObject } from "./AltVWorldObject";
+import { AltVBaseObjectsManager, type IAltVBaseObjectsManagerOptions } from "../baseObject/AltVBaseObjectsManager";
 import { AltVWorldObjectsIterator } from "./AltVWorldObjectsIterator";
 import WorldObject = AltVServer.WorldObject;
 

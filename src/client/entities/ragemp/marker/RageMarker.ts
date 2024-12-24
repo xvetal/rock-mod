@@ -1,7 +1,7 @@
-import { IMarker } from "../../common";
-import { IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
-import { IVector3D, Vector3D } from "../../../../shared/common/utils";
-import { IMarkerType } from "@shared/entities";
+import { type IMarker } from "../../common";
+import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils";
+import { type IMarkerType } from "@shared/entities";
 
 export interface IRageMarkerOptions extends IRageWorldObjectOptions<MarkerMp> {}
 

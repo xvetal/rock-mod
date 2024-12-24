@@ -1,4 +1,4 @@
-import { IBlipCreateOptions, IBlipsManager } from "../../common";
+import { type IBlipCreateOptions, type IBlipsManager } from "../../common";
 import { AltVWorldObjectsManager } from "../worldObject/AltVWorldObjectsManager";
 import { AltVBlip } from "./AltVBlip";
 import PointBlip = AltVServer.PointBlip;
