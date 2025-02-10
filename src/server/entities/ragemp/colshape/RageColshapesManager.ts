@@ -13,6 +13,9 @@ import { RageCuboidColshape } from "./RageCuboidColshape";
 import { RageCylinderColshape } from "./RageCylinderColshape";
 import { RageRectangleColshape } from "./RageRectangleColshape";
 import { RageSphereColshape } from "./RageSphereColshape";
+import { RockMod } from "../../../RockMod";
+import { ServerInternalEventName } from "../../../net/common/events/types";
+import { type RagePlayer } from "../player/RagePlayer";
 
 export interface IRageCircleColshapeCreateOptions extends ICircleColshapeCreateOptions {}
 
@@ -25,9 +28,28 @@ export interface IRageRectangleColshapeCreateOptions extends IRectangleColshapeC
 export interface IRageSphereColshapeCreateOptions extends ISphereColshapeCreateOptions {}
 
 export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> implements IColshapesManager {
+  private readonly _colshapesParticipants = new Map<RageColshape, Set<RagePlayer>>();
+
   public constructor() {
     super({
       baseObjectsType: "colshape",
+    });
+
+    mp.events.add("playerEnterColshape", (mpPlayer, mpColshape) => {
+      const player = RockMod.instance.players.getByID(mpPlayer.id) as RagePlayer;
+      const colshape = this.getByID(mpColshape.id);
+      const participants = this.getParticipants(colshape);
+
+      participants.add(player);
+      RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerEnteredColshape, player, colshape);
+    });
+    mp.events.add("playerExitColshape", (mpPlayer, mpColshape) => {
+      const player = RockMod.instance.players.getByID(mpPlayer.id) as RagePlayer;
+      const colshape = this.getByID(mpColshape.id);
+      const participants = this.getParticipants(colshape);
+
+      participants.delete(player);
+      RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerLeftColshape, player, colshape);
     });
   }
 
@@ -94,5 +116,14 @@ export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> 
     this.registerBaseObject(colshape);
 
     return colshape;
+  }
+
+  public getParticipants(colshape: RageColshape): Set<RagePlayer> {
+    let participants = this._colshapesParticipants.get(colshape);
+    if (!participants) {
+      participants = new Set();
+      this._colshapesParticipants.set(colshape, participants);
+    }
+    return participants;
   }
 }

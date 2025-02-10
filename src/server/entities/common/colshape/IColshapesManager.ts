@@ -6,6 +6,7 @@ import { type ICuboidColshape } from "./ICuboidColshape";
 import { type ICylinderColshape } from "./ICylinderColshape";
 import { type IRectangleColshape } from "./IRectangleColshape";
 import { type ISphereColshape } from "./ISphereColshape";
+import { type IPlayer } from "../player";
 
 export interface ICircleColshapeCreateOptions extends Omit<IWorldObjectCreateOptions, "position"> {
   position: IVector2D;
@@ -38,4 +39,5 @@ export interface IColshapesManager extends IWorldObjectsManager<IColshape> {
   createCylinder(options: ICylinderColshapeCreateOptions): ICylinderColshape;
   createRectangle(options: IRectangleColshapeCreateOptions): IRectangleColshape;
   createSphere(options: ISphereColshapeCreateOptions): ISphereColshape;
+  getParticipants(colshape: IColshape): Set<IPlayer>;
 }

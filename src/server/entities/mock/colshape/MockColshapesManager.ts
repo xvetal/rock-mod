@@ -15,6 +15,7 @@ import { MockRectangleColshape } from "./MockRectangleColshape";
 import { MockSphereColshape } from "./MockSphereColshape";
 import { type MockColshape } from "./MockColshape";
 import { BaseObjectType } from "../../../../shared";
+import { type MockPlayer } from "../player/MockPlayer";
 
 export interface IMockCircleColshapeCreateOptions extends ICircleColshapeCreateOptions {}
 export interface IMockCuboidColshapeCreateOptions extends ICuboidColshapeCreateOptions {}
@@ -115,5 +116,9 @@ export class MockColshapesManager extends MockWorldObjectsManager<MockColshape> 
 
     this.registerBaseObject(colshape);
     return colshape;
+  }
+
+  public getParticipants(): Set<MockPlayer> {
+    return new Set();
   }
 }
