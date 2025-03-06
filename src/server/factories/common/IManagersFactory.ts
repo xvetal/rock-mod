@@ -9,6 +9,7 @@ import {
   type IVehiclesManager,
 } from "../../entities";
 import { type IUtilsManager } from "../../utils";
+import { type IWorldManager } from "../../world";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;
@@ -20,4 +21,5 @@ export interface IManagersFactory {
   createPlayersManager(net: INetManager): IPlayersManager;
   createUtilsManager(): IUtilsManager;
   createVehiclesManager(): IVehiclesManager;
+  createWorldManager(): IWorldManager;
 }

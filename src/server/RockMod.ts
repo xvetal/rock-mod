@@ -10,6 +10,7 @@ import {
 } from "./entities";
 import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
+import { type IWorldManager } from "./world";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
 
@@ -77,6 +78,8 @@ export class RockMod {
 
   private readonly _vehicles: IVehiclesManager;
 
+  private readonly _world: IWorldManager;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -113,6 +116,10 @@ export class RockMod {
     return this._vehicles;
   }
 
+  public get world(): IWorldManager {
+    return this._world;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -123,5 +130,6 @@ export class RockMod {
     this._players = managersFactory.createPlayersManager(this._net);
     this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
+    this._world = managersFactory.createWorldManager();
   }
 }

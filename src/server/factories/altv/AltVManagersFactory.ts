@@ -8,6 +8,7 @@ import { AltVPedsManager } from "../../entities/altv/ped/AltVPedsManager";
 import { AltVPlayersManager } from "../../entities/altv/player/AltVPlayersManager";
 import { AltVUtilsManager } from "../../utils/altv/AltVUtilsManager";
 import { AltVVehiclesManager } from "../../entities/altv/vehicle/AltVVehiclesManager";
+import { AltVWorldManager } from "../../world/altv/AltVWorldManager";
 
 export class AltVManagersFactory implements IManagersFactory {
   public createNetManager(): AltVNetManager {
@@ -44,5 +45,9 @@ export class AltVManagersFactory implements IManagersFactory {
 
   public createVehiclesManager(): AltVVehiclesManager {
     return new AltVVehiclesManager();
+  }
+
+  public createWorldManager(): AltVWorldManager {
+    return new AltVWorldManager();
   }
 }
