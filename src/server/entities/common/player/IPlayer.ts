@@ -62,4 +62,5 @@ export interface IPlayer extends IEntity {
   setClothes(componentID: number, drawableID: number, textureID: number, paletteID: number): void;
   setHairColor(colorID: number, highlightColorID: number): void;
   kick(reason?: string): void;
+  playAnimation(dictionary: string, name: string, speed: number, flag: number): void;
 }

@@ -212,4 +212,8 @@ export class MockPlayer extends MockEntity implements IPlayer {
   public kick(): void {
     throw new Error("Not implemented: kick");
   }
+
+  public playAnimation(): void {
+    throw new Error("Not implemented: playAnimation");
+  }
 }

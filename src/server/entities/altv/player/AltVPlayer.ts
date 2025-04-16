@@ -190,4 +190,8 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
   public kick(reason?: string): void {
     return this.mpEntity.kick(reason);
   }
+  
+  public playAnimation(dictionary: string, name: string, speed: number, flag: number): void {
+    return this.mpEntity.playAnimation(dictionary, name, speed, flag);
+  }
 }
