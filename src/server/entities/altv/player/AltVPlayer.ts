@@ -216,4 +216,8 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
       lockZ,
     );
   }
+
+  public stopAnimation(): void {
+    this.mpEntity.clearTasks();
+  }
 }
