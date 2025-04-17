@@ -216,4 +216,8 @@ export class MockPlayer extends MockEntity implements IPlayer {
   public playAnimation(): void {
     throw new Error("Not implemented: playAnimation");
   }
+
+  public stopAnimation(): void {
+    throw new Error("Not implemented: stopAnimation");
+  }
 }
