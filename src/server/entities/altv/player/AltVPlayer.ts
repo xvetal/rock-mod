@@ -190,4 +190,34 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
   public kick(reason?: string): void {
     return this.mpEntity.kick(reason);
   }
+
+  public playAnimation(dictionary: string, name: string, speed: number, flag: number): void {
+    const durationDefault = 10000;
+
+    const blendInSpeedDefault = undefined;
+    const blendOutSpeedDefault = undefined;
+    const duration = durationDefault * speed;
+    const flags = flag;
+    const playbackRate = 1;
+    const lockX = false;
+    const lockY = false;
+    const lockZ = false;
+
+    return this.mpEntity.playAnimation(
+      dictionary,
+      name,
+      blendInSpeedDefault,
+      blendOutSpeedDefault,
+      duration,
+      flags,
+      playbackRate,
+      lockX,
+      lockY,
+      lockZ,
+    );
+  }
+
+  public stopAnimation(): void {
+    this.mpEntity.clearTasks();
+  }
 }
