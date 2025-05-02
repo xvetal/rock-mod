@@ -86,6 +86,10 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
     this.mpEntity.locked = value;
   }
 
+  public setEngineOn(value: boolean): void {
+    this.mpEntity.engine = value;
+  }
+
   public setPrimaryColor(value: number): void {
     return this.mpEntity.setColor(value, this.secondaryColor);
   }

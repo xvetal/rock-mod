@@ -76,6 +76,10 @@ export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
     this.mpEntity.bodyHealth = value;
   }
 
+  public setEngineOn(value: boolean): void {
+    this.mpEntity.engineOn = value;
+  }
+
   public setEngineHealth(value: number): void {
     this.mpEntity.engineHealth = value;
   }

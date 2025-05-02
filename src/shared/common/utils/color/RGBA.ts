@@ -1,3 +1,5 @@
+import { MathClamp } from "../math/Math";
+
 export interface IRGBA {
   get r(): number;
   get g(): number;
@@ -31,9 +33,9 @@ export class RGBA implements IRGBA {
   }
 
   public constructor(r: number, g: number, b: number, a?: number | undefined) {
-    this._r = r;
-    this._g = g;
-    this._b = b;
-    this._a = a;
+    this._r = MathClamp(r, 0, 255);
+    this._g = MathClamp(g, 0, 255);
+    this._b = MathClamp(b, 0, 255);
+    this._a = a !== undefined ? MathClamp(a, 0, 1) : a;
   }
 }
