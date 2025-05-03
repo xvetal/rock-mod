@@ -8,9 +8,9 @@ export interface IRGBA {
 }
 
 export class RGBA implements IRGBA {
-  private static readonly MIN_COLOR_VALUE = 0;
+  private static readonly _minColorValue = 0;
 
-  private static readonly MAX_COLOR_VALUE = 255;
+  private static readonly _maxColorValue = 255;
 
   private readonly _r: number;
 
@@ -37,13 +37,13 @@ export class RGBA implements IRGBA {
   }
 
   public constructor(r: number, g: number, b: number, a?: number | undefined) {
-    this._r = RGBA.clampColor(r);
-    this._g = RGBA.clampColor(g);
-    this._b = RGBA.clampColor(b);
-    this._a = a !== undefined ? RGBA.clampColor(a) : undefined;
+    this._r = RGBA._clampColor(r);
+    this._g = RGBA._clampColor(g);
+    this._b = RGBA._clampColor(b);
+    this._a = a !== undefined ? RGBA._clampColor(a) : undefined;
   }
 
-  private static clampColor(value: number): number {
-    return MathClamp(value, RGBA.MIN_COLOR_VALUE, RGBA.MAX_COLOR_VALUE);
+  private static _clampColor(value: number): number {
+    return MathClamp(value, RGBA._minColorValue, RGBA._maxColorValue);
   }
 }
