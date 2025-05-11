@@ -39,6 +39,7 @@ export interface IVehicle extends IEntity {
   get passengers(): Set<IPlayer>;
   setBodyHealth(value: number): void;
   setEngineHealth(value: number): void;
+  setEngineOn(value: boolean): void;
   setNumberPlate(value: string): void;
   setLocked(value: boolean): void;
   setPrimaryColor(value: number): void;
