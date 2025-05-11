@@ -3,10 +3,15 @@ import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { RGBA } from "../../../../shared/common/utils";
 import { type RagePlayer } from "../player/RagePlayer";
 import { RockMod } from "../../../RockMod";
+import { MathClamp } from "../../../../shared/common/utils/math/Math";
 
 export interface IRageVehicleOptions extends IRageEntityOptions<VehicleMp> {}
 
 export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
+  private static readonly _minColorId = 0;
+
+  private static readonly _maxColorId = 159;
+
   public get bodyHealth(): number {
     return this.mpEntity.bodyHealth;
   }
@@ -86,12 +91,16 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
     this.mpEntity.locked = value;
   }
 
+  public setEngineOn(value: boolean): void {
+    this.mpEntity.engine = value;
+  }
+
   public setPrimaryColor(value: number): void {
-    return this.mpEntity.setColor(value, this.secondaryColor);
+    return this.mpEntity.setColor(RageVehicle._clampColorId(value), this.secondaryColor);
   }
 
   public setSecondaryColor(value: number): void {
-    return this.mpEntity.setColor(this.primaryColor, value);
+    return this.mpEntity.setColor(this.primaryColor, RageVehicle._clampColorId(value));
   }
 
   public setCustomPrimaryColor(value: RGBA): void {
@@ -122,5 +131,9 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
 
   public repair(): void {
     return this.mpEntity.repair();
+  }
+
+  private static _clampColorId(value: number): number {
+    return MathClamp(value, RageVehicle._minColorId, RageVehicle._maxColorId);
   }
 }

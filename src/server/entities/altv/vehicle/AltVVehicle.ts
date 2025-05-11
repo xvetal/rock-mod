@@ -5,10 +5,15 @@ import VehicleLockState = AltVShared.VehicleLockState;
 import { RGBA } from "../../../../shared/common/utils";
 import { type AltVPlayer } from "../player/AltVPlayer";
 import { RockMod } from "../../../RockMod";
+import { MathClamp } from "../../../../shared/common/utils/math/Math";
 
 export interface IAltVVehicleOptions extends IAltVEntityOptions<Vehicle> {}
 
 export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
+  private static readonly _minColorId = 0;
+
+  private static readonly _maxColorId = 159;
+
   public get bodyHealth(): number {
     return this.mpEntity.bodyHealth;
   }
@@ -76,6 +81,10 @@ export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
     this.mpEntity.bodyHealth = value;
   }
 
+  public setEngineOn(value: boolean): void {
+    this.mpEntity.engineOn = value;
+  }
+
   public setEngineHealth(value: number): void {
     this.mpEntity.engineHealth = value;
   }
@@ -89,11 +98,11 @@ export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
   }
 
   public setPrimaryColor(value: number): void {
-    this.mpEntity.primaryColor = value;
+    this.mpEntity.primaryColor = AltVVehicle._clampColorId(value);
   }
 
   public setSecondaryColor(value: number): void {
-    this.mpEntity.secondaryColor = value;
+    this.mpEntity.secondaryColor = AltVVehicle._clampColorId(value);
   }
 
   public setCustomPrimaryColor(value: RGBA): void {
@@ -113,5 +122,9 @@ export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
 
   public repair(): void {
     return this.mpEntity.repair();
+  }
+
+  private static _clampColorId(value: number): number {
+    return MathClamp(value, AltVVehicle._minColorId, AltVVehicle._maxColorId);
   }
 }

@@ -1,3 +1,5 @@
+import { MathClamp } from "../math/Math";
+
 export interface IRGBA {
   get r(): number;
   get g(): number;
@@ -6,6 +8,10 @@ export interface IRGBA {
 }
 
 export class RGBA implements IRGBA {
+  private static readonly _minColorValue = 0;
+
+  private static readonly _maxColorValue = 255;
+
   private readonly _r: number;
 
   private readonly _g: number;
@@ -31,9 +37,13 @@ export class RGBA implements IRGBA {
   }
 
   public constructor(r: number, g: number, b: number, a?: number | undefined) {
-    this._r = r;
-    this._g = g;
-    this._b = b;
-    this._a = a;
+    this._r = RGBA._clampColor(r);
+    this._g = RGBA._clampColor(g);
+    this._b = RGBA._clampColor(b);
+    this._a = a !== undefined ? RGBA._clampColor(a) : undefined;
+  }
+
+  private static _clampColor(value: number): number {
+    return MathClamp(value, RGBA._minColorValue, RGBA._maxColorValue);
   }
 }

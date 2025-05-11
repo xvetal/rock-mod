@@ -14,6 +14,8 @@ export class MockVehicle extends MockEntity implements IVehicle {
 
   private _engineHealth: number;
 
+  private _engineOn: boolean;
+
   private _numberPlate: string;
 
   private _isLocked: boolean;
@@ -36,6 +38,10 @@ export class MockVehicle extends MockEntity implements IVehicle {
 
   public get engineHealth(): number {
     return this._engineHealth;
+  }
+
+  public get engineOn(): boolean {
+    return this._engineOn;
   }
 
   public get numberPlate(): string {
@@ -87,6 +93,7 @@ export class MockVehicle extends MockEntity implements IVehicle {
   public constructor(options: IMockVehicleOptions) {
     super(options);
 
+    this._engineOn = options.engine ?? false;
     this._bodyHealth = 1000;
     this._engineHealth = 1000;
     this._numberPlate = "";
@@ -105,6 +112,10 @@ export class MockVehicle extends MockEntity implements IVehicle {
 
   public setEngineHealth(value: number): void {
     this._engineHealth = MathClamp(value, 0, 1000);
+  }
+
+  public setEngineOn(value: boolean): void {
+    this._engineOn = value;
   }
 
   public setNumberPlate(value: string): void {
