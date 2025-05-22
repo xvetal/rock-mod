@@ -25,4 +25,12 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
   public setRotation(value: Vector3D): void {
     this.mpEntity.rotation = new mp.Vector3(value);
   }
+
+  public getNetData(name: string): unknown {
+    return this.mpEntity.getVariable(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this.mpEntity.setVariable(name, value);
+  }
 }

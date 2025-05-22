@@ -8,4 +8,6 @@ export interface IEntity extends IWorldObject {
   get rotation(): IVector3D;
   setModel(value: string): void;
   setRotation(value: IVector3D): void;
+  getNetData(name: string): unknown;
+  setNetData(name: string, value: unknown): void;
 }
