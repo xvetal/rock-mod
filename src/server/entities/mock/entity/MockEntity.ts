@@ -13,6 +13,8 @@ export abstract class MockEntity extends MockWorldObject implements IEntity {
 
   private _rotation: IVector3D;
 
+  private _netData: Map<string, unknown>;
+
   public get model(): number {
     return this._model;
   }
@@ -27,6 +29,7 @@ export abstract class MockEntity extends MockWorldObject implements IEntity {
 
     this._model = options.model;
     this._rotation = options.rotation;
+    this._netData = new Map();
   }
 
   public setModel(value: string): void {
@@ -35,5 +38,13 @@ export abstract class MockEntity extends MockWorldObject implements IEntity {
 
   public setRotation(value: Vector3D): void {
     this._rotation = value;
+  }
+
+  public getNetData(name: string): unknown {
+    return this._netData.get(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this._netData.set(name, value);
   }
 }

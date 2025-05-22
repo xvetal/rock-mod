@@ -28,4 +28,12 @@ export abstract class AltVEntity<T extends Entity> extends AltVWorldObject<T> im
   public setRotation(value: Vector3D): void {
     this.mpEntity.rot = new Vector3(value);
   }
+
+  public getNetData(name: string): unknown {
+    return this.mpEntity.getSyncedMeta(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this.mpEntity.setSyncedMeta({ name, value });
+  }
 }
