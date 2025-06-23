@@ -2,7 +2,14 @@ import { type IBaseObject, type IBaseObjectOptions } from "../../common/baseObje
 import { type BaseObjectType } from "../../../../shared";
 
 // RAGEMP BUG: event 'entityDestroyed' is not callable
-const unsupportedRageEntityTypes: Set<`${BaseObjectType}`> = new Set(["blip", "colshape", "object", "ped", "vehicle"]);
+const unsupportedRageEntityTypes: Set<`${BaseObjectType}`> = new Set([
+  "blip",
+  "colshape",
+  "marker",
+  "object",
+  "ped",
+  "vehicle",
+]);
 
 export interface IRageBaseObjectOptions<T extends EntityMp> extends IBaseObjectOptions {
   mpEntity: T;
