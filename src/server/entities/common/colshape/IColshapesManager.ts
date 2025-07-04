@@ -1,6 +1,5 @@
 import { type IWorldObjectCreateOptions, type IWorldObjectsManager } from "../worldObject";
 import { type IColshape } from "./IColshape";
-import { type IVector2D } from "../../../../shared/common/utils";
 import { type ICircleColshape } from "./ICircleColshape";
 import { type ICuboidColshape } from "./ICuboidColshape";
 import { type ICylinderColshape } from "./ICylinderColshape";
@@ -8,8 +7,7 @@ import { type IRectangleColshape } from "./IRectangleColshape";
 import { type ISphereColshape } from "./ISphereColshape";
 import { type IPlayer } from "../player";
 
-export interface ICircleColshapeCreateOptions extends Omit<IWorldObjectCreateOptions, "position"> {
-  position: IVector2D;
+export interface ICircleColshapeCreateOptions extends IWorldObjectCreateOptions {
   range: number;
 }
 
