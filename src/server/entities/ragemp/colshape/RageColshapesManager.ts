@@ -60,7 +60,7 @@ export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> 
     const mpEntity = mp.colshapes.newCircle(x, y, range, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
-    const colshape = new RageCircleColshape({ mpEntity });
+    const colshape = new RageCircleColshape({ mpEntity, position });
     this.registerBaseObject(colshape);
 
     return colshape;
@@ -73,7 +73,7 @@ export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> 
     const mpEntity = mp.colshapes.newCuboid(x, y, z, width, depth, height, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
-    const colshape = new RageCuboidColshape({ mpEntity });
+    const colshape = new RageCuboidColshape({ mpEntity, position });
     this.registerBaseObject(colshape);
 
     return colshape;
@@ -86,7 +86,7 @@ export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> 
     const mpEntity = mp.colshapes.newTube(x, y, z, height, range, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
-    const colshape = new RageCylinderColshape({ mpEntity });
+    const colshape = new RageCylinderColshape({ mpEntity, position });
     this.registerBaseObject(colshape);
 
     return colshape;
@@ -99,7 +99,7 @@ export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> 
     const mpEntity = mp.colshapes.newRectangle(x, y, width, height, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
-    const colshape = new RageRectangleColshape({ mpEntity });
+    const colshape = new RageRectangleColshape({ mpEntity, position });
     this.registerBaseObject(colshape);
 
     return colshape;
@@ -112,7 +112,7 @@ export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> 
     const mpEntity = mp.colshapes.newSphere(x, y, z, range, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
-    const colshape = new RageSphereColshape({ mpEntity });
+    const colshape = new RageSphereColshape({ mpEntity, position });
     this.registerBaseObject(colshape);
 
     return colshape;
