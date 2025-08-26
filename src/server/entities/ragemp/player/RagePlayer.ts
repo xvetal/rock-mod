@@ -218,4 +218,8 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
   public stopAnimation(): void {
     return this.mpEntity.stopAnimation();
   }
+
+  public removeFromVehicle(): void {
+    return this.mpEntity.removeFromVehicle();
+  }
 }

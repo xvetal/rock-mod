@@ -64,4 +64,5 @@ export interface IPlayer extends IEntity {
   kick(reason?: string): void;
   playAnimation(dictionary: string, name: string, speed: number, flag: number): void;
   stopAnimation(): void;
+  removeFromVehicle(): void;
 }

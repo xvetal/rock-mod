@@ -220,4 +220,8 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
   public stopAnimation(): void {
     this.mpEntity.clearTasks();
   }
+
+  public removeFromVehicle(): void {
+    throw new Error("Not implemented (removeFromVehicle)");
+  }
 }

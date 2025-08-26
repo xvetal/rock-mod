@@ -220,4 +220,8 @@ export class MockPlayer extends MockEntity implements IPlayer {
   public stopAnimation(): void {
     throw new Error("Not implemented: stopAnimation");
   }
+
+  public removeFromVehicle(): void {
+    throw new Error("Not implemented removeFromVehicle");
+  }
 }
