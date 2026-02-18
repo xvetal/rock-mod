@@ -46,6 +46,13 @@ export interface IVehicle extends IEntity {
   setSecondaryColor(value: number): void;
   setCustomPrimaryColor(value: IRGBA): void;
   setCustomSecondaryColor(value: IRGBA): void;
+  setMod(modType: number, modIndex: number): void;
+  getMod(modType: number): number;
+  setNeonEnabled(enabled: boolean): void;
+  setNeonColor(r: number, g: number, b: number): void;
+  setWindowTint(tintType: number): void;
+  setWheelType(wheelType: number): void;
+  setPlateType(plateType: number): void;
   explode(): void;
   repair(): void;
 }
