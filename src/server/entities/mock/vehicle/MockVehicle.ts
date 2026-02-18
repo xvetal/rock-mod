@@ -32,6 +32,18 @@ export class MockVehicle extends MockEntity implements IVehicle {
 
   private _passengers: Set<MockPlayer>;
 
+  private _mods: Map<number, number>;
+
+  private _neonEnabled: boolean;
+
+  private _neonColor: { r: number; g: number; b: number };
+
+  private _windowTint: number;
+
+  private _wheelType: number;
+
+  private _plateType: number;
+
   public get bodyHealth(): number {
     return this._bodyHealth;
   }
@@ -76,6 +88,26 @@ export class MockVehicle extends MockEntity implements IVehicle {
     return new RGBA(r, g, b, a);
   }
 
+  public get neonEnabled(): boolean {
+    return this._neonEnabled;
+  }
+
+  public get neonColor(): { r: number; g: number; b: number } {
+    return this._neonColor;
+  }
+
+  public get windowTint(): number {
+    return this._windowTint;
+  }
+
+  public get wheelType(): number {
+    return this._wheelType;
+  }
+
+  public get plateType(): number {
+    return this._plateType;
+  }
+
   public get driver(): MockPlayer | null {
     for (const passenger of this._passengers.values()) {
       if (passenger.seat === 0) {
@@ -104,6 +136,12 @@ export class MockVehicle extends MockEntity implements IVehicle {
     this._customPrimaryColor = new RGBA(0, 0, 0);
     this._customSecondaryColor = new RGBA(0, 0, 0);
     this._passengers = new Set();
+    this._mods = new Map();
+    this._neonEnabled = false;
+    this._neonColor = { r: 0, g: 0, b: 0 };
+    this._windowTint = 0;
+    this._wheelType = 0;
+    this._plateType = 0;
   }
 
   public setBodyHealth(value: number): void {
@@ -140,6 +178,34 @@ export class MockVehicle extends MockEntity implements IVehicle {
 
   public setCustomSecondaryColor(value: RGBA): void {
     this._customSecondaryColor = value;
+  }
+
+  public setMod(modType: number, modIndex: number): void {
+    this._mods.set(modType, modIndex);
+  }
+
+  public getMod(modType: number): number {
+    return this._mods.get(modType) ?? -1;
+  }
+
+  public setNeonEnabled(enabled: boolean): void {
+    this._neonEnabled = enabled;
+  }
+
+  public setNeonColor(r: number, g: number, b: number): void {
+    this._neonColor = { r, g, b };
+  }
+
+  public setWindowTint(tintType: number): void {
+    this._windowTint = tintType;
+  }
+
+  public setWheelType(wheelType: number): void {
+    this._wheelType = wheelType;
+  }
+
+  public setPlateType(plateType: number): void {
+    this._plateType = plateType;
   }
 
   public explode(): void {

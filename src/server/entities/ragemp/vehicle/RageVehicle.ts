@@ -125,6 +125,34 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
     );
   }
 
+  public setMod(modType: number, modIndex: number): void {
+    this.mpEntity.setMod(modType, modIndex);
+  }
+
+  public getMod(modType: number): number {
+    return this.mpEntity.getMod(modType);
+  }
+
+  public setNeonEnabled(enabled: boolean): void {
+    this.mpEntity.neonEnabled = enabled;
+  }
+
+  public setNeonColor(r: number, g: number, b: number): void {
+    this.mpEntity.setNeonColor(r, g, b);
+  }
+
+  public setWindowTint(tintType: number): void {
+    this.mpEntity.windowTint = tintType;
+  }
+
+  public setWheelType(wheelType: number): void {
+    this.mpEntity.wheelType = wheelType;
+  }
+
+  public setPlateType(plateType: number): void {
+    this.mpEntity.numberPlateType = plateType;
+  }
+
   public explode(): void {
     return this.mpEntity.explode();
   }

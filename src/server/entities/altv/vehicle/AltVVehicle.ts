@@ -115,6 +115,40 @@ export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
     this.mpEntity.customSecondaryColor = new AltVShared.RGBA(r, g, b, a);
   }
 
+  public setMod(modType: number, modIndex: number): void {
+    this.mpEntity.setMod(modType, modIndex);
+  }
+
+  public getMod(modType: number): number {
+    return this.mpEntity.getMod(modType);
+  }
+
+  public setNeonEnabled(enabled: boolean): void {
+    this.mpEntity.neon = {
+      ...this.mpEntity.neon,
+      left: enabled,
+      right: enabled,
+      front: enabled,
+      back: enabled,
+    };
+  }
+
+  public setNeonColor(r: number, g: number, b: number): void {
+    this.mpEntity.neonColor = new AltVShared.RGBA(r, g, b);
+  }
+
+  public setWindowTint(tintType: number): void {
+    this.mpEntity.windowTint = tintType;
+  }
+
+  public setWheelType(wheelType: number): void {
+    this.mpEntity.setWheels(wheelType, 0);
+  }
+
+  public setPlateType(plateType: number): void {
+    this.mpEntity.numberPlateIndex = plateType;
+  }
+
   public explode(): void {
     this.mpEntity.engineHealth = 0;
     this.mpEntity.bodyHealth = 0;
