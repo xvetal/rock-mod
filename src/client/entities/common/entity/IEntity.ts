@@ -8,4 +8,9 @@ export interface IEntity extends IWorldObject {
   get rotation(): IVector3D;
   setModel(value: string): void;
   setRotation(value: IVector3D): void;
+  get forwardVector(): IVector3D;
+  freezePosition(freeze: boolean): void;
+  setCollision(collision: boolean, keepPhysics: boolean): void;
+  setInvincible(invincible: boolean): void;
+  setVisible(visible: boolean): void;
 }

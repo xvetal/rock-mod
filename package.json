@@ -9,6 +9,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
     "./testing": {
       "types": "./dist/testing.d.ts",
       "default": "./dist/testing.js"
@@ -16,6 +20,9 @@
   },
   "typesVersions": {
     "*": {
+      "client": [
+        "./dist/client/index.d.ts"
+      ],
       "testing": [
         "./dist/testing.d.ts"
       ]

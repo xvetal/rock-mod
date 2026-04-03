@@ -1,5 +1,5 @@
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { type IObject } from "../../common/object/IObject";
+import { type IObject } from "@RockMod/client/entities";
 
 export interface IRageObjectOptions extends IRageEntityOptions<ObjectMp> {}
 

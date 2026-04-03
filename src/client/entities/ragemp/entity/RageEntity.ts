@@ -25,4 +25,25 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
   public setRotation(value: Vector3D): void {
     this.mpEntity.rotation = new mp.Vector3(value);
   }
+
+  public get forwardVector(): Vector3D {
+    const vector = this.mpEntity.getForwardVector();
+    return new Vector3D(vector.x, vector.y, vector.z);
+  }
+
+  public freezePosition(freeze: boolean): void {
+    this.mpEntity.freezePosition(freeze);
+  }
+
+  public setCollision(collision: boolean, keepPhysics: boolean): void {
+    this.mpEntity.setCollision(collision, keepPhysics);
+  }
+
+  public setInvincible(invincible: boolean): void {
+    this.mpEntity.setInvincible(invincible);
+  }
+
+  public setVisible(visible: boolean): void {
+    this.mpEntity.setVisible(visible, false);
+  }
 }
