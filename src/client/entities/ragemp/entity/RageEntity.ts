@@ -5,6 +5,14 @@ import { Vector3D } from "../../../../shared/common/utils";
 export interface IRageEntityOptions<T extends EntityMp> extends IRageWorldObjectOptions<T> {}
 
 export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> implements IEntity {
+  public get remoteId(): number {
+    return this.mpEntity.remoteId;
+  }
+
+  public get handle(): number {
+    return this.mpEntity.handle;
+  }
+
   public get model(): number {
     return this.mpEntity.model;
   }
@@ -16,6 +24,14 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
 
   protected constructor(options: IRageEntityOptions<T>) {
     super(options);
+  }
+
+  public get heading(): number {
+    return this.mpEntity.getHeading();
+  }
+
+  public setHeading(heading: number): void {
+    this.mpEntity.setHeading(heading);
   }
 
   public setModel(value: string): void {
@@ -45,5 +61,13 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
 
   public setVisible(visible: boolean): void {
     this.mpEntity.setVisible(visible, false);
+  }
+
+  public setAlpha(alpha: number): void {
+    this.mpEntity.setAlpha(alpha);
+  }
+
+  public get alpha(): number {
+    return this.mpEntity.alpha;
   }
 }

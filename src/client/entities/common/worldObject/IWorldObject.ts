@@ -8,4 +8,13 @@ export interface IWorldObject extends IBaseObject {
   get dimension(): number;
   setPosition(value: IVector3D): void;
   setDimension(value: number): void;
+  setCoords(
+    xPos: number,
+    yPos: number,
+    zPos: number,
+    xAxis: boolean,
+    yAxis: boolean,
+    zAxis: boolean,
+    clearArea: boolean,
+  ): void;
 }

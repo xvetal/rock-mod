@@ -1,18 +1,14 @@
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { type IPlayer } from "@RockMod/client/entities";
+import { type IRockModPlayer } from "@RockMod/client/entities";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 import { type RageVehicle } from "@RockMod/client/entities/ragemp/vehicle/RageVehicle";
 import { RockMod } from "@RockMod/client/RockMod";
 
 interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 
-export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
+export class RagePlayer extends RageEntity<PlayerMp> implements IRockModPlayer {
   public get name(): string {
     return this.mpEntity.name;
-  }
-
-  public get heading(): number {
-    return this.mpEntity.heading;
   }
 
   public get health(): number {
@@ -167,5 +163,62 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
 
   public clearProp(componentId: number): void {
     this.mpEntity.clearProp(componentId);
+  }
+
+  public get isLocalPlayer(): boolean {
+    return mp.players.local.id === this.mpEntity.id;
+  }
+
+  public clearTasks(): void {
+    this.mpEntity.clearTasks();
+  }
+
+  public resetMovementClipset(blendDuration: number): void {
+    this.mpEntity.resetMovementClipset(blendDuration);
+  }
+
+  public setMovementClipset(clipset: string, speed: number): void {
+    this.mpEntity.setMovementClipset(clipset, speed);
+  }
+
+  public taskEnterVehicle(
+    vehicleHandle: number,
+    timeout: number,
+    seat: number,
+    speed: number,
+    flag: number,
+    p6: number,
+  ): void {
+    this.mpEntity.taskEnterVehicle(vehicleHandle, timeout, seat, speed, flag, p6);
+  }
+
+  public taskPlayAnim(
+    dictionary: string,
+    name: string,
+    blendInSpeed: number,
+    blendOutSpeed: number,
+    duration: number,
+    flag: number,
+    playbackRate: number,
+    lockX: boolean,
+    lockY: boolean,
+    lockZ: boolean,
+  ): void {
+    this.mpEntity.taskPlayAnim(
+      dictionary,
+      name,
+      blendInSpeed,
+      blendOutSpeed,
+      duration,
+      flag,
+      playbackRate,
+      lockX,
+      lockY,
+      lockZ,
+    );
+  }
+
+  public taskSwapWeapon(): void {
+    this.mpEntity.taskSwapWeapon(true);
   }
 }

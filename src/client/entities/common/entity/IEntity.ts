@@ -4,8 +4,12 @@ import { type IVector3D } from "@shared/common/utils";
 export interface IEntityOptions extends IWorldObjectOptions {}
 
 export interface IEntity extends IWorldObject {
+  get remoteId(): number;
+  get handle(): number;
   get model(): number;
   get rotation(): IVector3D;
+  get heading(): number;
+  setHeading(heading: number): void;
   setModel(value: string): void;
   setRotation(value: IVector3D): void;
   get forwardVector(): IVector3D;
@@ -13,4 +17,6 @@ export interface IEntity extends IWorldObject {
   setCollision(collision: boolean, keepPhysics: boolean): void;
   setInvincible(invincible: boolean): void;
   setVisible(visible: boolean): void;
+  setAlpha(alpha: number): void;
+  get alpha(): number;
 }

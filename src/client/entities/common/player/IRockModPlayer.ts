@@ -4,9 +4,8 @@ import { type IVector3D } from "../../../../shared";
 
 export interface IPlayerOptions extends IEntityOptions {}
 
-export interface IPlayer extends IEntity {
+export interface IRockModPlayer extends IEntity {
   get name(): string;
-  get heading(): number;
   get health(): number;
   get armour(): number;
   get isDead(): boolean;
@@ -50,4 +49,25 @@ export interface IPlayer extends IEntity {
   setComponentVariation(componentId: number, drawableId: number, textureId: number, paletteId: number): void;
   setPropertyVariation(componentId: number, drawableId: number, textureId: number, attach: boolean): void;
   clearProp(componentId: number): void;
+
+  get isLocalPlayer(): boolean;
+
+  taskSwapWeapon(): void;
+  taskEnterVehicle(vehicleHandle: number, timeout: number, seat: number, speed: number, flag: number, p6: number): void;
+  clearTasks(): void;
+  taskPlayAnim(
+    dictionary: string,
+    name: string,
+    blendInSpeed: number,
+    blendOutSpeed: number,
+    duration: number,
+    flag: number,
+    playbackRate: number,
+    lockX: boolean,
+    lockY: boolean,
+    lockZ: boolean,
+  ): void;
+
+  setMovementClipset(clipset: string, speed: number): void;
+  resetMovementClipset(blendDuration: number): void;
 }

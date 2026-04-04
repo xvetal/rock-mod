@@ -1,2 +1,2 @@
-export * from "./IPlayer";
+export * from "./IRockModPlayer";
 export * from "./IPlayersManager";

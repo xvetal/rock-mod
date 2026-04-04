@@ -31,7 +31,10 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
 
     mp.events.add("entityDestroyed", (mpEntity) => {
       if (mpEntity.type === this._baseObjectsType) {
-        const baseObject = this.getByID(mpEntity.id);
+        const baseObject = this.findByID(mpEntity.id);
+        if (!baseObject) {
+          return;
+        }
         this.unregisterBaseObject(baseObject);
       }
     });
