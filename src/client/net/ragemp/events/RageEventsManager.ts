@@ -2,23 +2,26 @@ import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IClientInternalEvents } from "@RockMod/client/net/common/events/types";
 import { type IClientToServerEvents, type IServerToClientEvents } from "@shared/net/common/events/types";
 
-interface IRageClientInternalEvents extends IClientInternalEvents, IClientEvents {}
-
 export class RageEventsManager implements IEventsManager {
-  public onInternal(events: Partial<IRageClientInternalEvents>): void {
+  public onRaw(events: Partial<IClientEvents>): void {
     mp.events.add(events);
   }
 
-  public offInternal<K extends keyof IRageClientInternalEvents>(
-    eventName: K,
-    listener: IRageClientInternalEvents[K],
-  ): void {
+  public offRaw<K extends keyof IClientEvents>(eventName: K, listener: IClientEvents[K]): void {
+    mp.events.remove(eventName, listener);
+  }
+
+  public onInternal(events: Partial<IClientInternalEvents>): void {
+    mp.events.add(events);
+  }
+
+  public offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener: IClientInternalEvents[K]): void {
     return mp.events.remove(eventName, listener);
   }
 
-  public emitInternal<K extends keyof IRageClientInternalEvents>(
+  public emitInternal<K extends keyof IClientInternalEvents>(
     eventName: K,
-    ...args: Parameters<IRageClientInternalEvents[K]>
+    ...args: Parameters<IClientInternalEvents[K]>
   ): void {
     return mp.events.call(eventName, ...args);
   }

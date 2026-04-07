@@ -116,7 +116,7 @@ export class RockMod {
     this._markers = managersFactory.createMarkersManager();
     this._objects = managersFactory.createObjectsManager();
     this._peds = managersFactory.createPedsManager();
-    this._players = managersFactory.createPlayersManager(this._net);
+    this._players = managersFactory.createPlayersManager();
     this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
   }

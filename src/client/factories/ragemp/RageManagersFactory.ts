@@ -34,8 +34,8 @@ export class RageManagersFactory implements IManagersFactory {
     return new RagePedsManager();
   }
 
-  public createPlayersManager(net: RageNetManager): RagePlayersManager {
-    return new RagePlayersManager(net);
+  public createPlayersManager(): RagePlayersManager {
+    return new RagePlayersManager();
   }
 
   public createUtilsManager(): RageUtilsManager {

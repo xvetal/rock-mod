@@ -17,7 +17,7 @@ export interface IManagersFactory {
   createMarkersManager(): IMarkersManager;
   createObjectsManager(): IObjectsManager;
   createPedsManager(): IPedsManager;
-  createPlayersManager(net: INetManager): IPlayersManager;
+  createPlayersManager(): IPlayersManager;
   createUtilsManager(): IUtilsManager;
   createVehiclesManager(): IVehiclesManager;
 }

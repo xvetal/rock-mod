@@ -2,6 +2,9 @@ import { type IServerToClientEvents, type IClientToServerEvents } from "@shared/
 import { type IClientInternalEvents } from "./types";
 
 export interface IEventsManager {
+  onRaw(events: Partial<IClientEvents>): void;
+  offRaw<K extends keyof IClientEvents>(eventName: K, listener: IClientEvents[K]): void;
+
   onInternal(events: Partial<IClientInternalEvents>): void;
   offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener: IClientInternalEvents[K]): void;
   emitInternal<K extends keyof IClientInternalEvents>(

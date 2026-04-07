@@ -1,15 +1,12 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePlayer } from "./RagePlayer";
 import { type IPlayersManager, type IRockModPlayer } from "../../common";
-import { type RageNetManager } from "../../../net/ragemp/RageNetManager";
-import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
-  public constructor(net: RageNetManager) {
+  public constructor() {
     super({
       baseObjectsType: "player",
     });
-    this._init(net);
   }
 
   public getByName(name: string): RagePlayer {
@@ -45,39 +42,13 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
     return localPlayer;
   }
 
-  private _init(net: RageNetManager): void {
-    net.events.onInternal({
-      playerReady: () => {
-        this._registerExistingPlayers();
-        net.events.emitInternal(ClientInternalEventName.PlayerReady, this.getLocalPlayer());
-      },
-
-      playerJoin: (mpPlayer) => {
-        const isAlreadyRegistered = Boolean(this.findByID(mpPlayer.id));
-        const player = this._registerPlayer(mpPlayer);
-        if (!isAlreadyRegistered) {
-          net.events.emitInternal(ClientInternalEventName.PlayerConnected, player);
-        }
-      },
-      playerQuit: (mpPlayer) => {
-        const player = this.findByID(mpPlayer.id);
-        if (!player) {
-          return;
-        }
-
-        this.unregisterBaseObject(player);
-        net.events.emitInternal(ClientInternalEventName.PlayerDisconnected, player);
-      },
-    });
-  }
-
-  private _registerExistingPlayers(): void {
+  public syncWithMpPool(): void {
     for (const mpPlayer of mp.players.toArray()) {
-      this._registerPlayer(mpPlayer);
+      this.registerFromMp(mpPlayer);
     }
   }
 
-  private _registerPlayer(mpPlayer: PlayerMp): RagePlayer {
+  public registerFromMp(mpPlayer: PlayerMp): RagePlayer {
     const existingPlayer = this.findByID(mpPlayer.id);
     if (existingPlayer) {
       return existingPlayer;
@@ -89,6 +60,16 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
     });
     this.registerBaseObject(player);
 
+    return player;
+  }
+
+  public unregisterFromMp(mpPlayer: PlayerMp): RagePlayer | null {
+    const player = this.findByID(mpPlayer.id);
+    if (!player) {
+      return null;
+    }
+
+    this.unregisterBaseObject(player);
     return player;
   }
 }
