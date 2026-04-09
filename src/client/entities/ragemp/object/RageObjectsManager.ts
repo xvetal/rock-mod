@@ -26,4 +26,35 @@ export class RageObjectsManager extends RageEntitiesManager<RageObject> implemen
 
     return object;
   }
+
+  public syncWithMpPool(): void {
+    for (const mpObject of mp.objects.toArray()) {
+      this.registerFromMp(mpObject);
+    }
+  }
+
+  public registerFromMp(mpObject: ObjectMp): RageObject {
+    const existingObject = this.findByID(mpObject.id);
+    if (existingObject) {
+      return existingObject;
+    }
+
+    mpObject.isExists = (): boolean => mp.objects.exists(mpObject);
+    const object = new RageObject({
+      mpEntity: mpObject,
+    });
+    this.registerBaseObject(object);
+
+    return object;
+  }
+
+  public unregisterFromMp(mpObject: ObjectMp): RageObject | null {
+    const object = this.findByID(mpObject.id);
+    if (!object) {
+      return null;
+    }
+
+    this.unregisterBaseObject(object);
+    return object;
+  }
 }
