@@ -20,6 +20,10 @@ export abstract class RageBaseObject<T extends EntityMp = EntityMp> implements I
     return this._mpEntity.isExists();
   }
 
+  public destroy(): void {
+    this.mpEntity.destroy();
+  }
+
   protected get mpEntity(): T {
     return this._mpEntity;
   }

@@ -19,4 +19,8 @@ export interface IEntity extends IWorldObject {
   setVisible(visible: boolean): void;
   setAlpha(alpha: number): void;
   get alpha(): number;
+  resetAlpha(): void;
+  getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D;
+  getBoneIndexByName(boneName: string): number;
+  getWorldPositionOfBone(boneIndex: number): IVector3D;
 }

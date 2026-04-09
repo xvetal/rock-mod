@@ -1,6 +1,5 @@
 import { type IEntity, type IEntityOptions } from "../entity";
-import { type IVehicle } from "../vehicle";
-import { type IVector3D } from "../../../../shared";
+import { type IRockModVehicle } from "../vehicle";
 
 export interface IPlayerOptions extends IEntityOptions {}
 
@@ -9,7 +8,7 @@ export interface IRockModPlayer extends IEntity {
   get health(): number;
   get armour(): number;
   get isDead(): boolean;
-  get vehicle(): IVehicle | null;
+  get vehicle(): IRockModVehicle | null;
 
   get isVoice3DEnabled(): boolean;
   get voiceVolume(): number;
@@ -23,7 +22,6 @@ export interface IRockModPlayer extends IEntity {
   getWeaponAmmo(weapon: number): number;
 
   getBoneIndex(boneId: number): number;
-  getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D;
 
   setDecoration(collection: string, overlay: string): void;
   removeDecoration(collection: string, overlay: string): void;

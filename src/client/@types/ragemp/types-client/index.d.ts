@@ -2845,6 +2845,7 @@ declare interface VehicleMp extends EntityMp {
   gear: number;
   rpm: number;
   steeringAngle: number;
+  locked: boolean;
 
   addUpsidedownCheck(): void;
   areAllWindowsIntact(): boolean;

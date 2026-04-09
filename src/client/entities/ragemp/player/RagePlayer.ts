@@ -1,6 +1,5 @@
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { type IRockModPlayer } from "@RockMod/client/entities";
-import { type IVector3D, Vector3D } from "@shared/common/utils";
 import { type RageVehicle } from "@RockMod/client/entities/ragemp/vehicle/RageVehicle";
 import { RockMod } from "@RockMod/client/RockMod";
 
@@ -75,11 +74,6 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IRockModPlayer {
 
   public getBoneIndex(boneId: number): number {
     return this.mpEntity.getBoneIndex(boneId);
-  }
-
-  public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
-    const { x, y, z } = this.mpEntity.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
-    return new Vector3D(x, y, z);
   }
 
   public setDecoration(collection: string, overlay: string): void {

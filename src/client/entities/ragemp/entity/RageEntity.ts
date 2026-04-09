@@ -1,6 +1,6 @@
 import { type IEntity } from "../../common/entity/IEntity";
 import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
-import { Vector3D } from "../../../../shared/common/utils";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils";
 
 export interface IRageEntityOptions<T extends EntityMp> extends IRageWorldObjectOptions<T> {}
 
@@ -69,5 +69,23 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
 
   public get alpha(): number {
     return this.mpEntity.alpha;
+  }
+
+  public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
+    const { x, y, z } = this.mpEntity.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
+    return new Vector3D(x, y, z);
+  }
+
+  public resetAlpha(): void {
+    this.mpEntity.resetAlpha();
+  }
+
+  public getBoneIndexByName(boneName: string): number {
+    return this.mpEntity.getBoneIndexByName(boneName);
+  }
+
+  public getWorldPositionOfBone(boneIndex: number): IVector3D {
+    const { x, y, z } = this.mpEntity.getWorldPositionOfBone(boneIndex);
+    return new Vector3D(x, y, z);
   }
 }

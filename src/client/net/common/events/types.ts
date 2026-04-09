@@ -1,4 +1,4 @@
-import { type IBaseObject, type IEntity, type IRockModPlayer, type IVehicle } from "@RockMod/client/entities";
+import { type IBaseObject, type IEntity, type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities";
 
 export enum ClientInternalEventName {
   PlayerConnected = "rm::playerConnected",
@@ -25,8 +25,8 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.BrowserDomReady]: () => void;
   [ClientInternalEventName.EntityStreamIn]: (entity: IEntity) => void;
   [ClientInternalEventName.EntityStreamOut]: (entity: IEntity) => void;
-  [ClientInternalEventName.PlayerEnterVehicle]: (vehicle: IVehicle, seat: number) => void;
-  [ClientInternalEventName.PlayerLeaveVehicle]: (vehicle: IVehicle, seat: number) => void;
+  [ClientInternalEventName.PlayerEnterVehicle]: (vehicle: IRockModVehicle, seat: number) => void;
+  [ClientInternalEventName.PlayerLeaveVehicle]: (vehicle: IRockModVehicle, seat: number) => void;
   [ClientInternalEventName.PlayerDeath]: (player: IRockModPlayer) => void;
   [ClientInternalEventName.PlayerSpawn]: (player: IRockModPlayer) => void;
   [ClientInternalEventName.PlayerWeaponShot]: () => void;

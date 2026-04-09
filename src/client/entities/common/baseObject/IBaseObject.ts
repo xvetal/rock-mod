@@ -9,4 +9,5 @@ export interface IBaseObject {
   get id(): number;
   get type(): BaseObjectType;
   get isExists(): boolean;
+  destroy(): void;
 }

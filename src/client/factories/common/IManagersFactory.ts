@@ -6,6 +6,7 @@ import {
   type IObjectsManager,
   type IPedsManager,
   type IPlayersManager,
+  type IVehicleNativeManager,
   type IVehiclesManager,
 } from "../../entities";
 import { type IUtilsManager } from "../../utils";
@@ -20,4 +21,5 @@ export interface IManagersFactory {
   createPlayersManager(): IPlayersManager;
   createUtilsManager(): IUtilsManager;
   createVehiclesManager(): IVehiclesManager;
+  createVehicleNativeManager(): IVehicleNativeManager;
 }

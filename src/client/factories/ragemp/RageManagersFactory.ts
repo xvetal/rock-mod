@@ -8,6 +8,8 @@ import { RagePlayersManager } from "@RockMod/client/entities/ragemp/player/RageP
 import { RageVehiclesManager } from "@RockMod/client/entities/ragemp/vehicle/RageVehiclesManager";
 import { RageNetManager } from "@RockMod/client/net/ragemp/RageNetManager";
 import { RageUtilsManager } from "@RockMod/client/utils/ragemp/RageUtilsManager";
+import { type IVehicleNativeManager } from "@RockMod/client/entities";
+import { RageVehicleNativeManager } from "@RockMod/client/entities/ragemp/vehicle/RageVehicleNativeManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
@@ -44,5 +46,9 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createVehiclesManager(): RageVehiclesManager {
     return new RageVehiclesManager();
+  }
+
+  public createVehicleNativeManager(): IVehicleNativeManager {
+    return new RageVehicleNativeManager();
   }
 }

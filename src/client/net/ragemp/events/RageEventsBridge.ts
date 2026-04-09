@@ -1,7 +1,7 @@
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type RageEventsManager } from "./RageEventsManager";
 import { RockMod } from "@RockMod/client/RockMod";
-import { type IEntity, type IVehicle } from "@RockMod/client/entities/common";
+import { type IEntity, type IRockModVehicle } from "@RockMod/client/entities/common";
 import { type RagePlayer } from "@RockMod/client/entities/ragemp/player/RagePlayer";
 import { type RagePlayersManager } from "@RockMod/client/entities/ragemp/player/RagePlayersManager";
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
@@ -56,6 +56,8 @@ export class RageEventsBridge implements IEventsBridge {
 
       entityStreamIn: (mpEntity) => {
         const entity = this._resolveEntity(mpEntity);
+        mp.console.logInfo(`vehicles mp: ${mp.vehicles.length}`);
+        mp.console.logInfo(`local vehicles: ${Array.from(RockMod.instance.vehicles.iterator.all()).length}`);
 
         if (!entity) {
           return;
@@ -66,7 +68,8 @@ export class RageEventsBridge implements IEventsBridge {
 
       entityStreamOut: (mpEntity) => {
         const entity = this._resolveEntity(mpEntity);
-
+        mp.console.logInfo(`vehicles mp: ${mp.vehicles.length}`);
+        mp.console.logInfo(`local vehicles: ${Array.from(RockMod.instance.vehicles.iterator.all()).length}`);
         if (!entity) {
           return;
         }
@@ -146,7 +149,7 @@ export class RageEventsBridge implements IEventsBridge {
     return playersManager.registerFromMp(mpPlayer);
   }
 
-  private _resolveVehicle(mpVehicle: VehicleMp): IVehicle | null {
+  private _resolveVehicle(mpVehicle: VehicleMp): IRockModVehicle | null {
     const rockMod = this._getRockMod();
     if (!rockMod) {
       return null;
