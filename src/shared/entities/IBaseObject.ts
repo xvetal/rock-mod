@@ -7,3 +7,8 @@ export enum BaseObjectType {
   Player = "player",
   Vehicle = "vehicle",
 }
+
+export interface IBaseObjectDto {
+  type: BaseObjectType;
+  id: number;
+}

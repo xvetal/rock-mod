@@ -56,11 +56,37 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
     return baseObject ?? null;
   }
 
+  public getByRemoteID(remoteId: number): T {
+    const baseObject = this.findByID(remoteId);
+
+    if (!baseObject) {
+      throw new Error(`BaseObject [${this._baseObjectsType}] with id ${remoteId} not found`);
+    }
+
+    return baseObject;
+  }
+
+  public findByRemoteID(remoteId: number): T | null {
+    const baseObject = Array.from(this._baseObjects.values()).find((obj) => obj.remoteId === remoteId);
+
+    return baseObject ?? null;
+  }
+
+  public deleteById(id: number): T {
+    const object = this.getByID(id);
+
+    object.destroy();
+    this.unregisterBaseObject(object);
+
+    return object;
+  }
+
   protected registerBaseObject(baseObject: T): void {
     if (this._baseObjects.has(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
     }
     this._baseObjects.set(baseObject.id, baseObject);
+
     RockMod.instance.net.events.emitInternal(ClientInternalEventName.EntityCreated, baseObject);
   }
 
@@ -68,6 +94,7 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
+
     RockMod.instance.net.events.emitInternal(ClientInternalEventName.EntityDestroyed, baseObject);
   }
 }

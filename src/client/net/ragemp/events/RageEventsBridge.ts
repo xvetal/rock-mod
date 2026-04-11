@@ -1,13 +1,10 @@
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type RageEventsManager } from "./RageEventsManager";
 import { RockMod } from "@RockMod/client/RockMod";
-import { type IEntity, type IRockModVehicle } from "@RockMod/client/entities/common";
-import { type RagePlayer } from "@RockMod/client/entities/ragemp/player/RagePlayer";
-import { type RagePlayersManager } from "@RockMod/client/entities/ragemp/player/RagePlayersManager";
-import { type RageVehiclesManager } from "@RockMod/client/entities/ragemp/vehicle/RageVehiclesManager";
-import { type RageObjectsManager } from "@RockMod/client/entities/ragemp/object/RageObjectsManager";
-import { type RagePedsManager } from "@RockMod/client/entities/ragemp/ped/RagePedsManager";
+import { type IEntity, type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities/common";
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
+import { ServerToClientEventName } from "@shared/net/common/events/types";
+import { type IBaseObjectDto } from "@shared/entities/IBaseObject";
 
 export class RageEventsBridge implements IEventsBridge {
   private readonly _events: RageEventsManager;
@@ -19,13 +16,14 @@ export class RageEventsBridge implements IEventsBridge {
   public registerRawEvents(): void {
     this._events.onRaw({
       playerReady: () => {
-        const playersManager = this._getPlayersManager();
+        const playersManager = this._rockMod?.players;
         if (!playersManager) {
           return;
         }
 
         playersManager.syncWithMpPool();
         this._syncEntityPools();
+
         const localPlayer = playersManager.findLocalPlayer();
         if (!localPlayer) {
           return;
@@ -35,22 +33,21 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerJoin: (mpPlayer) => {
-        const playersManager = this._getPlayersManager();
-        if (!playersManager) {
+        const player = this._resolveEntityFromMp(mpPlayer) as IRockModPlayer;
+        if (!player) {
           return;
         }
 
-        const player = playersManager.registerFromMp(mpPlayer);
         this._events.emitInternal(ClientInternalEventName.PlayerConnected, player);
       },
 
       playerQuit: (mpPlayer) => {
-        const playersManager = this._getPlayersManager();
+        const playersManager = this._rockMod?.players;
         if (!playersManager) {
           return;
         }
 
-        const player = playersManager.unregisterFromMp(mpPlayer);
+        const player = playersManager.unregisterByRemoteId(mpPlayer.id);
         if (!player) {
           return;
         }
@@ -59,7 +56,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       entityStreamIn: (mpEntity) => {
-        const entity = this._resolveEntity(mpEntity);
+        const entity = this._resolveEntityFromMp(mpEntity);
         if (!entity) {
           return;
         }
@@ -68,17 +65,16 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       entityStreamOut: (mpEntity) => {
-        const entity = this._resolveEntity(mpEntity);
+        const entity = this._resolveEntityFromMp(mpEntity);
         if (!entity) {
           return;
         }
 
-        // Stream-out only affects visibility; registry cleanup still happens on entityDestroyed.
         this._events.emitInternal(ClientInternalEventName.EntityStreamOut, entity);
       },
 
       playerEnterVehicle: (mpVehicle, seat) => {
-        const vehicle = this._resolveVehicle(mpVehicle);
+        const vehicle = this._resolveEntityFromMp(mpVehicle) as IRockModVehicle;
         if (!vehicle) {
           return;
         }
@@ -87,7 +83,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerLeaveVehicle: (mpVehicle, seat) => {
-        const vehicle = this._resolveVehicle(mpVehicle);
+        const vehicle = this._resolveEntityFromMp(mpVehicle) as IRockModVehicle;
         if (!vehicle) {
           return;
         }
@@ -96,7 +92,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerDeath: (mpPlayer) => {
-        const player = this._resolvePlayer(mpPlayer);
+        const player = this._resolveEntityFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
@@ -105,7 +101,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerSpawn: (mpPlayer) => {
-        const player = this._resolvePlayer(mpPlayer);
+        const player = this._resolveEntityFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
@@ -123,7 +119,18 @@ export class RageEventsBridge implements IEventsBridge {
     });
   }
 
-  private _getRockMod(): RockMod | null {
+  public registerServerEvents(): void {
+    this._events.onServer({
+      [ServerToClientEventName.EntityCreated]: (serverEntity) => {
+        this._registerEntityByDto(serverEntity);
+      },
+      [ServerToClientEventName.EntityDestroyed]: (serverEntity) => {
+        this._unregisterEntityByDto(serverEntity);
+      },
+    });
+  }
+
+  private get _rockMod(): RockMod | null {
     try {
       return RockMod.instance;
     } catch {
@@ -131,94 +138,52 @@ export class RageEventsBridge implements IEventsBridge {
     }
   }
 
-  private _getPlayersManager(): RagePlayersManager | null {
-    const rockMod = this._getRockMod();
-    if (!rockMod) {
-      return null;
-    }
-
-    return rockMod.players as RagePlayersManager;
-  }
-
-  private _getVehiclesManager(): RageVehiclesManager | null {
-    const rockMod = this._getRockMod();
-    if (!rockMod) {
-      return null;
-    }
-
-    return rockMod.vehicles as RageVehiclesManager;
-  }
-
-  private _getObjectsManager(): RageObjectsManager | null {
-    const rockMod = this._getRockMod();
-    if (!rockMod) {
-      return null;
-    }
-
-    return rockMod.objects as RageObjectsManager;
-  }
-
-  private _getPedsManager(): RagePedsManager | null {
-    const rockMod = this._getRockMod();
-    if (!rockMod) {
-      return null;
-    }
-
-    return rockMod.peds as RagePedsManager;
-  }
-
   private _syncEntityPools(): void {
-    this._getVehiclesManager()?.syncWithMpPool();
-    this._getObjectsManager()?.syncWithMpPool();
-    this._getPedsManager()?.syncWithMpPool();
+    this._rockMod?.vehicles.syncWithMpPool();
+    this._rockMod?.objects.syncWithMpPool();
+    this._rockMod?.peds.syncWithMpPool();
   }
 
-  private _resolvePlayer(mpPlayer: PlayerMp): RagePlayer | null {
-    const playersManager = this._getPlayersManager();
-    if (!playersManager) {
-      return null;
+  private _registerEntityByDto(entity: IBaseObjectDto): IEntity | null {
+    switch (entity.type) {
+      case "player":
+        return this._rockMod?.players.registerByRemoteId(entity.id) ?? null;
+      case "vehicle":
+        return this._rockMod?.vehicles.registerByRemoteId(entity.id) ?? null;
+      case "object":
+        return this._rockMod?.objects.registerByRemoteId(entity.id) ?? null;
+      case "ped":
+        return this._rockMod?.peds.registerByRemoteId(entity.id) ?? null;
+      default:
+        return null;
     }
-
-    return playersManager.registerFromMp(mpPlayer);
   }
 
-  private _resolveVehicle(mpVehicle: VehicleMp): IRockModVehicle | null {
-    const vehiclesManager = this._getVehiclesManager();
-    if (!vehiclesManager) {
-      return null;
+  private _unregisterEntityByDto(entity: IBaseObjectDto): IEntity | null {
+    switch (entity.type) {
+      case "player":
+        return this._rockMod?.players.unregisterByRemoteId(entity.id) ?? null;
+      case "vehicle":
+        return this._rockMod?.vehicles.unregisterByRemoteId(entity.id) ?? null;
+      case "object":
+        return this._rockMod?.objects.unregisterByRemoteId(entity.id) ?? null;
+      case "ped":
+        return this._rockMod?.peds.unregisterByRemoteId(entity.id) ?? null;
+      default:
+        return null;
     }
-
-    return vehiclesManager.registerFromMp(mpVehicle);
   }
 
-  private _resolveObject(mpObject: ObjectMp): IEntity | null {
-    const objectsManager = this._getObjectsManager();
-    if (!objectsManager) {
-      return null;
-    }
-
-    return objectsManager.registerFromMp(mpObject);
-  }
-
-  private _resolvePed(mpPed: PedMp): IEntity | null {
-    const pedsManager = this._getPedsManager();
-    if (!pedsManager) {
-      return null;
-    }
-
-    return pedsManager.registerFromMp(mpPed);
-  }
-
-  private _resolveEntity(mpEntity: EntityMp): IEntity | null {
+  private _resolveEntityFromMp(mpEntity: EntityMp): IEntity | null {
     switch (mpEntity.type) {
       case "player":
-        return this._resolvePlayer(mpEntity as PlayerMp);
+        return this._rockMod?.players.registerByRemoteId(mpEntity.remoteId) ?? null;
       case "vehicle":
-        return this._resolveVehicle(mpEntity as VehicleMp);
+        return this._rockMod?.vehicles.registerByRemoteId(mpEntity.remoteId) ?? null;
       case "object":
-        return this._resolveObject(mpEntity as ObjectMp);
+        return this._rockMod?.objects.registerByRemoteId(mpEntity.remoteId) ?? null;
       case "ped":
-        return this._resolvePed(mpEntity as PedMp);
+        return this._rockMod?.peds.registerByRemoteId(mpEntity.remoteId) ?? null;
       default:
         return null;
     }

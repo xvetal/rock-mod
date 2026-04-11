@@ -11,4 +11,14 @@ export abstract class RageEntitiesManager<T extends RageEntity<EntityMp>>
   protected constructor(options: IRageEntitiesManagerOptions) {
     super(options);
   }
+
+  public abstract syncWithMpPool(): void;
+  public abstract registerByRemoteId(remoteId: number): T;
+
+  public unregisterByRemoteId(remoteId: number): T {
+    const existingObject = this.getByRemoteID(remoteId);
+
+    this.unregisterBaseObject(existingObject);
+    return existingObject;
+  }
 }

@@ -4,7 +4,6 @@ import { type IVector3D } from "@shared/common/utils";
 export interface IEntityOptions extends IWorldObjectOptions {}
 
 export interface IEntity extends IWorldObject {
-  get remoteId(): number;
   get handle(): number;
   get model(): number;
   get rotation(): IVector3D;

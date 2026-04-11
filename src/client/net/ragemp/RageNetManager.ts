@@ -22,6 +22,8 @@ export class RageNetManager implements INetManager {
     this._eventsManager = new RageEventsManager();
     this._rpcManager = new RageRPCManager();
     this._eventsBridge = new RageEventsBridge(this._eventsManager);
+
     this._eventsBridge.registerRawEvents();
+    this._eventsBridge.registerServerEvents();
   }
 }

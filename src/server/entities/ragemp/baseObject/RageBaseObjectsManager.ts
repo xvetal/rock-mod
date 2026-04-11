@@ -2,7 +2,7 @@ import { type IBaseObjectsManager, type IBaseObjectsManagerOptions } from "../..
 import { type RageBaseObject } from "./RageBaseObject";
 import { RageBaseObjectsIterator } from "./RageBaseObjectsIterator";
 import { RockMod } from "../../../RockMod";
-import { type BaseObjectType } from "../../../../shared";
+import { type BaseObjectType, type IBaseObjectDto, ServerToClientEventName } from "../../../../shared";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export interface IRageBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
@@ -58,13 +58,30 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
     }
     this._baseObjects.set(baseObject.id, baseObject);
+
     RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityCreated, baseObject);
+    RockMod.instance.net.events.emitAllClients(
+      ServerToClientEventName.EntityCreated,
+      this._toBaseObjectDto(baseObject),
+    );
   }
 
   protected unregisterBaseObject(baseObject: T): void {
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
-    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityCreated, baseObject);
+
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityDestroyed, baseObject);
+    RockMod.instance.net.events.emitAllClients(
+      ServerToClientEventName.EntityDestroyed,
+      this._toBaseObjectDto(baseObject),
+    );
+  }
+
+  private _toBaseObjectDto(baseObject: T): IBaseObjectDto {
+    return {
+      type: baseObject.type,
+      id: baseObject.id,
+    };
   }
 }

@@ -29,15 +29,17 @@ export class RageObjectsManager extends RageEntitiesManager<RageObject> implemen
 
   public syncWithMpPool(): void {
     for (const mpObject of mp.objects.toArray()) {
-      this.registerFromMp(mpObject);
+      this.registerByRemoteId(mpObject.remoteId);
     }
   }
 
-  public registerFromMp(mpObject: ObjectMp): RageObject {
-    const existingObject = this.findByID(mpObject.id);
+  public registerByRemoteId(remoteId: number): RageObject {
+    const existingObject = this.findByRemoteID(remoteId);
     if (existingObject) {
       return existingObject;
     }
+
+    const mpObject = mp.objects.atRemoteId(remoteId);
 
     mpObject.isExists = (): boolean => mp.objects.exists(mpObject);
     const object = new RageObject({
@@ -45,16 +47,6 @@ export class RageObjectsManager extends RageEntitiesManager<RageObject> implemen
     });
     this.registerBaseObject(object);
 
-    return object;
-  }
-
-  public unregisterFromMp(mpObject: ObjectMp): RageObject | null {
-    const object = this.findByID(mpObject.id);
-    if (!object) {
-      return null;
-    }
-
-    this.unregisterBaseObject(object);
     return object;
   }
 }

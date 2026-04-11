@@ -9,6 +9,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./shared": {
+      "types": "./dist/shared/index.d.ts",
+      "default": "./dist/shared/index.js"
+    },
     "./client": {
       "types": "./dist/client/index.d.ts",
       "default": "./dist/client/index.js"
@@ -20,6 +24,9 @@
   },
   "typesVersions": {
     "*": {
+      "shared": [
+        "./dist/shared/index.d.ts"
+      ],
       "client": [
         "./dist/client/index.d.ts"
       ],

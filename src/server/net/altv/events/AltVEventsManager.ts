@@ -49,4 +49,11 @@ export class AltVEventsManager implements IEventsManager {
 
     return mpPlayer.emit(eventName, ...args);
   }
+
+  public emitAllClients<K extends keyof IServerToClientEvents>(
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
+  ): void {
+    Player.all.forEach((player) => player.emit(eventName, ...args));
+  }
 }

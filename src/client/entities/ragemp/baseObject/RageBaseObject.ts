@@ -12,6 +12,10 @@ export abstract class RageBaseObject<T extends EntityMp = EntityMp> implements I
     return this._mpEntity.id;
   }
 
+  public get remoteId(): number {
+    return this.mpEntity.remoteId;
+  }
+
   public get type(): BaseObjectType {
     return this._mpEntity.type as unknown as BaseObjectType;
   }

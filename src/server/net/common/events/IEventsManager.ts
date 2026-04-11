@@ -17,4 +17,8 @@ export interface IEventsManager {
     eventName: K,
     ...args: Parameters<IServerToClientEvents[K]>
   ): void;
+  emitAllClients<K extends keyof IServerToClientEvents>(
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
+  ): void;
 }

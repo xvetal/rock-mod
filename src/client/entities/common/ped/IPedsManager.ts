@@ -1,8 +1,8 @@
 import { type IEntitiesManager, type IEntityCreateOptions } from "../entity";
-import { type IPed } from "./IPed";
+import { type IRockModPed } from "./IRockModPed";
 
 export interface IPedCreateOptions extends IEntityCreateOptions {}
 
-export interface IPedsManager extends IEntitiesManager<IPed> {
-  create(options: IPedCreateOptions): IPed;
+export interface IPedsManager extends IEntitiesManager<IRockModPed> {
+  create(options: IPedCreateOptions): IRockModPed;
 }

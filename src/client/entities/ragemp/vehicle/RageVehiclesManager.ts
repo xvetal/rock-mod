@@ -31,15 +31,17 @@ export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implem
 
   public syncWithMpPool(): void {
     for (const mpVehicle of mp.vehicles.toArray()) {
-      this.registerFromMp(mpVehicle);
+      this.registerByRemoteId(mpVehicle.remoteId);
     }
   }
 
-  public registerFromMp(mpVehicle: VehicleMp): RageVehicle {
-    const existingVehicle = this.findByID(mpVehicle.id);
+  public registerByRemoteId(remoteId: number): RageVehicle {
+    const existingVehicle = this.findByID(remoteId);
     if (existingVehicle) {
       return existingVehicle;
     }
+
+    const mpVehicle = mp.vehicles.atRemoteId(remoteId);
 
     mpVehicle.isExists = (): boolean => mp.vehicles.exists(mpVehicle);
     const vehicle = new RageVehicle({
@@ -47,16 +49,6 @@ export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implem
     });
     this.registerBaseObject(vehicle);
 
-    return vehicle;
-  }
-
-  public unregisterFromMp(mpVehicle: VehicleMp): RageVehicle | null {
-    const vehicle = this.findByID(mpVehicle.id);
-    if (!vehicle) {
-      return null;
-    }
-
-    this.unregisterBaseObject(vehicle);
     return vehicle;
   }
 }

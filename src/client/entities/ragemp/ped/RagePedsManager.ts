@@ -25,15 +25,17 @@ export class RagePedsManager extends RageEntitiesManager<RagePed> implements IPe
 
   public syncWithMpPool(): void {
     for (const mpPed of mp.peds.toArray()) {
-      this.registerFromMp(mpPed);
+      this.registerByRemoteId(mpPed.remoteId);
     }
   }
 
-  public registerFromMp(mpPed: PedMp): RagePed {
-    const existingPed = this.findByID(mpPed.id);
+  public registerByRemoteId(remoteId: number): RagePed {
+    const existingPed = this.findByRemoteID(remoteId);
     if (existingPed) {
       return existingPed;
     }
+
+    const mpPed = mp.peds.atRemoteId(remoteId);
 
     mpPed.isExists = (): boolean => mp.peds.exists(mpPed);
     const ped = new RagePed({
@@ -41,16 +43,6 @@ export class RagePedsManager extends RageEntitiesManager<RagePed> implements IPe
     });
     this.registerBaseObject(ped);
 
-    return ped;
-  }
-
-  public unregisterFromMp(mpPed: PedMp): RagePed | null {
-    const ped = this.findByID(mpPed.id);
-    if (!ped) {
-      return null;
-    }
-
-    this.unregisterBaseObject(ped);
     return ped;
   }
 }

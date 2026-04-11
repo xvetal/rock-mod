@@ -42,4 +42,13 @@ export class RageEventsManager implements IEventsManager {
 
     return mpPlayer.call(eventName, args);
   }
+
+  public emitAllClients<K extends keyof IServerToClientEvents>(
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
+  ): void {
+    mp.players.forEach((mpPlayer) => {
+      mpPlayer.call(eventName, args);
+    });
+  }
 }

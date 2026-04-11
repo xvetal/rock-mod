@@ -44,15 +44,17 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
 
   public syncWithMpPool(): void {
     for (const mpPlayer of mp.players.toArray()) {
-      this.registerFromMp(mpPlayer);
+      this.registerByRemoteId(mpPlayer.remoteId);
     }
   }
 
-  public registerFromMp(mpPlayer: PlayerMp): RagePlayer {
-    const existingPlayer = this.findByID(mpPlayer.id);
+  public registerByRemoteId(remoteId: number): RagePlayer {
+    const existingPlayer = this.findByID(remoteId);
     if (existingPlayer) {
       return existingPlayer;
     }
+
+    const mpPlayer = mp.players.atRemoteId(remoteId);
 
     mpPlayer.isExists = (): boolean => mp.players.exists(mpPlayer);
     const player = new RagePlayer({
@@ -60,16 +62,6 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
     });
     this.registerBaseObject(player);
 
-    return player;
-  }
-
-  public unregisterFromMp(mpPlayer: PlayerMp): RagePlayer | null {
-    const player = this.findByID(mpPlayer.id);
-    if (!player) {
-      return null;
-    }
-
-    this.unregisterBaseObject(player);
     return player;
   }
 }
