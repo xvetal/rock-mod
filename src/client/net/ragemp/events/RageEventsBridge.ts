@@ -1,16 +1,19 @@
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type RageEventsManager } from "./RageEventsManager";
 import { RockMod } from "@RockMod/client/RockMod";
-import { type IEntity, type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities/common";
+import { type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities/common";
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
 import { ServerToClientEventName } from "@shared/net/common/events/types";
-import { type IBaseObjectDto } from "@shared/entities/IBaseObject";
+import { EntityPoolRouter } from "../../../entities/common/router/EntityPoolRouter";
 
 export class RageEventsBridge implements IEventsBridge {
   private readonly _events: RageEventsManager;
 
+  private readonly _entityPoolRouter: EntityPoolRouter;
+
   public constructor(events: RageEventsManager) {
     this._events = events;
+    this._entityPoolRouter = new EntityPoolRouter(() => this._rockMod);
   }
 
   public registerRawEvents(): void {
@@ -33,7 +36,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerJoin: (mpPlayer) => {
-        const player = this._resolveEntityFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.resolveFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
@@ -56,7 +59,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       entityStreamIn: (mpEntity) => {
-        const entity = this._resolveEntityFromMp(mpEntity);
+        const entity = this._entityPoolRouter.resolveFromMp(mpEntity);
         if (!entity) {
           return;
         }
@@ -65,7 +68,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       entityStreamOut: (mpEntity) => {
-        const entity = this._resolveEntityFromMp(mpEntity);
+        const entity = this._entityPoolRouter.resolveFromMp(mpEntity);
         if (!entity) {
           return;
         }
@@ -74,7 +77,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerEnterVehicle: (mpVehicle, seat) => {
-        const vehicle = this._resolveEntityFromMp(mpVehicle) as IRockModVehicle;
+        const vehicle = this._entityPoolRouter.resolveFromMp(mpVehicle) as IRockModVehicle;
         if (!vehicle) {
           return;
         }
@@ -83,7 +86,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerLeaveVehicle: (mpVehicle, seat) => {
-        const vehicle = this._resolveEntityFromMp(mpVehicle) as IRockModVehicle;
+        const vehicle = this._entityPoolRouter.resolveFromMp(mpVehicle) as IRockModVehicle;
         if (!vehicle) {
           return;
         }
@@ -92,7 +95,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerDeath: (mpPlayer) => {
-        const player = this._resolveEntityFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.resolveFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
@@ -101,7 +104,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerSpawn: (mpPlayer) => {
-        const player = this._resolveEntityFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.resolveFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
@@ -122,10 +125,10 @@ export class RageEventsBridge implements IEventsBridge {
   public registerServerEvents(): void {
     this._events.onServer({
       [ServerToClientEventName.EntityCreated]: (serverEntity) => {
-        this._registerEntityByDto(serverEntity);
+        this._entityPoolRouter.registerByDto(serverEntity);
       },
       [ServerToClientEventName.EntityDestroyed]: (serverEntity) => {
-        this._unregisterEntityByDto(serverEntity);
+        this._entityPoolRouter.unregisterByDto(serverEntity);
       },
     });
   }
@@ -142,50 +145,5 @@ export class RageEventsBridge implements IEventsBridge {
     this._rockMod?.vehicles.syncWithMpPool();
     this._rockMod?.objects.syncWithMpPool();
     this._rockMod?.peds.syncWithMpPool();
-  }
-
-  private _registerEntityByDto(entity: IBaseObjectDto): IEntity | null {
-    switch (entity.type) {
-      case "player":
-        return this._rockMod?.players.registerByRemoteId(entity.id) ?? null;
-      case "vehicle":
-        return this._rockMod?.vehicles.registerByRemoteId(entity.id) ?? null;
-      case "object":
-        return this._rockMod?.objects.registerByRemoteId(entity.id) ?? null;
-      case "ped":
-        return this._rockMod?.peds.registerByRemoteId(entity.id) ?? null;
-      default:
-        return null;
-    }
-  }
-
-  private _unregisterEntityByDto(entity: IBaseObjectDto): IEntity | null {
-    switch (entity.type) {
-      case "player":
-        return this._rockMod?.players.unregisterByRemoteId(entity.id) ?? null;
-      case "vehicle":
-        return this._rockMod?.vehicles.unregisterByRemoteId(entity.id) ?? null;
-      case "object":
-        return this._rockMod?.objects.unregisterByRemoteId(entity.id) ?? null;
-      case "ped":
-        return this._rockMod?.peds.unregisterByRemoteId(entity.id) ?? null;
-      default:
-        return null;
-    }
-  }
-
-  private _resolveEntityFromMp(mpEntity: EntityMp): IEntity | null {
-    switch (mpEntity.type) {
-      case "player":
-        return this._rockMod?.players.registerByRemoteId(mpEntity.remoteId) ?? null;
-      case "vehicle":
-        return this._rockMod?.vehicles.registerByRemoteId(mpEntity.remoteId) ?? null;
-      case "object":
-        return this._rockMod?.objects.registerByRemoteId(mpEntity.remoteId) ?? null;
-      case "ped":
-        return this._rockMod?.peds.registerByRemoteId(mpEntity.remoteId) ?? null;
-      default:
-        return null;
-    }
   }
 }
