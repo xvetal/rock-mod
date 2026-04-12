@@ -57,7 +57,7 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
   }
 
   public getByRemoteID(remoteId: number): T {
-    const baseObject = this.findByID(remoteId);
+    const baseObject = this.findByRemoteID(remoteId);
 
     if (!baseObject) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${remoteId} not found`);

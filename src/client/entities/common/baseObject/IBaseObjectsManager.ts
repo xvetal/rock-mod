@@ -12,7 +12,7 @@ export interface IBaseObjectsManager<T extends IBaseObject> {
   get iterator(): IBaseObjectsIterator<T>;
   getByID(id: number): T;
   findByID(id: number): T | null;
-  getByRemoteID(id: number): T;
+  getByRemoteID(remoteId: number): T;
   findByRemoteID(remoteId: number): T | null;
   deleteById(id: number): T;
 }

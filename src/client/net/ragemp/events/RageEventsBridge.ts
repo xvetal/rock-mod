@@ -13,7 +13,7 @@ export class RageEventsBridge implements IEventsBridge {
 
   public constructor(events: RageEventsManager) {
     this._events = events;
-    this._entityPoolRouter = new EntityPoolRouter(() => this._rockMod);
+    this._entityPoolRouter = new EntityPoolRouter();
   }
 
   public registerRawEvents(): void {
@@ -36,7 +36,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerJoin: (mpPlayer) => {
-        const player = this._entityPoolRouter.resolveFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
@@ -50,7 +50,7 @@ export class RageEventsBridge implements IEventsBridge {
           return;
         }
 
-        const player = playersManager.unregisterByRemoteId(mpPlayer.id);
+        const player = playersManager.unregisterByRemoteId(mpPlayer.remoteId);
         if (!player) {
           return;
         }
@@ -59,7 +59,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       entityStreamIn: (mpEntity) => {
-        const entity = this._entityPoolRouter.resolveFromMp(mpEntity);
+        const entity = this._entityPoolRouter.registerFromMp(mpEntity);
         if (!entity) {
           return;
         }
@@ -77,7 +77,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerEnterVehicle: (mpVehicle, seat) => {
-        const vehicle = this._entityPoolRouter.resolveFromMp(mpVehicle) as IRockModVehicle;
+        const vehicle = this._entityPoolRouter.registerFromMp(mpVehicle) as IRockModVehicle;
         if (!vehicle) {
           return;
         }
@@ -95,7 +95,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerDeath: (mpPlayer) => {
-        const player = this._entityPoolRouter.resolveFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
@@ -104,7 +104,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerSpawn: (mpPlayer) => {
-        const player = this._entityPoolRouter.resolveFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IRockModPlayer;
         if (!player) {
           return;
         }
