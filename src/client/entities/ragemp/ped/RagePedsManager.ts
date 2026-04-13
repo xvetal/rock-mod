@@ -25,17 +25,17 @@ export class RagePedsManager extends RageEntitiesManager<RagePed> implements IPe
 
   public syncWithMpPool(): void {
     for (const mpPed of mp.peds.toArray()) {
-      this.registerByRemoteId(mpPed.remoteId);
+      this.registerById(mpPed.id);
     }
   }
 
-  public registerByRemoteId(remoteId: number): RagePed {
-    const existingPed = this.findByRemoteID(remoteId);
+  public registerById(id: number): RagePed {
+    const existingPed = this.findByID(id);
     if (existingPed) {
       return existingPed;
     }
 
-    const mpPed = mp.peds.atRemoteId(remoteId);
+    const mpPed = mp.peds.at(id);
 
     mpPed.isExists = (): boolean => mp.peds.exists(mpPed);
     const ped = new RagePed({

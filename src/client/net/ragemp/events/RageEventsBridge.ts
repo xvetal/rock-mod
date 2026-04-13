@@ -4,16 +4,16 @@ import { RockMod } from "@RockMod/client/RockMod";
 import { type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities/common";
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
 import { ServerToClientEventName } from "@shared/net/common/events/types";
-import { EntityPoolRouter } from "../../../entities/common/router/EntityPoolRouter";
+import { RageEntityPoolRouter } from "../../../entities/ragemp/router/RageEntityPoolRouter";
 
 export class RageEventsBridge implements IEventsBridge {
   private readonly _events: RageEventsManager;
 
-  private readonly _entityPoolRouter: EntityPoolRouter;
+  private readonly _entityPoolRouter: RageEntityPoolRouter;
 
   public constructor(events: RageEventsManager) {
     this._events = events;
-    this._entityPoolRouter = new EntityPoolRouter();
+    this._entityPoolRouter = new RageEntityPoolRouter();
   }
 
   public registerRawEvents(): void {
@@ -50,7 +50,7 @@ export class RageEventsBridge implements IEventsBridge {
           return;
         }
 
-        const player = playersManager.unregisterByRemoteId(mpPlayer.remoteId);
+        const player = playersManager.unregisterById(mpPlayer.id);
         if (!player) {
           return;
         }
@@ -59,7 +59,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       entityStreamIn: (mpEntity) => {
-        const entity = this._entityPoolRouter.registerFromMp(mpEntity);
+        const entity = this._entityPoolRouter.resolveFromMp(mpEntity);
         if (!entity) {
           return;
         }

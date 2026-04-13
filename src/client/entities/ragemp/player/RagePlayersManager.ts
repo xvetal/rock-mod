@@ -44,17 +44,17 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
 
   public syncWithMpPool(): void {
     for (const mpPlayer of mp.players.toArray()) {
-      this.registerByRemoteId(mpPlayer.remoteId);
+      this.registerById(mpPlayer.id);
     }
   }
 
-  public registerByRemoteId(remoteId: number): RagePlayer {
-    const existingPlayer = this.findByID(remoteId);
+  public registerById(id: number): RagePlayer {
+    const existingPlayer = this.findByID(id);
     if (existingPlayer) {
       return existingPlayer;
     }
 
-    const mpPlayer = mp.players.atRemoteId(remoteId);
+    const mpPlayer = mp.players.at(id);
 
     mpPlayer.isExists = (): boolean => mp.players.exists(mpPlayer);
     const player = new RagePlayer({

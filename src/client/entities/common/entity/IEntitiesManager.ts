@@ -15,6 +15,6 @@ export interface IEntityCreateOptions extends IWorldObjectCreateOptions {
 
 export interface IEntitiesManager<T extends IEntity> extends IWorldObjectsManager<T> {
   syncWithMpPool(): void;
-  registerByRemoteId(remoteId: number): T;
-  unregisterByRemoteId(remoteId: number): T;
+  registerById(id: number): T;
+  unregisterById(id: number): T;
 }

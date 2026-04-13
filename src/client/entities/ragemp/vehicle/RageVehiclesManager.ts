@@ -31,17 +31,17 @@ export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implem
 
   public syncWithMpPool(): void {
     for (const mpVehicle of mp.vehicles.toArray()) {
-      this.registerByRemoteId(mpVehicle.remoteId);
+      this.registerById(mpVehicle.id);
     }
   }
 
-  public registerByRemoteId(remoteId: number): RageVehicle {
-    const existingVehicle = this.findByID(remoteId);
+  public registerById(id: number): RageVehicle {
+    const existingVehicle = this.findByID(id);
     if (existingVehicle) {
       return existingVehicle;
     }
 
-    const mpVehicle = mp.vehicles.atRemoteId(remoteId);
+    const mpVehicle = mp.vehicles.at(id);
 
     mpVehicle.isExists = (): boolean => mp.vehicles.exists(mpVehicle);
     const vehicle = new RageVehicle({

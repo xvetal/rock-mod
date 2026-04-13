@@ -10,5 +10,5 @@ export enum BaseObjectType {
 
 export interface IBaseObjectDto {
   type: BaseObjectType;
-  id: number;
+  remoteId: number;
 }

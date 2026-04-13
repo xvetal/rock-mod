@@ -81,7 +81,7 @@ export abstract class RageBaseObjectsManager<T extends RageBaseObject<EntityMp>>
   private _toBaseObjectDto(baseObject: T): IBaseObjectDto {
     return {
       type: baseObject.type,
-      id: baseObject.id,
+      remoteId: baseObject.id,
     };
   }
 }
