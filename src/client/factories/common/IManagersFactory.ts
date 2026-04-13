@@ -1,6 +1,7 @@
 import { type INetManager } from "../../net/common/INetManager";
 import {
   type IBlipsManager,
+  type IBrowserManager,
   type IColshapesManager,
   type IMarkersManager,
   type IObjectsManager,
@@ -22,4 +23,5 @@ export interface IManagersFactory {
   createUtilsManager(): IUtilsManager;
   createVehiclesManager(): IVehiclesManager;
   createVehicleNativeManager(): IVehicleNativeManager;
+  createBrowserManager(): IBrowserManager;
 }

@@ -1,6 +1,7 @@
 import { type INetManager } from "./net/common/INetManager";
 import {
   type IBlipsManager,
+  type IBrowserManager,
   type IColshapesManager,
   type IMarkersManager,
   type IObjectsManager,
@@ -76,6 +77,8 @@ export class RockMod {
 
   private readonly _vehicleNative: IVehicleNativeManager;
 
+  private readonly _browser: IBrowserManager;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -116,6 +119,10 @@ export class RockMod {
     return this._vehicleNative;
   }
 
+  public get browser(): IBrowserManager {
+    return this._browser;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -127,5 +134,6 @@ export class RockMod {
     this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
     this._vehicleNative = managersFactory.createVehicleNativeManager();
+    this._browser = managersFactory.createBrowserManager();
   }
 }
