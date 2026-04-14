@@ -9,10 +9,14 @@ export interface IMarkerOptions extends IWorldObjectOptions {
   rotation: IVector3D;
 }
 
-export interface IMarker extends IWorldObject {
+export interface IRockModMarker extends IWorldObject {
   get markerType(): IMarkerType;
   get visible(): boolean;
   get rotation(): IVector3D;
   setVisible(value: boolean): void;
   setRotation(value: IVector3D): void;
+  get scale(): number;
+  setScale(value: number): void;
+  get color(): IRGBA;
+  setColor(value: IRGBA): void;
 }

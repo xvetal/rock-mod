@@ -3850,6 +3850,8 @@ declare interface MarkerMp extends EntityMp {
    * This property gets/sets the marker visibility.
    */
   visible: boolean;
+  scale: number;
+  color: number[];
 }
 
 declare interface MarkerMpPool extends EntityMpPool<MarkerMp> {

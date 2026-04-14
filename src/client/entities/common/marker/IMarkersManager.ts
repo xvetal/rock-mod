@@ -1,4 +1,4 @@
-import { type IMarker } from "./IMarker";
+import { type IRockModMarker } from "./IRockModMarker";
 import { type IWorldObjectCreateOptions, type IWorldObjectsManager } from "../worldObject";
 import { type IRGBA, type IVector3D } from "@shared/common/utils";
 import { type IMarkerType } from "@shared/entities";
@@ -10,6 +10,6 @@ export interface IMarkerCreateOptions extends IWorldObjectCreateOptions {
   rotation: IVector3D;
 }
 
-export interface IMarkersManager extends IWorldObjectsManager<IMarker> {
-  create(options: IMarkerCreateOptions): IMarker;
+export interface IMarkersManager extends IWorldObjectsManager<IRockModMarker> {
+  create(options: IMarkerCreateOptions): IRockModMarker;
 }

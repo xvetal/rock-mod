@@ -1,2 +1,2 @@
-export * from "./IMarker";
+export * from "./IRockModMarker";
 export * from "./IMarkersManager";
