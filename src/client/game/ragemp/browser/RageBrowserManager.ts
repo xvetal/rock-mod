@@ -1,4 +1,4 @@
-import { type IBrowserManager } from "@RockMod/client/entities/common/browser/IBrowserManager";
+import { type IBrowserManager } from "@RockMod/client/game/common/browser/IBrowserManager";
 
 export class RageBrowserManager implements IBrowserManager {
   private _browser: BrowserMp | null = null;

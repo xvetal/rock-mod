@@ -1,7 +1,6 @@
 import { type INetManager } from "../../net/common/INetManager";
 import {
   type IBlipsManager,
-  type IBrowserManager,
   type ICameraManager,
   type IColshapesManager,
   type IMarkersManager,
@@ -12,6 +11,7 @@ import {
   type IVehiclesManager,
 } from "../../entities";
 import { type IUtilsManager } from "../../utils";
+import { type IBrowserManager } from "@RockMod/client/game";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;

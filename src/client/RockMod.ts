@@ -1,7 +1,6 @@
 import { type INetManager } from "./net/common/INetManager";
 import {
   type IBlipsManager,
-  type IBrowserManager,
   type ICameraManager,
   type IColshapesManager,
   type IMarkersManager,
@@ -13,6 +12,7 @@ import {
 } from "./entities";
 import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
+import { type IBrowserManager } from "@RockMod/client/game";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
 

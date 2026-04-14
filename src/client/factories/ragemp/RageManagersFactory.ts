@@ -9,7 +9,7 @@ import { RageVehiclesManager } from "@RockMod/client/entities/ragemp/vehicle/Rag
 import { RageNetManager } from "@RockMod/client/net/ragemp/RageNetManager";
 import { RageUtilsManager } from "@RockMod/client/utils/ragemp/RageUtilsManager";
 import { RageVehicleNativeManager } from "@RockMod/client/entities/ragemp/vehicle/RageVehicleNativeManager";
-import { RageBrowserManager } from "@RockMod/client/entities/ragemp/browser/RageBrowserManager";
+import { RageBrowserManager } from "@RockMod/client/game/ragemp/browser/RageBrowserManager";
 import { RageCameraManager } from "@RockMod/client/entities/ragemp/camera/RageCameraManager";
 
 export class RageManagersFactory implements IManagersFactory {
