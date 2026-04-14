@@ -10,5 +10,6 @@ export interface IBaseObject {
   get remoteId(): number;
   get type(): BaseObjectType;
   get isExists(): boolean;
+  get handle(): number;
   destroy(): void;
 }

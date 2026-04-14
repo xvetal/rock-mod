@@ -1,16 +1,20 @@
 import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
-import { type IBlip } from "../../common/blip/IBlip";
+import { type IRockModBlip } from "../../common/blip/IRockModBlip";
 import { type IBlipColor, type IBlipSprite } from "@shared/entities";
 
 export interface IRageBlipOptions extends IRageWorldObjectOptions<EntityMp> {}
 
-export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
+export class RageBlip extends RageWorldObject<EntityMp> implements IRockModBlip {
+  private get _blipEntity(): BlipMp {
+    return this.mpEntity as unknown as BlipMp;
+  }
+
   public get sprite(): IBlipSprite {
-    return (this.mpEntity as unknown as BlipMp).getSprite();
+    return this._blipEntity.getSprite();
   }
 
   public get color(): IBlipColor {
-    return (this.mpEntity as unknown as BlipMp).getColour();
+    return this._blipEntity.getColour();
   }
 
   public get alpha(): number {
@@ -18,7 +22,7 @@ export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
   }
 
   public get shortRange(): boolean {
-    return (this.mpEntity as unknown as BlipMp).isShortRange();
+    return this._blipEntity.isShortRange();
   }
 
   public constructor(options: IRageBlipOptions) {
@@ -26,14 +30,22 @@ export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
   }
 
   public setSprite(value: IBlipSprite): void {
-    (this.mpEntity as unknown as BlipMp).setSprite(value);
+    this._blipEntity.setSprite(value);
   }
 
   public setColor(value: IBlipColor): void {
-    (this.mpEntity as unknown as BlipMp).setColour(value);
+    this._blipEntity.setColour(value);
   }
 
   public setAlpha(value: number): void {
     this.mpEntity.alpha = value;
+  }
+
+  public setShowHeadingIndicator(value: boolean): void {
+    this._blipEntity.setShowHeadingIndicator(value);
+  }
+
+  public setRotation(value: number): void {
+    this._blipEntity.setRotation(value);
   }
 }

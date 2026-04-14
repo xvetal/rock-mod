@@ -3,13 +3,14 @@ import { type IBlipColor, type IBlipSprite } from "@shared/entities";
 
 export interface IBlipOptions extends IWorldObjectOptions {}
 
-export interface IBlip extends IWorldObject {
+export interface IRockModBlip extends IWorldObject {
   get sprite(): IBlipSprite;
   get color(): number;
   get alpha(): number;
   get shortRange(): boolean;
-  get dimension(): number;
   setSprite(value: IBlipSprite): void;
   setColor(value: IBlipColor): void;
   setAlpha(value: number): void;
+  setShowHeadingIndicator(value: boolean): void;
+  setRotation(value: number): void;
 }

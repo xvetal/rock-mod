@@ -5,10 +5,6 @@ import { type IVector3D, Vector3D } from "../../../../shared/common/utils";
 export interface IRageEntityOptions<T extends EntityMp> extends IRageWorldObjectOptions<T> {}
 
 export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> implements IEntity {
-  public get handle(): number {
-    return this.mpEntity.handle;
-  }
-
   public get model(): number {
     return this.mpEntity.model;
   }

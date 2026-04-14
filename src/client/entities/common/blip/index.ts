@@ -1,2 +1,2 @@
-export * from "./IBlip";
+export * from "./IRockModBlip";
 export * from "./IBlipsManager";
