@@ -10,3 +10,4 @@ export * from "./vehicle";
 export * from "./worldObject";
 export * from "./router";
 export * from "./browser";
+export * from "./camera";

@@ -6,6 +6,7 @@ export enum BaseObjectType {
   Ped = "ped",
   Player = "player",
   Vehicle = "vehicle",
+  Camera = "camera",
 }
 
 export interface IBaseObjectDto {

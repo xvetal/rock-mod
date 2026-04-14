@@ -8,9 +8,9 @@ import { RagePlayersManager } from "@RockMod/client/entities/ragemp/player/RageP
 import { RageVehiclesManager } from "@RockMod/client/entities/ragemp/vehicle/RageVehiclesManager";
 import { RageNetManager } from "@RockMod/client/net/ragemp/RageNetManager";
 import { RageUtilsManager } from "@RockMod/client/utils/ragemp/RageUtilsManager";
-import { type IBrowserManager, type IVehicleNativeManager } from "@RockMod/client/entities";
 import { RageVehicleNativeManager } from "@RockMod/client/entities/ragemp/vehicle/RageVehicleNativeManager";
 import { RageBrowserManager } from "@RockMod/client/entities/ragemp/browser/RageBrowserManager";
+import { RageCameraManager } from "@RockMod/client/entities/ragemp/camera/RageCameraManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
@@ -49,11 +49,15 @@ export class RageManagersFactory implements IManagersFactory {
     return new RageVehiclesManager();
   }
 
-  public createVehicleNativeManager(): IVehicleNativeManager {
+  public createVehicleNativeManager(): RageVehicleNativeManager {
     return new RageVehicleNativeManager();
   }
 
-  public createBrowserManager(): IBrowserManager {
+  public createBrowserManager(): RageBrowserManager {
     return new RageBrowserManager();
+  }
+
+  public createCameraManager(): RageCameraManager {
+    return new RageCameraManager();
   }
 }
