@@ -84,4 +84,8 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
     const { x, y, z } = this.mpEntity.getWorldPositionOfBone(boneIndex);
     return new Vector3D(x, y, z);
   }
+
+  public getVariable(name: string): unknown | null {
+    return this.mpEntity.getVariable(name);
+  }
 }

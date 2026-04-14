@@ -1,19 +1,18 @@
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
-import { type RageEventsManager } from "./RageEventsManager";
 import { RockMod } from "@RockMod/client/RockMod";
-import { type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities/common";
+import { type IEntityPoolRouter, type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities/common";
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
 import { ServerToClientEventName } from "@shared/net/common/events/types";
-import { RageEntityPoolRouter } from "../../../entities/ragemp/router/RageEntityPoolRouter";
+import { type IEventsManager } from "@RockMod/client/net/common/events/IEventsManager";
 
 export class RageEventsBridge implements IEventsBridge {
-  private readonly _events: RageEventsManager;
+  private readonly _events: IEventsManager;
 
-  private readonly _entityPoolRouter: RageEntityPoolRouter;
+  private readonly _entityPoolRouter: IEntityPoolRouter;
 
-  public constructor(events: RageEventsManager) {
+  public constructor(events: IEventsManager, entityPoolRouter: IEntityPoolRouter) {
     this._events = events;
-    this._entityPoolRouter = new RageEntityPoolRouter();
+    this._entityPoolRouter = entityPoolRouter;
   }
 
   public registerRawEvents(): void {

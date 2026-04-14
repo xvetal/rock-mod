@@ -22,4 +22,5 @@ export interface IEntity extends IWorldObject {
   getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D;
   getBoneIndexByName(boneName: string): number;
   getWorldPositionOfBone(boneIndex: number): IVector3D;
+  getVariable(name: string): unknown | null;
 }

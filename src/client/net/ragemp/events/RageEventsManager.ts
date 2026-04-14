@@ -7,7 +7,7 @@ export class RageEventsManager implements IEventsManager {
     mp.events.add(events);
   }
 
-  public offRaw<K extends keyof IClientEvents>(eventName: K, listener: IClientEvents[K]): void {
+  public offRaw<K extends keyof IClientEvents>(eventName: K, listener?: IClientEvents[K]): void {
     mp.events.remove(eventName, listener);
   }
 
@@ -15,7 +15,7 @@ export class RageEventsManager implements IEventsManager {
     mp.events.add(events);
   }
 
-  public offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener: IClientInternalEvents[K]): void {
+  public offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener?: IClientInternalEvents[K]): void {
     return mp.events.remove(eventName, listener);
   }
 
@@ -30,7 +30,7 @@ export class RageEventsManager implements IEventsManager {
     return mp.events.add(events);
   }
 
-  public offServer<K extends keyof IServerToClientEvents>(eventName: K, listener: IServerToClientEvents[K]): void {
+  public offServer<K extends keyof IServerToClientEvents>(eventName: K, listener?: IServerToClientEvents[K]): void {
     return mp.events.remove(eventName, listener);
   }
 
