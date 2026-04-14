@@ -11,7 +11,7 @@ import {
   type IVehiclesManager,
 } from "../../entities";
 import { type IUtilsManager } from "../../utils";
-import { type IBrowserManager } from "@RockMod/client/game";
+import { type IBrowserManager, type IStorageManager } from "@RockMod/client/game";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;
@@ -26,4 +26,5 @@ export interface IManagersFactory {
   createVehicleNativeManager(): IVehicleNativeManager;
   createBrowserManager(): IBrowserManager;
   createCameraManager(): ICameraManager;
+  createStorageManager(): IStorageManager;
 }
