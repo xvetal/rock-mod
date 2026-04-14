@@ -11,7 +11,12 @@ import {
 } from "./entities";
 import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
-import { type IBrowserManager, type IStorageManager } from "@RockMod/client/game";
+import {
+  type IBrowserManager,
+  type IGraphicsManager,
+  type INativeCallerManager,
+  type IStorageManager,
+} from "@RockMod/client/game";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
 
@@ -81,6 +86,10 @@ export class RockMod {
 
   private readonly _storage: IStorageManager;
 
+  private readonly _graphics: IGraphicsManager;
+
+  private readonly _native: INativeCallerManager;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -129,6 +138,14 @@ export class RockMod {
     return this._storage;
   }
 
+  public get graphics(): IGraphicsManager {
+    return this._graphics;
+  }
+
+  public get native(): INativeCallerManager {
+    return this._native;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -142,5 +159,7 @@ export class RockMod {
     this._browser = managersFactory.createBrowserManager();
     this._cameras = managersFactory.createCameraManager();
     this._storage = managersFactory.createStorageManager();
+    this._graphics = managersFactory.createGraphicsManager();
+    this._native = managersFactory.createNativeManager();
   }
 }
