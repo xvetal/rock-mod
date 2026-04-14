@@ -51,4 +51,8 @@ export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implem
 
     return vehicle;
   }
+
+  public getDisplayNameFromVehicleModel(modelHash: number): string {
+    return mp.game.vehicle.getDisplayNameFromVehicleModel(modelHash);
+  }
 }

@@ -7,7 +7,6 @@ import {
   type IObjectsManager,
   type IPedsManager,
   type IPlayersManager,
-  type IVehicleNativeManager,
   type IVehiclesManager,
 } from "./entities";
 import { type IUtilsManager } from "./utils";
@@ -76,8 +75,6 @@ export class RockMod {
 
   private readonly _vehicles: IVehiclesManager;
 
-  private readonly _vehicleNative: IVehicleNativeManager;
-
   private readonly _browser: IBrowserManager;
 
   private readonly _cameras: ICameraManager;
@@ -120,10 +117,6 @@ export class RockMod {
     return this._vehicles;
   }
 
-  public get vehicleNative(): IVehicleNativeManager {
-    return this._vehicleNative;
-  }
-
   public get browser(): IBrowserManager {
     return this._browser;
   }
@@ -146,7 +139,6 @@ export class RockMod {
     this._players = managersFactory.createPlayersManager();
     this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
-    this._vehicleNative = managersFactory.createVehicleNativeManager();
     this._browser = managersFactory.createBrowserManager();
     this._cameras = managersFactory.createCameraManager();
     this._storage = managersFactory.createStorageManager();

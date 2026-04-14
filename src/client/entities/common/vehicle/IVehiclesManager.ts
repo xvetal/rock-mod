@@ -8,4 +8,5 @@ export interface IVehicleCreateOptions extends IEntityCreateOptions {
 
 export interface IVehiclesManager extends IEntitiesManager<IRockModVehicle> {
   create(options: IVehicleCreateOptions): IRockModVehicle;
+  getDisplayNameFromVehicleModel(modelHash: number): string;
 }
