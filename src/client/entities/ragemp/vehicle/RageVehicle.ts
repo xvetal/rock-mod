@@ -1,10 +1,10 @@
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { type ILightState, type IRockModVehicle } from "../../common/vehicle/IRockModVehicle";
+import { type ILightState, type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IRGB, RGBA } from "@shared/index";
 
 export interface IRageVehicleOptions extends IRageEntityOptions<VehicleMp> {}
 
-export class RageVehicle extends RageEntity<VehicleMp> implements IRockModVehicle {
+export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
   public get bodyHealth(): number {
     return this.mpEntity.getBodyHealth();
   }

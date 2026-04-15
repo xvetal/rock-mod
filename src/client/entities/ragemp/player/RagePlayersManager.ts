@@ -1,6 +1,6 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePlayer } from "./RagePlayer";
-import { type IPlayersManager, type IRockModPlayer } from "../../common";
+import { type IPlayer, type IPlayersManager } from "../../common";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
   public constructor() {
@@ -33,7 +33,7 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
     return this.findByID(mp.players.local.id);
   }
 
-  public getLocalPlayer(): IRockModPlayer {
+  public getLocalPlayer(): IPlayer {
     const localPlayer = this.findLocalPlayer();
     if (!localPlayer) {
       throw new Error(`Local player with id ${mp.players.local.id} not found`);

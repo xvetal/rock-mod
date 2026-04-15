@@ -1,6 +1,6 @@
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { RockMod } from "@RockMod/client/RockMod";
-import { type IEntityPoolRouter, type IRockModPlayer, type IRockModVehicle } from "@RockMod/client/entities/common";
+import { type IEntityPoolRouter, type IPlayer, type IVehicle } from "@RockMod/client/entities/common";
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
 import { ServerToClientEventName } from "@shared/net/common/events/types";
 import { type IEventsManager } from "@RockMod/client/net/common/events/IEventsManager";
@@ -35,7 +35,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerJoin: (mpPlayer) => {
-        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IPlayer;
         if (!player) {
           return;
         }
@@ -76,7 +76,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerEnterVehicle: (mpVehicle, seat) => {
-        const vehicle = this._entityPoolRouter.registerFromMp(mpVehicle) as IRockModVehicle;
+        const vehicle = this._entityPoolRouter.registerFromMp(mpVehicle) as IVehicle;
         if (!vehicle) {
           return;
         }
@@ -85,7 +85,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerLeaveVehicle: (mpVehicle, seat) => {
-        const vehicle = this._entityPoolRouter.resolveFromMp(mpVehicle) as IRockModVehicle;
+        const vehicle = this._entityPoolRouter.resolveFromMp(mpVehicle) as IVehicle;
         if (!vehicle) {
           return;
         }
@@ -94,7 +94,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerDeath: (mpPlayer) => {
-        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IPlayer;
         if (!player) {
           return;
         }
@@ -103,7 +103,7 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerSpawn: (mpPlayer) => {
-        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IRockModPlayer;
+        const player = this._entityPoolRouter.registerFromMp(mpPlayer) as IPlayer;
         if (!player) {
           return;
         }

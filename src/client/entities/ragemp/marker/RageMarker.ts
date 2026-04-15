@@ -1,11 +1,11 @@
-import { type IRockModMarker } from "../../common";
+import { type IMarker } from "../../common";
 import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
 import { type IRGBA, type IVector3D, RGBA, Vector3D } from "../../../../shared/common/utils";
 import { type IMarkerType } from "@shared/entities";
 
 export interface IRageMarkerOptions extends IRageWorldObjectOptions<MarkerMp> {}
 
-export class RageMarker extends RageWorldObject<MarkerMp> implements IRockModMarker {
+export class RageMarker extends RageWorldObject<MarkerMp> implements IMarker {
   public get markerType(): IMarkerType {
     return this.mpEntity.model;
   }

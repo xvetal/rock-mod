@@ -1,2 +1,2 @@
-export * from "./IRockModVehicle";
+export * from "./IVehicle";
 export * from "./IVehiclesManager";

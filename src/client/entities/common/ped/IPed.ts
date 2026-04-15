@@ -3,7 +3,7 @@ import { type IVector3D } from "@shared/common/utils";
 
 export interface IPedOptions extends IEntityOptions {}
 
-export interface IRockModPed extends IEntity {
+export interface IPed extends IEntity {
   setDecoration(collection: string, overlay: string): void;
   removeDecoration(collection: string, overlay: string): void;
   clearDecorations(): void;

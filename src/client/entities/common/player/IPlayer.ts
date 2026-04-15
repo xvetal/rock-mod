@@ -1,14 +1,14 @@
 import { type IEntity, type IEntityOptions } from "../entity";
-import { type IRockModVehicle } from "../vehicle";
+import { type IVehicle } from "../vehicle";
 
 export interface IPlayerOptions extends IEntityOptions {}
 
-export interface IRockModPlayer extends IEntity {
+export interface IPlayer extends IEntity {
   get name(): string;
   get health(): number;
   get armour(): number;
   get isDead(): boolean;
-  get vehicle(): IRockModVehicle | null;
+  get vehicle(): IVehicle | null;
 
   get isVoice3DEnabled(): boolean;
   get voiceVolume(): number;

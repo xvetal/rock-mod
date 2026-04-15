@@ -1,10 +1,10 @@
-import type { IRockModCamera } from "@RockMod/client/entities";
+import type { ICamera } from "@RockMod/client/entities";
 import { type IVector3D, Vector3D } from "@shared/index";
 import { type IRageBaseObjectOptions, RageBaseObject } from "@RockMod/client/entities/ragemp/baseObject/RageBaseObject";
 
 export interface IRageCameraOptions extends IRageBaseObjectOptions<EntityMp> {}
 
-export class RageCamera extends RageBaseObject implements IRockModCamera {
+export class RageCamera extends RageBaseObject implements ICamera {
   public constructor(options: IRageCameraOptions) {
     super(options);
   }

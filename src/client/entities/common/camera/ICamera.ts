@@ -3,7 +3,7 @@ import { type IVector3D, type Vector3D } from "@shared/common/utils";
 
 export interface ICameraOptions extends IWorldObjectOptions {}
 
-export interface IRockModCamera extends IBaseObject {
+export interface ICamera extends IBaseObject {
   get isActive(): boolean;
   setIsActive(value: boolean): void;
   get direction(): IVector3D;

@@ -1,2 +1,2 @@
-export * from "./IRockModPed";
+export * from "./IPed";
 export * from "./IPedsManager";

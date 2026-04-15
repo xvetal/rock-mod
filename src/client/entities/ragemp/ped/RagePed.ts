@@ -1,10 +1,10 @@
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { type IRockModPed } from "../../common";
+import { type IPed } from "../../common";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 export interface IRagePedOptions extends IRageEntityOptions<PedMp> {}
 
-export class RagePed extends RageEntity<PedMp> implements IRockModPed {
+export class RagePed extends RageEntity<PedMp> implements IPed {
   public constructor(options: IRagePedOptions) {
     super(options);
   }

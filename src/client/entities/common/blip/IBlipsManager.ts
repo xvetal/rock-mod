@@ -1,5 +1,5 @@
 import { type IWorldObjectCreateOptions, type IWorldObjectsManager } from "../worldObject";
-import { type IRockModBlip } from "./IRockModBlip";
+import { type IBlip } from "./IBlip";
 
 export interface IBlipCreateOptions extends IWorldObjectCreateOptions {
   alpha?: number;
@@ -12,6 +12,6 @@ export interface IBlipCreateOptions extends IWorldObjectCreateOptions {
   sprite: number;
 }
 
-export interface IBlipsManager extends IWorldObjectsManager<IRockModBlip> {
-  create(options: IBlipCreateOptions): IRockModBlip;
+export interface IBlipsManager extends IWorldObjectsManager<IBlip> {
+  create(options: IBlipCreateOptions): IBlip;
 }

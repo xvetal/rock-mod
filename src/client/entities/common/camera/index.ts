@@ -1,2 +1,2 @@
-export * from "./IRockModCamera";
+export * from "./ICamera";
 export * from "./ICameraManager";

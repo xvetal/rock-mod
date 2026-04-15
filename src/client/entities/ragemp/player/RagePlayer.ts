@@ -1,11 +1,11 @@
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { type IRockModPlayer } from "@RockMod/client/entities";
+import { type IPlayer } from "@RockMod/client/entities";
 import { type RageVehicle } from "@RockMod/client/entities/ragemp/vehicle/RageVehicle";
 import { RockMod } from "@RockMod/client/RockMod";
 
 interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 
-export class RagePlayer extends RageEntity<PlayerMp> implements IRockModPlayer {
+export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
   public get name(): string {
     return this.mpEntity.name;
   }

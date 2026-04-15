@@ -1,10 +1,10 @@
 import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
-import { type IRockModBlip } from "../../common/blip/IRockModBlip";
+import { type IBlip } from "../../common/blip/IBlip";
 import { type IBlipColor, type IBlipSprite } from "@shared/entities";
 
 export interface IRageBlipOptions extends IRageWorldObjectOptions<EntityMp> {}
 
-export class RageBlip extends RageWorldObject<EntityMp> implements IRockModBlip {
+export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
   private get _blipEntity(): BlipMp {
     return this.mpEntity as unknown as BlipMp;
   }

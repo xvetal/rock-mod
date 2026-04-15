@@ -8,7 +8,7 @@ export interface ILightState {
   highbeamsOn: boolean;
 }
 
-export interface IRockModVehicle extends IEntity {
+export interface IVehicle extends IEntity {
   get bodyHealth(): number;
   get engineHealth(): number;
   get numberPlate(): string;

@@ -1,9 +1,9 @@
 import { type IEntitiesManager } from "../entity/IEntitiesManager";
-import { type IRockModPlayer } from "./IRockModPlayer";
+import { type IPlayer } from "./IPlayer";
 
-export interface IPlayersManager extends IEntitiesManager<IRockModPlayer> {
-  getByName(name: string): IRockModPlayer;
-  findByName(name: string): IRockModPlayer | null;
-  findLocalPlayer(): IRockModPlayer | null;
-  getLocalPlayer(): IRockModPlayer;
+export interface IPlayersManager extends IEntitiesManager<IPlayer> {
+  getByName(name: string): IPlayer;
+  findByName(name: string): IPlayer | null;
+  findLocalPlayer(): IPlayer | null;
+  getLocalPlayer(): IPlayer;
 }
