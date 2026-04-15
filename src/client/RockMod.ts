@@ -16,6 +16,7 @@ import {
   type IGraphicsManager,
   type INativeCallerManager,
   type IStorageManager,
+  type IStreamingManager,
 } from "@RockMod/client/game";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
@@ -90,6 +91,8 @@ export class RockMod {
 
   private readonly _native: INativeCallerManager;
 
+  private readonly _streaming: IStreamingManager;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -146,6 +149,10 @@ export class RockMod {
     return this._native;
   }
 
+  public get streaming(): IStreamingManager {
+    return this._streaming;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -161,5 +168,6 @@ export class RockMod {
     this._storage = managersFactory.createStorageManager();
     this._graphics = managersFactory.createGraphicsManager();
     this._native = managersFactory.createNativeManager();
+    this._streaming = managersFactory.createStreamingManager();
   }
 }

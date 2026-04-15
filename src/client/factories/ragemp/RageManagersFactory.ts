@@ -13,6 +13,7 @@ import { RageCameraManager } from "@RockMod/client/entities/ragemp/camera/RageCa
 import { RageStorageManager } from "@RockMod/client/game/ragemp/storage/RageStorageManager";
 import { RageGraphicsManager } from "@RockMod/client/game/ragemp/graphics/RageGraphicsManager";
 import { RageNativeCallerManager } from "@RockMod/client/game/ragemp/native/RageNativeCallerManager";
+import { RageStreamingManager } from "@RockMod/client/game/ragemp/streaming/RageStreamingManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
@@ -69,5 +70,9 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createNativeManager(): RageNativeCallerManager {
     return new RageNativeCallerManager();
+  }
+
+  public createStreamingManager(): RageStreamingManager {
+    return new RageStreamingManager();
   }
 }

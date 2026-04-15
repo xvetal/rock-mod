@@ -15,6 +15,7 @@ import {
   type IGraphicsManager,
   type INativeCallerManager,
   type IStorageManager,
+  type IStreamingManager,
 } from "@RockMod/client/game";
 
 export interface IManagersFactory {
@@ -32,4 +33,5 @@ export interface IManagersFactory {
   createStorageManager(): IStorageManager;
   createGraphicsManager(): IGraphicsManager;
   createNativeManager(): INativeCallerManager;
+  createStreamingManager(): IStreamingManager;
 }
