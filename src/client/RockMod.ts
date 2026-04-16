@@ -14,7 +14,9 @@ import { type IManagersFactory } from "./factories/common/IManagersFactory";
 import {
   type IBrowserManager,
   type IControlsManager,
+  type IGameCameraManager,
   type IGameplayManager,
+  type IGameObjectManager,
   type IGraphicsManager,
   type IKeysManager,
   type ILocalPlayerManager,
@@ -24,6 +26,7 @@ import {
   type IStorageManager,
   type IStreamingManager,
   type IUiManager,
+  type IWeaponManager,
   type IZoneManager,
 } from "@RockMod/client/game";
 import { type IConsoleManager } from "@RockMod/client/console";
@@ -110,6 +113,8 @@ export class RockMod {
 
   private readonly _gameplay: IGameplayManager;
 
+  private readonly _camera: IGameCameraManager;
+
   private readonly _ui: IUiManager;
 
   private readonly _nametags: INametagsManager;
@@ -117,6 +122,10 @@ export class RockMod {
   private readonly _pathfind: IPathfindManager;
 
   private readonly _zone: IZoneManager;
+
+  private readonly _weapon: IWeaponManager;
+
+  private readonly _object: IGameObjectManager;
 
   private readonly _console: IConsoleManager;
 
@@ -196,6 +205,10 @@ export class RockMod {
     return this._gameplay;
   }
 
+  public get camera(): IGameCameraManager {
+    return this._camera;
+  }
+
   public get ui(): IUiManager {
     return this._ui;
   }
@@ -210,6 +223,14 @@ export class RockMod {
 
   public get zone(): IZoneManager {
     return this._zone;
+  }
+
+  public get weapon(): IWeaponManager {
+    return this._weapon;
+  }
+
+  public get object(): IGameObjectManager {
+    return this._object;
   }
 
   public get console(): IConsoleManager {
@@ -236,10 +257,13 @@ export class RockMod {
     this._controls = managersFactory.createControlsManager();
     this._keys = managersFactory.createKeysManager();
     this._gameplay = managersFactory.createGameplayManager();
+    this._camera = managersFactory.createGameCameraManager();
     this._ui = managersFactory.createUiManager();
     this._nametags = managersFactory.createNametagsManager();
     this._pathfind = managersFactory.createPathfindManager();
     this._zone = managersFactory.createZoneManager();
+    this._weapon = managersFactory.createWeaponManager();
+    this._object = managersFactory.createGameObjectManager();
     this._console = managersFactory.createConsoleManager();
   }
 }

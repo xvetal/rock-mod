@@ -18,10 +18,13 @@ import { RageLocalPlayerManager } from "@RockMod/client/game/ragemp/localPlayer/
 import { RageControlsManager } from "@RockMod/client/game/ragemp/controls/RageControlsManager";
 import { RageKeysManager } from "@RockMod/client/game/ragemp/keys/RageKeysManager";
 import { RageGameplayManager } from "@RockMod/client/game/ragemp/gameplay/RageGameplayManager";
+import { RageGameCameraManager } from "@RockMod/client/game/ragemp/camera/RageGameCameraManager";
 import { RageUiManager } from "@RockMod/client/game/ragemp/ui/RageUiManager";
 import { RageNametagsManager } from "@RockMod/client/game/ragemp/nametags/RageNametagsManager";
 import { RagePathfindManager } from "@RockMod/client/game/ragemp/pathfind/RagePathfindManager";
 import { RageZoneManager } from "@RockMod/client/game/ragemp/zone/RageZoneManager";
+import { RageWeaponManager } from "@RockMod/client/game/ragemp/weapon/RageWeaponManager";
+import { RageGameObjectManager } from "@RockMod/client/game/ragemp/object/RageGameObjectManager";
 import { RageConsoleManager } from "@RockMod/client/console/ragemp/RageConsoleManager";
 
 export class RageManagersFactory implements IManagersFactory {
@@ -101,6 +104,10 @@ export class RageManagersFactory implements IManagersFactory {
     return new RageGameplayManager();
   }
 
+  public createGameCameraManager(): RageGameCameraManager {
+    return new RageGameCameraManager();
+  }
+
   public createUiManager(): RageUiManager {
     return new RageUiManager();
   }
@@ -115,6 +122,14 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createZoneManager(): RageZoneManager {
     return new RageZoneManager();
+  }
+
+  public createWeaponManager(): RageWeaponManager {
+    return new RageWeaponManager();
+  }
+
+  public createGameObjectManager(): RageGameObjectManager {
+    return new RageGameObjectManager();
   }
 
   public createConsoleManager(): RageConsoleManager {

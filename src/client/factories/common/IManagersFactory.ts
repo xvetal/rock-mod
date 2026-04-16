@@ -13,16 +13,19 @@ import { type IUtilsManager } from "../../utils";
 import {
   type IBrowserManager,
   type IControlsManager,
+  type IGameCameraManager,
   type IGameplayManager,
   type IGraphicsManager,
   type IKeysManager,
   type ILocalPlayerManager,
   type INametagsManager,
   type INativeCallerManager,
+  type IGameObjectManager,
   type IPathfindManager,
   type IStorageManager,
   type IStreamingManager,
   type IUiManager,
+  type IWeaponManager,
   type IZoneManager,
 } from "@RockMod/client/game";
 import { type IConsoleManager } from "@RockMod/client/console";
@@ -47,9 +50,12 @@ export interface IManagersFactory {
   createControlsManager(): IControlsManager;
   createKeysManager(): IKeysManager;
   createGameplayManager(): IGameplayManager;
+  createGameCameraManager(): IGameCameraManager;
   createUiManager(): IUiManager;
   createNametagsManager(): INametagsManager;
   createPathfindManager(): IPathfindManager;
   createZoneManager(): IZoneManager;
+  createWeaponManager(): IWeaponManager;
+  createGameObjectManager(): IGameObjectManager;
   createConsoleManager(): IConsoleManager;
 }

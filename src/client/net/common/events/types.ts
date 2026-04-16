@@ -24,10 +24,10 @@ export interface IClickOptions {
   absoluteY: number;
   upOrDown: "up" | "down";
   leftOrRight: "left" | "right";
-  relativeX: number;
-  relativeY: number;
-  worldPosition: IVector3D;
-  hitEntity: number;
+  relativeX: number | null;
+  relativeY: number | null;
+  worldPosition: IVector3D | null;
+  hitEntity: number | null;
 }
 
 export interface IClientInternalEvents {

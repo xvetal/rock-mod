@@ -129,22 +129,24 @@ export class RageEventsBridge implements IEventsBridge {
         absoluteY: number,
         upOrDown: "up" | "down",
         leftOrRight: "left" | "right",
-        relativeX: number,
-        relativeY: number,
-        worldPosition: Vector3,
-        hitEntity: number,
+        relativeX?: number,
+        relativeY?: number,
+        worldPosition?: Vector3,
+        hitEntity?: number,
       ) => {
-        const { x, y, z } = worldPosition;
+        const clickedWorldPosition = worldPosition
+          ? new Vector3D(worldPosition.x, worldPosition.y, worldPosition.z)
+          : null;
 
         this._events.emitInternal(ClientInternalEventName.Click, {
           absoluteX,
           absoluteY,
           upOrDown,
           leftOrRight,
-          relativeX,
-          relativeY,
-          hitEntity,
-          worldPosition: new Vector3D(x, y, z),
+          relativeX: relativeX ?? null,
+          relativeY: relativeY ?? null,
+          hitEntity: hitEntity ?? null,
+          worldPosition: clickedWorldPosition,
         });
       },
     });
