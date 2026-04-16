@@ -1,5 +1,6 @@
 import { type IEntity, type IEntityOptions } from "../entity";
 import { type IVehicle } from "../vehicle";
+import { type IVector3D } from "@shared/common/utils";
 
 export interface IPlayerOptions extends IEntityOptions {}
 
@@ -68,4 +69,6 @@ export interface IPlayer extends IEntity {
 
   setMovementClipset(clipset: string, speed: number): void;
   resetMovementClipset(blendDuration: number): void;
+
+  getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D;
 }

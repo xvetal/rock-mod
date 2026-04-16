@@ -17,6 +17,11 @@ import { RageStreamingManager } from "@RockMod/client/game/ragemp/streaming/Rage
 import { RageLocalPlayerManager } from "@RockMod/client/game/ragemp/localPlayer/RageLocalPlayerManager";
 import { RageControlsManager } from "@RockMod/client/game/ragemp/controls/RageControlsManager";
 import { RageKeysManager } from "@RockMod/client/game/ragemp/keys/RageKeysManager";
+import { RageGameplayManager } from "@RockMod/client/game/ragemp/gameplay/RageGameplayManager";
+import { RageUiManager } from "@RockMod/client/game/ragemp/ui/RageUiManager";
+import { RageNametagsManager } from "@RockMod/client/game/ragemp/nametags/RageNametagsManager";
+import { RagePathfindManager } from "@RockMod/client/game/ragemp/pathfind/RagePathfindManager";
+import { RageZoneManager } from "@RockMod/client/game/ragemp/zone/RageZoneManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
@@ -89,5 +94,25 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createKeysManager(): RageKeysManager {
     return new RageKeysManager();
+  }
+
+  public createGameplayManager(): RageGameplayManager {
+    return new RageGameplayManager();
+  }
+
+  public createUiManager(): RageUiManager {
+    return new RageUiManager();
+  }
+
+  public createNametagsManager(): RageNametagsManager {
+    return new RageNametagsManager();
+  }
+
+  public createPathfindManager(): RagePathfindManager {
+    return new RagePathfindManager();
+  }
+
+  public createZoneManager(): RageZoneManager {
+    return new RageZoneManager();
   }
 }

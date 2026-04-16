@@ -2,6 +2,7 @@ import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { type IPlayer } from "@RockMod/client/entities";
 import { type RageVehicle } from "@RockMod/client/entities/ragemp/vehicle/RageVehicle";
 import { RockMod } from "@RockMod/client/RockMod";
+import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 
@@ -214,5 +215,10 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
 
   public taskSwapWeapon(): void {
     this.mpEntity.taskSwapWeapon(true);
+  }
+
+  public getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D {
+    const { x, y, z } = this.mpEntity.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
+    return new Vector3D(x, y, z);
   }
 }

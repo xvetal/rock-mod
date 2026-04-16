@@ -14,12 +14,17 @@ import { type IManagersFactory } from "./factories/common/IManagersFactory";
 import {
   type IBrowserManager,
   type IControlsManager,
+  type IGameplayManager,
   type IGraphicsManager,
   type IKeysManager,
   type ILocalPlayerManager,
+  type INametagsManager,
   type INativeCallerManager,
+  type IPathfindManager,
   type IStorageManager,
   type IStreamingManager,
+  type IUiManager,
+  type IZoneManager,
 } from "@RockMod/client/game";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
@@ -102,6 +107,16 @@ export class RockMod {
 
   private readonly _keys: IKeysManager;
 
+  private readonly _gameplay: IGameplayManager;
+
+  private readonly _ui: IUiManager;
+
+  private readonly _nametags: INametagsManager;
+
+  private readonly _pathfind: IPathfindManager;
+
+  private readonly _zone: IZoneManager;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -174,6 +189,26 @@ export class RockMod {
     return this._keys;
   }
 
+  public get gameplay(): IGameplayManager {
+    return this._gameplay;
+  }
+
+  public get ui(): IUiManager {
+    return this._ui;
+  }
+
+  public get nametags(): INametagsManager {
+    return this._nametags;
+  }
+
+  public get pathfind(): IPathfindManager {
+    return this._pathfind;
+  }
+
+  public get zone(): IZoneManager {
+    return this._zone;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -193,5 +228,10 @@ export class RockMod {
     this._localPlayer = managersFactory.createLocalPlayerManager();
     this._controls = managersFactory.createControlsManager();
     this._keys = managersFactory.createKeysManager();
+    this._gameplay = managersFactory.createGameplayManager();
+    this._ui = managersFactory.createUiManager();
+    this._nametags = managersFactory.createNametagsManager();
+    this._pathfind = managersFactory.createPathfindManager();
+    this._zone = managersFactory.createZoneManager();
   }
 }

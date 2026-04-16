@@ -6,3 +6,8 @@ export * from "./streaming";
 export * from "./localPlayer";
 export * from "./controls";
 export * from "./keys";
+export * from "./gameplay";
+export * from "./ui";
+export * from "./nametags";
+export * from "./pathfind";
+export * from "./zone";
