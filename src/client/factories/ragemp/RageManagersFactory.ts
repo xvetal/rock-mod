@@ -22,6 +22,7 @@ import { RageUiManager } from "@RockMod/client/game/ragemp/ui/RageUiManager";
 import { RageNametagsManager } from "@RockMod/client/game/ragemp/nametags/RageNametagsManager";
 import { RagePathfindManager } from "@RockMod/client/game/ragemp/pathfind/RagePathfindManager";
 import { RageZoneManager } from "@RockMod/client/game/ragemp/zone/RageZoneManager";
+import { RageConsoleManager } from "@RockMod/client/console/ragemp/RageConsoleManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
@@ -114,5 +115,9 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createZoneManager(): RageZoneManager {
     return new RageZoneManager();
+  }
+
+  public createConsoleManager(): RageConsoleManager {
+    return new RageConsoleManager();
   }
 }

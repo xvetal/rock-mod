@@ -4,6 +4,7 @@ import { type IEntityPoolRouter, type IPlayer, type IVehicle } from "@RockMod/cl
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
 import { ServerToClientEventName } from "@shared/net/common/events/types";
 import { type IEventsManager } from "@RockMod/client/net/common/events/IEventsManager";
+import { Vector3D } from "@shared/common/utils";
 
 export class RageEventsBridge implements IEventsBridge {
   private readonly _events: IEventsManager;
@@ -121,6 +122,30 @@ export class RageEventsBridge implements IEventsBridge {
 
       render: () => {
         this._events.emitInternal(ClientInternalEventName.Render);
+      },
+
+      click: (
+        absoluteX: number,
+        absoluteY: number,
+        upOrDown: "up" | "down",
+        leftOrRight: "left" | "right",
+        relativeX: number,
+        relativeY: number,
+        worldPosition: Vector3,
+        hitEntity: number,
+      ) => {
+        const { x, y, z } = worldPosition;
+
+        this._events.emitInternal(ClientInternalEventName.Click, {
+          absoluteX,
+          absoluteY,
+          upOrDown,
+          leftOrRight,
+          relativeX,
+          relativeY,
+          hitEntity,
+          worldPosition: new Vector3D(x, y, z),
+        });
       },
     });
   }

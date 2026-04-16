@@ -26,6 +26,7 @@ import {
   type IUiManager,
   type IZoneManager,
 } from "@RockMod/client/game";
+import { type IConsoleManager } from "@RockMod/client/console";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
 
@@ -116,6 +117,8 @@ export class RockMod {
   private readonly _pathfind: IPathfindManager;
 
   private readonly _zone: IZoneManager;
+
+  private readonly _console: IConsoleManager;
 
   public get net(): INetManager {
     return this._net;
@@ -209,6 +212,10 @@ export class RockMod {
     return this._zone;
   }
 
+  public get console(): IConsoleManager {
+    return this._console;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -233,5 +240,6 @@ export class RockMod {
     this._nametags = managersFactory.createNametagsManager();
     this._pathfind = managersFactory.createPathfindManager();
     this._zone = managersFactory.createZoneManager();
+    this._console = managersFactory.createConsoleManager();
   }
 }

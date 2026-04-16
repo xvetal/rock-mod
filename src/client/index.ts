@@ -15,3 +15,4 @@ export {
   ICamera as IRockModCamera,
 } from "./entities";
 export * from "./game";
+export * from "./console";

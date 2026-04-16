@@ -1,4 +1,5 @@
 import { type IBaseObject, type IEntity, type IPlayer, type IVehicle } from "@RockMod/client/entities";
+import { type IVector3D } from "@shared/common/utils";
 
 export enum ClientInternalEventName {
   PlayerConnected = "rm::playerConnected",
@@ -15,6 +16,18 @@ export enum ClientInternalEventName {
   PlayerSpawn = "rm::playerSpawn",
   PlayerWeaponShot = "rm::playerWeaponShot",
   Render = "rm::render",
+  Click = "rm::click",
+}
+
+export interface IClickOptions {
+  absoluteX: number;
+  absoluteY: number;
+  upOrDown: "up" | "down";
+  leftOrRight: "left" | "right";
+  relativeX: number;
+  relativeY: number;
+  worldPosition: IVector3D;
+  hitEntity: number;
 }
 
 export interface IClientInternalEvents {
@@ -32,4 +45,5 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.PlayerSpawn]: (player: IPlayer) => void;
   [ClientInternalEventName.PlayerWeaponShot]: () => void;
   [ClientInternalEventName.Render]: () => void;
+  [ClientInternalEventName.Click]: (options: IClickOptions) => void;
 }

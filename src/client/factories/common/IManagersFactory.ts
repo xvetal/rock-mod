@@ -25,6 +25,7 @@ import {
   type IUiManager,
   type IZoneManager,
 } from "@RockMod/client/game";
+import { type IConsoleManager } from "@RockMod/client/console";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;
@@ -50,4 +51,5 @@ export interface IManagersFactory {
   createNametagsManager(): INametagsManager;
   createPathfindManager(): IPathfindManager;
   createZoneManager(): IZoneManager;
+  createConsoleManager(): IConsoleManager;
 }
