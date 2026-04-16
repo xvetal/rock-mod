@@ -14,6 +14,7 @@ export enum ClientInternalEventName {
   PlayerDeath = "rm::playerDeath",
   PlayerSpawn = "rm::playerSpawn",
   PlayerWeaponShot = "rm::playerWeaponShot",
+  Render = "rm::render",
 }
 
 export interface IClientInternalEvents {
@@ -30,4 +31,5 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.PlayerDeath]: (player: IPlayer) => void;
   [ClientInternalEventName.PlayerSpawn]: (player: IPlayer) => void;
   [ClientInternalEventName.PlayerWeaponShot]: () => void;
+  [ClientInternalEventName.Render]: () => void;
 }

@@ -13,7 +13,10 @@ import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
 import {
   type IBrowserManager,
+  type IControlsManager,
   type IGraphicsManager,
+  type IKeysManager,
+  type ILocalPlayerManager,
   type INativeCallerManager,
   type IStorageManager,
   type IStreamingManager,
@@ -93,6 +96,12 @@ export class RockMod {
 
   private readonly _streaming: IStreamingManager;
 
+  private readonly _localPlayer: ILocalPlayerManager;
+
+  private readonly _controls: IControlsManager;
+
+  private readonly _keys: IKeysManager;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -153,6 +162,18 @@ export class RockMod {
     return this._streaming;
   }
 
+  public get localPlayer(): ILocalPlayerManager {
+    return this._localPlayer;
+  }
+
+  public get controls(): IControlsManager {
+    return this._controls;
+  }
+
+  public get keys(): IKeysManager {
+    return this._keys;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -169,5 +190,8 @@ export class RockMod {
     this._graphics = managersFactory.createGraphicsManager();
     this._native = managersFactory.createNativeManager();
     this._streaming = managersFactory.createStreamingManager();
+    this._localPlayer = managersFactory.createLocalPlayerManager();
+    this._controls = managersFactory.createControlsManager();
+    this._keys = managersFactory.createKeysManager();
   }
 }

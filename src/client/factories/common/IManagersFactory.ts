@@ -12,7 +12,10 @@ import {
 import { type IUtilsManager } from "../../utils";
 import {
   type IBrowserManager,
+  type IControlsManager,
   type IGraphicsManager,
+  type IKeysManager,
+  type ILocalPlayerManager,
   type INativeCallerManager,
   type IStorageManager,
   type IStreamingManager,
@@ -34,4 +37,7 @@ export interface IManagersFactory {
   createGraphicsManager(): IGraphicsManager;
   createNativeManager(): INativeCallerManager;
   createStreamingManager(): IStreamingManager;
+  createLocalPlayerManager(): ILocalPlayerManager;
+  createControlsManager(): IControlsManager;
+  createKeysManager(): IKeysManager;
 }

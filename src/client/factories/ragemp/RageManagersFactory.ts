@@ -14,6 +14,9 @@ import { RageStorageManager } from "@RockMod/client/game/ragemp/storage/RageStor
 import { RageGraphicsManager } from "@RockMod/client/game/ragemp/graphics/RageGraphicsManager";
 import { RageNativeCallerManager } from "@RockMod/client/game/ragemp/native/RageNativeCallerManager";
 import { RageStreamingManager } from "@RockMod/client/game/ragemp/streaming/RageStreamingManager";
+import { RageLocalPlayerManager } from "@RockMod/client/game/ragemp/localPlayer/RageLocalPlayerManager";
+import { RageControlsManager } from "@RockMod/client/game/ragemp/controls/RageControlsManager";
+import { RageKeysManager } from "@RockMod/client/game/ragemp/keys/RageKeysManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
@@ -74,5 +77,17 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createStreamingManager(): RageStreamingManager {
     return new RageStreamingManager();
+  }
+
+  public createLocalPlayerManager(): RageLocalPlayerManager {
+    return new RageLocalPlayerManager();
+  }
+
+  public createControlsManager(): RageControlsManager {
+    return new RageControlsManager();
+  }
+
+  public createKeysManager(): RageKeysManager {
+    return new RageKeysManager();
   }
 }

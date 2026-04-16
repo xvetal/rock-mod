@@ -118,6 +118,10 @@ export class RageEventsBridge implements IEventsBridge {
       browserDomReady: () => {
         this._events.emitInternal(ClientInternalEventName.BrowserDomReady);
       },
+
+      render: () => {
+        this._events.emitInternal(ClientInternalEventName.Render);
+      },
     });
   }
 
