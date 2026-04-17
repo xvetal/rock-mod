@@ -145,6 +145,9 @@ export class RockMod {
 
     this._game = {
       browser: managersFactory.createBrowserManager(),
+      chat: managersFactory.createChatManager(),
+      cursor: managersFactory.createCursorManager(),
+      gui: managersFactory.createGuiManager(),
       storage: managersFactory.createStorageManager(),
       graphics: managersFactory.createGraphicsManager(),
       native: managersFactory.createNativeManager(),

@@ -9,9 +9,12 @@ import { RageVehiclesManager } from "@RockMod/client/entities/ragemp/vehicle/Rag
 import { RageNetManager } from "@RockMod/client/net/ragemp/RageNetManager";
 import { RageUtilsManager } from "@RockMod/client/utils/ragemp/RageUtilsManager";
 import { RageBrowserManager } from "@RockMod/client/game/ragemp/browser/RageBrowserManager";
+import { RageChatManager } from "@RockMod/client/game/ragemp/chat/RageChatManager";
 import { RageCameraManager } from "@RockMod/client/entities/ragemp/camera/RageCameraManager";
+import { RageCursorManager } from "@RockMod/client/game/ragemp/cursor/RageCursorManager";
 import { RageStorageManager } from "@RockMod/client/game/ragemp/storage/RageStorageManager";
 import { RageGraphicsManager } from "@RockMod/client/game/ragemp/graphics/RageGraphicsManager";
+import { RageGuiManager } from "@RockMod/client/game/ragemp/gui/RageGuiManager";
 import { RageNativeCallerManager } from "@RockMod/client/game/ragemp/native/RageNativeCallerManager";
 import { RageStreamingManager } from "@RockMod/client/game/ragemp/streaming/RageStreamingManager";
 import { RageLocalPlayerManager } from "@RockMod/client/game/ragemp/localPlayer/RageLocalPlayerManager";
@@ -66,6 +69,18 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createBrowserManager(): RageBrowserManager {
     return new RageBrowserManager();
+  }
+
+  public createChatManager(): RageChatManager {
+    return new RageChatManager();
+  }
+
+  public createCursorManager(): RageCursorManager {
+    return new RageCursorManager();
+  }
+
+  public createGuiManager(): RageGuiManager {
+    return new RageGuiManager();
   }
 
   public createCameraManager(): RageCameraManager {

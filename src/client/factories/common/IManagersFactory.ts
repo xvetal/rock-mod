@@ -12,10 +12,13 @@ import {
 import { type IUtilsManager } from "../../utils";
 import {
   type IBrowserManager,
+  type IChatManager,
   type IControlsManager,
+  type ICursorManager,
   type IGameCameraManager,
   type IGameplayManager,
   type IGraphicsManager,
+  type IGuiManager,
   type IKeysManager,
   type ILocalPlayerManager,
   type INametagsManager,
@@ -41,6 +44,9 @@ export interface IManagersFactory {
   createUtilsManager(): IUtilsManager;
   createVehiclesManager(): IVehiclesManager;
   createBrowserManager(): IBrowserManager;
+  createChatManager(): IChatManager;
+  createCursorManager(): ICursorManager;
+  createGuiManager(): IGuiManager;
   createCameraManager(): ICameraManager;
   createStorageManager(): IStorageManager;
   createGraphicsManager(): IGraphicsManager;
