@@ -6,6 +6,7 @@ import { type IStreamingManager } from "./streaming";
 import { type IChatManager } from "./chat";
 import { type ICursorManager } from "./cursor";
 import { type IGuiManager } from "./gui";
+import { type IRaycastingManager } from "./raycasting";
 import { type ILocalPlayerManager } from "./localPlayer";
 import { type IControlsManager } from "./controls";
 import { type IKeysManager } from "./keys";
@@ -17,6 +18,7 @@ import { type IPathfindManager } from "./pathfind";
 import { type IZoneManager } from "./zone";
 import { type IWeaponManager } from "./weapon";
 import { type IGameObjectManager } from "./object";
+import { type IVoiceChatManager } from "./voiceChat";
 
 export interface IGameManagers {
   get browser(): IBrowserManager;
@@ -25,6 +27,8 @@ export interface IGameManagers {
   get chat(): IChatManager;
   get cursor(): ICursorManager;
   get gui(): IGuiManager;
+  get raycasting(): IRaycastingManager;
+  get voiceChat(): IVoiceChatManager;
   get native(): INativeCallerManager;
   get streaming(): IStreamingManager;
   get localPlayer(): ILocalPlayerManager;

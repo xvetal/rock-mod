@@ -148,6 +148,8 @@ export class RockMod {
       chat: managersFactory.createChatManager(),
       cursor: managersFactory.createCursorManager(),
       gui: managersFactory.createGuiManager(),
+      raycasting: managersFactory.createRaycastingManager(),
+      voiceChat: managersFactory.createVoiceChatManager(),
       storage: managersFactory.createStorageManager(),
       graphics: managersFactory.createGraphicsManager(),
       native: managersFactory.createNativeManager(),

@@ -17,6 +17,7 @@ import {
   type ICursorManager,
   type IGameCameraManager,
   type IGameplayManager,
+  type IRaycastingManager,
   type IGraphicsManager,
   type IGuiManager,
   type IKeysManager,
@@ -28,6 +29,7 @@ import {
   type IStorageManager,
   type IStreamingManager,
   type IUiManager,
+  type IVoiceChatManager,
   type IWeaponManager,
   type IZoneManager,
 } from "@RockMod/client/game";
@@ -47,6 +49,8 @@ export interface IManagersFactory {
   createChatManager(): IChatManager;
   createCursorManager(): ICursorManager;
   createGuiManager(): IGuiManager;
+  createRaycastingManager(): IRaycastingManager;
+  createVoiceChatManager(): IVoiceChatManager;
   createCameraManager(): ICameraManager;
   createStorageManager(): IStorageManager;
   createGraphicsManager(): IGraphicsManager;

@@ -15,8 +15,10 @@ import { RageCursorManager } from "@RockMod/client/game/ragemp/cursor/RageCursor
 import { RageStorageManager } from "@RockMod/client/game/ragemp/storage/RageStorageManager";
 import { RageGraphicsManager } from "@RockMod/client/game/ragemp/graphics/RageGraphicsManager";
 import { RageGuiManager } from "@RockMod/client/game/ragemp/gui/RageGuiManager";
+import { RageRaycastingManager } from "@RockMod/client/game/ragemp/raycasting/RageRaycastingManager";
 import { RageNativeCallerManager } from "@RockMod/client/game/ragemp/native/RageNativeCallerManager";
 import { RageStreamingManager } from "@RockMod/client/game/ragemp/streaming/RageStreamingManager";
+import { RageVoiceChatManager } from "@RockMod/client/game/ragemp/voiceChat/RageVoiceChatManager";
 import { RageLocalPlayerManager } from "@RockMod/client/game/ragemp/localPlayer/RageLocalPlayerManager";
 import { RageControlsManager } from "@RockMod/client/game/ragemp/controls/RageControlsManager";
 import { RageKeysManager } from "@RockMod/client/game/ragemp/keys/RageKeysManager";
@@ -81,6 +83,14 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createGuiManager(): RageGuiManager {
     return new RageGuiManager();
+  }
+
+  public createRaycastingManager(): RageRaycastingManager {
+    return new RageRaycastingManager();
+  }
+
+  public createVoiceChatManager(): RageVoiceChatManager {
+    return new RageVoiceChatManager();
   }
 
   public createCameraManager(): RageCameraManager {
