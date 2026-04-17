@@ -11,24 +11,7 @@ import {
 } from "./entities";
 import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
-import {
-  type IBrowserManager,
-  type IControlsManager,
-  type IGameCameraManager,
-  type IGameplayManager,
-  type IGameObjectManager,
-  type IGraphicsManager,
-  type IKeysManager,
-  type ILocalPlayerManager,
-  type INametagsManager,
-  type INativeCallerManager,
-  type IPathfindManager,
-  type IStorageManager,
-  type IStreamingManager,
-  type IUiManager,
-  type IWeaponManager,
-  type IZoneManager,
-} from "@RockMod/client/game";
+import { type IGameManagers } from "@RockMod/client/game";
 import { type IConsoleManager } from "@RockMod/client/console";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
@@ -93,39 +76,9 @@ export class RockMod {
 
   private readonly _vehicles: IVehiclesManager;
 
-  private readonly _browser: IBrowserManager;
-
   private readonly _cameras: ICameraManager;
 
-  private readonly _storage: IStorageManager;
-
-  private readonly _graphics: IGraphicsManager;
-
-  private readonly _native: INativeCallerManager;
-
-  private readonly _streaming: IStreamingManager;
-
-  private readonly _localPlayer: ILocalPlayerManager;
-
-  private readonly _controls: IControlsManager;
-
-  private readonly _keys: IKeysManager;
-
-  private readonly _gameplay: IGameplayManager;
-
-  private readonly _camera: IGameCameraManager;
-
-  private readonly _ui: IUiManager;
-
-  private readonly _nametags: INametagsManager;
-
-  private readonly _pathfind: IPathfindManager;
-
-  private readonly _zone: IZoneManager;
-
-  private readonly _weapon: IWeaponManager;
-
-  private readonly _object: IGameObjectManager;
+  private readonly _game: IGameManagers;
 
   private readonly _console: IConsoleManager;
 
@@ -165,72 +118,12 @@ export class RockMod {
     return this._vehicles;
   }
 
-  public get browser(): IBrowserManager {
-    return this._browser;
-  }
-
   public get cameras(): ICameraManager {
     return this._cameras;
   }
 
-  public get storage(): IStorageManager {
-    return this._storage;
-  }
-
-  public get graphics(): IGraphicsManager {
-    return this._graphics;
-  }
-
-  public get native(): INativeCallerManager {
-    return this._native;
-  }
-
-  public get streaming(): IStreamingManager {
-    return this._streaming;
-  }
-
-  public get localPlayer(): ILocalPlayerManager {
-    return this._localPlayer;
-  }
-
-  public get controls(): IControlsManager {
-    return this._controls;
-  }
-
-  public get keys(): IKeysManager {
-    return this._keys;
-  }
-
-  public get gameplay(): IGameplayManager {
-    return this._gameplay;
-  }
-
-  public get camera(): IGameCameraManager {
-    return this._camera;
-  }
-
-  public get ui(): IUiManager {
-    return this._ui;
-  }
-
-  public get nametags(): INametagsManager {
-    return this._nametags;
-  }
-
-  public get pathfind(): IPathfindManager {
-    return this._pathfind;
-  }
-
-  public get zone(): IZoneManager {
-    return this._zone;
-  }
-
-  public get weapon(): IWeaponManager {
-    return this._weapon;
-  }
-
-  public get object(): IGameObjectManager {
-    return this._object;
+  public get game(): IGameManagers {
+    return this._game;
   }
 
   public get console(): IConsoleManager {
@@ -247,23 +140,26 @@ export class RockMod {
     this._players = managersFactory.createPlayersManager();
     this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
-    this._browser = managersFactory.createBrowserManager();
     this._cameras = managersFactory.createCameraManager();
-    this._storage = managersFactory.createStorageManager();
-    this._graphics = managersFactory.createGraphicsManager();
-    this._native = managersFactory.createNativeManager();
-    this._streaming = managersFactory.createStreamingManager();
-    this._localPlayer = managersFactory.createLocalPlayerManager();
-    this._controls = managersFactory.createControlsManager();
-    this._keys = managersFactory.createKeysManager();
-    this._gameplay = managersFactory.createGameplayManager();
-    this._camera = managersFactory.createGameCameraManager();
-    this._ui = managersFactory.createUiManager();
-    this._nametags = managersFactory.createNametagsManager();
-    this._pathfind = managersFactory.createPathfindManager();
-    this._zone = managersFactory.createZoneManager();
-    this._weapon = managersFactory.createWeaponManager();
-    this._object = managersFactory.createGameObjectManager();
     this._console = managersFactory.createConsoleManager();
+
+    this._game = {
+      browser: managersFactory.createBrowserManager(),
+      storage: managersFactory.createStorageManager(),
+      graphics: managersFactory.createGraphicsManager(),
+      native: managersFactory.createNativeManager(),
+      streaming: managersFactory.createStreamingManager(),
+      localPlayer: managersFactory.createLocalPlayerManager(),
+      controls: managersFactory.createControlsManager(),
+      keys: managersFactory.createKeysManager(),
+      gameplay: managersFactory.createGameplayManager(),
+      camera: managersFactory.createGameCameraManager(),
+      ui: managersFactory.createUiManager(),
+      nametags: managersFactory.createNametagsManager(),
+      pathfind: managersFactory.createPathfindManager(),
+      zone: managersFactory.createZoneManager(),
+      weapon: managersFactory.createWeaponManager(),
+      object: managersFactory.createGameObjectManager(),
+    };
   }
 }
