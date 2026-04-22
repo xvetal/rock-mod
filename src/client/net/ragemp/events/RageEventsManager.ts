@@ -41,7 +41,7 @@ export class RageEventsManager implements IEventsManager {
     return mp.events.callRemote(eventName, ...args);
   }
 
-  public register(event: string, listener: (...args: object[]) => void): void {
+  public register(event: string, listener: (...args: unknown[]) => void): void {
     mp.events.add(event, listener);
   }
 

@@ -16,6 +16,6 @@ export interface IEventsManager {
   offServer<K extends keyof IServerToClientEvents>(eventName: K, listener?: IServerToClientEvents[K]): void;
   emitServer<K extends keyof IClientToServerEvents>(eventName: K, ...args: Parameters<IClientToServerEvents[K]>): void;
 
-  register(event: string, listener: (...args: object[]) => void): void;
+  register(event: string, listener: (...args: unknown[]) => void): void;
   unregister(event: string): void;
 }
