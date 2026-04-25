@@ -1,6 +1,7 @@
 import { type INetManager } from "./net/common/INetManager";
 import {
   type IBlipsManager,
+  type ICameraManager,
   type IColshapesManager,
   type IMarkersManager,
   type IObjectsManager,
@@ -10,6 +11,8 @@ import {
 } from "./entities";
 import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
+import { type IGameManagers } from "@RockMod/client/game";
+import { type IConsoleManager } from "@RockMod/client/console";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock";
 
@@ -73,6 +76,12 @@ export class RockMod {
 
   private readonly _vehicles: IVehiclesManager;
 
+  private readonly _cameras: ICameraManager;
+
+  private readonly _game: IGameManagers;
+
+  private readonly _console: IConsoleManager;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -109,6 +118,18 @@ export class RockMod {
     return this._vehicles;
   }
 
+  public get cameras(): ICameraManager {
+    return this._cameras;
+  }
+
+  public get game(): IGameManagers {
+    return this._game;
+  }
+
+  public get console(): IConsoleManager {
+    return this._console;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -116,8 +137,34 @@ export class RockMod {
     this._markers = managersFactory.createMarkersManager();
     this._objects = managersFactory.createObjectsManager();
     this._peds = managersFactory.createPedsManager();
-    this._players = managersFactory.createPlayersManager(this._net);
+    this._players = managersFactory.createPlayersManager();
     this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
+    this._cameras = managersFactory.createCameraManager();
+    this._console = managersFactory.createConsoleManager();
+
+    this._game = {
+      browser: managersFactory.createBrowserManager(),
+      chat: managersFactory.createChatManager(),
+      cursor: managersFactory.createCursorManager(),
+      gui: managersFactory.createGuiManager(),
+      raycasting: managersFactory.createRaycastingManager(),
+      voiceChat: managersFactory.createVoiceChatManager(),
+      storage: managersFactory.createStorageManager(),
+      graphics: managersFactory.createGraphicsManager(),
+      native: managersFactory.createNativeManager(),
+      streaming: managersFactory.createStreamingManager(),
+      localPlayer: managersFactory.createLocalPlayerManager(),
+      controls: managersFactory.createControlsManager(),
+      keys: managersFactory.createKeysManager(),
+      gameplay: managersFactory.createGameplayManager(),
+      camera: managersFactory.createGameCameraManager(),
+      ui: managersFactory.createUiManager(),
+      nametags: managersFactory.createNametagsManager(),
+      pathfind: managersFactory.createPathfindManager(),
+      zone: managersFactory.createZoneManager(),
+      weapon: managersFactory.createWeaponManager(),
+      object: managersFactory.createGameObjectManager(),
+    };
   }
 }

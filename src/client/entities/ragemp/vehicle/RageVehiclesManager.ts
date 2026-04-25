@@ -28,4 +28,31 @@ export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implem
 
     return vehicle;
   }
+
+  public syncWithMpPool(): void {
+    for (const mpVehicle of mp.vehicles.toArray()) {
+      this.registerById(mpVehicle.id);
+    }
+  }
+
+  public registerById(id: number): RageVehicle {
+    const existingVehicle = this.findByID(id);
+    if (existingVehicle) {
+      return existingVehicle;
+    }
+
+    const mpVehicle = mp.vehicles.at(id);
+
+    mpVehicle.isExists = (): boolean => mp.vehicles.exists(mpVehicle);
+    const vehicle = new RageVehicle({
+      mpEntity: mpVehicle,
+    });
+    this.registerBaseObject(vehicle);
+
+    return vehicle;
+  }
+
+  public getDisplayNameFromVehicleModel(modelHash: number): string {
+    return mp.game.vehicle.getDisplayNameFromVehicleModel(modelHash);
+  }
 }

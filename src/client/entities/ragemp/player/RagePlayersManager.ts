@@ -1,15 +1,12 @@
 import { RageEntitiesManager } from "../entity/RageEntitiesManager";
 import { RagePlayer } from "./RagePlayer";
-import { type IPlayersManager } from "../../common/player/IPlayersManager";
-import { type RageNetManager } from "../../../net/ragemp/RageNetManager";
-import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
+import { type IPlayer, type IPlayersManager } from "../../common";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
-  public constructor(net: RageNetManager) {
+  public constructor() {
     super({
       baseObjectsType: "player",
     });
-    this._init(net);
   }
 
   public getByName(name: string): RagePlayer {
@@ -32,23 +29,39 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
     return null;
   }
 
-  private _init(net: RageNetManager): void {
-    net.events.onInternal({
-      playerJoin: (mpPlayer) => {
-        mpPlayer.isExists = (): boolean => mp.players.exists(mpPlayer);
-        const player = new RagePlayer({
-          mpEntity: mpPlayer,
-        });
+  public findLocalPlayer(): RagePlayer | null {
+    return this.findByID(mp.players.local.id);
+  }
 
-        this.registerBaseObject(player);
-        net.events.emitInternal(ClientInternalEventName.PlayerConnected, player);
-      },
-      playerQuit: (mpPlayer) => {
-        const player = this.getByID(mpPlayer.id);
+  public getLocalPlayer(): IPlayer {
+    const localPlayer = this.findLocalPlayer();
+    if (!localPlayer) {
+      throw new Error(`Local player with id ${mp.players.local.id} not found`);
+    }
 
-        this.unregisterBaseObject(player);
-        net.events.emitInternal(ClientInternalEventName.PlayerDisconnected, player);
-      },
+    return localPlayer;
+  }
+
+  public syncWithMpPool(): void {
+    for (const mpPlayer of mp.players.toArray()) {
+      this.registerById(mpPlayer.id);
+    }
+  }
+
+  public registerById(id: number): RagePlayer {
+    const existingPlayer = this.findByID(id);
+    if (existingPlayer) {
+      return existingPlayer;
+    }
+
+    const mpPlayer = mp.players.at(id);
+
+    mpPlayer.isExists = (): boolean => mp.players.exists(mpPlayer);
+    const player = new RagePlayer({
+      mpEntity: mpPlayer,
     });
+    this.registerBaseObject(player);
+
+    return player;
   }
 }

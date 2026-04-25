@@ -8,6 +8,29 @@ import { RagePlayersManager } from "@RockMod/client/entities/ragemp/player/RageP
 import { RageVehiclesManager } from "@RockMod/client/entities/ragemp/vehicle/RageVehiclesManager";
 import { RageNetManager } from "@RockMod/client/net/ragemp/RageNetManager";
 import { RageUtilsManager } from "@RockMod/client/utils/ragemp/RageUtilsManager";
+import { RageBrowserManager } from "@RockMod/client/game/ragemp/browser/RageBrowserManager";
+import { RageChatManager } from "@RockMod/client/game/ragemp/chat/RageChatManager";
+import { RageCameraManager } from "@RockMod/client/entities/ragemp/camera/RageCameraManager";
+import { RageCursorManager } from "@RockMod/client/game/ragemp/cursor/RageCursorManager";
+import { RageStorageManager } from "@RockMod/client/game/ragemp/storage/RageStorageManager";
+import { RageGraphicsManager } from "@RockMod/client/game/ragemp/graphics/RageGraphicsManager";
+import { RageGuiManager } from "@RockMod/client/game/ragemp/gui/RageGuiManager";
+import { RageRaycastingManager } from "@RockMod/client/game/ragemp/raycasting/RageRaycastingManager";
+import { RageNativeCallerManager } from "@RockMod/client/game/ragemp/native/RageNativeCallerManager";
+import { RageStreamingManager } from "@RockMod/client/game/ragemp/streaming/RageStreamingManager";
+import { RageVoiceChatManager } from "@RockMod/client/game/ragemp/voiceChat/RageVoiceChatManager";
+import { RageLocalPlayerManager } from "@RockMod/client/game/ragemp/localPlayer/RageLocalPlayerManager";
+import { RageControlsManager } from "@RockMod/client/game/ragemp/controls/RageControlsManager";
+import { RageKeysManager } from "@RockMod/client/game/ragemp/keys/RageKeysManager";
+import { RageGameplayManager } from "@RockMod/client/game/ragemp/gameplay/RageGameplayManager";
+import { RageGameCameraManager } from "@RockMod/client/game/ragemp/camera/RageGameCameraManager";
+import { RageUiManager } from "@RockMod/client/game/ragemp/ui/RageUiManager";
+import { RageNametagsManager } from "@RockMod/client/game/ragemp/nametags/RageNametagsManager";
+import { RagePathfindManager } from "@RockMod/client/game/ragemp/pathfind/RagePathfindManager";
+import { RageZoneManager } from "@RockMod/client/game/ragemp/zone/RageZoneManager";
+import { RageWeaponManager } from "@RockMod/client/game/ragemp/weapon/RageWeaponManager";
+import { RageGameObjectManager } from "@RockMod/client/game/ragemp/object/RageGameObjectManager";
+import { RageConsoleManager } from "@RockMod/client/console/ragemp/RageConsoleManager";
 
 export class RageManagersFactory implements IManagersFactory {
   public createNetManager(): RageNetManager {
@@ -34,8 +57,8 @@ export class RageManagersFactory implements IManagersFactory {
     return new RagePedsManager();
   }
 
-  public createPlayersManager(net: RageNetManager): RagePlayersManager {
-    return new RagePlayersManager(net);
+  public createPlayersManager(): RagePlayersManager {
+    return new RagePlayersManager();
   }
 
   public createUtilsManager(): RageUtilsManager {
@@ -44,5 +67,97 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createVehiclesManager(): RageVehiclesManager {
     return new RageVehiclesManager();
+  }
+
+  public createBrowserManager(): RageBrowserManager {
+    return new RageBrowserManager();
+  }
+
+  public createChatManager(): RageChatManager {
+    return new RageChatManager();
+  }
+
+  public createCursorManager(): RageCursorManager {
+    return new RageCursorManager();
+  }
+
+  public createGuiManager(): RageGuiManager {
+    return new RageGuiManager();
+  }
+
+  public createRaycastingManager(): RageRaycastingManager {
+    return new RageRaycastingManager();
+  }
+
+  public createVoiceChatManager(): RageVoiceChatManager {
+    return new RageVoiceChatManager();
+  }
+
+  public createCameraManager(): RageCameraManager {
+    return new RageCameraManager();
+  }
+
+  public createStorageManager(): RageStorageManager {
+    return new RageStorageManager();
+  }
+
+  public createGraphicsManager(): RageGraphicsManager {
+    return new RageGraphicsManager();
+  }
+
+  public createNativeManager(): RageNativeCallerManager {
+    return new RageNativeCallerManager();
+  }
+
+  public createStreamingManager(): RageStreamingManager {
+    return new RageStreamingManager();
+  }
+
+  public createLocalPlayerManager(): RageLocalPlayerManager {
+    return new RageLocalPlayerManager();
+  }
+
+  public createControlsManager(): RageControlsManager {
+    return new RageControlsManager();
+  }
+
+  public createKeysManager(): RageKeysManager {
+    return new RageKeysManager();
+  }
+
+  public createGameplayManager(): RageGameplayManager {
+    return new RageGameplayManager();
+  }
+
+  public createGameCameraManager(): RageGameCameraManager {
+    return new RageGameCameraManager();
+  }
+
+  public createUiManager(): RageUiManager {
+    return new RageUiManager();
+  }
+
+  public createNametagsManager(): RageNametagsManager {
+    return new RageNametagsManager();
+  }
+
+  public createPathfindManager(): RagePathfindManager {
+    return new RagePathfindManager();
+  }
+
+  public createZoneManager(): RageZoneManager {
+    return new RageZoneManager();
+  }
+
+  public createWeaponManager(): RageWeaponManager {
+    return new RageWeaponManager();
+  }
+
+  public createGameObjectManager(): RageGameObjectManager {
+    return new RageGameObjectManager();
+  }
+
+  public createConsoleManager(): RageConsoleManager {
+    return new RageConsoleManager();
   }
 }

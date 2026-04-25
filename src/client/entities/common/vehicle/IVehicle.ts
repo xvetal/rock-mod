@@ -1,6 +1,12 @@
 import { type IEntity, type IEntityOptions } from "../entity/IEntity";
+import { type IRGB } from "@shared/common/utils";
 
 export interface IVehicleOptions extends IEntityOptions {}
+
+export interface ILightState {
+  lightsOn: boolean;
+  highbeamsOn: boolean;
+}
 
 export interface IVehicle extends IEntity {
   get bodyHealth(): number;
@@ -11,4 +17,36 @@ export interface IVehicle extends IEntity {
   setEngineHealth(value: number): void;
   setNumberPlate(value: string): void;
   explode(): void;
+
+  getPedInSeat(seat: number): number;
+  setUndriveable(toggle: boolean): void;
+  get maxNumberOfPassengers(): number;
+
+  get gear(): number;
+  get speed(): number;
+  get isEngineRunning(): boolean;
+  setEngineOn(toggle: boolean, instantly: boolean, otherwise: boolean): void;
+  get lightsState(): ILightState;
+  get isLocked(): boolean;
+  setIsLocked(value: boolean): void;
+
+  setCustomPrimaryColour(color: IRGB): void;
+  setCustomSecondaryColour(color: IRGB): void;
+  get customPrimaryColour(): IRGB;
+  get customSecondaryColour(): IRGB;
+
+  setMod(modType: number, modIndex: number): void;
+  getMod(modType: number): number;
+  getNumMods(modType: number): number;
+  setNeonLightEnabled(index: number, toggle: boolean): void;
+  setNeonLightsColour(color: IRGB): void;
+  setWindowTint(tintType: number): void;
+  get windowTint(): number;
+  setWheelType(wheelType: number): void;
+  get wheelType(): number;
+  setNumberPlateTextIndex(index: number): void;
+  get numberPlateTextIndex(): number;
+
+  setDoorOpen(doorIndex: number, loose: boolean, openInstantly: boolean): void;
+  setDoorShut(doorIndex: number, instantly: boolean): void;
 }

@@ -13,4 +13,8 @@ export interface IEntityCreateOptions extends IWorldObjectCreateOptions {
   rotation: IVector3D;
 }
 
-export interface IEntitiesManager<T extends IEntity> extends IWorldObjectsManager<T> {}
+export interface IEntitiesManager<T extends IEntity> extends IWorldObjectsManager<T> {
+  syncWithMpPool(): void;
+  registerById(id: number): T;
+  unregisterById(id: number): T;
+}

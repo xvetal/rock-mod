@@ -1,9 +1,12 @@
 import { MathClamp } from "../math/Math";
 
-export interface IRGBA {
+export interface IRGB {
   get r(): number;
   get g(): number;
   get b(): number;
+}
+
+export interface IRGBA extends IRGB {
   get a(): number | undefined;
 }
 

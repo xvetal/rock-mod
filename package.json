@@ -9,6 +9,14 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./shared": {
+      "types": "./dist/shared/index.d.ts",
+      "default": "./dist/shared/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
     "./testing": {
       "types": "./dist/testing.d.ts",
       "default": "./dist/testing.js"
@@ -16,6 +24,12 @@
   },
   "typesVersions": {
     "*": {
+      "shared": [
+        "./dist/shared/index.d.ts"
+      ],
+      "client": [
+        "./dist/client/index.d.ts"
+      ],
       "testing": [
         "./dist/testing.d.ts"
       ]
@@ -26,7 +40,7 @@
     "build": "npm run build:shared && npm run build:server && npm run build:client",
     "build:shared": "tsc --project src/shared/tsconfig.json",
     "build:server": "tsc --project src/server/tsconfig.json",
-    "build:client": "tsc --project src/client/tsconfig.json",
+    "build:client": "tsc --project src/client/tsconfig.json && tsc-alias --project src/client/tsconfig.json",
     "build:client:rollup": "rollup -c",
     "build:client:rollup:watch": "rollup -c -w",
     "lint:shared:check": "cd src/shared && eslint . --ext .ts",
@@ -86,6 +100,7 @@
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "rollup": "^4.9.1",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.6.2"
   }
 }

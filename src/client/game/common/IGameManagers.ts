@@ -1,0 +1,45 @@
+import { type IBrowserManager } from "./browser";
+import { type IStorageManager } from "./storage";
+import { type IGraphicsManager } from "./graphics";
+import { type INativeCallerManager } from "./native";
+import { type IStreamingManager } from "./streaming";
+import { type IChatManager } from "./chat";
+import { type ICursorManager } from "./cursor";
+import { type IGuiManager } from "./gui";
+import { type IRaycastingManager } from "./raycasting";
+import { type ILocalPlayerManager } from "./localPlayer";
+import { type IControlsManager } from "./controls";
+import { type IKeysManager } from "./keys";
+import { type IGameplayManager } from "./gameplay";
+import { type IGameCameraManager } from "./camera";
+import { type IUiManager } from "./ui";
+import { type INametagsManager } from "./nametags";
+import { type IPathfindManager } from "./pathfind";
+import { type IZoneManager } from "./zone";
+import { type IWeaponManager } from "./weapon";
+import { type IGameObjectManager } from "./object";
+import { type IVoiceChatManager } from "./voiceChat";
+
+export interface IGameManagers {
+  get browser(): IBrowserManager;
+  get storage(): IStorageManager;
+  get graphics(): IGraphicsManager;
+  get chat(): IChatManager;
+  get cursor(): ICursorManager;
+  get gui(): IGuiManager;
+  get raycasting(): IRaycastingManager;
+  get voiceChat(): IVoiceChatManager;
+  get native(): INativeCallerManager;
+  get streaming(): IStreamingManager;
+  get localPlayer(): ILocalPlayerManager;
+  get controls(): IControlsManager;
+  get keys(): IKeysManager;
+  get gameplay(): IGameplayManager;
+  get camera(): IGameCameraManager;
+  get ui(): IUiManager;
+  get nametags(): INametagsManager;
+  get pathfind(): IPathfindManager;
+  get zone(): IZoneManager;
+  get weapon(): IWeaponManager;
+  get object(): IGameObjectManager;
+}
