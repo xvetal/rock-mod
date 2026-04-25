@@ -41,4 +41,11 @@ export class MockEventsManager implements IEventsManager {
   ): void {
     this._eventEmitter.emit(eventName, player, ...args);
   }
+
+  public emitAllClients<K extends keyof IServerToClientEvents>(
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
+  ): void {
+    this._eventEmitter.emit(eventName, ...args);
+  }
 }

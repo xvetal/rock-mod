@@ -7,6 +7,9 @@ export interface IBaseObjectOptions {
 
 export interface IBaseObject {
   get id(): number;
+  get remoteId(): number;
   get type(): BaseObjectType;
   get isExists(): boolean;
+  get handle(): number;
+  destroy(): void;
 }

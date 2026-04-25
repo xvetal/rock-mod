@@ -26,4 +26,16 @@ export abstract class RageWorldObject<T extends EntityMp> extends RageBaseObject
   public setDimension(value: number): void {
     this.mpEntity.dimension = value;
   }
+
+  public setCoords(
+    xPos: number,
+    yPos: number,
+    zPos: number,
+    xAxis: boolean,
+    yAxis: boolean,
+    zAxis: boolean,
+    clearArea: boolean,
+  ): void {
+    this.mpEntity.setCoords(xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
+  }
 }

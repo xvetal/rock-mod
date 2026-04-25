@@ -8,8 +8,9 @@ export interface IBlip extends IWorldObject {
   get color(): number;
   get alpha(): number;
   get shortRange(): boolean;
-  get dimension(): number;
   setSprite(value: IBlipSprite): void;
   setColor(value: IBlipColor): void;
   setAlpha(value: number): void;
+  setShowHeadingIndicator(value: boolean): void;
+  setRotation(value: number): void;
 }

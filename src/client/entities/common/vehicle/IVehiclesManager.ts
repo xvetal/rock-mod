@@ -8,4 +8,5 @@ export interface IVehicleCreateOptions extends IEntityCreateOptions {
 
 export interface IVehiclesManager extends IEntitiesManager<IVehicle> {
   create(options: IVehicleCreateOptions): IVehicle;
+  getDisplayNameFromVehicleModel(modelHash: number): string;
 }

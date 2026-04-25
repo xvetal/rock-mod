@@ -22,4 +22,27 @@ export class RagePedsManager extends RageEntitiesManager<RagePed> implements IPe
 
     return ped;
   }
+
+  public syncWithMpPool(): void {
+    for (const mpPed of mp.peds.toArray()) {
+      this.registerById(mpPed.id);
+    }
+  }
+
+  public registerById(id: number): RagePed {
+    const existingPed = this.findByID(id);
+    if (existingPed) {
+      return existingPed;
+    }
+
+    const mpPed = mp.peds.at(id);
+
+    mpPed.isExists = (): boolean => mp.peds.exists(mpPed);
+    const ped = new RagePed({
+      mpEntity: mpPed,
+    });
+    this.registerBaseObject(ped);
+
+    return ped;
+  }
 }
