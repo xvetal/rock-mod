@@ -29,6 +29,22 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
     return null;
   }
 
+  public findByRemoteId(remoteId: number): RagePlayer | null {
+    const mpPlayer = mp.players.atRemoteId(remoteId);
+    if (!mpPlayer) {
+      return null;
+    }
+    return this.findByID(mpPlayer.id);
+  }
+
+  public getByRemoteId(remoteId: number): RagePlayer {
+    const player = this.findByRemoteId(remoteId);
+    if (!player) {
+      throw new Error(`Player with remoteId ${remoteId} not found`);
+    }
+    return player;
+  }
+
   public findLocalPlayer(): RagePlayer | null {
     return this.findByID(mp.players.local.id);
   }

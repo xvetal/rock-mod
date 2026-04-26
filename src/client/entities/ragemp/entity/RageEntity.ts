@@ -1,3 +1,4 @@
+import { type IBaseObject } from "../../common/baseObject";
 import { type IEntity } from "../../common/entity/IEntity";
 import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/RageWorldObject";
 import { type IVector3D, Vector3D } from "../../../../shared/common/utils";
@@ -83,5 +84,48 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
 
   public getVariable(name: string): unknown | null {
     return this.mpEntity.getVariable(name);
+  }
+
+  public attachToEntity(
+    target: IBaseObject,
+    boneIndex: number,
+    offset: IVector3D,
+    rotation: IVector3D,
+    p9: boolean,
+    useSoftPinning: boolean,
+    collision: boolean,
+    isPed: boolean,
+    vertexIndex: number,
+    fixedRot: boolean,
+  ): void {
+    mp.game.entity.attachToEntity(
+      this.handle,
+      target.handle,
+      boneIndex,
+      offset.x,
+      offset.y,
+      offset.z,
+      rotation.x,
+      rotation.y,
+      rotation.z,
+      p9,
+      useSoftPinning,
+      collision,
+      isPed,
+      vertexIndex,
+      fixedRot,
+    );
+  }
+
+  public detach(useDetachVelocity: boolean, collision: boolean): void {
+    mp.game.entity.detach(this.handle, useDetachVelocity, collision);
+  }
+
+  public getSpeed(): number {
+    return mp.game.entity.getSpeed(this.handle);
+  }
+
+  public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
+    return mp.game.entity.isPlayingAnim(this.handle, dictionary, name, taskFlag);
   }
 }

@@ -54,6 +54,7 @@ export interface IPlayer extends IEntity {
   taskSwapWeapon(): void;
   taskEnterVehicle(vehicleHandle: number, timeout: number, seat: number, speed: number, flag: number, p6: number): void;
   clearTasks(): void;
+  clearTasksImmediately(): void;
   taskPlayAnim(
     dictionary: string,
     name: string,
@@ -66,6 +67,7 @@ export interface IPlayer extends IEntity {
     lockY: boolean,
     lockZ: boolean,
   ): void;
+  stopAnim(dictionary: string, name: string, blendOutSpeed: number): void;
 
   setMovementClipset(clipset: string, speed: number): void;
   resetMovementClipset(blendDuration: number): void;
