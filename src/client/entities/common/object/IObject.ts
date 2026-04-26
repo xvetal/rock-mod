@@ -19,5 +19,4 @@ export interface IObject extends IEntity {
     fixedRot: boolean,
   ): void;
   isAttachedTo(entity: number): boolean;
-  detach(applyVelocy: boolean, collision: boolean): void;
 }

@@ -49,4 +49,11 @@ export interface IVehicle extends IEntity {
 
   setDoorOpen(doorIndex: number, loose: boolean, openInstantly: boolean): void;
   setDoorShut(doorIndex: number, instantly: boolean): void;
+
+  setHandling(field: string, value: number): void;
+  getHandling(field: string): number;
+  setEnginePowerMultiplier(value: number): void;
+  setEngineTorqueMultiplier(value: number): void;
+  modifyTopSpeed(value: number): void;
+  setCheatPowerIncrease(value: number): void;
 }

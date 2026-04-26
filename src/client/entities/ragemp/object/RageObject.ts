@@ -44,8 +44,4 @@ export class RageObject extends RageEntity<ObjectMp> implements IObject {
   public isAttachedTo(entity: number): boolean {
     return this.mpEntity.isAttachedTo(entity);
   }
-
-  public detach(applyVelocy: boolean, collision: boolean): void {
-    this.mpEntity.detach(applyVelocy, collision);
-  }
 }

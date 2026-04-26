@@ -3,6 +3,8 @@ import { RagePlayer } from "./RagePlayer";
 import { type IPlayersManager } from "../../common/player/IPlayersManager";
 import { type RageNetManager } from "../../../net/ragemp/RageNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
+import { RockMod } from "../../../RockMod";
+import { type RageVehicle } from "../vehicle/RageVehicle";
 
 export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implements IPlayersManager {
   public constructor(net: RageNetManager) {
@@ -63,11 +65,41 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
         this.registerBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
       },
-      playerQuit: (mpPlayer) => {
+      playerQuit: (mpPlayer, exitType, reason) => {
         const player = this.getByID(mpPlayer.id);
 
+        net.events.emitInternal(ServerInternalEventName.PlayerQuit, player, exitType, reason);
         this.unregisterBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
+      },
+      playerDeath: (mpPlayer, reason, killer) => {
+        const player = this.getByID(mpPlayer.id);
+        const killerPlayer = killer ? (RockMod.instance.players.findByID(killer.id) ?? null) : null;
+
+        net.events.emitInternal(ServerInternalEventName.PlayerDeath, player, reason, killerPlayer);
+      },
+      playerDamage: (mpPlayer, healthLoss, armourLoss) => {
+        const player = this.getByID(mpPlayer.id);
+
+        net.events.emitInternal(ServerInternalEventName.PlayerDamage, player, healthLoss, armourLoss);
+      },
+      playerEnterVehicle: (mpPlayer, mpVehicle, seat) => {
+        const player = this.getByID(mpPlayer.id);
+        const vehicle = RockMod.instance.vehicles.findByID(mpVehicle.id) as RageVehicle | null;
+        if (!vehicle) {
+          return;
+        }
+
+        net.events.emitInternal(ServerInternalEventName.PlayerEnterVehicle, player, vehicle, seat);
+      },
+      playerExitVehicle: (mpPlayer, mpVehicle) => {
+        const player = this.getByID(mpPlayer.id);
+        const vehicle = RockMod.instance.vehicles.findByID(mpVehicle.id) as RageVehicle | null;
+        if (!vehicle) {
+          return;
+        }
+
+        net.events.emitInternal(ServerInternalEventName.PlayerExitVehicle, player, vehicle);
       },
     });
   }

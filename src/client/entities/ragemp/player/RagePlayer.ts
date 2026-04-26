@@ -168,6 +168,14 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     this.mpEntity.clearTasks();
   }
 
+  public clearTasksImmediately(): void {
+    mp.game.task.clearPedTasksImmediately(this.handle);
+  }
+
+  public stopAnim(dictionary: string, name: string, blendOutSpeed: number): void {
+    mp.game.task.stopAnimTask(this.handle, dictionary, name, blendOutSpeed);
+  }
+
   public resetMovementClipset(blendDuration: number): void {
     this.mpEntity.resetMovementClipset(blendDuration);
   }

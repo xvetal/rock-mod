@@ -150,4 +150,28 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
   public setDoorShut(doorIndex: number, instantly: boolean): void {
     this.mpEntity.setDoorShut(doorIndex, instantly);
   }
+
+  public setHandling(field: string, value: number): void {
+    this.mpEntity.setHandling(field, value);
+  }
+
+  public getHandling(field: string): number {
+    return this.mpEntity.getHandling(field) as number;
+  }
+
+  public setEnginePowerMultiplier(value: number): void {
+    this.mpEntity.setEnginePowerMultiplier(value);
+  }
+
+  public setEngineTorqueMultiplier(value: number): void {
+    this.mpEntity.setEngineTorqueMultiplier(value);
+  }
+
+  public modifyTopSpeed(value: number): void {
+    mp.game.vehicle.modifyTopSpeed(this.handle, value);
+  }
+
+  public setCheatPowerIncrease(value: number): void {
+    mp.game.vehicle.setCheatPowerIncrease(this.handle, value);
+  }
 }
