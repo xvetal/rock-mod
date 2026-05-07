@@ -3,10 +3,6 @@ import { type CCMPBaseObject } from "./CCMPBaseObject";
 import { CCMPBaseObjectsIterator } from "./CCMPBaseObjectsIterator";
 import { type BaseObjectType } from "../../../../shared";
 
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
-
 export interface ICCMPBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 
 export abstract class CCMPBaseObjectsManager<T extends CCMPBaseObject> implements IBaseObjectsManager<T> {
@@ -34,19 +30,34 @@ export abstract class CCMPBaseObjectsManager<T extends CCMPBaseObject> implement
     this._iterator = new CCMPBaseObjectsIterator(this._baseObjects);
   }
 
-  public getByID(_id: number): T {
-    return notImplemented("CCMPBaseObjectsManager.getByID");
+  public getByID(id: number): T {
+    const baseObject = this.findByID(id);
+
+    if (!baseObject) {
+      throw new Error(`BaseObject [${this._baseObjectsType}] with id ${id} not found`);
+    }
+
+    return baseObject;
   }
 
-  public findByID(_id: number): T | null {
-    return notImplemented("CCMPBaseObjectsManager.findByID");
+  public findByID(id: number): T | null {
+    return this._baseObjects.get(id) ?? null;
   }
 
-  protected registerBaseObject(_baseObject: T): void {
-    notImplemented("CCMPBaseObjectsManager.registerBaseObject");
+  protected registerBaseObject(baseObject: T): void {
+    if (this._baseObjects.has(baseObject.id)) {
+      throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
+    }
+    this._baseObjects.set(baseObject.id, baseObject);
+    // TODO: emit ServerInternalEventName.EntityCreated and broadcast EntityCreated DTO
+    // through net.events once CCMPEventsManager is implemented (parity with RageBaseObjectsManager).
   }
 
-  protected unregisterBaseObject(_baseObject: T): void {
-    notImplemented("CCMPBaseObjectsManager.unregisterBaseObject");
+  protected unregisterBaseObject(baseObject: T): void {
+    if (!this._baseObjects.delete(baseObject.id)) {
+      throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
+    }
+    // TODO: emit ServerInternalEventName.EntityDestroyed and broadcast EntityDestroyed DTO
+    // through net.events once CCMPEventsManager is implemented.
   }
 }

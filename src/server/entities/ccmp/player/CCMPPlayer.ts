@@ -1,16 +1,58 @@
 import { CCMPEntity } from "../entity/CCMPEntity";
 import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { type CCMPVehicle } from "../vehicle/CCMPVehicle";
-import { type IServerToClientEvents, type Vector3D } from "../../../../shared";
+import { type IServerToClientEvents } from "../../../../shared";
+import { BaseObjectType } from "../../../../shared";
 import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { MathClamp } from "../../../../shared/common/utils/math/Math";
+import { RockMod } from "../../../RockMod";
+import type { Player as CcmpPlayer } from "@classic-mp/types/server";
 
 const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
+export interface ICCMPPlayerOptions {
+  ccmpPlayer: CcmpPlayer;
+}
+
 export class CCMPPlayer extends CCMPEntity implements IPlayer {
+  private readonly _ccmpPlayer: CcmpPlayer;
+
+  public override get id(): number {
+    return this._ccmpPlayer.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Player;
+  }
+
+  public override get isExists(): boolean {
+    return ccmp.players.getById(this._ccmpPlayer.id) !== null;
+  }
+
+  public override get position(): IVector3D {
+    const p = this._ccmpPlayer.position;
+    if (!p) return new Vector3D(0, 0, 0);
+    return new Vector3D(p.x, p.y, p.z);
+  }
+
+  public override get dimension(): number {
+    return notImplemented("CCMPPlayer.dimension");
+  }
+
+  public override get model(): number {
+    return this._ccmpPlayer.model;
+  }
+
+  // CCMP exposes only heading; pitch/roll (x/y components) are silently dropped on setRotation.
+  public override get rotation(): IVector3D {
+    return new Vector3D(0, 0, this._ccmpPlayer.heading);
+  }
+
   public get name(): string {
-    return notImplemented("CCMPPlayer.name");
+    return this._ccmpPlayer.name;
   }
 
   public get socialClub(): string {
@@ -18,19 +60,19 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public get heading(): number {
-    return notImplemented("CCMPPlayer.heading");
+    return this._ccmpPlayer.heading;
   }
 
   public get health(): number {
-    return notImplemented("CCMPPlayer.health");
+    return this._ccmpPlayer.health;
   }
 
   public get armour(): number {
-    return notImplemented("CCMPPlayer.armour");
+    return this._ccmpPlayer.armour;
   }
 
   public get isDead(): boolean {
-    return notImplemented("CCMPPlayer.isDead");
+    return this._ccmpPlayer.health <= 0;
   }
 
   public get ip(): string {
@@ -65,18 +107,52 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     return notImplemented("CCMPPlayer.streamedPlayers");
   }
 
+  public constructor(options: ICCMPPlayerOptions) {
+    super();
+    this._ccmpPlayer = options.ccmpPlayer;
+  }
+
+  public override destroy(): void {
+    notImplemented("CCMPPlayer.destroy");
+  }
+
+  public override setPosition(value: IVector3D): void {
+    this._ccmpPlayer.teleport(value.x, value.y, value.z);
+  }
+
+  public override setDimension(_value: number): void {
+    notImplemented("CCMPPlayer.setDimension");
+  }
+
+  public override setModel(value: string): void {
+    // CCMP runtime accepts a string and JOAATs server-side via op_set_player_model.
+    this._ccmpPlayer.model = value as unknown as number;
+  }
+
+  public override setRotation(value: IVector3D): void {
+    this._ccmpPlayer.heading = value.z;
+  }
+
+  public override getNetData(_name: string): unknown {
+    return notImplemented("CCMPPlayer.getNetData");
+  }
+
+  public override setNetData(_name: string, _value: unknown): void {
+    notImplemented("CCMPPlayer.setNetData");
+  }
+
   public emitEvent<K extends keyof IServerToClientEvents>(
-    _eventName: K,
-    ..._args: Parameters<IServerToClientEvents[K]>
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
   ): void {
-    notImplemented("CCMPPlayer.emitEvent");
+    return RockMod.instance.net.events.emitClient(this, eventName, ...args);
   }
 
   public emitRPC<K extends keyof IClientRPCList>(
-    _rpcName: K,
-    ..._args: Parameters<IClientRPCList[K]>
+    rpcName: K,
+    ...args: Parameters<IClientRPCList[K]>
   ): Promise<ReturnType<IClientRPCList[K]>> {
-    return notImplemented("CCMPPlayer.emitRPC");
+    return RockMod.instance.net.rpc.emitClient(this, rpcName, ...args);
   }
 
   public spawn(_position: Vector3D): void {
@@ -87,28 +163,28 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     notImplemented("CCMPPlayer.setName");
   }
 
-  public setHeading(_value: number): void {
-    notImplemented("CCMPPlayer.setHeading");
+  public setHeading(value: number): void {
+    this._ccmpPlayer.heading = value;
   }
 
-  public setHealth(_value: number): void {
-    notImplemented("CCMPPlayer.setHealth");
+  public setHealth(value: number): void {
+    this._ccmpPlayer.health = MathClamp(value, 0, 200);
   }
 
-  public setArmour(_value: number): void {
-    notImplemented("CCMPPlayer.setArmour");
+  public setArmour(value: number): void {
+    this._ccmpPlayer.armour = MathClamp(value, 0, 100);
   }
 
   public setWeaponAmmo(_weapon: string, _ammo: number): void {
     notImplemented("CCMPPlayer.setWeaponAmmo");
   }
 
-  public giveWeapon(_weapon: string, _ammo: number): void {
-    notImplemented("CCMPPlayer.giveWeapon");
+  public giveWeapon(weapon: string, ammo: number): void {
+    this._ccmpPlayer.giveWeapon(RockMod.instance.utils.hash(weapon), ammo);
   }
 
-  public removeWeapon(_weapon: string): void {
-    notImplemented("CCMPPlayer.removeWeapon");
+  public removeWeapon(weapon: string): void {
+    this._ccmpPlayer.removeWeapon(RockMod.instance.utils.hash(weapon));
   }
 
   public enableVoiceTo(_player: CCMPPlayer): void {
