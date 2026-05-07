@@ -1,32 +1,28 @@
 import { type IWorldManager, type IWorldTime } from "../common";
 import type { WeatherTypeEnum } from "../../../shared/common/world";
 
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
-
 export class CCMPWorldManager implements IWorldManager {
   public get time(): IWorldTime {
-    return notImplemented("CCMPWorldManager.time");
+    return ccmp.world.time;
   }
 
   public get weather(): WeatherTypeEnum {
-    return notImplemented("CCMPWorldManager.weather");
+    return ccmp.world.weather as WeatherTypeEnum;
   }
 
-  public setTimeHour(_value: number): void {
-    notImplemented("CCMPWorldManager.setTimeHour");
+  public setTimeHour(value: number): void {
+    ccmp.world.hour = value;
   }
 
-  public setTimeMinute(_value: number): void {
-    notImplemented("CCMPWorldManager.setTimeMinute");
+  public setTimeMinute(value: number): void {
+    ccmp.world.minute = value;
   }
 
-  public setTimeSecond(_value: number): void {
-    notImplemented("CCMPWorldManager.setTimeSecond");
+  public setTimeSecond(value: number): void {
+    ccmp.world.second = value;
   }
 
-  public setWeather(_value: WeatherTypeEnum): void {
-    notImplemented("CCMPWorldManager.setWeather");
+  public setWeather(value: WeatherTypeEnum): void {
+    ccmp.world.weather = value;
   }
 }
