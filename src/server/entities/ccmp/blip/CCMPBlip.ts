@@ -1,57 +1,105 @@
 import { CCMPWorldObject } from "../worldObject/CCMPWorldObject";
 import { type IBlip } from "../../common/blip/IBlip";
-import { type IBlipColor, type IBlipSprite } from "../../../../shared";
+import { BaseObjectType, type IBlipColor, type IBlipSprite } from "../../../../shared";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import type { Blip as CcmpBlip } from "@classic-mp/types/server";
 
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
+export interface ICCMPBlipOptions {
+  ccmpBlip: CcmpBlip;
+  onDestroy: (blip: CCMPBlip) => void;
+}
 
 export class CCMPBlip extends CCMPWorldObject implements IBlip {
+  private readonly _ccmpBlip: CcmpBlip;
+
+  private readonly _onDestroy: (blip: CCMPBlip) => void;
+
+  public override get id(): number {
+    return this._ccmpBlip.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Blip;
+  }
+
+  public override get isExists(): boolean {
+    return this._ccmpBlip.isExists;
+  }
+
+  public override get position(): IVector3D {
+    const p = this._ccmpBlip.position;
+    return new Vector3D(p.x, p.y, p.z);
+  }
+
+  public override get dimension(): number {
+    return this._ccmpBlip.dimension;
+  }
+
   public get name(): string {
-    return notImplemented("CCMPBlip.name");
+    return this._ccmpBlip.name;
   }
 
   public get sprite(): IBlipSprite {
-    return notImplemented("CCMPBlip.sprite");
+    return this._ccmpBlip.sprite;
   }
 
   public get color(): number {
-    return notImplemented("CCMPBlip.color");
+    return this._ccmpBlip.color;
   }
 
   public get alpha(): number {
-    return notImplemented("CCMPBlip.alpha");
+    return this._ccmpBlip.alpha;
   }
 
   public get scale(): number {
-    return notImplemented("CCMPBlip.scale");
+    return this._ccmpBlip.scale;
   }
 
   public get drawDistance(): number {
-    return notImplemented("CCMPBlip.drawDistance");
+    return this._ccmpBlip.drawDistance;
   }
 
   public get shortRange(): boolean {
-    return notImplemented("CCMPBlip.shortRange");
+    return this._ccmpBlip.shortRange;
   }
 
   public get rotation(): number {
-    return notImplemented("CCMPBlip.rotation");
+    return this._ccmpBlip.rotation;
   }
 
-  public setName(_value: string): void {
-    notImplemented("CCMPBlip.setName");
+  public constructor(options: ICCMPBlipOptions) {
+    super();
+    this._ccmpBlip = options.ccmpBlip;
+    this._onDestroy = options.onDestroy;
   }
 
-  public setSprite(_value: IBlipSprite): void {
-    notImplemented("CCMPBlip.setSprite");
+  public override destroy(): void {
+    if (!this._ccmpBlip.isExists) return;
+    this._ccmpBlip.destroy();
+    this._onDestroy(this);
   }
 
-  public setColor(_value: IBlipColor): void {
-    notImplemented("CCMPBlip.setColor");
+  public override setPosition(value: IVector3D): void {
+    this._ccmpBlip.position = { x: value.x, y: value.y, z: value.z };
   }
 
-  public setAlpha(_value: number): void {
-    notImplemented("CCMPBlip.setAlpha");
+  public override setDimension(value: number): void {
+    this._ccmpBlip.dimension = value;
+  }
+
+  public setName(value: string): void {
+    this._ccmpBlip.name = value;
+  }
+
+  public setSprite(value: IBlipSprite): void {
+    this._ccmpBlip.sprite = value;
+  }
+
+  public setColor(value: IBlipColor): void {
+    this._ccmpBlip.color = value;
+  }
+
+  public setAlpha(value: number): void {
+    this._ccmpBlip.alpha = value;
   }
 }
