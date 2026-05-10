@@ -1,46 +1,101 @@
-import { type IMarker } from "../../common/marker/IMarker";
 import { CCMPWorldObject } from "../worldObject/CCMPWorldObject";
-import { type IRGBA, type IVector3D } from "../../../../shared/common/utils";
-import { type IMarkerType } from "../../../../shared";
+import { type IMarker } from "../../common/marker/IMarker";
+import { BaseObjectType, type IMarkerType } from "../../../../shared";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { type IRGBA, RGBA } from "../../../../shared/common/utils/color/RGBA";
+import type { Marker as CcmpMarker } from "@classic-mp/types/server";
 
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
+export interface ICCMPMarkerOptions {
+  ccmpMarker: CcmpMarker;
+  onDestroy: (marker: CCMPMarker) => void;
+}
 
 export class CCMPMarker extends CCMPWorldObject implements IMarker {
+  private readonly _ccmpMarker: CcmpMarker;
+
+  private readonly _onDestroy: (marker: CCMPMarker) => void;
+
+  public override get id(): number {
+    return this._ccmpMarker.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Marker;
+  }
+
+  public override get isExists(): boolean {
+    return this._ccmpMarker.isExists;
+  }
+
+  public override get position(): IVector3D {
+    const p = this._ccmpMarker.position;
+    return new Vector3D(p.x, p.y, p.z);
+  }
+
+  public override get dimension(): number {
+    return this._ccmpMarker.dimension;
+  }
+
   public get markerType(): IMarkerType {
-    return notImplemented("CCMPMarker.markerType");
+    return this._ccmpMarker.type;
   }
 
   public get visible(): boolean {
-    return notImplemented("CCMPMarker.visible");
+    return this._ccmpMarker.visible;
   }
 
   public get scale(): number {
-    return notImplemented("CCMPMarker.scale");
+    return this._ccmpMarker.scale;
   }
 
   public get color(): IRGBA {
-    return notImplemented("CCMPMarker.color");
+    const c = this._ccmpMarker.color;
+    return new RGBA(c.r, c.g, c.b, c.a);
   }
 
   public get rotation(): IVector3D {
-    return notImplemented("CCMPMarker.rotation");
+    const r = this._ccmpMarker.rotation;
+    return new Vector3D(r.x, r.y, r.z);
   }
 
-  public setVisible(_value: boolean): void {
-    notImplemented("CCMPMarker.setVisible");
+  public constructor(options: ICCMPMarkerOptions) {
+    super();
+    this._ccmpMarker = options.ccmpMarker;
+    this._onDestroy = options.onDestroy;
   }
 
-  public setScale(_value: number): void {
-    notImplemented("CCMPMarker.setScale");
+  public override destroy(): void {
+    if (!this._ccmpMarker.isExists) return;
+    this._ccmpMarker.destroy();
+    this._onDestroy(this);
   }
 
-  public setColor(_value: IRGBA): void {
-    notImplemented("CCMPMarker.setColor");
+  public override setPosition(value: IVector3D): void {
+    this._ccmpMarker.position = { x: value.x, y: value.y, z: value.z };
   }
 
-  public setRotation(_value: IVector3D): void {
-    notImplemented("CCMPMarker.setRotation");
+  public override setDimension(value: number): void {
+    this._ccmpMarker.dimension = value;
+  }
+
+  public setVisible(value: boolean): void {
+    this._ccmpMarker.visible = value;
+  }
+
+  public setScale(value: number): void {
+    this._ccmpMarker.scale = value;
+  }
+
+  public setColor(value: IRGBA): void {
+    this._ccmpMarker.color = {
+      r: value.r,
+      g: value.g,
+      b: value.b,
+      a: value.a ?? 255,
+    };
+  }
+
+  public setRotation(value: IVector3D): void {
+    this._ccmpMarker.rotation = { x: value.x, y: value.y, z: value.z };
   }
 }
