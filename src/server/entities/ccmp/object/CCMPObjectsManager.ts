@@ -1,10 +1,6 @@
 import { type IObjectCreateOptions, type IObjectsManager } from "../../common/object/IObjectsManager";
 import { CCMPEntitiesManager } from "../entity/CCMPEntitiesManager";
-import { type CCMPObject } from "./CCMPObject";
-
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
+import { CCMPObject, type ICCMPObjectNative } from "./CCMPObject";
 
 export interface ICCMPObjectCreateOptions extends IObjectCreateOptions {}
 
@@ -15,7 +11,30 @@ export class CCMPObjectsManager extends CCMPEntitiesManager<CCMPObject> implemen
     });
   }
 
-  public create(_options: ICCMPObjectCreateOptions): CCMPObject {
-    return notImplemented("CCMPObjectsManager.create");
+  public create(options: ICCMPObjectCreateOptions): CCMPObject {
+    const { model, position, dimension: _dimension, rotation, alpha } = options;
+    // CCMP objects API currently has no per-object dimension; it is ignored.
+    const ccmpObject = ccmp.objects.create(
+      ccmp.hash(model),
+      position.x,
+      position.y,
+      position.z,
+      rotation.x,
+      rotation.y,
+      rotation.z,
+    ) as ICCMPObjectNative | null;
+
+    if (!ccmpObject) {
+      throw new Error("CCMPObjectsManager.create: ccmp.objects.create failed (server full?)");
+    }
+
+    const object = new CCMPObject({
+      ccmpObject,
+      alpha,
+      onDestroy: (o): void => this.unregisterBaseObject(o),
+    });
+    this.registerBaseObject(object);
+
+    return object;
   }
 }
