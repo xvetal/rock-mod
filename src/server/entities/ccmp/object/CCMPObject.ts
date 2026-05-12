@@ -1,16 +1,105 @@
 import { CCMPEntity } from "../entity/CCMPEntity";
 import { type IObject } from "../../common/object/IObject";
+import { BaseObjectType } from "../../../../shared";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { RockMod } from "../../../RockMod";
 
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
+export interface ICCMPObjectNative {
+  id: number;
+  isExists: boolean;
+  position: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number };
+  model: number;
+  destroy(): boolean;
+}
+
+export interface ICCMPObjectOptions {
+  ccmpObject: ICCMPObjectNative;
+  alpha: number;
+  onDestroy: (object: CCMPObject) => void;
+}
 
 export class CCMPObject extends CCMPEntity implements IObject {
-  public get alpha(): number {
-    return notImplemented("CCMPObject.alpha");
+  private readonly _ccmpObject: ICCMPObjectNative;
+
+  private readonly _onDestroy: (object: CCMPObject) => void;
+
+  private _alpha: number;
+
+  public override get id(): number {
+    return this._ccmpObject.id;
   }
 
-  public setAlpha(_value: number): void {
-    notImplemented("CCMPObject.setAlpha");
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Object;
+  }
+
+  public override get isExists(): boolean {
+    return this._ccmpObject.isExists;
+  }
+
+  public override get position(): IVector3D {
+    const p = this._ccmpObject.position;
+    return new Vector3D(p.x, p.y, p.z);
+  }
+
+  // CCMP game objects currently have no dimension support; keep global dimension.
+  public override get dimension(): number {
+    return 0;
+  }
+
+  public override get model(): number {
+    return this._ccmpObject.model;
+  }
+
+  public override get rotation(): IVector3D {
+    const r = this._ccmpObject.rotation;
+    return new Vector3D(r.x, r.y, r.z);
+  }
+
+  public get alpha(): number {
+    return this._alpha;
+  }
+
+  public constructor(options: ICCMPObjectOptions) {
+    super();
+    this._ccmpObject = options.ccmpObject;
+    this._alpha = options.alpha;
+    this._onDestroy = options.onDestroy;
+  }
+
+  public override destroy(): void {
+    if (!this._ccmpObject.isExists) return;
+    this._ccmpObject.destroy();
+    this._onDestroy(this);
+  }
+
+  public override setPosition(value: IVector3D): void {
+    this._ccmpObject.position = { x: value.x, y: value.y, z: value.z };
+  }
+
+  public override setDimension(_value: number): void {
+    throw new Error("CCMPObject.setDimension: not supported by CCMP yet");
+  }
+
+  public override setModel(value: string): void {
+    this._ccmpObject.model = RockMod.instance.utils.hash(value);
+  }
+
+  public override setRotation(value: IVector3D): void {
+    this._ccmpObject.rotation = { x: value.x, y: value.y, z: value.z };
+  }
+
+  public override getNetData(_name: string): unknown {
+    throw new Error("CCMPObject.getNetData: not supported by CCMP yet");
+  }
+
+  public override setNetData(_name: string, _value: unknown): void {
+    throw new Error("CCMPObject.setNetData: not supported by CCMP yet");
+  }
+
+  // CCMP runtime currently has no object alpha op; keep an API-level cache.
+  public setAlpha(value: number): void {
+    this._alpha = value;
   }
 }
