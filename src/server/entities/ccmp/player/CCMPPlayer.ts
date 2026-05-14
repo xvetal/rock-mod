@@ -84,19 +84,21 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public get vehicle(): CCMPVehicle | null {
-    return notImplemented("CCMPPlayer.vehicle");
+    const ccmpVehicle = this._ccmpPlayer.vehicle;
+    if (!ccmpVehicle) return null;
+    return RockMod.instance.vehicles.findByID(ccmpVehicle.id) as CCMPVehicle | null;
   }
 
   public get seat(): number {
-    return notImplemented("CCMPPlayer.seat");
+    return this._ccmpPlayer.seat;
   }
 
   public get weapon(): number {
-    return notImplemented("CCMPPlayer.weapon");
+    return this._ccmpPlayer.currentWeapon;
   }
 
   public get weaponAmmo(): number {
-    return notImplemented("CCMPPlayer.weaponAmmo");
+    return this._ccmpPlayer.ammo;
   }
 
   public get eyeColor(): number {
@@ -175,8 +177,8 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     this._ccmpPlayer.armour = MathClamp(value, 0, 100);
   }
 
-  public setWeaponAmmo(_weapon: string, _ammo: number): void {
-    notImplemented("CCMPPlayer.setWeaponAmmo");
+  public setWeaponAmmo(weapon: string, ammo: number): void {
+    this._ccmpPlayer.setWeaponAmmo(RockMod.instance.utils.hash(weapon), ammo);
   }
 
   public giveWeapon(weapon: string, ammo: number): void {
@@ -195,12 +197,12 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     notImplemented("CCMPPlayer.disableVoiceTo");
   }
 
-  public putIntoVehicle(_vehicle: CCMPVehicle, _seat?: number): void {
-    notImplemented("CCMPPlayer.putIntoVehicle");
+  public putIntoVehicle(vehicle: CCMPVehicle, seat?: number): void {
+    this._ccmpPlayer.putIntoVehicle(vehicle.id, seat);
   }
 
   public ejectFromVehicle(): void {
-    notImplemented("CCMPPlayer.ejectFromVehicle");
+    this._ccmpPlayer.removeFromVehicle();
   }
 
   public setCustomization(_data: ICustomization): void {
@@ -246,6 +248,6 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public removeFromVehicle(): void {
-    notImplemented("CCMPPlayer.removeFromVehicle");
+    this._ccmpPlayer.removeFromVehicle();
   }
 }
