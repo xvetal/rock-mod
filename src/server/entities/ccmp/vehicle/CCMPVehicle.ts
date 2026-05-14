@@ -1,27 +1,55 @@
 import { CCMPEntity } from "../entity/CCMPEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
-import { type IRGBA, type IVector3D } from "../../../../shared/common/utils";
+import { type IRGBA } from "../../../../shared/common/utils";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
+import { BaseObjectType } from "../../../../shared";
+import { RockMod } from "../../../RockMod";
 import { type CCMPPlayer } from "../player/CCMPPlayer";
+import type { Vehicle as CcmpVehicle } from "@classic-mp/types/server";
 
 const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
+export interface ICCMPVehicleOptions {
+  ccmpVehicle: CcmpVehicle;
+  onDestroy: (vehicle: CCMPVehicle) => void;
+}
+
 export class CCMPVehicle extends CCMPEntity implements IVehicle {
+  private readonly _ccmpVehicle: CcmpVehicle;
+
+  private readonly _onDestroy: (vehicle: CCMPVehicle) => void;
+
+  public override get id(): number {
+    return this._ccmpVehicle.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Vehicle;
+  }
+
+  public override get isExists(): boolean {
+    return this._ccmpVehicle.isExists;
+  }
+
   public override get position(): IVector3D {
-    return notImplemented("CCMPVehicle.position");
+    const p = this._ccmpVehicle.position;
+    return new Vector3D(p.x, p.y, p.z);
   }
 
+  // CCMP vehicles have no per-entity dimension yet; report 0 (global).
   public override get dimension(): number {
-    return notImplemented("CCMPVehicle.dimension");
+    return 0;
   }
 
-  public override setPosition(_value: IVector3D): void {
-    notImplemented("CCMPVehicle.setPosition");
+  public override get model(): number {
+    return this._ccmpVehicle.model;
   }
 
-  public override setDimension(_value: number): void {
-    notImplemented("CCMPVehicle.setDimension");
+  public override get rotation(): IVector3D {
+    const r = this._ccmpVehicle.rotation;
+    return new Vector3D(r.x, r.y, r.z);
   }
 
   public get bodyHealth(): number {
@@ -61,11 +89,56 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public get driver(): CCMPPlayer | null {
-    return notImplemented("CCMPVehicle.driver");
+    const ccmpDriver = this._ccmpVehicle.driver;
+    if (!ccmpDriver) return null;
+    return RockMod.instance.players.findByID(ccmpDriver.id) as CCMPPlayer | null;
   }
 
   public get passengers(): Set<CCMPPlayer> {
-    return notImplemented("CCMPVehicle.passengers");
+    const passengers = new Set<CCMPPlayer>();
+    for (const ccmpPassenger of this._ccmpVehicle.passengers) {
+      const player = RockMod.instance.players.findByID(ccmpPassenger.id) as CCMPPlayer | null;
+      if (player) {
+        passengers.add(player);
+      }
+    }
+    return passengers;
+  }
+
+  public constructor(options: ICCMPVehicleOptions) {
+    super();
+    this._ccmpVehicle = options.ccmpVehicle;
+    this._onDestroy = options.onDestroy;
+  }
+
+  public override destroy(): void {
+    if (!this._ccmpVehicle.isExists) return;
+    this._ccmpVehicle.destroy();
+    this._onDestroy(this);
+  }
+
+  public override setPosition(value: IVector3D): void {
+    this._ccmpVehicle.position = { x: value.x, y: value.y, z: value.z };
+  }
+
+  public override setDimension(_value: number): void {
+    throw new Error("CCMPVehicle.setDimension: not supported by CCMP yet");
+  }
+
+  public override setModel(value: string): void {
+    this._ccmpVehicle.model = RockMod.instance.utils.hash(value);
+  }
+
+  public override setRotation(value: IVector3D): void {
+    this._ccmpVehicle.rotation = { x: value.x, y: value.y, z: value.z };
+  }
+
+  public override getNetData(_name: string): unknown {
+    throw new Error("CCMPVehicle.getNetData: not supported by CCMP yet");
+  }
+
+  public override setNetData(_name: string, _value: unknown): void {
+    throw new Error("CCMPVehicle.setNetData: not supported by CCMP yet");
   }
 
   public setBodyHealth(_value: number): void {
@@ -76,8 +149,8 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     notImplemented("CCMPVehicle.setEngineHealth");
   }
 
-  public setEngineOn(_value: boolean): void {
-    notImplemented("CCMPVehicle.setEngineOn");
+  public setEngineOn(value: boolean): void {
+    this._ccmpVehicle.engineOn = value;
   }
 
   public setNumberPlate(_value: string): void {
