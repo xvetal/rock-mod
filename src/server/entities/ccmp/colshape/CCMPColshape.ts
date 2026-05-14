@@ -51,6 +51,10 @@ export abstract class CCMPColshape extends CCMPWorldObject implements IColshape 
     this._onDestroy(this);
   }
 
+  public override setPosition(_value: IVector3D): void {
+    throw new Error("CCMPColshape.setPosition: not supported by CCMP");
+  }
+
   public override setDimension(value: number): void {
     this._ccmpColshape.dimension = value;
   }
