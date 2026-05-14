@@ -174,4 +174,32 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
   public setCheatPowerIncrease(value: number): void {
     mp.game.vehicle.setCheatPowerIncrease(this.handle, value);
   }
+
+  public toggleMod(modType: number, toggle: boolean): void {
+    this.mpEntity.toggleMod(modType, toggle);
+  }
+
+  public setTyreSmokeColor(r: number, g: number, b: number): void {
+    this.mpEntity.setTyreSmokeColor(r, g, b);
+  }
+
+  public setModColor1(paintType: number, color: number, p3: number): void {
+    this.mpEntity.setModColor1(paintType, color, p3);
+  }
+
+  public setExtraColours(pearlescentColor: number, wheelColor: number): void {
+    this.mpEntity.setExtraColours(pearlescentColor, wheelColor);
+  }
+
+  public getMaxBraking(): number {
+    return this.mpEntity.getMaxBraking();
+  }
+
+  public getAcceleration(): number {
+    return this.mpEntity.getAcceleration();
+  }
+
+  public getMaxTraction(): number {
+    return this.mpEntity.getMaxTraction();
+  }
 }

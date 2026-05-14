@@ -229,4 +229,8 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     const { x, y, z } = this.mpEntity.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
     return new Vector3D(x, y, z);
   }
+
+  public setNoCollision(otherHandle: number, thisFrameOnly: boolean): void {
+    this.mpEntity.setNoCollision(otherHandle, thisFrameOnly);
+  }
 }

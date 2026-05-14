@@ -30,4 +30,16 @@ export interface IPed extends IEntity {
   clearProp(componentId: number): void;
 
   getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D;
+
+  clearTasks(): void;
+  taskPlayAnim(
+    dictionary: string,
+    name: string,
+    blendInSpeed: number,
+    blendOutSpeed: number,
+    duration: number,
+    flag: number,
+    playbackRate: number,
+  ): void;
+  stopAnim(dictionary: string, name: string, blendOutSpeed: number): void;
 }
