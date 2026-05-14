@@ -56,4 +56,12 @@ export interface IVehicle extends IEntity {
   setEngineTorqueMultiplier(value: number): void;
   modifyTopSpeed(value: number): void;
   setCheatPowerIncrease(value: number): void;
+
+  toggleMod(modType: number, toggle: boolean): void;
+  setTyreSmokeColor(r: number, g: number, b: number): void;
+  setModColor1(paintType: number, color: number, p3: number): void;
+  setExtraColours(pearlescentColor: number, wheelColor: number): void;
+  getMaxBraking(): number;
+  getAcceleration(): number;
+  getMaxTraction(): number;
 }

@@ -90,4 +90,35 @@ export class RagePed extends RageEntity<PedMp> implements IPed {
     const { x, y, z } = this.mpEntity.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
     return new Vector3D(x, y, z);
   }
+
+  public clearTasks(): void {
+    this.mpEntity.clearTasks();
+  }
+
+  public taskPlayAnim(
+    dictionary: string,
+    name: string,
+    blendInSpeed: number,
+    blendOutSpeed: number,
+    duration: number,
+    flag: number,
+    playbackRate: number,
+  ): void {
+    this.mpEntity.taskPlayAnim(
+      dictionary,
+      name,
+      blendInSpeed,
+      blendOutSpeed,
+      duration,
+      flag,
+      playbackRate,
+      false,
+      false,
+      false,
+    );
+  }
+
+  public stopAnim(dictionary: string, name: string, blendOutSpeed: number): void {
+    mp.game.task.stopAnimTask(this.handle, dictionary, name, blendOutSpeed);
+  }
 }

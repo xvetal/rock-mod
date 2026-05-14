@@ -82,6 +82,9 @@
   ],
   "author": "xvetal",
   "license": "MIT",
+  "dependencies": {
+    "@swc/helpers": "^0.5.15"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",

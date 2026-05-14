@@ -73,4 +73,6 @@ export interface IPlayer extends IEntity {
   resetMovementClipset(blendDuration: number): void;
 
   getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D;
+
+  setNoCollision(otherHandle: number, thisFrameOnly: boolean): void;
 }
