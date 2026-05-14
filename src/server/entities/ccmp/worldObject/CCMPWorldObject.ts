@@ -2,24 +2,12 @@ import { type IWorldObject } from "../../common/worldObject/IWorldObject";
 import { CCMPBaseObject } from "../baseObject/CCMPBaseObject";
 import { type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
-
 export abstract class CCMPWorldObject extends CCMPBaseObject implements IWorldObject {
-  public get position(): IVector3D {
-    return notImplemented("CCMPWorldObject.position");
-  }
+  public abstract get position(): IVector3D;
 
-  public get dimension(): number {
-    return notImplemented("CCMPWorldObject.dimension");
-  }
+  public abstract get dimension(): number;
 
-  public setPosition(_value: IVector3D): void {
-    notImplemented("CCMPWorldObject.setPosition");
-  }
+  public abstract setPosition(value: IVector3D): void;
 
-  public setDimension(_value: number): void {
-    notImplemented("CCMPWorldObject.setDimension");
-  }
+  public abstract setDimension(value: number): void;
 }
