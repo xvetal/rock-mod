@@ -1,6 +1,6 @@
 import { CCMPEntity } from "../entity/CCMPEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
-import { type IRGBA } from "../../../../shared/common/utils";
+import { type IRGBA, type IVector3D } from "../../../../shared/common/utils";
 import { type CCMPPlayer } from "../player/CCMPPlayer";
 
 const notImplemented = (name: string): never => {
@@ -8,6 +8,22 @@ const notImplemented = (name: string): never => {
 };
 
 export class CCMPVehicle extends CCMPEntity implements IVehicle {
+  public override get position(): IVector3D {
+    return notImplemented("CCMPVehicle.position");
+  }
+
+  public override get dimension(): number {
+    return notImplemented("CCMPVehicle.dimension");
+  }
+
+  public override setPosition(_value: IVector3D): void {
+    notImplemented("CCMPVehicle.setPosition");
+  }
+
+  public override setDimension(_value: number): void {
+    notImplemented("CCMPVehicle.setDimension");
+  }
+
   public get bodyHealth(): number {
     return notImplemented("CCMPVehicle.bodyHealth");
   }
