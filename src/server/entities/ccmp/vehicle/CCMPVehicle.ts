@@ -38,9 +38,8 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     return new Vector3D(p.x, p.y, p.z);
   }
 
-  // CCMP vehicles have no per-entity dimension yet; report 0 (global).
   public override get dimension(): number {
-    return 0;
+    return this._ccmpVehicle.dimension;
   }
 
   public override get model(): number {
@@ -121,8 +120,8 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     this._ccmpVehicle.position = { x: value.x, y: value.y, z: value.z };
   }
 
-  public override setDimension(_value: number): void {
-    throw new Error("CCMPVehicle.setDimension: not supported by CCMP yet");
+  public override setDimension(value: number): void {
+    this._ccmpVehicle.dimension = value;
   }
 
   public override setModel(value: string): void {

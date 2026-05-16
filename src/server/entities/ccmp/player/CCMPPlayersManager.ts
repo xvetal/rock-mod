@@ -64,6 +64,11 @@ export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implemen
         net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
         this.unregisterBaseObject(player);
       },
+      playerDimensionChange: (ccmpPlayer, oldDim, newDim) => {
+        const player = this.findByID(ccmpPlayer.id);
+        if (!player) return;
+        net.events.emitInternal(ServerInternalEventName.PlayerDimensionChange, player, oldDim, newDim);
+      },
     });
   }
 }

@@ -12,13 +12,15 @@ export class CCMPPedsManager extends CCMPEntitiesManager<CCMPPed> implements IPe
   }
 
   public create(options: ICCMPPedCreateOptions): CCMPPed {
-    const { model, position, rotation } = options;
-    // CCMP peds API does not yet support `frozen` or `dimension` — both are silently ignored.
+    const { model, position, rotation, dimension } = options;
+    // CCMP peds API does not yet support `frozen` — it is silently ignored.
 
     const ccmpPed = ccmp.peds.create(ccmp.hash(model), position.x, position.y, position.z, rotation.z);
     if (!ccmpPed) {
       throw new Error("CCMPPedsManager.create: ccmp.peds.create failed (server full?)");
     }
+
+    ccmpPed.dimension = dimension;
 
     const ped = new CCMPPed({
       ccmpPed,
