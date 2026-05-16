@@ -39,7 +39,7 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public override get dimension(): number {
-    return notImplemented("CCMPPlayer.dimension");
+    return this._ccmpPlayer.dimension;
   }
 
   public override get model(): number {
@@ -122,8 +122,8 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     this._ccmpPlayer.teleport(value.x, value.y, value.z);
   }
 
-  public override setDimension(_value: number): void {
-    notImplemented("CCMPPlayer.setDimension");
+  public override setDimension(value: number): void {
+    this._ccmpPlayer.dimension = value;
   }
 
   public override setModel(value: string): void {

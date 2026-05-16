@@ -10,6 +10,7 @@ export enum ServerInternalEventName {
   PlayerExitVehicle = "rm::playerExitVehicle",
   PlayerEnteredColshape = "rm::playerEnteredColshape",
   PlayerLeftColshape = "rm::playerLeftColshape",
+  PlayerDimensionChange = "rm::playerDimensionChange",
   EntityCreated = "rm::entityCreated",
   EntityDestroyed = "rm::entityDestroyed",
 }
@@ -24,6 +25,11 @@ export interface IServerInternalEvents {
   [ServerInternalEventName.PlayerExitVehicle]: (player: IPlayer, vehicle: IVehicle) => void;
   [ServerInternalEventName.PlayerEnteredColshape]: (player: IPlayer, colshape: IColshape) => void;
   [ServerInternalEventName.PlayerLeftColshape]: (player: IPlayer, colshape: IColshape) => void;
+  [ServerInternalEventName.PlayerDimensionChange]: (
+    player: IPlayer,
+    oldDimension: number,
+    newDimension: number,
+  ) => void;
   [ServerInternalEventName.EntityCreated]: (object: IBaseObject) => void;
   [ServerInternalEventName.EntityDestroyed]: (object: IBaseObject) => void;
 }

@@ -33,9 +33,8 @@ export class CCMPPed extends CCMPEntity implements IPed {
     return new Vector3D(p.x, p.y, p.z);
   }
 
-  // CCMP peds have no per-entity dimension yet; report 0 (global).
   public override get dimension(): number {
-    return 0;
+    return this._ccmpPed.dimension;
   }
 
   public override get model(): number {
@@ -75,8 +74,8 @@ export class CCMPPed extends CCMPEntity implements IPed {
     this._ccmpPed.teleport(value.x, value.y, value.z);
   }
 
-  public override setDimension(_value: number): void {
-    throw new Error("CCMPPed.setDimension: not supported by CCMP yet");
+  public override setDimension(value: number): void {
+    this._ccmpPed.dimension = value;
   }
 
   public override setModel(value: string): void {
