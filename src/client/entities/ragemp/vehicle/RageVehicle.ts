@@ -191,6 +191,21 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
     this.mpEntity.setExtraColours(pearlescentColor, wheelColor);
   }
 
+  public setHeadlightColor(colorIndex: number): void {
+    // _SET_VEHICLE_HEADLIGHT_COLOUR — no RAGEMP wrapper, invoke native by hash
+    mp.game.invoke("0xE41033B25D003A07", this.handle, colorIndex);
+  }
+
+  public setDashboardColor(colorIndex: number): void {
+    // SET_VEHICLE_DASHBOARD_COLOUR — no RAGEMP wrapper, invoke native by hash
+    mp.game.invoke("0x6089CDF6A57F326C", this.handle, colorIndex);
+  }
+
+  public setInteriorColor(colorIndex: number): void {
+    // SET_VEHICLE_INTERIOR_COLOUR — no RAGEMP wrapper, invoke native by hash
+    mp.game.invoke("0xF40DD601A65F7F19", this.handle, colorIndex);
+  }
+
   public getMaxBraking(): number {
     return this.mpEntity.getMaxBraking();
   }
@@ -201,5 +216,9 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
 
   public getMaxTraction(): number {
     return this.mpEntity.getMaxTraction();
+  }
+
+  public getModelMaxSpeed(): number {
+    return mp.game.vehicle.getVehicleModelMaxSpeed(this.mpEntity.model);
   }
 }

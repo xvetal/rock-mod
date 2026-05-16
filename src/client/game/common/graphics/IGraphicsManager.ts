@@ -13,4 +13,6 @@ export interface IGraphicsManager {
   world3dToScreen2d(position: IVector3D): IVector2D | null;
   startScreenEffect(effectName: string, duration: number, looped: boolean): void;
   stopScreenEffect(effectName: string): void;
+  getSafeZoneSize(): number;
+  getActiveScreenResolution(): IVector2D;
 }

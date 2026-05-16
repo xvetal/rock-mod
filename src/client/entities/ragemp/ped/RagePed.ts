@@ -121,4 +121,20 @@ export class RagePed extends RageEntity<PedMp> implements IPed {
   public stopAnim(dictionary: string, name: string, blendOutSpeed: number): void {
     mp.game.task.stopAnimTask(this.handle, dictionary, name, blendOutSpeed);
   }
+
+  public taskGoToCoordAnyMeans(
+    x: number,
+    y: number,
+    z: number,
+    speed: number,
+    walkingStyle: number = 786603,
+    drivingFlags: number = 0xbf800000,
+  ): void {
+    mp.game.task.goToCoordAnyMeans(this.handle, x, y, z, speed, 0, false, walkingStyle, drivingFlags);
+  }
+
+  public setBlockingOfNonTemporaryEvents(blocking: boolean): void {
+    // BLOCKING_OF_NON_TEMPORARY_EVENTS — no RAGEMP wrapper, invoke native by hash
+    mp.game.invoke("0x9F8AA94D6D97DBF4", this.handle, blocking);
+  }
 }

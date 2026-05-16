@@ -19,6 +19,14 @@ export class RageStreamingManager implements IStreamingManager {
     return mp.game.streaming.isModelInCdimage(modelHash);
   }
 
+  public requestModel(modelHash: number): void {
+    mp.game.streaming.requestModel(modelHash);
+  }
+
+  public hasModelLoaded(modelHash: number): boolean {
+    return mp.game.streaming.hasModelLoaded(modelHash);
+  }
+
   public requestIpl(iplName: string): void {
     mp.game.streaming.requestIpl(iplName);
   }

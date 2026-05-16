@@ -5,6 +5,8 @@ export interface IStreamingManager {
   hasAnimationDictionaryLoaded(dictionary: string): boolean;
   removeAnimationDictionary(dictionary: string): void;
   isModelInCdimage(model: string): boolean;
+  requestModel(modelHash: number): void;
+  hasModelLoaded(modelHash: number): boolean;
   requestIpl(iplName: string): void;
   removeIpl(iplName: string): void;
   setFocusArea(position: IVector3D, offset: IVector3D): void;
