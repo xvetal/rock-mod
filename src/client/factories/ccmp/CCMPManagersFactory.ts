@@ -1,4 +1,7 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { CCMPNetManager } from "@RockMod/client/net/ccmp/CCMPNetManager";
+import { CCMPBrowserManager } from "@RockMod/client/game/ccmp/browser/CCMPBrowserManager";
+import { CCMPStorageManager } from "@RockMod/client/game/ccmp/storage/CCMPStorageManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -7,7 +10,7 @@ type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] exten
 
 export class CCMPManagersFactory implements IManagersFactory {
   public createNetManager(): ManagerReturn<"createNetManager"> {
-    return createNotImplementedProxy("CCMPNetManager");
+    return new CCMPNetManager();
   }
 
   public createBlipsManager(): ManagerReturn<"createBlipsManager"> {
@@ -43,7 +46,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createBrowserManager(): ManagerReturn<"createBrowserManager"> {
-    return createNotImplementedProxy("CCMPBrowserManager");
+    return new CCMPBrowserManager();
   }
 
   public createChatManager(): ManagerReturn<"createChatManager"> {
@@ -71,7 +74,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createStorageManager(): ManagerReturn<"createStorageManager"> {
-    return createNotImplementedProxy("CCMPStorageManager");
+    return new CCMPStorageManager();
   }
 
   public createGraphicsManager(): ManagerReturn<"createGraphicsManager"> {
