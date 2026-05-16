@@ -10,6 +10,7 @@ export interface ICCMPObjectNative {
   position: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number };
   model: number;
+  dimension: number;
   destroy(): boolean;
 }
 
@@ -43,9 +44,8 @@ export class CCMPObject extends CCMPEntity implements IObject {
     return new Vector3D(p.x, p.y, p.z);
   }
 
-  // CCMP game objects currently have no dimension support; keep global dimension.
   public override get dimension(): number {
-    return 0;
+    return this._ccmpObject.dimension;
   }
 
   public override get model(): number {
@@ -78,8 +78,8 @@ export class CCMPObject extends CCMPEntity implements IObject {
     this._ccmpObject.position = { x: value.x, y: value.y, z: value.z };
   }
 
-  public override setDimension(_value: number): void {
-    throw new Error("CCMPObject.setDimension: not supported by CCMP yet");
+  public override setDimension(value: number): void {
+    this._ccmpObject.dimension = value;
   }
 
   public override setModel(value: string): void {

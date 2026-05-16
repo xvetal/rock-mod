@@ -12,8 +12,7 @@ export class CCMPObjectsManager extends CCMPEntitiesManager<CCMPObject> implemen
   }
 
   public create(options: ICCMPObjectCreateOptions): CCMPObject {
-    const { model, position, dimension: _dimension, rotation, alpha } = options;
-    // CCMP objects API currently has no per-object dimension; it is ignored.
+    const { model, position, dimension, rotation, alpha } = options;
     const ccmpObject = ccmp.objects.create(
       ccmp.hash(model),
       position.x,
@@ -27,6 +26,8 @@ export class CCMPObjectsManager extends CCMPEntitiesManager<CCMPObject> implemen
     if (!ccmpObject) {
       throw new Error("CCMPObjectsManager.create: ccmp.objects.create failed (server full?)");
     }
+
+    ccmpObject.dimension = dimension;
 
     const object = new CCMPObject({
       ccmpObject,
