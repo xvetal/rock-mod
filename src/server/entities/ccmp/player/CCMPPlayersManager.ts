@@ -4,10 +4,6 @@ import { CCMPPlayer } from "./CCMPPlayer";
 import { type CCMPNetManager } from "../../../net/ccmp/CCMPNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
-
 export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implements IPlayersManager {
   public constructor(net: CCMPNetManager) {
     super({
@@ -36,12 +32,24 @@ export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implemen
     return null;
   }
 
-  public getBySocialClub(_socialClub: string): CCMPPlayer {
-    return notImplemented("CCMPPlayersManager.getBySocialClub");
+  public getBySocialClub(socialClub: string): CCMPPlayer {
+    const player = this.findBySocialClub(socialClub);
+
+    if (!player) {
+      throw new Error(`Player with socialClub ${socialClub} not found`);
+    }
+
+    return player;
   }
 
-  public findBySocialClub(_socialClub: string): CCMPPlayer | null {
-    return notImplemented("CCMPPlayersManager.findBySocialClub");
+  public findBySocialClub(socialClub: string): CCMPPlayer | null {
+    for (const player of this.iterator.all()) {
+      if (player.socialClub === socialClub) {
+        return player;
+      }
+    }
+
+    return null;
   }
 
   private _init(net: CCMPNetManager): void {

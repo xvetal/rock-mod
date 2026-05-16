@@ -56,7 +56,7 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public get socialClub(): string {
-    return notImplemented("CCMPPlayer.socialClub");
+    return this._ccmpPlayer.socialClub;
   }
 
   public get heading(): number {
