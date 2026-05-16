@@ -28,7 +28,15 @@ export class CCMPEventsManager implements IEventsManager {
   public onClient(events: Partial<IClientToServerEvents>): void {
     for (const eventName of Object.keys(events)) {
       // @ts-expect-error generic event typing
-      ccmp.on(eventName, events[eventName]);
+      const handler = events[eventName] as (player: unknown, ...args: unknown[]) => void;
+      // Клиент шлёт variadic args упакованными в массив через
+      // `ccmp.emitServer(name, args)` (см. client CCMPEventsManager.emitServer).
+      // Разворачиваем массив обратно в позиционные аргументы. Скалярные/объектные
+      // payload'ы прокидываем как единственный аргумент.
+      ccmp.on(eventName, (player: unknown, data: unknown) => {
+        const args = Array.isArray(data) ? data : [data];
+        handler(player, ...args);
+      });
     }
   }
 
