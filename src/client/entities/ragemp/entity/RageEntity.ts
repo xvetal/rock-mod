@@ -41,11 +41,14 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
   }
 
   public freezePosition(freeze: boolean): void {
-    this.mpEntity.freezePosition(freeze);
+    // FREEZE_ENTITY_POSITION via raw native: the RAGEMP wrapper does not consistently
+    // toggle the engine-level freeze for client-spawned entities, leaving them frozen.
+    mp.game.invoke("0x428CA6DBD1094446", this.handle, freeze);
   }
 
   public setCollision(collision: boolean, keepPhysics: boolean): void {
-    this.mpEntity.setCollision(collision, keepPhysics);
+    // SET_ENTITY_COLLISION via raw native for the same reason as freezePosition above.
+    mp.game.invoke("0x1A9205C1B9EE827F", this.handle, collision, keepPhysics);
   }
 
   public setInvincible(invincible: boolean): void {

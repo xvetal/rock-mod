@@ -34,4 +34,13 @@ export class RageGraphicsManager implements IGraphicsManager {
   public stopScreenEffect(effectName: string): void {
     mp.game.graphics.stopScreenEffect(effectName);
   }
+
+  public getSafeZoneSize(): number {
+    return mp.game.graphics.getSafeZoneSize();
+  }
+
+  public getActiveScreenResolution(): IVector2D {
+    const result = mp.game.graphics.getActiveScreenResolution();
+    return new Vector2D(result.x, result.y);
+  }
 }

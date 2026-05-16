@@ -41,5 +41,14 @@ export interface IPed extends IEntity {
     flag: number,
     playbackRate: number,
   ): void;
+  taskGoToCoordAnyMeans(
+    x: number,
+    y: number,
+    z: number,
+    speed: number,
+    walkingStyle?: number,
+    drivingFlags?: number,
+  ): void;
   stopAnim(dictionary: string, name: string, blendOutSpeed: number): void;
+  setBlockingOfNonTemporaryEvents(blocking: boolean): void;
 }

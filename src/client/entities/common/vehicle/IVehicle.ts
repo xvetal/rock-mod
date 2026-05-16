@@ -61,7 +61,11 @@ export interface IVehicle extends IEntity {
   setTyreSmokeColor(r: number, g: number, b: number): void;
   setModColor1(paintType: number, color: number, p3: number): void;
   setExtraColours(pearlescentColor: number, wheelColor: number): void;
+  setHeadlightColor(colorIndex: number): void;
+  setDashboardColor(colorIndex: number): void;
+  setInteriorColor(colorIndex: number): void;
   getMaxBraking(): number;
   getAcceleration(): number;
   getMaxTraction(): number;
+  getModelMaxSpeed(): number;
 }
