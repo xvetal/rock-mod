@@ -24,7 +24,16 @@ type Listener = (...args: unknown[]) => void;
  *    (`ccmpPlayer.emit(name, args)` в `CCMPEventsManager` на сервере).
  *
  * 3. Локальной in-process шины событий (аналог `mp.events.call`) у CCMP нет —
- *    под `onInternal/emitInternal` подкладываем `CCMPInProcessEmitter`.
+ *    под `emitInternal` подкладываем `CCMPInProcessEmitter`. Однако `onInternal`
+ *    дополнительно подписывает handler ещё и на нативный `ccmp.on(name, ...)`,
+ *    потому что геймод использует `events.onInternal` как канал для UI-ingress
+ *    (см. `rock-mod-event-emitter.adapter.ts:61-66` в геймоде: `registerUI()`
+ *    делегирует в `events.onInternal`). Под RageMP такого дубля не нужно,
+ *    потому что `mp.events.add` естественно ловит и `mp.events.call`, и
+ *    CEF-выпуски `mp.trigger`. Побочный эффект: server/system события с тем
+ *    же именем тоже долетят до internal-handler'а — на практике конфликтов
+ *    нет, потому что namespace'ы геймода различаются (`rm::*` server,
+ *    `api:*` UI, `player:*`/`vehicle:*`/etc. internal).
  *
  * 4. `IClientEvents` (для `onRaw`/`offRaw`) — RageMP-specific глобальный
  *    тип. Под CCMP осмысленно регистрировать `ccmp.on('playerConnected', ...)`
@@ -68,12 +77,21 @@ export class CCMPEventsManager implements IEventsManager {
         continue;
       }
 
+      // 1) Локальная in-process шина — питает `emitInternal` от client-кода.
       this._internalEmitter.on(eventName as string, handler as Listener);
+
+      // 2) UI ingress. Геймод-адаптер `registerUI()` маппит UI-events через
+      //    `events.onInternal`. Под CCMP UI шлёт `window.ccmp.emitClient(name, payload)`,
+      //    которое приходит на клиент через `ccmp.on(name, handler)`. Подписываем
+      //    тот же handler на нативный канал через общий `_registerExternal`-реестр
+      //    (он управляет single-dispatcher'ом и Array.isArray-unwrap'ом).
+      this._registerExternal(eventName as string, handler as Listener);
     }
   }
 
   public offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener?: IClientInternalEvents[K]): void {
     this._internalEmitter.off(eventName as string, listener as Listener | undefined);
+    this._unregisterExternal(eventName as string, listener as Listener | undefined);
   }
 
   public emitInternal<K extends keyof IClientInternalEvents>(
