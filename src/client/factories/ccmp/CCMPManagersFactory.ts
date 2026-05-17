@@ -4,6 +4,7 @@ import { CCMPBrowserManager } from "@RockMod/client/game/ccmp/browser/CCMPBrowse
 import { CCMPStorageManager } from "@RockMod/client/game/ccmp/storage/CCMPStorageManager";
 import { CCMPKeysManager } from "@RockMod/client/game/ccmp/keys/CCMPKeysManager";
 import { CCMPNametagsManager } from "@RockMod/client/game/ccmp/nametags/CCMPNametagsManager";
+import { CCMPChatManager } from "@RockMod/client/game/ccmp/chat/CCMPChatManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -52,7 +53,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createChatManager(): ManagerReturn<"createChatManager"> {
-    return createNotImplementedProxy("CCMPChatManager");
+    return new CCMPChatManager();
   }
 
   public createCursorManager(): ManagerReturn<"createCursorManager"> {
