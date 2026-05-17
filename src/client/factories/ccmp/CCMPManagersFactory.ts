@@ -3,6 +3,7 @@ import { CCMPNetManager } from "@RockMod/client/net/ccmp/CCMPNetManager";
 import { CCMPBrowserManager } from "@RockMod/client/game/ccmp/browser/CCMPBrowserManager";
 import { CCMPStorageManager } from "@RockMod/client/game/ccmp/storage/CCMPStorageManager";
 import { CCMPKeysManager } from "@RockMod/client/game/ccmp/keys/CCMPKeysManager";
+import { CCMPNametagsManager } from "@RockMod/client/game/ccmp/nametags/CCMPNametagsManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -115,7 +116,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createNametagsManager(): ManagerReturn<"createNametagsManager"> {
-    return createNotImplementedProxy("CCMPNametagsManager");
+    return new CCMPNametagsManager();
   }
 
   public createPathfindManager(): ManagerReturn<"createPathfindManager"> {
