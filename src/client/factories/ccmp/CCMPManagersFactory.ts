@@ -10,6 +10,7 @@ import { CCMPPlayersManager } from "@RockMod/client/entities/ccmp/player/CCMPPla
 import { CCMPPedsManager } from "@RockMod/client/entities/ccmp/ped/CCMPPedsManager";
 import { CCMPUtilsManager } from "@RockMod/client/utils/ccmp/CCMPUtilsManager";
 import { CCMPGraphicsManager } from "@RockMod/client/game/ccmp/graphics/CCMPGraphicsManager";
+import { CCMPUiManager } from "@RockMod/client/game/ccmp/ui/CCMPUiManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -140,7 +141,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createUiManager(): ManagerReturn<"createUiManager"> {
-    return createNotImplementedProxy("CCMPUiManager");
+    return new CCMPUiManager();
   }
 
   public createNametagsManager(): ManagerReturn<"createNametagsManager"> {
