@@ -17,6 +17,7 @@ export enum ClientInternalEventName {
   PlayerWeaponShot = "rm::playerWeaponShot",
   Render = "rm::render",
   Click = "rm::click",
+  SyncedMetaChange = "rm::syncedMetaChange",
 }
 
 export interface IClickOptions {
@@ -46,4 +47,5 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.PlayerWeaponShot]: () => void;
   [ClientInternalEventName.Render]: () => void;
   [ClientInternalEventName.Click]: (options: IClickOptions) => void;
+  [ClientInternalEventName.SyncedMetaChange]: (entity: IEntity, key: string, value: unknown, oldValue: unknown) => void;
 }

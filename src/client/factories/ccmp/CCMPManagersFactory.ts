@@ -15,6 +15,7 @@ import { CCMPUiManager } from "@RockMod/client/game/ccmp/ui/CCMPUiManager";
 import { CCMPPathfindManager } from "@RockMod/client/game/ccmp/pathfind/CCMPPathfindManager";
 import { CCMPZoneManager } from "@RockMod/client/game/ccmp/zone/CCMPZoneManager";
 import { CCMPNativeCallerManager } from "@RockMod/client/game/ccmp/native/CCMPNativeCallerManager";
+import { CCMPSyncedMetaBridge } from "@RockMod/client/net/ccmp/events/CCMPSyncedMetaBridge";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -69,7 +70,13 @@ export class CCMPManagersFactory implements IManagersFactory {
 
   public createPlayersManager(): ManagerReturn<"createPlayersManager"> {
     const netManager = this._requireNetManager("createPlayersManager");
-    return new CCMPPlayersManager(netManager.events);
+    const playersManager = new CCMPPlayersManager(netManager.events);
+    // Bridge для `streamSyncedMetaChange` создаётся здесь — ему нужен
+    // players manager для резолва `entityId → CCMPPlayer`, а events bus
+    // — для эмиссии `rm::syncedMetaChange` (на который уже подписан
+    // `CCMPDataHandler`, инстанцированный в `CCMPNetManager`).
+    new CCMPSyncedMetaBridge(netManager.events, playersManager).register();
+    return playersManager;
   }
 
   public createUtilsManager(): ManagerReturn<"createUtilsManager"> {
