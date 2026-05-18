@@ -9,6 +9,7 @@ import { CCMPControlsManager } from "@RockMod/client/game/ccmp/controls/CCMPCont
 import { CCMPPlayersManager } from "@RockMod/client/entities/ccmp/player/CCMPPlayersManager";
 import { CCMPPedsManager } from "@RockMod/client/entities/ccmp/ped/CCMPPedsManager";
 import { CCMPUtilsManager } from "@RockMod/client/utils/ccmp/CCMPUtilsManager";
+import { CCMPGraphicsManager } from "@RockMod/client/game/ccmp/graphics/CCMPGraphicsManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -107,7 +108,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createGraphicsManager(): ManagerReturn<"createGraphicsManager"> {
-    return createNotImplementedProxy("CCMPGraphicsManager");
+    return new CCMPGraphicsManager();
   }
 
   public createNativeManager(): ManagerReturn<"createNativeManager"> {
