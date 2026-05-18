@@ -101,6 +101,30 @@ export class CCMPEventsManager implements IEventsManager {
     this._internalEmitter.emit(eventName as string, ...(args as unknown[]));
   }
 
+  /**
+   * Sticky-вариант `emitInternal`. Кэширует последнее значение, чтобы поздние
+   * подписчики (`onInternal`) получили его сразу при подписке. Использовать
+   * для one-shot lifecycle-событий (`rm::playerReady` и т.п.), где гонка между
+   * "событие случилось" и "подписчик зарегистрирован" критична.
+   *
+   * См. `CCMPInProcessEmitter.emitSticky` для подробностей семантики.
+   */
+  public emitInternalSticky<K extends keyof IClientInternalEvents>(
+    eventName: K,
+    ...args: Parameters<IClientInternalEvents[K]>
+  ): void {
+    this._internalEmitter.emitSticky(eventName as string, ...(args as unknown[]));
+  }
+
+  /**
+   * Очищает sticky-кэш для конкретного internal-события. Использовать на
+   * disconnect/reset чтобы новые подписчики не получали устаревший local-
+   * player-stub после реконнекта.
+   */
+  public clearInternalSticky<K extends keyof IClientInternalEvents>(eventName: K): void {
+    this._internalEmitter.clearSticky(eventName as string);
+  }
+
   // -- Server <-> Client ----------------------------------------------------
 
   public onServer(events: Partial<IServerToClientEvents>): void {

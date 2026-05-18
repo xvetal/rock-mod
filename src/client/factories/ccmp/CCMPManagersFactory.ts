@@ -5,6 +5,7 @@ import { CCMPStorageManager } from "@RockMod/client/game/ccmp/storage/CCMPStorag
 import { CCMPKeysManager } from "@RockMod/client/game/ccmp/keys/CCMPKeysManager";
 import { CCMPNametagsManager } from "@RockMod/client/game/ccmp/nametags/CCMPNametagsManager";
 import { CCMPChatManager } from "@RockMod/client/game/ccmp/chat/CCMPChatManager";
+import { CCMPPlayersManager } from "@RockMod/client/entities/ccmp/player/CCMPPlayersManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -12,8 +13,29 @@ type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] exten
   : never;
 
 export class CCMPManagersFactory implements IManagersFactory {
+  /**
+   * Сохраняем созданный `CCMPNetManager` потому что другим менеджерам
+   * (например, `CCMPPlayersManager`) нужен доступ к его событиям. Порядок
+   * создания в `RockMod` гарантирует, что `createNetManager` вызывается
+   * первым — мы можем безопасно полагаться на наличие `_netManager` в
+   * последующих фабричных методах.
+   */
+  private _netManager: CCMPNetManager | null = null;
+
   public createNetManager(): ManagerReturn<"createNetManager"> {
-    return new CCMPNetManager();
+    this._netManager = new CCMPNetManager();
+    return this._netManager;
+  }
+
+  private _requireNetManager(forMethod: string): CCMPNetManager {
+    if (!this._netManager) {
+      throw new Error(
+        `CCMPManagersFactory.${forMethod}: ` +
+          "createNetManager() ещё не вызывался. Это нарушение контракта порядка " +
+          "фабричных методов в RockMod-конструкторе.",
+      );
+    }
+    return this._netManager;
   }
 
   public createBlipsManager(): ManagerReturn<"createBlipsManager"> {
@@ -37,7 +59,8 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createPlayersManager(): ManagerReturn<"createPlayersManager"> {
-    return createNotImplementedProxy("CCMPPlayersManager");
+    const netManager = this._requireNetManager("createPlayersManager");
+    return new CCMPPlayersManager(netManager.events);
   }
 
   public createUtilsManager(): ManagerReturn<"createUtilsManager"> {
