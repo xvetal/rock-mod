@@ -5,6 +5,7 @@ import { CCMPStorageManager } from "@RockMod/client/game/ccmp/storage/CCMPStorag
 import { CCMPKeysManager } from "@RockMod/client/game/ccmp/keys/CCMPKeysManager";
 import { CCMPNametagsManager } from "@RockMod/client/game/ccmp/nametags/CCMPNametagsManager";
 import { CCMPChatManager } from "@RockMod/client/game/ccmp/chat/CCMPChatManager";
+import { CCMPControlsManager } from "@RockMod/client/game/ccmp/controls/CCMPControlsManager";
 import { CCMPPlayersManager } from "@RockMod/client/entities/ccmp/player/CCMPPlayersManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
@@ -120,7 +121,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createControlsManager(): ManagerReturn<"createControlsManager"> {
-    return createNotImplementedProxy("CCMPControlsManager");
+    return new CCMPControlsManager();
   }
 
   public createKeysManager(): ManagerReturn<"createKeysManager"> {
