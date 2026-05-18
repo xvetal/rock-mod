@@ -14,6 +14,7 @@ import { CCMPGraphicsManager } from "@RockMod/client/game/ccmp/graphics/CCMPGrap
 import { CCMPUiManager } from "@RockMod/client/game/ccmp/ui/CCMPUiManager";
 import { CCMPPathfindManager } from "@RockMod/client/game/ccmp/pathfind/CCMPPathfindManager";
 import { CCMPZoneManager } from "@RockMod/client/game/ccmp/zone/CCMPZoneManager";
+import { CCMPNativeCallerManager } from "@RockMod/client/game/ccmp/native/CCMPNativeCallerManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -116,7 +117,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createNativeManager(): ManagerReturn<"createNativeManager"> {
-    return createNotImplementedProxy("CCMPNativeCallerManager");
+    return new CCMPNativeCallerManager();
   }
 
   public createStreamingManager(): ManagerReturn<"createStreamingManager"> {

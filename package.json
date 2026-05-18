@@ -37,6 +37,7 @@
   },
   "scripts": {
     "start": "npx tsx src/server/index.ts",
+    "generate:natives": "node scripts/generate-native-dispatch.mjs",
     "build": "npm run build:shared && npm run build:server && npm run build:client",
     "build:shared": "tsc --project src/shared/tsconfig.json",
     "build:server": "tsc --project src/server/tsconfig.json",
