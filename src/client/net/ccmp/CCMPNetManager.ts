@@ -60,7 +60,10 @@ export class CCMPNetManager implements INetManager {
 
     this._eventsManager = new CCMPEventsManager();
     this._rpcManager = new CCMPRPCManager();
-    this._dataHandler = new CCMPDataHandler();
+    // DataHandler сначала, чтобы он успел подписаться на internal-bus до
+    // первых эмиссий `rm::syncedMetaChange` от `CCMPSyncedMetaBridge`
+    // (создаётся позже в `CCMPManagersFactory.createPlayersManager`).
+    this._dataHandler = new CCMPDataHandler(this._eventsManager);
     this._bridge = new CCMPEventsBridge(this._eventsManager);
     this._renderTicker = new CCMPRenderTicker();
 

@@ -89,6 +89,20 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
     return this.mpEntity.getVariable(name);
   }
 
+  public getSyncedMeta(key: string): unknown | undefined {
+    const value = this.mpEntity.getVariable(key);
+    return value === null ? undefined : value;
+  }
+
+  public hasSyncedMeta(key: string): boolean {
+    return this.mpEntity.getVariable(key) !== null;
+  }
+
+  public getSyncedMetaKeys(): readonly string[] {
+    // RageMP не экспонирует список ключей синхронно — возвращаем пустой массив.
+    return [];
+  }
+
   public attachToEntity(
     target: IBaseObject,
     boneIndex: number,
