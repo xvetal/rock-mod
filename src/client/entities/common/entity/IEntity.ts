@@ -23,6 +23,9 @@ export interface IEntity extends IWorldObject {
   getBoneIndexByName(boneName: string): number;
   getWorldPositionOfBone(boneIndex: number): IVector3D;
   getVariable(name: string): unknown | null;
+  getSyncedMeta(key: string): unknown | undefined;
+  hasSyncedMeta(key: string): boolean;
+  getSyncedMetaKeys(): readonly string[];
 
   attachToEntity(
     target: IBaseObject,

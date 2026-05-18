@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/// <reference types="@classic-mp/types/client" />
 import { BaseObjectType } from "@shared/entities";
 import { type IBaseObject } from "../../common/baseObject/IBaseObject";
 import { type IPlayer } from "../../common/player/IPlayer";
@@ -197,8 +198,21 @@ export class CCMPPlayer implements IPlayer {
     return ZERO_VECTOR;
   }
 
-  public getVariable(_name: string): unknown | null {
-    return null;
+  public getVariable(name: string): unknown | null {
+    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Player, this._id, name);
+    return value === undefined ? null : value;
+  }
+
+  public getSyncedMeta(key: string): unknown | undefined {
+    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Player, this._id, key);
+  }
+
+  public hasSyncedMeta(key: string): boolean {
+    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Player, this._id, key);
+  }
+
+  public getSyncedMetaKeys(): readonly string[] {
+    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Player, this._id);
   }
 
   public attachToEntity(
