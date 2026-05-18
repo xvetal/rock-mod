@@ -8,6 +8,7 @@ import { CCMPChatManager } from "@RockMod/client/game/ccmp/chat/CCMPChatManager"
 import { CCMPControlsManager } from "@RockMod/client/game/ccmp/controls/CCMPControlsManager";
 import { CCMPPlayersManager } from "@RockMod/client/entities/ccmp/player/CCMPPlayersManager";
 import { CCMPPedsManager } from "@RockMod/client/entities/ccmp/ped/CCMPPedsManager";
+import { CCMPVehiclesManager } from "@RockMod/client/entities/ccmp/vehicle/CCMPVehiclesManager";
 import { CCMPUtilsManager } from "@RockMod/client/utils/ccmp/CCMPUtilsManager";
 import { CCMPGraphicsManager } from "@RockMod/client/game/ccmp/graphics/CCMPGraphicsManager";
 import { CCMPUiManager } from "@RockMod/client/game/ccmp/ui/CCMPUiManager";
@@ -73,7 +74,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createVehiclesManager(): ManagerReturn<"createVehiclesManager"> {
-    return createNotImplementedProxy("CCMPVehiclesManager");
+    return new CCMPVehiclesManager();
   }
 
   public createBrowserManager(): ManagerReturn<"createBrowserManager"> {
