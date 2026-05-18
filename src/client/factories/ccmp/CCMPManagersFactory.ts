@@ -12,6 +12,7 @@ import { CCMPVehiclesManager } from "@RockMod/client/entities/ccmp/vehicle/CCMPV
 import { CCMPUtilsManager } from "@RockMod/client/utils/ccmp/CCMPUtilsManager";
 import { CCMPGraphicsManager } from "@RockMod/client/game/ccmp/graphics/CCMPGraphicsManager";
 import { CCMPUiManager } from "@RockMod/client/game/ccmp/ui/CCMPUiManager";
+import { CCMPPathfindManager } from "@RockMod/client/game/ccmp/pathfind/CCMPPathfindManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -150,7 +151,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createPathfindManager(): ManagerReturn<"createPathfindManager"> {
-    return createNotImplementedProxy("CCMPPathfindManager");
+    return new CCMPPathfindManager();
   }
 
   public createZoneManager(): ManagerReturn<"createZoneManager"> {
