@@ -29,6 +29,10 @@ export class CCMPChatManager implements IChatManager {
     this._warnOnce("show", state);
   }
 
+  public push(text: string): void {
+    ccmp.notify(text);
+  }
+
   private _warnOnce(method: "activate" | "show", state: boolean): void {
     if (this._warned) {
       return;
