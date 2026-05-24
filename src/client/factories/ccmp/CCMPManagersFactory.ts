@@ -18,6 +18,7 @@ import { CCMPNativeCallerManager } from "@RockMod/client/game/ccmp/native/CCMPNa
 import { CCMPGuiManager } from "@RockMod/client/game/ccmp/gui/CCMPGuiManager";
 import { CCMPRaycastingManager } from "@RockMod/client/game/ccmp/raycasting/CCMPRaycastingManager";
 import { CCMPSyncedMetaBridge } from "@RockMod/client/net/ccmp/events/CCMPSyncedMetaBridge";
+import { CCMPCameraManager } from "@RockMod/client/entities/ccmp/camera/CCMPCameraManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -114,7 +115,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createCameraManager(): ManagerReturn<"createCameraManager"> {
-    return createNotImplementedProxy("CCMPCameraManager");
+    return new CCMPCameraManager();
   }
 
   public createStorageManager(): ManagerReturn<"createStorageManager"> {
