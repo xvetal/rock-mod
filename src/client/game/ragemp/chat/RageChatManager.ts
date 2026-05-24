@@ -8,4 +8,8 @@ export class RageChatManager implements IChatManager {
   public show(state: boolean): void {
     mp.gui.chat.show(state);
   }
+
+  public push(text: string): void {
+    mp.gui.chat.push(text);
+  }
 }
