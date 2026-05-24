@@ -20,6 +20,7 @@ import { CCMPRaycastingManager } from "@RockMod/client/game/ccmp/raycasting/CCMP
 import { CCMPSyncedMetaBridge } from "@RockMod/client/net/ccmp/events/CCMPSyncedMetaBridge";
 import { CCMPCameraManager } from "@RockMod/client/entities/ccmp/camera/CCMPCameraManager";
 import { CCMPStreamingManager } from "@RockMod/client/game/ccmp/streaming/CCMPStreamingManager";
+import { CCMPCursorManager } from "@RockMod/client/game/ccmp/cursor/CCMPCursorManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -100,7 +101,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createCursorManager(): ManagerReturn<"createCursorManager"> {
-    return createNotImplementedProxy("CCMPCursorManager");
+    return new CCMPCursorManager();
   }
 
   public createGuiManager(): ManagerReturn<"createGuiManager"> {
