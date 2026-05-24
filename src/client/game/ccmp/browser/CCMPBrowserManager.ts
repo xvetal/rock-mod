@@ -1,5 +1,34 @@
 import { type Browser as CcmpBrowser } from "@classic-mp/types/client";
-import { type IBrowserManager } from "../../common/browser/IBrowserManager";
+import { type IBrowserHandle, type IBrowserManager } from "../../common/browser/IBrowserManager";
+
+class CCMPBrowserHandle implements IBrowserHandle {
+  private _browser: CcmpBrowser | null;
+
+  public constructor(url: string) {
+    this._browser = ccmp.browsers.create(url);
+  }
+
+  public get isAlive(): boolean {
+    return this._browser !== null;
+  }
+
+  public destroy(): void {
+    if (!this._browser) {
+      return;
+    }
+
+    this._browser.destroy();
+    this._browser = null;
+  }
+
+  public execute(code: string): void {
+    if (!this._browser) {
+      return;
+    }
+
+    this._browser.executeJavaScript(code);
+  }
+}
 
 /**
  * Реализация `IBrowserManager` поверх нативного CCMP browser API.
@@ -16,22 +45,15 @@ import { type IBrowserManager } from "../../common/browser/IBrowserManager";
  * на единственный созданный браузер.
  */
 export class CCMPBrowserManager implements IBrowserManager {
-  private _browser: CcmpBrowser | null = null;
+  private _browser: IBrowserHandle | null = null;
 
   public create(url: string): void {
-    // На случай повторного create без destroy — закрываем предыдущий, чтобы
-    // не оставлять висящий CEF-инстанс (этот контракт зеркалит поведение
-    // `RageBrowserManager.create` — он тоже перезаписывает `_browser`).
-    if (this._browser) {
-      try {
-        this._browser.destroy();
-      } catch {
-        // Если CEF уже отвалился — игнорируем.
-      }
-      this._browser = null;
-    }
+    this.destroy();
+    this._browser = this.createInstance(url);
+  }
 
-    this._browser = ccmp.browsers.create(url);
+  public createInstance(url: string): IBrowserHandle {
+    return new CCMPBrowserHandle(url);
   }
 
   public destroy(): void {
@@ -46,6 +68,6 @@ export class CCMPBrowserManager implements IBrowserManager {
     if (!this._browser) {
       return;
     }
-    this._browser.executeJavaScript(code);
+    this._browser.execute(code);
   }
 }

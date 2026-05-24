@@ -15,6 +15,8 @@ import { CCMPUiManager } from "@RockMod/client/game/ccmp/ui/CCMPUiManager";
 import { CCMPPathfindManager } from "@RockMod/client/game/ccmp/pathfind/CCMPPathfindManager";
 import { CCMPZoneManager } from "@RockMod/client/game/ccmp/zone/CCMPZoneManager";
 import { CCMPNativeCallerManager } from "@RockMod/client/game/ccmp/native/CCMPNativeCallerManager";
+import { CCMPGuiManager } from "@RockMod/client/game/ccmp/gui/CCMPGuiManager";
+import { CCMPRaycastingManager } from "@RockMod/client/game/ccmp/raycasting/CCMPRaycastingManager";
 import { CCMPSyncedMetaBridge } from "@RockMod/client/net/ccmp/events/CCMPSyncedMetaBridge";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
@@ -100,11 +102,11 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createGuiManager(): ManagerReturn<"createGuiManager"> {
-    return createNotImplementedProxy("CCMPGuiManager");
+    return new CCMPGuiManager();
   }
 
   public createRaycastingManager(): ManagerReturn<"createRaycastingManager"> {
-    return createNotImplementedProxy("CCMPRaycastingManager");
+    return new CCMPRaycastingManager();
   }
 
   public createVoiceChatManager(): ManagerReturn<"createVoiceChatManager"> {
