@@ -161,8 +161,8 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     notImplemented("CCMPPlayer.spawn");
   }
 
-  public setName(_name: string): void {
-    notImplemented("CCMPPlayer.setName");
+  public setName(name: string): void {
+    this._ccmpPlayer.name = name;
   }
 
   public setHeading(value: number): void {
