@@ -1,112 +1,112 @@
-import { type IPed } from "../../common/ped/IPed";
+/// <reference types="@classic-mp/types/client" />
+
 import { type IPedCreateOptions, type IPedsManager } from "../../common/ped/IPedsManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
+import { type Vector2D, type Vector3D } from "@shared/common/utils";
+import { CCMPPed } from "./CCMPPed";
 
-const EMPTY_PEDS: readonly IPed[] = [];
-
-/**
- * Реализация `IPedsManager` под CCMP — **пустой пул**.
- *
- * ### Почему пусто
- *
- * RageMP даёт `mp.peds.toArray()`/`mp.peds.at(id)` — JS-side pool из
- * stream'нутых-в-радиус ped'ов, заполняемый рантаймом. CCMP такого пула
- * на client-side не экспонирует: есть только native `ccmp.natives.ped.createPed`
- * (создаёт локальный handle без id/replication) и server-side `ccmp.peds.*`
- * (server-spawned NPC, реплицируются на клиентов, но клиент видит их не как
- * managed-IPed-инстансы, а как часть `Ped`-данных, которые рантайм рисует сам).
- *
- * Поэтому iterator всегда пустой, find* возвращает null, get* кидает.
- *
- * ### Hot path: `iterator.all()` на каждый render-tick
- *
- * Геймод-консьюмер `PedNametagController.render` → `PedNametagService.update`
- * → `PedRepository.getAllInRadius` → `PedRepository.getAll` → `iterator.all()`.
- * До этой реализации `PedsManager` был `createNotImplementedProxy`, и каждый
- * frame падал `CCMPPedsManager.iterator.all: not implemented yet`. Теперь
- * iterator возвращает пустой итератор — nametag-сервис тихо деградирует
- * (нет ped'ов в радиусе → нет nametag'ов).
- *
- * ### `create(...)` под CCMP
- *
- * Не реализован осознанно: `PedRepository.create(...)` в геймоде ожидает
- * `IRockModPed` с id/remoteId/position/etc, а CCMP-натив `createPed` возвращает
- * только handle без id-mapping'а. Для корректной поддержки нужен полноценный
- * `CCMPPed`-класс и интеграция с server-side `ccmp.peds.*` — отдельная задача
- * (см. TODO ниже). Сейчас бросаем понятную ошибку.
- *
- * TODO: когда понадобится spawning ped'ов из клиента (миссии, тестовые NPC)
- * — реализовать через `ccmp.natives.ped.createPed` + локальный id-counter +
- * `CCMPPed`-обёртку. Для синхронизированных ped'ов нужна server-side фабрика
- * с `ccmp.peds.create` и net-events для распространения id-mapping'а.
- */
 export class CCMPPedsManager implements IPedsManager {
-  // -- IPedsManager ---------------------------------------------------------
+  private readonly _peds = new Map<number, CCMPPed>();
 
-  public create(options: IPedCreateOptions): IPed {
-    void options;
-    throw new Error(
-      "CCMPPedsManager.create: создание ped'ов на client-side под CCMP не поддерживается. " +
-        "Используйте server-side `ccmp.peds.create` (см. server/entities/ccmp/ped/*), " +
-        "либо вызывайте `ccmp.natives.ped.createPed` напрямую для локального ped-handle.",
-    );
+  private readonly _iterator: IWorldObjectsIterator<CCMPPed> = {
+    all: (): IterableIterator<CCMPPed> => this._peds.values(),
+    dimension: (value: number): IterableIterator<CCMPPed> => this._filter((ped) => ped.dimension === value),
+    range2D: (center: Vector2D, range: number): IterableIterator<CCMPPed> =>
+      this._filter((ped) => {
+        const position = ped.position;
+        const squaredDistance = (position.x - center.x) ** 2 + (position.y - center.y) ** 2;
+        return squaredDistance <= range * range;
+      }),
+    range3D: (center: Vector3D, range: number): IterableIterator<CCMPPed> =>
+      this._filter((ped) => ped.position.isInRange(center, range)),
+  };
+
+  public create(options: IPedCreateOptions): CCMPPed {
+    const { model, position, rotation, dimension } = options;
+    const ccmpPed = ccmp.peds.create(model, position, rotation.z, { dimension });
+
+    if (!ccmpPed) {
+      throw new Error(`CCMPPedsManager.create: ccmp.peds.create failed for model "${model}"`);
+    }
+
+    const ped = new CCMPPed(ccmpPed);
+    this._peds.set(ped.id, ped);
+    return ped;
   }
-
-  // -- IEntitiesManager -----------------------------------------------------
 
   public syncWithMpPool(): void {
-    // No-op: client-side ped pool под CCMP отсутствует, синхронизировать нечего.
+    for (const ccmpPed of ccmp.peds.all) {
+      if (!this._peds.has(ccmpPed.id)) {
+        this._peds.set(ccmpPed.id, new CCMPPed(ccmpPed));
+      }
+    }
   }
 
-  public registerById(id: number): IPed {
-    throw new Error(
-      `CCMPPedsManager.registerById(${id}): client-side ped pool под CCMP отсутствует, ` +
-        "регистрировать ped по id невозможно.",
-    );
+  public registerById(id: number): CCMPPed {
+    const existingPed = this.findByID(id);
+    if (existingPed) {
+      return existingPed;
+    }
+
+    const ccmpPed = ccmp.peds.getById(id);
+    if (!ccmpPed) {
+      throw new Error(`CCMPPedsManager.registerById(${id}): ped not found.`);
+    }
+
+    const ped = new CCMPPed(ccmpPed);
+    this._peds.set(ped.id, ped);
+    return ped;
   }
 
-  public unregisterById(id: number): IPed {
-    throw new Error(
-      `CCMPPedsManager.unregisterById(${id}): client-side ped pool под CCMP отсутствует, ` +
-        "разрегистрировать ped по id невозможно.",
-    );
+  public unregisterById(id: number): CCMPPed {
+    return this.deleteById(id);
   }
 
-  // -- IBaseObjectsManager / IWorldObjectsManager ---------------------------
-
-  public findByID(id: number): IPed | null {
-    void id;
-    return null;
+  public findByID(id: number): CCMPPed | null {
+    const ped = this._peds.get(id) ?? null;
+    if (ped && !ped.isExists) {
+      this._peds.delete(id);
+      return null;
+    }
+    return ped;
   }
 
-  public getByID(id: number): IPed {
-    throw new Error(`CCMPPedsManager.getByID(${id}): ped не найден (пул пуст под CCMP).`);
+  public getByID(id: number): CCMPPed {
+    const ped = this.findByID(id);
+    if (!ped) {
+      throw new Error(`CCMPPedsManager.getByID(${id}): ped not found.`);
+    }
+    return ped;
   }
 
-  public findByRemoteID(remoteId: number): IPed | null {
-    void remoteId;
-    return null;
+  public findByRemoteID(remoteId: number): CCMPPed | null {
+    return remoteId === 0 ? null : this.findByID(remoteId);
   }
 
-  public getByRemoteID(remoteId: number): IPed {
-    throw new Error(`CCMPPedsManager.getByRemoteID(${remoteId}): ped не найден (пул пуст под CCMP).`);
+  public getByRemoteID(remoteId: number): CCMPPed {
+    const ped = this.findByRemoteID(remoteId);
+    if (!ped) {
+      throw new Error(`CCMPPedsManager.getByRemoteID(${remoteId}): ped not found.`);
+    }
+    return ped;
   }
 
-  public deleteById(id: number): IPed {
-    throw new Error(`CCMPPedsManager.deleteById(${id}): ped не найден (пул пуст под CCMP).`);
+  public deleteById(id: number): CCMPPed {
+    const ped = this.getByID(id);
+    ped.destroy();
+    this._peds.delete(id);
+    return ped;
   }
 
-  public get iterator(): IWorldObjectsIterator<IPed> {
+  public get iterator(): IWorldObjectsIterator<CCMPPed> {
     return this._iterator;
   }
 
-  // Iterator реализован inline и возвращает пустые итераторы — hot path
-  // `PedNametagController.render` → `PedRepository.getAllInRadius` теперь
-  // тихо деградирует вместо падения на каждом render-tick'е.
-  private readonly _iterator: IWorldObjectsIterator<IPed> = {
-    all: (): IterableIterator<IPed> => EMPTY_PEDS[Symbol.iterator](),
-    dimension: (): IterableIterator<IPed> => EMPTY_PEDS[Symbol.iterator](),
-    range2D: (): IterableIterator<IPed> => EMPTY_PEDS[Symbol.iterator](),
-    range3D: (): IterableIterator<IPed> => EMPTY_PEDS[Symbol.iterator](),
-  };
+  private *_filter(predicate: (ped: CCMPPed) => boolean): IterableIterator<CCMPPed> {
+    for (const ped of this._peds.values()) {
+      if (ped.isExists && predicate(ped)) {
+        yield ped;
+      }
+    }
+  }
 }
