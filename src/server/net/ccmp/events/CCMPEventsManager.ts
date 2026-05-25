@@ -3,6 +3,7 @@ import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IServerInternalEvents } from "../../common/events/types";
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
 import { type CCMPPlayer } from "../../../entities/ccmp/player/CCMPPlayer";
+import { RockMod } from "../../../RockMod";
 
 export interface ICCMPServerInternalEvents extends IServerInternalEvents, CcmpServerBuiltinEvents {}
 
@@ -34,8 +35,9 @@ export class CCMPEventsManager implements IEventsManager {
       // Разворачиваем массив обратно в позиционные аргументы. Скалярные/объектные
       // payload'ы прокидываем как единственный аргумент.
       ccmp.on(eventName, (player: unknown, data: unknown) => {
+        const rockModPlayer = this._getRockModPlayer(player);
         const args = Array.isArray(data) ? data : [data];
-        handler(player, ...args);
+        handler(rockModPlayer, ...args);
       });
     }
   }
@@ -63,5 +65,15 @@ export class CCMPEventsManager implements IEventsManager {
     ...args: Parameters<IServerToClientEvents[K]>
   ): void {
     ccmp.emitAllClients(eventName, args);
+  }
+
+  private _getRockModPlayer(player: unknown): CCMPPlayer {
+    const playerId = (player as { id?: unknown } | null)?.id;
+
+    if (typeof playerId !== "number") {
+      throw new Error("CCMPEventsManager.onClient: event sender does not contain numeric player id");
+    }
+
+    return RockMod.instance.players.getByID(playerId) as CCMPPlayer;
   }
 }
