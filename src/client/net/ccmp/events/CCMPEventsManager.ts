@@ -154,10 +154,12 @@ export class CCMPEventsManager implements IEventsManager {
   // -- Generic escape hatch -------------------------------------------------
 
   public register(event: string, listener: (...args: unknown[]) => void): void {
+    this._internalEmitter.on(event, listener);
     this._registerExternal(event, listener);
   }
 
   public unregister(event: string): void {
+    this._internalEmitter.off(event);
     this._unregisterExternal(event);
   }
 
