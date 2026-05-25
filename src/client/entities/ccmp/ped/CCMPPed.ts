@@ -5,7 +5,12 @@ import { type IBaseObject } from "../../common/baseObject/IBaseObject";
 import { type IPed } from "../../common/ped/IPed";
 
 export class CCMPPed implements IPed {
-  public constructor(private readonly _ccmpPed: CcmpPed) {}
+  private _destroyed = false;
+
+  public constructor(
+    private readonly _ccmpPed: CcmpPed,
+    private readonly _onDestroy: (ped: CCMPPed) => void = () => {},
+  ) {}
 
   public get id(): number {
     return this._ccmpPed.id;
@@ -20,7 +25,7 @@ export class CCMPPed implements IPed {
   }
 
   public get isExists(): boolean {
-    return this._ccmpPed.isAlive;
+    return !this._destroyed && this._ccmpPed.isAlive;
   }
 
   public get handle(): number {
@@ -28,7 +33,13 @@ export class CCMPPed implements IPed {
   }
 
   public destroy(): void {
+    if (this._destroyed) {
+      return;
+    }
+
+    this._destroyed = true;
     this._ccmpPed.destroy();
+    this._onDestroy(this);
   }
 
   public get position(): Vector3D {

@@ -1,5 +1,4 @@
-/// <reference types="@classic-mp/types/client" />
-
+import { type Ped as CcmpPed } from "@classic-mp/types/client";
 import { type IPedCreateOptions, type IPedsManager } from "../../common/ped/IPedsManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
@@ -9,7 +8,7 @@ export class CCMPPedsManager implements IPedsManager {
   private readonly _peds = new Map<number, CCMPPed>();
 
   private readonly _iterator: IWorldObjectsIterator<CCMPPed> = {
-    all: (): IterableIterator<CCMPPed> => this._peds.values(),
+    all: (): IterableIterator<CCMPPed> => this._filter(() => true),
     dimension: (value: number): IterableIterator<CCMPPed> => this._filter((ped) => ped.dimension === value),
     range2D: (center: Vector2D, range: number): IterableIterator<CCMPPed> =>
       this._filter((ped) => {
@@ -29,15 +28,15 @@ export class CCMPPedsManager implements IPedsManager {
       throw new Error(`CCMPPedsManager.create: ccmp.peds.create failed for model "${model}"`);
     }
 
-    const ped = new CCMPPed(ccmpPed);
-    this._peds.set(ped.id, ped);
-    return ped;
+    return this._register(ccmpPed);
   }
 
   public syncWithMpPool(): void {
+    this._pruneDestroyed();
+
     for (const ccmpPed of ccmp.peds.all) {
       if (!this._peds.has(ccmpPed.id)) {
-        this._peds.set(ccmpPed.id, new CCMPPed(ccmpPed));
+        this._register(ccmpPed);
       }
     }
   }
@@ -53,9 +52,7 @@ export class CCMPPedsManager implements IPedsManager {
       throw new Error(`CCMPPedsManager.registerById(${id}): ped not found.`);
     }
 
-    const ped = new CCMPPed(ccmpPed);
-    this._peds.set(ped.id, ped);
-    return ped;
+    return this._register(ccmpPed);
   }
 
   public unregisterById(id: number): CCMPPed {
@@ -94,7 +91,6 @@ export class CCMPPedsManager implements IPedsManager {
   public deleteById(id: number): CCMPPed {
     const ped = this.getByID(id);
     ped.destroy();
-    this._peds.delete(id);
     return ped;
   }
 
@@ -104,8 +100,29 @@ export class CCMPPedsManager implements IPedsManager {
 
   private *_filter(predicate: (ped: CCMPPed) => boolean): IterableIterator<CCMPPed> {
     for (const ped of this._peds.values()) {
-      if (ped.isExists && predicate(ped)) {
+      if (!ped.isExists) {
+        this._peds.delete(ped.id);
+        continue;
+      }
+
+      if (predicate(ped)) {
         yield ped;
+      }
+    }
+  }
+
+  private _register(ccmpPed: CcmpPed): CCMPPed {
+    const ped = new CCMPPed(ccmpPed, (destroyedPed) => {
+      this._peds.delete(destroyedPed.id);
+    });
+    this._peds.set(ped.id, ped);
+    return ped;
+  }
+
+  private _pruneDestroyed(): void {
+    for (const ped of this._peds.values()) {
+      if (!ped.isExists) {
+        this._peds.delete(ped.id);
       }
     }
   }
