@@ -3,8 +3,9 @@ import { type IObject } from "../../common/object/IObject";
 import { BaseObjectType } from "../../../../shared";
 import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { RockMod } from "../../../RockMod";
+import type { StreamSyncedMeta } from "@classic-mp/types/server";
 
-export interface ICCMPObjectNative {
+export interface ICCMPObjectNative extends StreamSyncedMeta {
   id: number;
   isExists: boolean;
   position: { x: number; y: number; z: number };
@@ -61,6 +62,10 @@ export class CCMPObject extends CCMPEntity implements IObject {
     return this._alpha;
   }
 
+  protected override get ccmpMeta(): ICCMPObjectNative {
+    return this._ccmpObject;
+  }
+
   public constructor(options: ICCMPObjectOptions) {
     super();
     this._ccmpObject = options.ccmpObject;
@@ -88,14 +93,6 @@ export class CCMPObject extends CCMPEntity implements IObject {
 
   public override setRotation(value: IVector3D): void {
     this._ccmpObject.rotation = { x: value.x, y: value.y, z: value.z };
-  }
-
-  public override getNetData(_name: string): unknown {
-    throw new Error("CCMPObject.getNetData: not supported by CCMP yet");
-  }
-
-  public override setNetData(_name: string, _value: unknown): void {
-    throw new Error("CCMPObject.setNetData: not supported by CCMP yet");
   }
 
   // CCMP runtime currently has no object alpha op; keep an API-level cache.

@@ -1,12 +1,15 @@
 import { type IEntity } from "../../common/entity/IEntity";
 import { CCMPWorldObject } from "../worldObject/CCMPWorldObject";
 import { type IVector3D } from "../../../../shared/common/utils/math/Vectors";
+import type { StreamSyncedMeta } from "@classic-mp/types/server";
 
 const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
 export abstract class CCMPEntity extends CCMPWorldObject implements IEntity {
+  protected abstract get ccmpMeta(): StreamSyncedMeta;
+
   public get model(): number {
     return notImplemented("CCMPEntity.model");
   }
@@ -23,11 +26,11 @@ export abstract class CCMPEntity extends CCMPWorldObject implements IEntity {
     notImplemented("CCMPEntity.setRotation");
   }
 
-  public getNetData(_name: string): unknown {
-    return notImplemented("CCMPEntity.getNetData");
+  public getNetData(name: string): unknown {
+    return this.ccmpMeta.getStreamSyncedMeta(name);
   }
 
-  public setNetData(_name: string, _value: unknown): void {
-    notImplemented("CCMPEntity.setNetData");
+  public setNetData(name: string, value: unknown): void {
+    this.ccmpMeta.setStreamSyncedMeta(name, value);
   }
 }
