@@ -28,6 +28,14 @@ class CCMPBrowserHandle implements IBrowserHandle {
 
     this._browser.executeJavaScript(code);
   }
+
+  public setOrderId(orderId: number): void {
+    if (!this._browser) {
+      return;
+    }
+
+    this._browser.setOrderId(orderId);
+  }
 }
 
 /**
