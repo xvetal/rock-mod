@@ -58,6 +58,10 @@ export class CCMPPed extends CCMPEntity implements IPed {
     return this._ccmpPed.armour;
   }
 
+  protected override get ccmpMeta(): CcmpPed {
+    return this._ccmpPed;
+  }
+
   public constructor(options: ICCMPPedOptions) {
     super();
     this._ccmpPed = options.ccmpPed;
@@ -98,13 +102,5 @@ export class CCMPPed extends CCMPEntity implements IPed {
 
   public setArmour(value: number): void {
     this._ccmpPed.armour = MathClamp(value, 0, 100);
-  }
-
-  public override getNetData(_name: string): unknown {
-    throw new Error("CCMPPed.getNetData: not supported by CCMP yet");
-  }
-
-  public override setNetData(_name: string, _value: unknown): void {
-    throw new Error("CCMPPed.setNetData: not supported by CCMP yet");
   }
 }

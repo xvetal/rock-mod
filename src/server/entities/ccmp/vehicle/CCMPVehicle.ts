@@ -104,6 +104,10 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     return passengers;
   }
 
+  protected override get ccmpMeta(): CcmpVehicle {
+    return this._ccmpVehicle;
+  }
+
   public constructor(options: ICCMPVehicleOptions) {
     super();
     this._ccmpVehicle = options.ccmpVehicle;
@@ -130,14 +134,6 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
 
   public override setRotation(value: IVector3D): void {
     this._ccmpVehicle.rotation = { x: value.x, y: value.y, z: value.z };
-  }
-
-  public override getNetData(_name: string): unknown {
-    throw new Error("CCMPVehicle.getNetData: not supported by CCMP yet");
-  }
-
-  public override setNetData(_name: string, _value: unknown): void {
-    throw new Error("CCMPVehicle.setNetData: not supported by CCMP yet");
   }
 
   public setBodyHealth(_value: number): void {

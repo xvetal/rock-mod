@@ -101,6 +101,10 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     return this._ccmpPlayer.ammo;
   }
 
+  protected override get ccmpMeta(): CcmpPlayer {
+    return this._ccmpPlayer;
+  }
+
   public get eyeColor(): number {
     return notImplemented("CCMPPlayer.eyeColor");
   }
@@ -133,14 +137,6 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
 
   public override setRotation(value: IVector3D): void {
     this._ccmpPlayer.heading = value.z;
-  }
-
-  public override getNetData(_name: string): unknown {
-    return notImplemented("CCMPPlayer.getNetData");
-  }
-
-  public override setNetData(_name: string, _value: unknown): void {
-    notImplemented("CCMPPlayer.setNetData");
   }
 
   public emitEvent<K extends keyof IServerToClientEvents>(
