@@ -1,5 +1,45 @@
 type Listener = (...args: unknown[]) => void;
 
+type CCMPCallbackProfiler = {
+  __ccmp_profileCallback?: (label: string, callback: Listener, args: unknown[], thresholdMs?: number) => void;
+  __ccmp_registerCallbackProfile?: (label: string, callback: Listener, site?: string) => void;
+};
+
+const RENDER_EVENT = "rm::render";
+const RENDER_LISTENER_WARN_THRESHOLD_MS = 10;
+
+function getCCMPCallbackProfiler(): CCMPCallbackProfiler {
+  return globalThis as CCMPCallbackProfiler;
+}
+
+function profileLabel(event: string): string {
+  return `rm internal "${event}"`;
+}
+
+function captureRegistrationSite(): string {
+  const stack = String(new Error().stack ?? "");
+  const lines = stack
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  for (const line of lines) {
+    if (
+      line === "Error" ||
+      line.includes("captureRegistrationSite") ||
+      line.includes("CCMPInProcessEmitter") ||
+      line.includes("getCCMPCallbackProfiler") ||
+      line.includes("profileLabel")
+    ) {
+      continue;
+    }
+
+    return line.replace(/^at\s+/, "");
+  }
+
+  return "<unknown>";
+}
+
 /**
  * Тонкий внутренний event bus.
  *
@@ -29,6 +69,11 @@ export class CCMPInProcessEmitter {
     }
 
     bucket.add(listener);
+    getCCMPCallbackProfiler().__ccmp_registerCallbackProfile?.(
+      profileLabel(event),
+      listener,
+      captureRegistrationSite(),
+    );
 
     // Sticky replay: если событие уже было эмитнуто как sticky — сразу
     // воспроизводим последнее значение новому подписчику. Это решает гонку
@@ -37,7 +82,7 @@ export class CCMPInProcessEmitter {
     const sticky = this._stickyCache.get(event);
     if (sticky !== undefined) {
       try {
-        listener(...sticky);
+        this._callListener(event, listener, sticky);
       } catch (error) {
         console.error(`[CCMPInProcessEmitter] sticky replay "${event}" failed for new subscriber:`, error);
       }
@@ -70,7 +115,7 @@ export class CCMPInProcessEmitter {
     // Копия на случай, если хендлер изменит реестр во время итерации.
     for (const listener of [...bucket]) {
       try {
-        listener(...args);
+        this._callListener(event, listener, args);
       } catch (error) {
         console.error(`[CCMPInProcessEmitter] listener "${event}" failed:`, error);
       }
@@ -101,5 +146,20 @@ export class CCMPInProcessEmitter {
    */
   public clearSticky(event: string): void {
     this._stickyCache.delete(event);
+  }
+
+  private _callListener(event: string, listener: Listener, args: unknown[]): void {
+    const profiler = getCCMPCallbackProfiler().__ccmp_profileCallback;
+    if (profiler) {
+      profiler(
+        profileLabel(event),
+        listener,
+        args,
+        event === RENDER_EVENT ? RENDER_LISTENER_WARN_THRESHOLD_MS : undefined,
+      );
+      return;
+    }
+
+    listener(...args);
   }
 }
