@@ -1,8 +1,7 @@
 import { CCMPEntity } from "../entity/CCMPEntity";
 import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { type CCMPVehicle } from "../vehicle/CCMPVehicle";
-import { type IServerToClientEvents } from "../../../../shared";
-import { BaseObjectType } from "../../../../shared";
+import { BaseObjectType, type IServerToClientEvents } from "../../../../shared";
 import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
 import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
@@ -235,12 +234,12 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     notImplemented("CCMPPlayer.kick");
   }
 
-  public playAnimation(_dictionary: string, _name: string, _speed: number, _flag: number): void {
-    notImplemented("CCMPPlayer.playAnimation");
+  public playAnimation(dictionary: string, name: string, speed: number, flag: number): void {
+    this._ccmpPlayer.playAnimation(dictionary, name, speed, flag);
   }
 
   public stopAnimation(): void {
-    notImplemented("CCMPPlayer.stopAnimation");
+    this._ccmpPlayer.stopAnimation();
   }
 
   public removeFromVehicle(): void {
