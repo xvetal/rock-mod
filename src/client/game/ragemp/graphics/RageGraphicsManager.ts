@@ -1,4 +1,9 @@
-import { type IGraphicsManager, type IScreenTextOptions } from "@RockMod/client/game";
+import {
+  type IGraphicsManager,
+  type ILoopedParticleFxAtCoordOptions,
+  type IParticleFxAtCoordOptions,
+  type IScreenTextOptions,
+} from "@RockMod/client/game";
 import { type IVector3D, type IVector2D, Vector2D } from "@shared/index";
 
 export class RageGraphicsManager implements IGraphicsManager {
@@ -33,6 +38,49 @@ export class RageGraphicsManager implements IGraphicsManager {
 
   public stopScreenEffect(effectName: string): void {
     mp.game.graphics.stopScreenEffect(effectName);
+  }
+
+  public setPtfxAssetNextCall(assetName: string): void {
+    mp.game.graphics.setPtfxAssetNextCall(assetName);
+  }
+
+  public startParticleFxNonLoopedAtCoord(options: IParticleFxAtCoordOptions): boolean {
+    return Boolean(
+      mp.game.graphics.startParticleFxNonLoopedAtCoord(
+        options.effectName,
+        options.position.x,
+        options.position.y,
+        options.position.z,
+        options.rotation.x,
+        options.rotation.y,
+        options.rotation.z,
+        options.scale,
+        options.xAxis,
+        options.yAxis,
+        options.zAxis,
+      ),
+    );
+  }
+
+  public startParticleFxLoopedAtCoord(options: ILoopedParticleFxAtCoordOptions): number {
+    return mp.game.graphics.startParticleFxLoopedAtCoord(
+      options.effectName,
+      options.position.x,
+      options.position.y,
+      options.position.z,
+      options.rotation.x,
+      options.rotation.y,
+      options.rotation.z,
+      options.scale,
+      options.xAxis,
+      options.yAxis,
+      options.zAxis,
+      options.p11,
+    );
+  }
+
+  public stopParticleFxLooped(handle: number, p1: boolean): void {
+    mp.game.graphics.stopParticleFxLooped(handle, p1);
   }
 
   public getSafeZoneSize(): number {

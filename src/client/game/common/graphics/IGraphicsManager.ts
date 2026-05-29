@@ -8,11 +8,29 @@ export interface IScreenTextOptions {
   centre: boolean;
 }
 
+export interface IParticleFxAtCoordOptions {
+  effectName: string;
+  position: IVector3D;
+  rotation: IVector3D;
+  scale: number;
+  xAxis: boolean;
+  yAxis: boolean;
+  zAxis: boolean;
+}
+
+export interface ILoopedParticleFxAtCoordOptions extends IParticleFxAtCoordOptions {
+  p11: boolean;
+}
+
 export interface IGraphicsManager {
   drawText(text: string, position: IVector2D, options?: IScreenTextOptions): void;
   world3dToScreen2d(position: IVector3D): IVector2D | null;
   startScreenEffect(effectName: string, duration: number, looped: boolean): void;
   stopScreenEffect(effectName: string): void;
+  setPtfxAssetNextCall(assetName: string): void;
+  startParticleFxNonLoopedAtCoord(options: IParticleFxAtCoordOptions): boolean;
+  startParticleFxLoopedAtCoord(options: ILoopedParticleFxAtCoordOptions): number;
+  stopParticleFxLooped(handle: number, p1: boolean): void;
   getSafeZoneSize(): number;
   getActiveScreenResolution(): IVector2D;
 }
