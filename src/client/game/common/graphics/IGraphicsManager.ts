@@ -1,5 +1,7 @@
 import { type IRGBA, type IVector2D, type IVector3D } from "@shared/common/utils";
 
+export type IParticleFxVector3D = Pick<IVector3D, "x" | "y" | "z">;
+
 export interface IScreenTextOptions {
   font: number;
   color: IRGBA;
@@ -10,8 +12,8 @@ export interface IScreenTextOptions {
 
 export interface IParticleFxAtCoordOptions {
   effectName: string;
-  position: IVector3D;
-  rotation: IVector3D;
+  position: IParticleFxVector3D;
+  rotation: IParticleFxVector3D;
   scale: number;
   xAxis: boolean;
   yAxis: boolean;
