@@ -15,6 +15,14 @@ export class CCMPStreamingManager implements IStreamingManager {
     ccmp.natives.streaming.removeAnimDict(dictionary);
   }
 
+  public requestNamedPtfxAsset(assetName: string): void {
+    ccmp.natives.streaming.requestNamedPtfxAsset(assetName);
+  }
+
+  public hasNamedPtfxAssetLoaded(assetName: string): boolean {
+    return ccmp.natives.streaming.hasNamedPtfxAssetLoaded(assetName);
+  }
+
   public isModelInCdimage(model: string): boolean {
     return ccmp.natives.streaming.isModelInCdimage(ccmp.natives.misc.getHashKey(model));
   }

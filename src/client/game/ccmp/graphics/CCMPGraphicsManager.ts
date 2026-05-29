@@ -1,6 +1,11 @@
 /// <reference types="@classic-mp/types/client" />
 
-import { type IGraphicsManager, type IScreenTextOptions } from "../../common/graphics/IGraphicsManager";
+import {
+  type IGraphicsManager,
+  type ILoopedParticleFxAtCoordOptions,
+  type IParticleFxAtCoordOptions,
+  type IScreenTextOptions,
+} from "../../common/graphics/IGraphicsManager";
 import { type IVector2D, type IVector3D, Vector2D } from "@shared/common/utils";
 
 /**
@@ -94,6 +99,47 @@ export class CCMPGraphicsManager implements IGraphicsManager {
 
   public stopScreenEffect(effectName: string): void {
     ccmp.natives.graphics.animpostfxStop(effectName);
+  }
+
+  public setPtfxAssetNextCall(assetName: string): void {
+    ccmp.natives.graphics.useParticleFxAsset(assetName);
+  }
+
+  public startParticleFxNonLoopedAtCoord(options: IParticleFxAtCoordOptions): boolean {
+    return ccmp.natives.graphics.startParticleFxNonLoopedAtCoord(
+      options.effectName,
+      options.position.x,
+      options.position.y,
+      options.position.z,
+      options.rotation.x,
+      options.rotation.y,
+      options.rotation.z,
+      options.scale,
+      options.xAxis,
+      options.yAxis,
+      options.zAxis,
+    );
+  }
+
+  public startParticleFxLoopedAtCoord(options: ILoopedParticleFxAtCoordOptions): number {
+    return ccmp.natives.graphics.startParticleFxLoopedAtCoord(
+      options.effectName,
+      options.position.x,
+      options.position.y,
+      options.position.z,
+      options.rotation.x,
+      options.rotation.y,
+      options.rotation.z,
+      options.scale,
+      options.xAxis,
+      options.yAxis,
+      options.zAxis,
+      options.p11,
+    );
+  }
+
+  public stopParticleFxLooped(handle: number, p1: boolean): void {
+    ccmp.natives.graphics.stopParticleFxLooped(handle, p1);
   }
 
   public getSafeZoneSize(): number {
