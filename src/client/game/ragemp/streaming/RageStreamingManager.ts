@@ -14,6 +14,14 @@ export class RageStreamingManager implements IStreamingManager {
     mp.game.streaming.removeAnimDict(dictionary);
   }
 
+  public requestNamedPtfxAsset(assetName: string): void {
+    mp.game.streaming.requestNamedPtfxAsset(assetName);
+  }
+
+  public hasNamedPtfxAssetLoaded(assetName: string): boolean {
+    return mp.game.streaming.hasNamedPtfxAssetLoaded(assetName);
+  }
+
   public isModelInCdimage(model: string): boolean {
     const modelHash = mp.game.joaat(model);
     return mp.game.streaming.isModelInCdimage(modelHash);

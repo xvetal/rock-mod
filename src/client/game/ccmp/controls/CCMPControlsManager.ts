@@ -34,8 +34,20 @@ export class CCMPControlsManager implements IControlsManager {
     return ccmp.natives.pad.isDisabledControlPressed(padIndex, control);
   }
 
+  public isDisabledControlJustPressed(padIndex: number, control: number): boolean {
+    return ccmp.natives.pad.isDisabledControlJustPressed(padIndex, control);
+  }
+
   public isControlPressed(padIndex: number, control: number): boolean {
     return ccmp.natives.pad.isControlPressed(padIndex, control);
+  }
+
+  public isControlJustPressed(padIndex: number, control: number): boolean {
+    return ccmp.natives.pad.isControlJustPressed(padIndex, control);
+  }
+
+  public isControlJustReleased(padIndex: number, control: number): boolean {
+    return ccmp.natives.pad.isControlJustReleased(padIndex, control);
   }
 
   public getDisabledControlNormal(padIndex: number, control: number): number {
