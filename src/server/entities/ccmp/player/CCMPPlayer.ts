@@ -165,7 +165,7 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public setHealth(value: number): void {
-    this._ccmpPlayer.health = MathClamp(value, 0, 200);
+    this._ccmpPlayer.health = MathClamp(value, 0, 100);
   }
 
   public setArmour(value: number): void {
