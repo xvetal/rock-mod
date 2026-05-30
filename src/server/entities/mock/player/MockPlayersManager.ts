@@ -111,7 +111,8 @@ export class MockPlayersManager extends MockEntitiesManager<MockPlayer> implemen
       throw new Error(`Player with id ${player.id} not found`);
     }
 
-    RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerQuit, player, "disconnect", "");
     this.unregisterBaseObject(player);
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
   }
 }
