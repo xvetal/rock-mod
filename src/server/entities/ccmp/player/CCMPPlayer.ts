@@ -230,8 +230,8 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     notImplemented("CCMPPlayer.setHairColor");
   }
 
-  public kick(_reason?: string): void {
-    notImplemented("CCMPPlayer.kick");
+  public kick(reason?: string): void {
+    this._ccmpPlayer.kick(reason ?? "");
   }
 
   public playAnimation(dictionary: string, name: string, speed: number, flag: number): void {
