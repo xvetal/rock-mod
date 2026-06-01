@@ -1,6 +1,7 @@
 /// <reference types="@classic-mp/types/client" />
 import { type CCMPEventsManager } from "@RockMod/client/net/ccmp/events/CCMPEventsManager";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
+import { type Vector2D, type Vector3D } from "@shared/common/utils";
 import { type IPlayer } from "../../common/player/IPlayer";
 import { type IPlayersManager } from "../../common/player/IPlayersManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
@@ -11,8 +12,6 @@ interface ICCMPNativePlayer {
   readonly name: string;
   readonly socialClub?: string;
 }
-
-const EMPTY_PLAYERS: readonly CCMPPlayer[] = [];
 
 /**
  * Реализация `IPlayersManager` под CCMP — single source of truth для
@@ -87,6 +86,8 @@ export class CCMPPlayersManager implements IPlayersManager {
         }
       },
     });
+
+    this._registerNativePlayerEvents();
 
     // 2) Prepopulate уже-существующих remote-игроков из CCMP-runtime'а.
     // `ccmp.players.all` исключает local (см. js_runtime.rs::setup_globals).
@@ -219,6 +220,39 @@ export class CCMPPlayersManager implements IPlayersManager {
 
   // -- Внутреннее -----------------------------------------------------------
 
+  private _registerNativePlayerEvents(): void {
+    ccmp.on("playerConnected", (ccmpPlayer: ICCMPNativePlayer): void => {
+      const player = this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+      this._events.emitInternal(ClientInternalEventName.PlayerConnected, player);
+    });
+
+    ccmp.on("playerDisconnected", (ccmpPlayer: ICCMPNativePlayer): void => {
+      const player =
+        this._players.get(ccmpPlayer.id) ??
+        this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+
+      player.markRemoved();
+      this._players.delete(ccmpPlayer.id);
+      if (this._localPlayer === player) {
+        this._localPlayer = null;
+        this._events.clearInternalSticky(ClientInternalEventName.PlayerReady);
+      }
+      this._events.emitInternal(ClientInternalEventName.PlayerDisconnected, player);
+    });
+
+    ccmp.on("playerStreamIn", (ccmpPlayer: ICCMPNativePlayer): void => {
+      const player = this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+      this._events.emitInternal(ClientInternalEventName.EntityStreamIn, player);
+    });
+
+    ccmp.on("playerStreamOut", (ccmpPlayer: ICCMPNativePlayer): void => {
+      const player =
+        this._players.get(ccmpPlayer.id) ??
+        this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+      this._events.emitInternal(ClientInternalEventName.EntityStreamOut, player);
+    });
+  }
+
   /**
    * Идемпотентная точка создания/обновления CCMPPlayer. Все источники
    * (events, prepopulation, fast-path) проходят сюда.
@@ -289,17 +323,49 @@ export class CCMPPlayersManager implements IPlayersManager {
   // фильтрации игроков на JS-уровне.
   private readonly _iterator: IWorldObjectsIterator<CCMPPlayer> = {
     all: (): IterableIterator<CCMPPlayer> => this._players.values(),
-    dimension: (): IterableIterator<CCMPPlayer> => {
-      // У CCMPPlayer пока нет dimension — возвращаем всех (оптимистическая
-      // деградация: лучше показать игроков, чем скрыть).
-      return this._players.values();
-    },
-    range2D: (): IterableIterator<CCMPPlayer> => {
-      // У CCMPPlayer нет позиции — range-фильтрация невозможна.
-      return EMPTY_PLAYERS[Symbol.iterator]();
-    },
-    range3D: (): IterableIterator<CCMPPlayer> => {
-      return EMPTY_PLAYERS[Symbol.iterator]();
-    },
+    dimension: (value: number): IterableIterator<CCMPPlayer> => this._iterateDimension(value),
+    range2D: (center: Vector2D, range: number): IterableIterator<CCMPPlayer> => this._iterateRange2D(center, range),
+    range3D: (center: Vector3D, range: number): IterableIterator<CCMPPlayer> => this._iterateRange3D(center, range),
   };
+
+  private *_iterateDimension(value: number): IterableIterator<CCMPPlayer> {
+    for (const player of this._players.values()) {
+      if (player.dimension === value) {
+        yield player;
+      }
+    }
+  }
+
+  private *_iterateRange2D(center: Vector2D, range: number): IterableIterator<CCMPPlayer> {
+    const squaredRange = range * range;
+    for (const player of this._players.values()) {
+      if (!player.isExists || player.handle === 0) {
+        continue;
+      }
+
+      const position = player.position;
+      const dx = position.x - center.x;
+      const dy = position.y - center.y;
+      if (dx * dx + dy * dy <= squaredRange) {
+        yield player;
+      }
+    }
+  }
+
+  private *_iterateRange3D(center: Vector3D, range: number): IterableIterator<CCMPPlayer> {
+    const squaredRange = range * range;
+    for (const player of this._players.values()) {
+      if (!player.isExists || player.handle === 0) {
+        continue;
+      }
+
+      const position = player.position;
+      const dx = position.x - center.x;
+      const dy = position.y - center.y;
+      const dz = position.z - center.z;
+      if (dx * dx + dy * dy + dz * dz <= squaredRange) {
+        yield player;
+      }
+    }
+  }
 }
