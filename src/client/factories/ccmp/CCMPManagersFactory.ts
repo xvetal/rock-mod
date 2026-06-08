@@ -72,7 +72,8 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createPedsManager(): ManagerReturn<"createPedsManager"> {
-    return new CCMPPedsManager();
+    const netManager = this._requireNetManager("createPedsManager");
+    return new CCMPPedsManager(netManager.events);
   }
 
   public createPlayersManager(): ManagerReturn<"createPlayersManager"> {
