@@ -2,6 +2,8 @@ import { type IBaseObjectsManager, type IBaseObjectsManagerOptions } from "../..
 import { type CCMPBaseObject } from "./CCMPBaseObject";
 import { CCMPBaseObjectsIterator } from "./CCMPBaseObjectsIterator";
 import { type BaseObjectType } from "../../../../shared";
+import { RockMod } from "../../../RockMod";
+import { ServerInternalEventName } from "../../../net/common/events/types";
 
 export interface ICCMPBaseObjectsManagerOptions extends IBaseObjectsManagerOptions {}
 
@@ -49,15 +51,13 @@ export abstract class CCMPBaseObjectsManager<T extends CCMPBaseObject> implement
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} already exists`);
     }
     this._baseObjects.set(baseObject.id, baseObject);
-    // TODO: emit ServerInternalEventName.EntityCreated and broadcast EntityCreated DTO
-    // through net.events once CCMPEventsManager is implemented (parity with RageBaseObjectsManager).
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityCreated, baseObject);
   }
 
   protected unregisterBaseObject(baseObject: T): void {
     if (!this._baseObjects.delete(baseObject.id)) {
       throw new Error(`BaseObject [${this._baseObjectsType}] with id ${baseObject.id} not found`);
     }
-    // TODO: emit ServerInternalEventName.EntityDestroyed and broadcast EntityDestroyed DTO
-    // through net.events once CCMPEventsManager is implemented.
+    RockMod.instance.net.events.emitInternal(ServerInternalEventName.EntityDestroyed, baseObject);
   }
 }

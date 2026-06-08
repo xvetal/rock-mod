@@ -91,7 +91,7 @@ export class CCMPPedsManager implements IPedsManager {
   }
 
   public findByRemoteID(remoteId: number): CCMPPed | null {
-    return remoteId === 0 ? null : this.findByID(remoteId);
+    return this.findByID(remoteId);
   }
 
   public getByRemoteID(remoteId: number): CCMPPed {
