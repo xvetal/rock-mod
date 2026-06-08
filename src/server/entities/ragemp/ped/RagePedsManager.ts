@@ -21,7 +21,7 @@ export class RagePedsManager extends RageEntitiesManager<RagePed> implements IPe
     });
     mpEntity.isExists = (): boolean => mp.peds.exists(mpEntity);
 
-    const ped = new RagePed({ mpEntity });
+    const ped = new RagePed({ mpEntity, rotation });
     this.registerBaseObject(ped);
 
     return ped;

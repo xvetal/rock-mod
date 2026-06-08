@@ -23,7 +23,7 @@ export class RageVehiclesManager extends RageEntitiesManager<RageVehicle> implem
     mpEntity.rotation = new mp.Vector3(rotation);
     mpEntity.isExists = (): boolean => mp.vehicles.exists(mpEntity);
 
-    const vehicle = new RageVehicle({ mpEntity });
+    const vehicle = new RageVehicle({ mpEntity, rotation });
     this.registerBaseObject(vehicle);
 
     return vehicle;
