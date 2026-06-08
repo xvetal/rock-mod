@@ -21,7 +21,7 @@ export class RageObjectsManager extends RageEntitiesManager<RageObject> implemen
     });
     mpEntity.isExists = (): boolean => mp.objects.exists(mpEntity);
 
-    const object = new RageObject({ mpEntity });
+    const object = new RageObject({ mpEntity, rotation });
     this.registerBaseObject(object);
 
     return object;

@@ -11,8 +11,7 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
   }
 
   public get rotation(): Vector3D {
-    const { x, y, z } = this.mpEntity.rotation;
-    return new Vector3D(x, y, z);
+    return this._getNativeRotation() ?? this._getEntityRotationProperty() ?? new Vector3D(0, 0, this.heading);
   }
 
   protected constructor(options: IRageEntityOptions<T>) {
@@ -33,6 +32,10 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
 
   public setRotation(value: Vector3D): void {
     this.mpEntity.rotation = new mp.Vector3(value);
+
+    if (this._hasValidHandle()) {
+      mp.game.entity.setRotation(this.handle, value.x, value.y, value.z, 2, true);
+    }
   }
 
   public get forwardVector(): Vector3D {
@@ -144,5 +147,37 @@ export abstract class RageEntity<T extends EntityMp> extends RageWorldObject<T> 
 
   public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
     return mp.game.entity.isPlayingAnim(this.handle, dictionary, name, taskFlag);
+  }
+
+  private _getNativeRotation(): Vector3D | null {
+    if (!this._hasValidHandle()) return null;
+
+    try {
+      const rotation = mp.game.entity.getRotation(this.handle, 2);
+      if (!this._isVectorLike(rotation)) return null;
+      return new Vector3D(rotation.x, rotation.y, rotation.z);
+    } catch {
+      return null;
+    }
+  }
+
+  private _getEntityRotationProperty(): Vector3D | null {
+    const rotation = (this.mpEntity as { rotation?: unknown }).rotation;
+    if (!this._isVectorLike(rotation)) return null;
+    return new Vector3D(rotation.x, rotation.y, rotation.z);
+  }
+
+  private _hasValidHandle(): boolean {
+    return typeof this.handle === "number" && this.handle > 0;
+  }
+
+  private _isVectorLike(value: unknown): value is IVector3D {
+    return (
+      typeof value === "object" &&
+      value !== null &&
+      typeof (value as IVector3D).x === "number" &&
+      typeof (value as IVector3D).y === "number" &&
+      typeof (value as IVector3D).z === "number"
+    );
   }
 }
