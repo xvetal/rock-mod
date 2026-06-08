@@ -60,7 +60,7 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public get numberPlate(): string {
-    return notImplemented("CCMPVehicle.numberPlate");
+    return this._ccmpVehicle.numberPlateText;
   }
 
   public get isLocked(): boolean {
@@ -148,8 +148,8 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     this._ccmpVehicle.engineOn = value;
   }
 
-  public setNumberPlate(_value: string): void {
-    notImplemented("CCMPVehicle.setNumberPlate");
+  public setNumberPlate(value: string): void {
+    this._ccmpVehicle.numberPlateText = value;
   }
 
   public setLocked(_value: boolean): void {
@@ -196,8 +196,8 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     notImplemented("CCMPVehicle.setWheelType");
   }
 
-  public setPlateType(_plateType: number): void {
-    notImplemented("CCMPVehicle.setPlateType");
+  public setPlateType(plateType: number): void {
+    this._ccmpVehicle.numberPlateType = plateType;
   }
 
   public explode(): void {
