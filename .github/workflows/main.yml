@@ -4,12 +4,14 @@ on:
     branches:
       - stable
       - testing
-      - development
+      - dev
   pull_request:
     branches:
       - stable
       - testing
-      - development
+      - dev
+permissions:
+  contents: read
 jobs:
   main:
     name: Check
@@ -21,10 +23,12 @@ jobs:
     env:
       NODE_ENV: cicd
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: package-lock.json
       - name: Install Dependencies
         run: npm ci
       - name: Build project
