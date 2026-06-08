@@ -1,4 +1,6 @@
 import { type Ped as CcmpPed } from "@classic-mp/types/client";
+import { type CCMPEventsManager } from "@RockMod/client/net/ccmp/events/CCMPEventsManager";
+import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type IPedCreateOptions, type IPedsManager } from "../../common/ped/IPedsManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
@@ -19,6 +21,11 @@ export class CCMPPedsManager implements IPedsManager {
     range3D: (center: Vector3D, range: number): IterableIterator<CCMPPed> =>
       this._filter((ped) => ped.position.isInRange(center, range)),
   };
+
+  public constructor(private readonly _events: CCMPEventsManager) {
+    this._registerStreamEvents();
+    this.syncWithMpPool();
+  }
 
   public create(options: IPedCreateOptions): CCMPPed {
     const { model, position, rotation, dimension } = options;
@@ -63,9 +70,16 @@ export class CCMPPedsManager implements IPedsManager {
     const ped = this._peds.get(id) ?? null;
     if (ped && !ped.isExists) {
       this._peds.delete(id);
+    } else if (ped) {
+      return ped;
+    }
+
+    const ccmpPed = ccmp.peds.getById(id);
+    if (!ccmpPed) {
       return null;
     }
-    return ped;
+
+    return this._register(ccmpPed);
   }
 
   public getByID(id: number): CCMPPed {
@@ -112,11 +126,35 @@ export class CCMPPedsManager implements IPedsManager {
   }
 
   private _register(ccmpPed: CcmpPed): CCMPPed {
+    const existingPed = this._peds.get(ccmpPed.id) ?? null;
+    if (existingPed && existingPed.isExists) {
+      return existingPed;
+    }
+
     const ped = new CCMPPed(ccmpPed, (destroyedPed) => {
       this._peds.delete(destroyedPed.id);
     });
     this._peds.set(ped.id, ped);
     return ped;
+  }
+
+  private _registerStreamEvents(): void {
+    ccmp.on("pedStreamIn", (ccmpPed: CcmpPed | null) => {
+      if (ccmpPed) {
+        const ped = this._register(ccmpPed);
+        this._events.emitInternal(ClientInternalEventName.EntityStreamIn, ped);
+      }
+    });
+
+    ccmp.on("pedStreamOut", (ccmpPed: CcmpPed | null) => {
+      if (ccmpPed) {
+        const ped = this._peds.get(ccmpPed.id) ?? null;
+        if (ped) {
+          this._events.emitInternal(ClientInternalEventName.EntityStreamOut, ped);
+        }
+        this._peds.delete(ccmpPed.id);
+      }
+    });
   }
 
   private _pruneDestroyed(): void {
