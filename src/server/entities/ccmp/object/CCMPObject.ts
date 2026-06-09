@@ -12,6 +12,7 @@ export interface ICCMPObjectNative extends StreamSyncedMeta {
   rotation: { x: number; y: number; z: number };
   model: number;
   dimension: number;
+  alpha: number;
   destroy(): boolean;
 }
 
@@ -25,8 +26,6 @@ export class CCMPObject extends CCMPEntity implements IObject {
   private readonly _ccmpObject: ICCMPObjectNative;
 
   private readonly _onDestroy: (object: CCMPObject) => void;
-
-  private _alpha: number;
 
   public override get id(): number {
     return this._ccmpObject.id;
@@ -59,7 +58,7 @@ export class CCMPObject extends CCMPEntity implements IObject {
   }
 
   public get alpha(): number {
-    return this._alpha;
+    return this._ccmpObject.alpha;
   }
 
   protected override get ccmpMeta(): ICCMPObjectNative {
@@ -69,7 +68,7 @@ export class CCMPObject extends CCMPEntity implements IObject {
   public constructor(options: ICCMPObjectOptions) {
     super();
     this._ccmpObject = options.ccmpObject;
-    this._alpha = options.alpha;
+    this._ccmpObject.alpha = options.alpha;
     this._onDestroy = options.onDestroy;
   }
 
@@ -95,8 +94,7 @@ export class CCMPObject extends CCMPEntity implements IObject {
     this._ccmpObject.rotation = { x: value.x, y: value.y, z: value.z };
   }
 
-  // CCMP runtime currently has no object alpha op; keep an API-level cache.
   public setAlpha(value: number): void {
-    this._alpha = value;
+    this._ccmpObject.alpha = value;
   }
 }
