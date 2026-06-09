@@ -24,6 +24,13 @@ const notImplemented = (memberName: string): never => {
   throw new Error(`CCMPVehicle.${memberName}: not implemented`);
 };
 
+type CCMPVehicleNatives = typeof ccmp.natives.vehicle & {
+  setVehicleDashboardColor?: (vehicle: number, colorIndex: number) => void;
+  setVehicleDashboardColour?: (vehicle: number, colorIndex: number) => void;
+  setVehicleInteriorColor?: (vehicle: number, colorIndex: number) => void;
+  setVehicleInteriorColour?: (vehicle: number, colorIndex: number) => void;
+};
+
 export class CCMPVehicle implements IVehicle {
   private _destroyed = false;
 
@@ -289,56 +296,75 @@ export class CCMPVehicle implements IVehicle {
     notImplemented("setIsLocked");
   }
 
-  public setCustomPrimaryColour(_color: IRGB): void {
-    notImplemented("setCustomPrimaryColour");
+  public setCustomPrimaryColour(color: IRGB): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleCustomPrimaryColour(handle, color.r, color.g, color.b);
+    });
   }
 
-  public setCustomSecondaryColour(_color: IRGB): void {
-    notImplemented("setCustomSecondaryColour");
+  public setCustomSecondaryColour(color: IRGB): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleCustomSecondaryColour(handle, color.r, color.g, color.b);
+    });
   }
 
   public get customPrimaryColour(): IRGB {
-    return notImplemented("customPrimaryColour");
+    return this._withHandle({ r: 0, g: 0, b: 0 }, (handle) =>
+      ccmp.natives.vehicle.getVehicleCustomPrimaryColour(handle),
+    );
   }
 
   public get customSecondaryColour(): IRGB {
-    return notImplemented("customSecondaryColour");
+    return this._withHandle({ r: 0, g: 0, b: 0 }, (handle) =>
+      ccmp.natives.vehicle.getVehicleCustomSecondaryColour(handle),
+    );
   }
 
-  public setMod(_modType: number, _modIndex: number): void {
-    notImplemented("setMod");
+  public setMod(modType: number, modIndex: number): void {
+    this._withHandleVoid((handle) => {
+      this._setModKit(handle);
+      ccmp.natives.vehicle.setVehicleMod(handle, modType, modIndex, false);
+    });
   }
 
-  public getMod(_modType: number): number {
-    return notImplemented("getMod");
+  public getMod(modType: number): number {
+    return this._withHandle(-1, (handle) => ccmp.natives.vehicle.getVehicleMod(handle, modType));
   }
 
-  public getNumMods(_modType: number): number {
-    return notImplemented("getNumMods");
+  public getNumMods(modType: number): number {
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getNumVehicleMods(handle, modType));
   }
 
-  public setNeonLightEnabled(_index: number, _toggle: boolean): void {
-    notImplemented("setNeonLightEnabled");
+  public setNeonLightEnabled(index: number, toggle: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleNeonEnabled(handle, index, toggle);
+    });
   }
 
-  public setNeonLightsColour(_color: IRGB): void {
-    notImplemented("setNeonLightsColour");
+  public setNeonLightsColour(color: IRGB): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleNeonColour(handle, color.r, color.g, color.b);
+    });
   }
 
-  public setWindowTint(_tintType: number): void {
-    notImplemented("setWindowTint");
+  public setWindowTint(tintType: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleWindowTint(handle, tintType);
+    });
   }
 
   public get windowTint(): number {
-    return notImplemented("windowTint");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleWindowTint(handle));
   }
 
-  public setWheelType(_wheelType: number): void {
-    notImplemented("setWheelType");
+  public setWheelType(wheelType: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleWheelType(handle, wheelType);
+    });
   }
 
   public get wheelType(): number {
-    return notImplemented("wheelType");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleWheelType(handle));
   }
 
   public setNumberPlateTextIndex(_index: number): void {
@@ -381,32 +407,51 @@ export class CCMPVehicle implements IVehicle {
     notImplemented("setCheatPowerIncrease");
   }
 
-  public toggleMod(_modType: number, _toggle: boolean): void {
-    notImplemented("toggleMod");
+  public toggleMod(modType: number, toggle: boolean): void {
+    this._withHandleVoid((handle) => {
+      this._setModKit(handle);
+      ccmp.natives.vehicle.toggleVehicleMod(handle, modType, toggle);
+    });
   }
 
-  public setTyreSmokeColor(_r: number, _g: number, _b: number): void {
-    notImplemented("setTyreSmokeColor");
+  public setTyreSmokeColor(r: number, g: number, b: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleTyreSmokeColor(handle, r, g, b);
+    });
   }
 
-  public setModColor1(_paintType: number, _color: number, _p3: number): void {
-    notImplemented("setModColor1");
+  public setModColor1(paintType: number, color: number, p3: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleModColor1(handle, paintType, color, p3);
+    });
   }
 
   public setExtraColours(_pearlescentColor: number, _wheelColor: number): void {
     notImplemented("setExtraColours");
   }
 
-  public setHeadlightColor(_colorIndex: number): void {
-    notImplemented("setHeadlightColor");
+  public setHeadlightColor(colorIndex: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleXenonLightColorIndex(handle, colorIndex);
+    });
   }
 
-  public setDashboardColor(_colorIndex: number): void {
-    notImplemented("setDashboardColor");
+  public setDashboardColor(colorIndex: number): void {
+    this._withHandleVoid((handle) => {
+      const vehicleNatives = ccmp.natives.vehicle as CCMPVehicleNatives;
+      const setDashboardColor = vehicleNatives.setVehicleDashboardColor ?? vehicleNatives.setVehicleDashboardColour;
+      if (!setDashboardColor) return;
+      setDashboardColor(handle, colorIndex);
+    });
   }
 
-  public setInteriorColor(_colorIndex: number): void {
-    notImplemented("setInteriorColor");
+  public setInteriorColor(colorIndex: number): void {
+    this._withHandleVoid((handle) => {
+      const vehicleNatives = ccmp.natives.vehicle as CCMPVehicleNatives;
+      const setInteriorColor = vehicleNatives.setVehicleInteriorColor ?? vehicleNatives.setVehicleInteriorColour;
+      if (!setInteriorColor) return;
+      setInteriorColor(handle, colorIndex);
+    });
   }
 
   public getMaxBraking(): number {
@@ -441,6 +486,10 @@ export class CCMPVehicle implements IVehicle {
     }
 
     callback(handle);
+  }
+
+  private _setModKit(handle: number): void {
+    ccmp.natives.vehicle.setVehicleModKit(handle, 0);
   }
 
   private _getRemoteVehicleExists(): boolean {
