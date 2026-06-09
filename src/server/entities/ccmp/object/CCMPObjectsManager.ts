@@ -21,13 +21,12 @@ export class CCMPObjectsManager extends CCMPEntitiesManager<CCMPObject> implemen
       rotation.x,
       rotation.y,
       rotation.z,
+      { dimension, alpha },
     ) as ICCMPObjectNative | null;
 
     if (!ccmpObject) {
       throw new Error("CCMPObjectsManager.create: ccmp.objects.create failed (server full?)");
     }
-
-    ccmpObject.dimension = dimension;
 
     const object = new CCMPObject({
       ccmpObject,
