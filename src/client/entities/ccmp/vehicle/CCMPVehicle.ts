@@ -155,8 +155,11 @@ export class CCMPVehicle implements IVehicle {
     });
   }
 
-  public getOffsetFromInWorldCoords(_offsetX: number, _offsetY: number, _offsetZ: number): IVector3D {
-    return notImplemented("getOffsetFromInWorldCoords");
+  public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
+    return this._withHandle(this._getOffsetFromCachedTransform(offsetX, offsetY, offsetZ), (handle) => {
+      const { x, y, z } = ccmp.natives.entity.getOffsetFromEntityInWorldCoords(handle, offsetX, offsetY, offsetZ);
+      return new Vector3D(x, y, z);
+    });
   }
 
   public getBoneIndexByName(boneName: string): number {
@@ -446,5 +449,20 @@ export class CCMPVehicle implements IVehicle {
     } catch {
       return true;
     }
+  }
+
+  private _getOffsetFromCachedTransform(offsetX: number, offsetY: number, offsetZ: number): Vector3D {
+    const position = this.position;
+    const headingRad = (this.heading * Math.PI) / 180;
+    const rightX = Math.cos(headingRad);
+    const rightY = Math.sin(headingRad);
+    const forwardX = -Math.sin(headingRad);
+    const forwardY = Math.cos(headingRad);
+
+    return new Vector3D(
+      position.x + rightX * offsetX + forwardX * offsetY,
+      position.y + rightY * offsetX + forwardY * offsetY,
+      position.z + offsetZ,
+    );
   }
 }
