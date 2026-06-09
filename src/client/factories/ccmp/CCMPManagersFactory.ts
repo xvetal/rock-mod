@@ -10,6 +10,7 @@ import { CCMPPlayersManager } from "@RockMod/client/entities/ccmp/player/CCMPPla
 import { CCMPPedsManager } from "@RockMod/client/entities/ccmp/ped/CCMPPedsManager";
 import { CCMPVehiclesManager } from "@RockMod/client/entities/ccmp/vehicle/CCMPVehiclesManager";
 import { CCMPObjectsManager } from "@RockMod/client/entities/ccmp/object/CCMPObjectsManager";
+import { CCMPMarkersManager } from "@RockMod/client/entities/ccmp/marker/CCMPMarkersManager";
 import { CCMPUtilsManager } from "@RockMod/client/utils/ccmp/CCMPUtilsManager";
 import { CCMPGraphicsManager } from "@RockMod/client/game/ccmp/graphics/CCMPGraphicsManager";
 import { CCMPUiManager } from "@RockMod/client/game/ccmp/ui/CCMPUiManager";
@@ -65,7 +66,8 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createMarkersManager(): ManagerReturn<"createMarkersManager"> {
-    return createNotImplementedProxy("CCMPMarkersManager");
+    const netManager = this._requireNetManager("createMarkersManager");
+    return new CCMPMarkersManager(netManager.events);
   }
 
   public createObjectsManager(): ManagerReturn<"createObjectsManager"> {
