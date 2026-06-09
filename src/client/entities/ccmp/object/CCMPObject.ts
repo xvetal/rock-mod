@@ -53,8 +53,8 @@ export class CCMPObject implements IObject {
     return this._ccmpObject.dimension;
   }
 
-  public setPosition(_value: IVector3D): void {
-    notImplemented("setPosition");
+  public setPosition(value: IVector3D): void {
+    this.setCoords(value.x, value.y, value.z, false, false, false, false);
   }
 
   public setDimension(_value: number): void {
@@ -62,15 +62,17 @@ export class CCMPObject implements IObject {
   }
 
   public setCoords(
-    _xPos: number,
-    _yPos: number,
-    _zPos: number,
-    _xAxis: boolean,
-    _yAxis: boolean,
-    _zAxis: boolean,
-    _clearArea: boolean,
+    xPos: number,
+    yPos: number,
+    zPos: number,
+    xAxis: boolean,
+    yAxis: boolean,
+    zAxis: boolean,
+    clearArea: boolean,
   ): void {
-    notImplemented("setCoords");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityCoords(handle, xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
+    });
   }
 
   public get model(): number {
@@ -81,8 +83,10 @@ export class CCMPObject implements IObject {
     return this._ccmpObject.heading;
   }
 
-  public setHeading(_heading: number): void {
-    notImplemented("setHeading");
+  public setHeading(heading: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityHeading(handle, heading);
+    });
   }
 
   public setModel(_value: string): void {
@@ -99,36 +103,50 @@ export class CCMPObject implements IObject {
     return new Vector3D(-Math.sin(headingRad), Math.cos(headingRad), 0);
   }
 
-  public setRotation(_value: IVector3D): void {
-    notImplemented("setRotation");
+  public setRotation(value: IVector3D): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityRotation(handle, value.x, value.y, value.z, 2, true);
+    });
   }
 
-  public freezePosition(_freeze: boolean): void {
-    notImplemented("freezePosition");
+  public freezePosition(freeze: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.freezeEntityPosition(handle, freeze);
+    });
   }
 
-  public setCollision(_collision: boolean, _keepPhysics: boolean): void {
-    notImplemented("setCollision");
+  public setCollision(collision: boolean, keepPhysics: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityCollision(handle, collision, keepPhysics);
+    });
   }
 
-  public setInvincible(_invincible: boolean): void {
-    notImplemented("setInvincible");
+  public setInvincible(invincible: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityInvincible(handle, invincible, true);
+    });
   }
 
-  public setVisible(_visible: boolean): void {
-    notImplemented("setVisible");
+  public setVisible(visible: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityVisible(handle, visible, false);
+    });
   }
 
-  public setAlpha(_alpha: number): void {
-    notImplemented("setAlpha");
+  public setAlpha(alpha: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityAlpha(handle, alpha, false);
+    });
   }
 
   public get alpha(): number {
-    return this._ccmpObject.alpha;
+    return this._withHandle(this._ccmpObject.alpha, (handle) => ccmp.natives.entity.getEntityAlpha(handle));
   }
 
   public resetAlpha(): void {
-    notImplemented("resetAlpha");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.resetEntityAlpha(handle);
+    });
   }
 
   public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
@@ -167,52 +185,103 @@ export class CCMPObject implements IObject {
   }
 
   public attachTo(
-    _entity: Handle,
-    _boneIndex: number,
-    _xPos: number,
-    _yPos: number,
-    _zPos: number,
-    _xRot: number,
-    _yRot: number,
-    _zRot: number,
-    _useSoftPinning: boolean,
-    _collision: boolean,
-    _isPed: boolean,
-    _vertexIndex: number,
-    _fixedRot: boolean,
+    entity: Handle,
+    boneIndex: number,
+    xPos: number,
+    yPos: number,
+    zPos: number,
+    xRot: number,
+    yRot: number,
+    zRot: number,
+    useSoftPinning: boolean,
+    collision: boolean,
+    isPed: boolean,
+    vertexIndex: number,
+    fixedRot: boolean,
   ): void {
-    notImplemented("attachTo");
+    const targetHandle = this._normalizeHandle(entity);
+    if (!targetHandle) return;
+
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.attachEntityToEntity(
+        handle,
+        targetHandle,
+        boneIndex,
+        xPos,
+        yPos,
+        zPos,
+        xRot,
+        yRot,
+        zRot,
+        false,
+        useSoftPinning,
+        collision,
+        isPed,
+        vertexIndex,
+        fixedRot,
+        0,
+      );
+    });
   }
 
-  public isAttachedTo(_entity: number): boolean {
-    return notImplemented("isAttachedTo");
+  public isAttachedTo(entity: number): boolean {
+    const targetHandle = this._normalizeHandle(entity);
+    if (!targetHandle) return false;
+
+    return this._withHandle(false, (handle) => ccmp.natives.entity.isEntityAttachedToEntity(handle, targetHandle));
   }
 
   public attachToEntity(
-    _target: IBaseObject,
-    _boneIndex: number,
-    _offset: IVector3D,
-    _rotation: IVector3D,
-    _p9: boolean,
-    _useSoftPinning: boolean,
-    _collision: boolean,
-    _isPed: boolean,
-    _vertexIndex: number,
-    _fixedRot: boolean,
+    target: IBaseObject,
+    boneIndex: number,
+    offset: IVector3D,
+    rotation: IVector3D,
+    p9: boolean,
+    useSoftPinning: boolean,
+    collision: boolean,
+    isPed: boolean,
+    vertexIndex: number,
+    fixedRot: boolean,
   ): void {
-    notImplemented("attachToEntity");
+    const targetHandle = this._normalizeHandle(target.handle);
+    if (!targetHandle) return;
+
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.attachEntityToEntity(
+        handle,
+        targetHandle,
+        boneIndex,
+        offset.x,
+        offset.y,
+        offset.z,
+        rotation.x,
+        rotation.y,
+        rotation.z,
+        p9,
+        useSoftPinning,
+        collision,
+        isPed,
+        vertexIndex,
+        fixedRot,
+        0,
+      );
+    });
   }
 
-  public detach(_useDetachVelocity: boolean, _collision: boolean): void {
-    notImplemented("detach");
+  public detach(useDetachVelocity: boolean, collision: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.detachEntity(handle, useDetachVelocity, collision);
+    });
   }
 
   public getSpeed(): number {
     return this._withHandle(0, (handle) => ccmp.natives.entity.getEntitySpeed(handle));
   }
 
-  public isPlayingAnim(_dictionary: string, _name: string, _taskFlag: number): boolean {
-    return notImplemented("isPlayingAnim");
+  public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
+    return this._withHandle(false, (handle) =>
+      ccmp.natives.entity.isEntityPlayingAnim(handle, dictionary, name, taskFlag),
+    );
   }
 
   private _withHandle<T>(fallback: T, callback: (handle: number) => T): T {
@@ -222,6 +291,20 @@ export class CCMPObject implements IObject {
     }
 
     return callback(handle);
+  }
+
+  private _withHandleVoid(callback: (handle: number) => void): void {
+    const handle = this.handle;
+    if (!handle) {
+      return;
+    }
+
+    callback(handle);
+  }
+
+  private _normalizeHandle(value: number): number {
+    const handle = Number(value);
+    return Number.isFinite(handle) && handle > 0 ? Math.trunc(handle) : 0;
   }
 
   private _getOffsetFromCachedTransform(offsetX: number, offsetY: number, offsetZ: number): Vector3D {
