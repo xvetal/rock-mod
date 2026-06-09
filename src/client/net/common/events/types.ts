@@ -38,8 +38,8 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.EntityDestroyed]: (object: IBaseObject) => void;
   [ClientInternalEventName.PlayerReady]: (localPlayer: IPlayer) => void;
   [ClientInternalEventName.BrowserDomReady]: () => void;
-  [ClientInternalEventName.EntityStreamIn]: (entity: IEntity) => void;
-  [ClientInternalEventName.EntityStreamOut]: (entity: IEntity) => void;
+  [ClientInternalEventName.EntityStreamIn]: (object: IBaseObject) => void;
+  [ClientInternalEventName.EntityStreamOut]: (object: IBaseObject) => void;
   [ClientInternalEventName.PlayerEnterVehicle]: (vehicle: IVehicle, seat: number) => void;
   [ClientInternalEventName.PlayerLeaveVehicle]: (vehicle: IVehicle, seat: number) => void;
   [ClientInternalEventName.PlayerDeath]: (player: IPlayer) => void;
