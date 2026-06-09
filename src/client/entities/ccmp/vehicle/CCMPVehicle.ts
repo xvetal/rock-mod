@@ -45,11 +45,17 @@ export class CCMPVehicle implements IVehicle {
   }
 
   public get isExists(): boolean {
+    if (this._destroyed) return false;
+    if (this._ccmpVehicle.isRemote) {
+      return this._getRemoteVehicleExists();
+    }
+
     return !this._destroyed && (this._ccmpVehicle.isExists ?? this._ccmpVehicle.isAlive);
   }
 
   public get handle(): number {
-    return this._ccmpVehicle.handle;
+    const handle = Number(this._ccmpVehicle.handle);
+    return Number.isFinite(handle) && handle > 0 ? Math.trunc(handle) : 0;
   }
 
   public destroy(): void {
@@ -133,28 +139,35 @@ export class CCMPVehicle implements IVehicle {
     notImplemented("setVisible");
   }
 
-  public setAlpha(_alpha: number): void {
-    notImplemented("setAlpha");
+  public setAlpha(alpha: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityAlpha(handle, alpha, false);
+    });
   }
 
   public get alpha(): number {
-    return notImplemented("alpha");
+    return this._withHandle(255, (handle) => ccmp.natives.entity.getEntityAlpha(handle));
   }
 
   public resetAlpha(): void {
-    notImplemented("resetAlpha");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.resetEntityAlpha(handle);
+    });
   }
 
   public getOffsetFromInWorldCoords(_offsetX: number, _offsetY: number, _offsetZ: number): IVector3D {
     return notImplemented("getOffsetFromInWorldCoords");
   }
 
-  public getBoneIndexByName(_boneName: string): number {
-    return notImplemented("getBoneIndexByName");
+  public getBoneIndexByName(boneName: string): number {
+    return this._withHandle(-1, (handle) => ccmp.natives.entity.getEntityBoneIndexByName(handle, boneName));
   }
 
-  public getWorldPositionOfBone(_boneIndex: number): IVector3D {
-    return notImplemented("getWorldPositionOfBone");
+  public getWorldPositionOfBone(boneIndex: number): IVector3D {
+    return this._withHandle(this.position, (handle) => {
+      const { x, y, z } = ccmp.natives.entity.getWorldPositionOfEntityBone(handle, boneIndex);
+      return new Vector3D(x, y, z);
+    });
   }
 
   public getVariable(name: string): unknown | null {
@@ -407,5 +420,31 @@ export class CCMPVehicle implements IVehicle {
 
   public getModelMaxSpeed(): number {
     return notImplemented("getModelMaxSpeed");
+  }
+
+  private _withHandle<T>(fallback: T, callback: (handle: number) => T): T {
+    const handle = this.handle;
+    if (!handle) {
+      return fallback;
+    }
+
+    return callback(handle);
+  }
+
+  private _withHandleVoid(callback: (handle: number) => void): void {
+    const handle = this.handle;
+    if (!handle) {
+      return;
+    }
+
+    callback(handle);
+  }
+
+  private _getRemoteVehicleExists(): boolean {
+    try {
+      return this._ccmpVehicle.isExists ?? true;
+    } catch {
+      return true;
+    }
   }
 }
