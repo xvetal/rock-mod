@@ -139,6 +139,21 @@ export class CCMPPedsManager implements IPedsManager {
   }
 
   private _registerStreamEvents(): void {
+    ccmp.on("pedCreated", (ccmpPed: CcmpPed | null) => {
+      if (ccmpPed) {
+        const ped = this._register(ccmpPed);
+        this._events.emitInternal(ClientInternalEventName.EntityCreated, ped);
+      }
+    });
+
+    ccmp.on("pedDestroyed", (ccmpPed: CcmpPed | null) => {
+      if (ccmpPed) {
+        const ped = this._peds.get(ccmpPed.id) ?? this._register(ccmpPed);
+        this._events.emitInternal(ClientInternalEventName.EntityDestroyed, ped);
+        this._peds.delete(ped.id);
+      }
+    });
+
     ccmp.on("pedStreamIn", (ccmpPed: CcmpPed | null) => {
       if (ccmpPed) {
         const ped = this._register(ccmpPed);
@@ -148,11 +163,10 @@ export class CCMPPedsManager implements IPedsManager {
 
     ccmp.on("pedStreamOut", (ccmpPed: CcmpPed | null) => {
       if (ccmpPed) {
-        const ped = this._peds.get(ccmpPed.id) ?? null;
+        const ped = this._peds.get(ccmpPed.id) ?? this._register(ccmpPed);
         if (ped) {
           this._events.emitInternal(ClientInternalEventName.EntityStreamOut, ped);
         }
-        this._peds.delete(ccmpPed.id);
       }
     });
   }
