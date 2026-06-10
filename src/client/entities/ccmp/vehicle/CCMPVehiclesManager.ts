@@ -12,6 +12,7 @@ interface ICCMPVehiclesApi {
   readonly all: ICCMPNativeVehicle[];
   readonly count: number;
   getById(id: number): ICCMPNativeVehicle | null;
+  getByRemoteId(remoteId: number): ICCMPNativeVehicle | null;
 }
 
 interface ICCMPEventsApi {
@@ -20,6 +21,8 @@ interface ICCMPEventsApi {
 
 export class CCMPVehiclesManager implements IVehiclesManager {
   private readonly _vehicles = new Map<number, CCMPVehicle>();
+
+  private readonly _vehiclesByRemoteId = new Map<number, CCMPVehicle>();
 
   private readonly _iterator: IWorldObjectsIterator<CCMPVehicle> = {
     all: (): IterableIterator<CCMPVehicle> => this._filter(() => true),
@@ -80,7 +83,7 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   public findByID(id: number): IVehicle | null {
     const vehicle = this._vehicles.get(id) ?? null;
     if (vehicle && vehicle.isExists) return vehicle;
-    if (vehicle) this._vehicles.delete(id);
+    if (vehicle) this._unregister(vehicle);
 
     const ccmpVehicle = this._getNativeVehiclesApi()?.getById(id) ?? null;
     if (!ccmpVehicle) return null;
@@ -97,7 +100,14 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   }
 
   public findByRemoteID(remoteId: number): IVehicle | null {
-    return this.findByID(remoteId);
+    const vehicle = this._vehiclesByRemoteId.get(remoteId) ?? null;
+    if (vehicle && vehicle.isExists) return vehicle;
+    if (vehicle) this._unregister(vehicle);
+
+    const ccmpVehicle = this._getNativeVehiclesApi()?.getByRemoteId(remoteId) ?? null;
+    if (!ccmpVehicle) return null;
+
+    return this._register(ccmpVehicle);
   }
 
   public getByRemoteID(remoteId: number): IVehicle {
@@ -119,14 +129,33 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   }
 
   private _register(ccmpVehicle: ICCMPNativeVehicle): CCMPVehicle {
-    const existingVehicle = this._vehicles.get(ccmpVehicle.id) ?? null;
-    if (existingVehicle) return existingVehicle;
+    const existingVehicle = this._findRegistered(ccmpVehicle);
+    if (existingVehicle && existingVehicle.isExists) return existingVehicle;
+    if (existingVehicle) this._unregister(existingVehicle);
 
     const vehicle = new CCMPVehicle(ccmpVehicle, (destroyedVehicle) => {
-      this._vehicles.delete(destroyedVehicle.id);
+      this._unregister(destroyedVehicle);
     });
     this._vehicles.set(vehicle.id, vehicle);
+    if (vehicle.remoteId !== null) {
+      this._vehiclesByRemoteId.set(vehicle.remoteId, vehicle);
+    }
     return vehicle;
+  }
+
+  private _unregister(vehicle: CCMPVehicle): void {
+    this._vehicles.delete(vehicle.id);
+    if (vehicle.remoteId !== null) {
+      this._vehiclesByRemoteId.delete(vehicle.remoteId);
+    }
+  }
+
+  private _findRegistered(ccmpVehicle: ICCMPNativeVehicle): CCMPVehicle | null {
+    return (
+      (ccmpVehicle.remoteId === null ? null : (this._vehiclesByRemoteId.get(ccmpVehicle.remoteId) ?? null)) ??
+      this._vehicles.get(ccmpVehicle.id) ??
+      null
+    );
   }
 
   private _registerLifecycleEvents(): void {
@@ -140,9 +169,9 @@ export class CCMPVehiclesManager implements IVehiclesManager {
 
     eventsApi.on("vehicleDestroyed", (ccmpVehicle) => {
       if (!ccmpVehicle) return;
-      const vehicle = this._register(ccmpVehicle);
+      const vehicle = this._findRegistered(ccmpVehicle) ?? this._register(ccmpVehicle);
       RockMod.instance.net.events.emitInternal(ClientInternalEventName.EntityDestroyed, vehicle);
-      this._vehicles.delete(vehicle.id);
+      this._unregister(vehicle);
     });
 
     eventsApi.on("vehicleStreamIn", (ccmpVehicle) => {
@@ -153,7 +182,7 @@ export class CCMPVehiclesManager implements IVehiclesManager {
 
     eventsApi.on("vehicleStreamOut", (ccmpVehicle) => {
       if (!ccmpVehicle) return;
-      const vehicle = this._vehicles.get(ccmpVehicle.id) ?? this._register(ccmpVehicle);
+      const vehicle = this._findRegistered(ccmpVehicle) ?? this._register(ccmpVehicle);
       RockMod.instance.net.events.emitInternal(ClientInternalEventName.EntityStreamOut, vehicle);
     });
   }
@@ -161,7 +190,7 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   private *_filter(predicate: (vehicle: CCMPVehicle) => boolean): IterableIterator<CCMPVehicle> {
     for (const vehicle of this._vehicles.values()) {
       if (!vehicle.isExists) {
-        this._vehicles.delete(vehicle.id);
+        this._unregister(vehicle);
         continue;
       }
 
@@ -174,7 +203,7 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   private _pruneDestroyed(): void {
     for (const vehicle of this._vehicles.values()) {
       if (!vehicle.isExists) {
-        this._vehicles.delete(vehicle.id);
+        this._unregister(vehicle);
       }
     }
   }

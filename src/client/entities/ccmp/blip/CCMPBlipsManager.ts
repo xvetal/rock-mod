@@ -9,6 +9,8 @@ import { CCMPBlip } from "./CCMPBlip";
 export class CCMPBlipsManager implements IBlipsManager {
   private readonly _blips = new Map<number, CCMPBlip>();
 
+  private readonly _blipsByRemoteId = new Map<number, CCMPBlip>();
+
   private readonly _iterator: IWorldObjectsIterator<CCMPBlip> = {
     all: (): IterableIterator<CCMPBlip> => this._filter(() => true),
     dimension: (value: number): IterableIterator<CCMPBlip> => this._filter((blip) => blip.dimension === value),
@@ -38,9 +40,7 @@ export class CCMPBlipsManager implements IBlipsManager {
     this._pruneDestroyed();
 
     for (const ccmpBlip of ccmp.blips.all) {
-      if (!this._blips.has(ccmpBlip.id)) {
-        this._register(ccmpBlip);
-      }
+      this._register(ccmpBlip);
     }
   }
 
@@ -65,7 +65,7 @@ export class CCMPBlipsManager implements IBlipsManager {
   public findByID(id: number): CCMPBlip | null {
     const blip = this._blips.get(id) ?? null;
     if (blip && !blip.isExists) {
-      this._blips.delete(id);
+      this._unregister(blip);
     } else if (blip) {
       return blip;
     }
@@ -87,7 +87,19 @@ export class CCMPBlipsManager implements IBlipsManager {
   }
 
   public findByRemoteID(remoteId: number): CCMPBlip | null {
-    return this.findByID(remoteId);
+    const blip = this._blipsByRemoteId.get(remoteId) ?? null;
+    if (blip && !blip.isExists) {
+      this._unregister(blip);
+    } else if (blip) {
+      return blip;
+    }
+
+    const ccmpBlip = ccmp.blips.getByRemoteId(remoteId);
+    if (!ccmpBlip) {
+      return null;
+    }
+
+    return this._register(ccmpBlip);
   }
 
   public getByRemoteID(remoteId: number): CCMPBlip {
@@ -109,16 +121,37 @@ export class CCMPBlipsManager implements IBlipsManager {
   }
 
   private _register(ccmpBlip: CcmpBlip): CCMPBlip {
-    const existingBlip = this._blips.get(ccmpBlip.id) ?? null;
+    const existingBlip = this._findRegistered(ccmpBlip);
     if (existingBlip && existingBlip.isExists) {
       return existingBlip;
     }
+    if (existingBlip) {
+      this._unregister(existingBlip);
+    }
 
     const blip = new CCMPBlip(ccmpBlip, (destroyedBlip) => {
-      this._blips.delete(destroyedBlip.id);
+      this._unregister(destroyedBlip);
     });
     this._blips.set(blip.id, blip);
+    if (blip.remoteId !== null) {
+      this._blipsByRemoteId.set(blip.remoteId, blip);
+    }
     return blip;
+  }
+
+  private _unregister(blip: CCMPBlip): void {
+    this._blips.delete(blip.id);
+    if (blip.remoteId !== null) {
+      this._blipsByRemoteId.delete(blip.remoteId);
+    }
+  }
+
+  private _findRegistered(ccmpBlip: CcmpBlip): CCMPBlip | null {
+    return (
+      (ccmpBlip.remoteId === null ? null : (this._blipsByRemoteId.get(ccmpBlip.remoteId) ?? null)) ??
+      this._blips.get(ccmpBlip.id) ??
+      null
+    );
   }
 
   private _registerLifecycleEvents(): void {
@@ -130,9 +163,9 @@ export class CCMPBlipsManager implements IBlipsManager {
 
     ccmp.on("blipDestroyed", (ccmpBlip: CcmpBlip | null) => {
       if (!ccmpBlip) return;
-      const blip = this._blips.get(ccmpBlip.id) ?? this._register(ccmpBlip);
+      const blip = this._findRegistered(ccmpBlip) ?? this._register(ccmpBlip);
       this._events.emitInternal(ClientInternalEventName.EntityDestroyed, blip);
-      this._blips.delete(blip.id);
+      this._unregister(blip);
     });
 
     ccmp.on("blipStreamIn", (ccmpBlip: CcmpBlip | null) => {
@@ -143,7 +176,7 @@ export class CCMPBlipsManager implements IBlipsManager {
 
     ccmp.on("blipStreamOut", (ccmpBlip: CcmpBlip | null) => {
       if (!ccmpBlip) return;
-      const blip = this._blips.get(ccmpBlip.id) ?? this._register(ccmpBlip);
+      const blip = this._findRegistered(ccmpBlip) ?? this._register(ccmpBlip);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, blip);
     });
   }
@@ -151,7 +184,7 @@ export class CCMPBlipsManager implements IBlipsManager {
   private *_filter(predicate: (blip: CCMPBlip) => boolean): IterableIterator<CCMPBlip> {
     for (const blip of this._blips.values()) {
       if (!blip.isExists) {
-        this._blips.delete(blip.id);
+        this._unregister(blip);
         continue;
       }
 
@@ -164,7 +197,7 @@ export class CCMPBlipsManager implements IBlipsManager {
   private _pruneDestroyed(): void {
     for (const blip of this._blips.values()) {
       if (!blip.isExists) {
-        this._blips.delete(blip.id);
+        this._unregister(blip);
       }
     }
   }

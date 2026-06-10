@@ -20,9 +20,10 @@ interface ICCMPNativePlayer {
  *
  * ### Хранилище
  *
- * `Map<id, CCMPPlayer>`. У CCMP нет отдельных `id`/`remoteId` как в RageMP:
- * один числовой `id` приходит от сервера, и он же используется везде.
- * `findByID`/`findByRemoteID`/`findByRemoteId` маппятся на один lookup.
+ * `Map<id, CCMPPlayer>`. For CCMP players only, `id` and `remoteId` still
+ * mean the same server/network id. Non-player CCMP wrappers have a separate
+ * client-local `id` and nullable server `remoteId`.
+ * `findByID`/`findByRemoteID`/`findByRemoteId` map to one lookup for players.
  *
  * ### Жизненный цикл local player'а
  *
@@ -71,18 +72,33 @@ export class CCMPPlayersManager implements IPlayersManager {
       [ClientInternalEventName.PlayerReady]: (player: IPlayer): void => {
         // Если кто-то ещё эмитнул rm::playerReady (например, cooperation
         // fallback в будущем) — синхронизируем своё состояние.
-        this._ensurePlayer(player.remoteId, player.name, /* isLocal */ true);
+        const remoteId = player.remoteId;
+        if (remoteId === null) {
+          return;
+        }
+
+        this._ensurePlayer(remoteId, player.name, /* isLocal */ true);
       },
 
       [ClientInternalEventName.PlayerConnected]: (player: IPlayer): void => {
-        this._ensurePlayer(player.remoteId, player.name, /* isLocal */ false);
+        const remoteId = player.remoteId;
+        if (remoteId === null) {
+          return;
+        }
+
+        this._ensurePlayer(remoteId, player.name, /* isLocal */ false);
       },
 
       [ClientInternalEventName.PlayerDisconnected]: (player: IPlayer): void => {
-        const existing = this._players.get(player.remoteId);
+        const remoteId = player.remoteId;
+        if (remoteId === null) {
+          return;
+        }
+
+        const existing = this._players.get(remoteId);
         if (existing) {
           existing.markRemoved();
-          this._players.delete(player.remoteId);
+          this._players.delete(remoteId);
         }
       },
     });

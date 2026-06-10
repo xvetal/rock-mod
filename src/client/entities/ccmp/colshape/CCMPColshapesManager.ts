@@ -16,6 +16,8 @@ import { CCMPColshape } from "./CCMPColshape";
 export class CCMPColshapesManager implements IColshapesManager {
   private readonly _colshapes = new Map<number, CCMPColshape>();
 
+  private readonly _colshapesByRemoteId = new Map<number, CCMPColshape>();
+
   private readonly _iterator: IWorldObjectsIterator<CCMPColshape> = {
     all: (): IterableIterator<CCMPColshape> => this._filter(() => true),
     dimension: (value: number): IterableIterator<CCMPColshape> =>
@@ -72,9 +74,7 @@ export class CCMPColshapesManager implements IColshapesManager {
     this._pruneDestroyed();
 
     for (const ccmpColshape of ccmp.colshapes.all) {
-      if (!this._colshapes.has(ccmpColshape.id)) {
-        this._register(ccmpColshape);
-      }
+      this._register(ccmpColshape);
     }
   }
 
@@ -99,7 +99,7 @@ export class CCMPColshapesManager implements IColshapesManager {
   public findByID(id: number): CCMPColshape | null {
     const colshape = this._colshapes.get(id) ?? null;
     if (colshape && !colshape.isExists) {
-      this._colshapes.delete(id);
+      this._unregister(colshape);
     } else if (colshape) {
       return colshape;
     }
@@ -121,7 +121,19 @@ export class CCMPColshapesManager implements IColshapesManager {
   }
 
   public findByRemoteID(remoteId: number): CCMPColshape | null {
-    return this.findByID(remoteId);
+    const colshape = this._colshapesByRemoteId.get(remoteId) ?? null;
+    if (colshape && !colshape.isExists) {
+      this._unregister(colshape);
+    } else if (colshape) {
+      return colshape;
+    }
+
+    const ccmpColshape = ccmp.colshapes.getByRemoteId(remoteId);
+    if (!ccmpColshape) {
+      return null;
+    }
+
+    return this._register(ccmpColshape);
   }
 
   public getByRemoteID(remoteId: number): CCMPColshape {
@@ -143,16 +155,37 @@ export class CCMPColshapesManager implements IColshapesManager {
   }
 
   private _register(ccmpColshape: CcmpColshape): CCMPColshape {
-    const existingColshape = this._colshapes.get(ccmpColshape.id) ?? null;
+    const existingColshape = this._findRegistered(ccmpColshape);
     if (existingColshape && existingColshape.isExists) {
       return existingColshape;
     }
+    if (existingColshape) {
+      this._unregister(existingColshape);
+    }
 
     const colshape = new CCMPColshape(ccmpColshape, (destroyedColshape) => {
-      this._colshapes.delete(destroyedColshape.id);
+      this._unregister(destroyedColshape);
     });
     this._colshapes.set(colshape.id, colshape);
+    if (colshape.remoteId !== null) {
+      this._colshapesByRemoteId.set(colshape.remoteId, colshape);
+    }
     return colshape;
+  }
+
+  private _unregister(colshape: CCMPColshape): void {
+    this._colshapes.delete(colshape.id);
+    if (colshape.remoteId !== null) {
+      this._colshapesByRemoteId.delete(colshape.remoteId);
+    }
+  }
+
+  private _findRegistered(ccmpColshape: CcmpColshape): CCMPColshape | null {
+    return (
+      (ccmpColshape.remoteId === null ? null : (this._colshapesByRemoteId.get(ccmpColshape.remoteId) ?? null)) ??
+      this._colshapes.get(ccmpColshape.id) ??
+      null
+    );
   }
 
   private _registerLifecycleEvents(): void {
@@ -164,9 +197,9 @@ export class CCMPColshapesManager implements IColshapesManager {
 
     ccmp.on("colshapeDestroyed", (ccmpColshape: CcmpColshape | null) => {
       if (!ccmpColshape) return;
-      const colshape = this._colshapes.get(ccmpColshape.id) ?? this._register(ccmpColshape);
+      const colshape = this._findRegistered(ccmpColshape) ?? this._register(ccmpColshape);
       this._events.emitInternal(ClientInternalEventName.EntityDestroyed, colshape);
-      this._colshapes.delete(colshape.id);
+      this._unregister(colshape);
     });
 
     ccmp.on("colshapeStreamIn", (ccmpColshape: CcmpColshape | null) => {
@@ -177,7 +210,7 @@ export class CCMPColshapesManager implements IColshapesManager {
 
     ccmp.on("colshapeStreamOut", (ccmpColshape: CcmpColshape | null) => {
       if (!ccmpColshape) return;
-      const colshape = this._colshapes.get(ccmpColshape.id) ?? this._register(ccmpColshape);
+      const colshape = this._findRegistered(ccmpColshape) ?? this._register(ccmpColshape);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, colshape);
     });
   }
@@ -185,7 +218,7 @@ export class CCMPColshapesManager implements IColshapesManager {
   private *_filter(predicate: (colshape: CCMPColshape) => boolean): IterableIterator<CCMPColshape> {
     for (const colshape of this._colshapes.values()) {
       if (!colshape.isExists) {
-        this._colshapes.delete(colshape.id);
+        this._unregister(colshape);
         continue;
       }
 
@@ -198,7 +231,7 @@ export class CCMPColshapesManager implements IColshapesManager {
   private _pruneDestroyed(): void {
     for (const colshape of this._colshapes.values()) {
       if (!colshape.isExists) {
-        this._colshapes.delete(colshape.id);
+        this._unregister(colshape);
       }
     }
   }

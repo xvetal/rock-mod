@@ -9,6 +9,8 @@ import { CCMPObject } from "./CCMPObject";
 export class CCMPObjectsManager implements IObjectsManager {
   private readonly _objects = new Map<number, CCMPObject>();
 
+  private readonly _objectsByRemoteId = new Map<number, CCMPObject>();
+
   private readonly _iterator: IWorldObjectsIterator<CCMPObject> = {
     all: (): IterableIterator<CCMPObject> => this._filter(() => true),
     dimension: (value: number): IterableIterator<CCMPObject> => this._filter((object) => object.dimension === value),
@@ -38,9 +40,7 @@ export class CCMPObjectsManager implements IObjectsManager {
     this._pruneDestroyed();
 
     for (const ccmpObject of ccmp.objects.all) {
-      if (!this._objects.has(ccmpObject.id)) {
-        this._register(ccmpObject);
-      }
+      this._register(ccmpObject);
     }
   }
 
@@ -65,7 +65,7 @@ export class CCMPObjectsManager implements IObjectsManager {
   public findByID(id: number): CCMPObject | null {
     const object = this._objects.get(id) ?? null;
     if (object && !object.isExists) {
-      this._objects.delete(id);
+      this._unregister(object);
     } else if (object) {
       return object;
     }
@@ -87,7 +87,19 @@ export class CCMPObjectsManager implements IObjectsManager {
   }
 
   public findByRemoteID(remoteId: number): CCMPObject | null {
-    return this.findByID(remoteId);
+    const object = this._objectsByRemoteId.get(remoteId) ?? null;
+    if (object && !object.isExists) {
+      this._unregister(object);
+    } else if (object) {
+      return object;
+    }
+
+    const ccmpObject = ccmp.objects.getByRemoteId(remoteId);
+    if (!ccmpObject) {
+      return null;
+    }
+
+    return this._register(ccmpObject);
   }
 
   public getByRemoteID(remoteId: number): CCMPObject {
@@ -109,16 +121,37 @@ export class CCMPObjectsManager implements IObjectsManager {
   }
 
   private _register(ccmpObject: CcmpObject): CCMPObject {
-    const existingObject = this._objects.get(ccmpObject.id) ?? null;
+    const existingObject = this._findRegistered(ccmpObject);
     if (existingObject && existingObject.isExists) {
       return existingObject;
     }
+    if (existingObject) {
+      this._unregister(existingObject);
+    }
 
     const object = new CCMPObject(ccmpObject, (destroyedObject) => {
-      this._objects.delete(destroyedObject.id);
+      this._unregister(destroyedObject);
     });
     this._objects.set(object.id, object);
+    if (object.remoteId !== null) {
+      this._objectsByRemoteId.set(object.remoteId, object);
+    }
     return object;
+  }
+
+  private _unregister(object: CCMPObject): void {
+    this._objects.delete(object.id);
+    if (object.remoteId !== null) {
+      this._objectsByRemoteId.delete(object.remoteId);
+    }
+  }
+
+  private _findRegistered(ccmpObject: CcmpObject): CCMPObject | null {
+    return (
+      (ccmpObject.remoteId === null ? null : (this._objectsByRemoteId.get(ccmpObject.remoteId) ?? null)) ??
+      this._objects.get(ccmpObject.id) ??
+      null
+    );
   }
 
   private _registerLifecycleEvents(): void {
@@ -130,9 +163,9 @@ export class CCMPObjectsManager implements IObjectsManager {
 
     ccmp.on("objectDestroyed", (ccmpObject: CcmpObject | null) => {
       if (!ccmpObject) return;
-      const object = this._objects.get(ccmpObject.id) ?? this._register(ccmpObject);
+      const object = this._findRegistered(ccmpObject) ?? this._register(ccmpObject);
       this._events.emitInternal(ClientInternalEventName.EntityDestroyed, object);
-      this._objects.delete(object.id);
+      this._unregister(object);
     });
 
     ccmp.on("objectStreamIn", (ccmpObject: CcmpObject | null) => {
@@ -143,7 +176,7 @@ export class CCMPObjectsManager implements IObjectsManager {
 
     ccmp.on("objectStreamOut", (ccmpObject: CcmpObject | null) => {
       if (!ccmpObject) return;
-      const object = this._objects.get(ccmpObject.id) ?? this._register(ccmpObject);
+      const object = this._findRegistered(ccmpObject) ?? this._register(ccmpObject);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, object);
     });
   }
@@ -151,7 +184,7 @@ export class CCMPObjectsManager implements IObjectsManager {
   private *_filter(predicate: (object: CCMPObject) => boolean): IterableIterator<CCMPObject> {
     for (const object of this._objects.values()) {
       if (!object.isExists) {
-        this._objects.delete(object.id);
+        this._unregister(object);
         continue;
       }
 
@@ -164,7 +197,7 @@ export class CCMPObjectsManager implements IObjectsManager {
   private _pruneDestroyed(): void {
     for (const object of this._objects.values()) {
       if (!object.isExists) {
-        this._objects.delete(object.id);
+        this._unregister(object);
       }
     }
   }

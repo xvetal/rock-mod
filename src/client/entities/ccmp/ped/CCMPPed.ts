@@ -16,7 +16,7 @@ export class CCMPPed implements IPed {
     return this._ccmpPed.id;
   }
 
-  public get remoteId(): number {
+  public get remoteId(): number | null {
     return this._ccmpPed.remoteId;
   }
 
