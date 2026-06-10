@@ -9,6 +9,8 @@ import { CCMPMarker } from "./CCMPMarker";
 export class CCMPMarkersManager implements IMarkersManager {
   private readonly _markers = new Map<number, CCMPMarker>();
 
+  private readonly _markersByRemoteId = new Map<number, CCMPMarker>();
+
   private readonly _iterator: IWorldObjectsIterator<CCMPMarker> = {
     all: (): IterableIterator<CCMPMarker> => this._filter(() => true),
     dimension: (value: number): IterableIterator<CCMPMarker> => this._filter((marker) => marker.dimension === value),
@@ -38,9 +40,7 @@ export class CCMPMarkersManager implements IMarkersManager {
     this._pruneDestroyed();
 
     for (const ccmpMarker of ccmp.markers.all) {
-      if (!this._markers.has(ccmpMarker.id)) {
-        this._register(ccmpMarker);
-      }
+      this._register(ccmpMarker);
     }
   }
 
@@ -65,7 +65,7 @@ export class CCMPMarkersManager implements IMarkersManager {
   public findByID(id: number): CCMPMarker | null {
     const marker = this._markers.get(id) ?? null;
     if (marker && !marker.isExists) {
-      this._markers.delete(id);
+      this._unregister(marker);
     } else if (marker) {
       return marker;
     }
@@ -87,7 +87,19 @@ export class CCMPMarkersManager implements IMarkersManager {
   }
 
   public findByRemoteID(remoteId: number): CCMPMarker | null {
-    return this.findByID(remoteId);
+    const marker = this._markersByRemoteId.get(remoteId) ?? null;
+    if (marker && !marker.isExists) {
+      this._unregister(marker);
+    } else if (marker) {
+      return marker;
+    }
+
+    const ccmpMarker = ccmp.markers.getByRemoteId(remoteId);
+    if (!ccmpMarker) {
+      return null;
+    }
+
+    return this._register(ccmpMarker);
   }
 
   public getByRemoteID(remoteId: number): CCMPMarker {
@@ -109,16 +121,37 @@ export class CCMPMarkersManager implements IMarkersManager {
   }
 
   private _register(ccmpMarker: CcmpMarker): CCMPMarker {
-    const existingMarker = this._markers.get(ccmpMarker.id) ?? null;
+    const existingMarker = this._findRegistered(ccmpMarker);
     if (existingMarker && existingMarker.isExists) {
       return existingMarker;
     }
+    if (existingMarker) {
+      this._unregister(existingMarker);
+    }
 
     const marker = new CCMPMarker(ccmpMarker, (destroyedMarker) => {
-      this._markers.delete(destroyedMarker.id);
+      this._unregister(destroyedMarker);
     });
     this._markers.set(marker.id, marker);
+    if (marker.remoteId !== null) {
+      this._markersByRemoteId.set(marker.remoteId, marker);
+    }
     return marker;
+  }
+
+  private _unregister(marker: CCMPMarker): void {
+    this._markers.delete(marker.id);
+    if (marker.remoteId !== null) {
+      this._markersByRemoteId.delete(marker.remoteId);
+    }
+  }
+
+  private _findRegistered(ccmpMarker: CcmpMarker): CCMPMarker | null {
+    return (
+      (ccmpMarker.remoteId === null ? null : (this._markersByRemoteId.get(ccmpMarker.remoteId) ?? null)) ??
+      this._markers.get(ccmpMarker.id) ??
+      null
+    );
   }
 
   private _registerLifecycleEvents(): void {
@@ -130,9 +163,9 @@ export class CCMPMarkersManager implements IMarkersManager {
 
     ccmp.on("markerDestroyed", (ccmpMarker: CcmpMarker | null) => {
       if (!ccmpMarker) return;
-      const marker = this._markers.get(ccmpMarker.id) ?? this._register(ccmpMarker);
+      const marker = this._findRegistered(ccmpMarker) ?? this._register(ccmpMarker);
       this._events.emitInternal(ClientInternalEventName.EntityDestroyed, marker);
-      this._markers.delete(marker.id);
+      this._unregister(marker);
     });
 
     ccmp.on("markerStreamIn", (ccmpMarker: CcmpMarker | null) => {
@@ -143,7 +176,7 @@ export class CCMPMarkersManager implements IMarkersManager {
 
     ccmp.on("markerStreamOut", (ccmpMarker: CcmpMarker | null) => {
       if (!ccmpMarker) return;
-      const marker = this._markers.get(ccmpMarker.id) ?? this._register(ccmpMarker);
+      const marker = this._findRegistered(ccmpMarker) ?? this._register(ccmpMarker);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, marker);
     });
   }
@@ -151,7 +184,7 @@ export class CCMPMarkersManager implements IMarkersManager {
   private *_filter(predicate: (marker: CCMPMarker) => boolean): IterableIterator<CCMPMarker> {
     for (const marker of this._markers.values()) {
       if (!marker.isExists) {
-        this._markers.delete(marker.id);
+        this._unregister(marker);
         continue;
       }
 
@@ -164,7 +197,7 @@ export class CCMPMarkersManager implements IMarkersManager {
   private _pruneDestroyed(): void {
     for (const marker of this._markers.values()) {
       if (!marker.isExists) {
-        this._markers.delete(marker.id);
+        this._unregister(marker);
       }
     }
   }

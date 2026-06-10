@@ -10,8 +10,8 @@ export class CCMPCamera implements ICamera {
     return this._camera.id;
   }
 
-  public get remoteId(): number {
-    return 0;
+  public get remoteId(): number | null {
+    return null;
   }
 
   public get type(): BaseObjectType {

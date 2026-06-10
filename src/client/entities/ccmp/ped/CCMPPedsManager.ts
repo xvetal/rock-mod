@@ -9,6 +9,8 @@ import { CCMPPed } from "./CCMPPed";
 export class CCMPPedsManager implements IPedsManager {
   private readonly _peds = new Map<number, CCMPPed>();
 
+  private readonly _pedsByRemoteId = new Map<number, CCMPPed>();
+
   private readonly _iterator: IWorldObjectsIterator<CCMPPed> = {
     all: (): IterableIterator<CCMPPed> => this._filter(() => true),
     dimension: (value: number): IterableIterator<CCMPPed> => this._filter((ped) => ped.dimension === value),
@@ -42,9 +44,7 @@ export class CCMPPedsManager implements IPedsManager {
     this._pruneDestroyed();
 
     for (const ccmpPed of ccmp.peds.all) {
-      if (!this._peds.has(ccmpPed.id)) {
-        this._register(ccmpPed);
-      }
+      this._register(ccmpPed);
     }
   }
 
@@ -69,7 +69,7 @@ export class CCMPPedsManager implements IPedsManager {
   public findByID(id: number): CCMPPed | null {
     const ped = this._peds.get(id) ?? null;
     if (ped && !ped.isExists) {
-      this._peds.delete(id);
+      this._unregister(ped);
     } else if (ped) {
       return ped;
     }
@@ -91,7 +91,19 @@ export class CCMPPedsManager implements IPedsManager {
   }
 
   public findByRemoteID(remoteId: number): CCMPPed | null {
-    return this.findByID(remoteId);
+    const ped = this._pedsByRemoteId.get(remoteId) ?? null;
+    if (ped && !ped.isExists) {
+      this._unregister(ped);
+    } else if (ped) {
+      return ped;
+    }
+
+    const ccmpPed = ccmp.peds.getByRemoteId(remoteId);
+    if (!ccmpPed) {
+      return null;
+    }
+
+    return this._register(ccmpPed);
   }
 
   public getByRemoteID(remoteId: number): CCMPPed {
@@ -115,7 +127,7 @@ export class CCMPPedsManager implements IPedsManager {
   private *_filter(predicate: (ped: CCMPPed) => boolean): IterableIterator<CCMPPed> {
     for (const ped of this._peds.values()) {
       if (!ped.isExists) {
-        this._peds.delete(ped.id);
+        this._unregister(ped);
         continue;
       }
 
@@ -126,16 +138,37 @@ export class CCMPPedsManager implements IPedsManager {
   }
 
   private _register(ccmpPed: CcmpPed): CCMPPed {
-    const existingPed = this._peds.get(ccmpPed.id) ?? null;
+    const existingPed = this._findRegistered(ccmpPed);
     if (existingPed && existingPed.isExists) {
       return existingPed;
     }
+    if (existingPed) {
+      this._unregister(existingPed);
+    }
 
     const ped = new CCMPPed(ccmpPed, (destroyedPed) => {
-      this._peds.delete(destroyedPed.id);
+      this._unregister(destroyedPed);
     });
     this._peds.set(ped.id, ped);
+    if (ped.remoteId !== null) {
+      this._pedsByRemoteId.set(ped.remoteId, ped);
+    }
     return ped;
+  }
+
+  private _unregister(ped: CCMPPed): void {
+    this._peds.delete(ped.id);
+    if (ped.remoteId !== null) {
+      this._pedsByRemoteId.delete(ped.remoteId);
+    }
+  }
+
+  private _findRegistered(ccmpPed: CcmpPed): CCMPPed | null {
+    return (
+      (ccmpPed.remoteId === null ? null : (this._pedsByRemoteId.get(ccmpPed.remoteId) ?? null)) ??
+      this._peds.get(ccmpPed.id) ??
+      null
+    );
   }
 
   private _registerStreamEvents(): void {
@@ -148,9 +181,9 @@ export class CCMPPedsManager implements IPedsManager {
 
     ccmp.on("pedDestroyed", (ccmpPed: CcmpPed | null) => {
       if (ccmpPed) {
-        const ped = this._peds.get(ccmpPed.id) ?? this._register(ccmpPed);
+        const ped = this._findRegistered(ccmpPed) ?? this._register(ccmpPed);
         this._events.emitInternal(ClientInternalEventName.EntityDestroyed, ped);
-        this._peds.delete(ped.id);
+        this._unregister(ped);
       }
     });
 
@@ -163,7 +196,7 @@ export class CCMPPedsManager implements IPedsManager {
 
     ccmp.on("pedStreamOut", (ccmpPed: CcmpPed | null) => {
       if (ccmpPed) {
-        const ped = this._peds.get(ccmpPed.id) ?? this._register(ccmpPed);
+        const ped = this._findRegistered(ccmpPed) ?? this._register(ccmpPed);
         if (ped) {
           this._events.emitInternal(ClientInternalEventName.EntityStreamOut, ped);
         }
@@ -174,7 +207,7 @@ export class CCMPPedsManager implements IPedsManager {
   private _pruneDestroyed(): void {
     for (const ped of this._peds.values()) {
       if (!ped.isExists) {
-        this._peds.delete(ped.id);
+        this._unregister(ped);
       }
     }
   }

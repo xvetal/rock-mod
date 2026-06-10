@@ -21,7 +21,7 @@ export class CCMPObject implements IObject {
     return this._ccmpObject.id;
   }
 
-  public get remoteId(): number {
+  public get remoteId(): number | null {
     return this._ccmpObject.remoteId;
   }
 
@@ -168,20 +168,40 @@ export class CCMPObject implements IObject {
   }
 
   public getVariable(name: string): unknown | null {
-    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, this.remoteId, name);
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return null;
+    }
+
+    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, name);
     return value === undefined ? null : value;
   }
 
   public getSyncedMeta(key: string): unknown | undefined {
-    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, this.remoteId, key);
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return undefined;
+    }
+
+    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
-    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, this.remoteId, key);
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return false;
+    }
+
+    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
-    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Object, this.remoteId);
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return [];
+    }
+
+    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Object, remoteId);
   }
 
   public attachTo(

@@ -20,7 +20,7 @@ export class CCMPBlip implements IBlip {
     return this._ccmpBlip.id;
   }
 
-  public get remoteId(): number {
+  public get remoteId(): number | null {
     return this._ccmpBlip.remoteId;
   }
 

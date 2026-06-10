@@ -20,7 +20,7 @@ export class CCMPMarker implements IMarker {
     return this._ccmpMarker.id;
   }
 
-  public get remoteId(): number {
+  public get remoteId(): number | null {
     return this._ccmpMarker.remoteId;
   }
 

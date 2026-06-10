@@ -49,7 +49,8 @@ export class CCMPCameraManager implements ICameraManager {
   }
 
   public findByRemoteID(remoteId: number): CCMPCamera | null {
-    return remoteId === 0 ? null : this.findByID(remoteId);
+    void remoteId;
+    return null;
   }
 
   public deleteById(id: number): CCMPCamera {
