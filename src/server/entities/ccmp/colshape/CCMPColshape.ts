@@ -39,6 +39,14 @@ export abstract class CCMPColshape extends CCMPWorldObject implements IColshape 
     return this._ccmpColshape.playersInside;
   }
 
+  public getNetData(name: string): unknown {
+    return this._ccmpColshape.getStreamSyncedMeta(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this._ccmpColshape.setStreamSyncedMeta(name, value);
+  }
+
   protected constructor(options: ICCMPColshapeOptions) {
     super();
     this._ccmpColshape = options.ccmpColshape;
