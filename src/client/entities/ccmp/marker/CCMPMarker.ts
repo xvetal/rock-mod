@@ -39,6 +39,7 @@ export class CCMPMarker implements IMarker {
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
+    this._ccmpMarker.destroy();
     this._onDestroy(this);
   }
 

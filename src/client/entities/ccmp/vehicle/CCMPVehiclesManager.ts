@@ -13,6 +13,12 @@ interface ICCMPVehiclesApi {
   readonly count: number;
   getById(id: number): ICCMPNativeVehicle | null;
   getByRemoteId(remoteId: number): ICCMPNativeVehicle | null;
+  create(
+    model: string | number,
+    position: { x: number; y: number; z: number },
+    rotation?: { x: number; y: number; z: number },
+    options?: { dimension?: number; engine?: boolean; locked?: boolean },
+  ): ICCMPNativeVehicle | null;
 }
 
 interface ICCMPEventsApi {
@@ -43,10 +49,17 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   }
 
   public create(options: IVehicleCreateOptions): IVehicle {
-    void options;
-    throw new Error(
-      "CCMPVehiclesManager.create: client-side vehicle creation is not supported by CCMP. Use server-side ccmp.vehicles.create.",
-    );
+    const ccmpVehicle = this._getNativeVehiclesApi()?.create(options.model, options.position, options.rotation, {
+      dimension: options.dimension,
+      engine: options.engine,
+      locked: options.locked,
+    });
+
+    if (!ccmpVehicle) {
+      throw new Error(`CCMPVehiclesManager.create: ccmp.vehicles.create failed for model "${options.model}"`);
+    }
+
+    return this._register(ccmpVehicle);
   }
 
   public getDisplayNameFromVehicleModel(modelHash: number): string {

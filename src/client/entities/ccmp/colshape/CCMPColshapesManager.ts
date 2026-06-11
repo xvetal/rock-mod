@@ -38,24 +38,26 @@ export class CCMPColshapesManager implements IColshapesManager {
   }
 
   public createCircle(options: ICircleColshapeCreateOptions): CCMPColshape {
-    void options;
-    throw new Error(
-      "CCMPColshapesManager.createCircle: client-side colshape creation is not supported by CCMP. Use server-side ccmp.colshapes.createCircle.",
-    );
+    const ccmpColshape = ccmp.colshapes.createCircle(options.position, options.range, {
+      dimension: options.dimension,
+    });
+    return this._register(ccmpColshape);
   }
 
   public createCuboid(options: ICuboidColshapeCreateOptions): CCMPColshape {
-    void options;
-    throw new Error(
-      "CCMPColshapesManager.createCuboid: client-side colshape creation is not supported by CCMP. Use server-side ccmp.colshapes.createCube.",
+    const ccmpColshape = ccmp.colshapes.createCuboid(
+      options.position,
+      { x: options.width, y: options.depth, z: options.height },
+      { dimension: options.dimension },
     );
+    return this._register(ccmpColshape);
   }
 
   public createCylinder(options: ICylinderColshapeCreateOptions): CCMPColshape {
-    void options;
-    throw new Error(
-      "CCMPColshapesManager.createCylinder: client-side colshape creation is not supported by CCMP. Use server-side ccmp.colshapes.createCylinder.",
-    );
+    const ccmpColshape = ccmp.colshapes.createCylinder(options.position, options.range, options.height, {
+      dimension: options.dimension,
+    });
+    return this._register(ccmpColshape);
   }
 
   public createRectangle(options: IRectangleColshapeCreateOptions): CCMPColshape {
@@ -64,10 +66,10 @@ export class CCMPColshapesManager implements IColshapesManager {
   }
 
   public createSphere(options: ISphereColshapeCreateOptions): CCMPColshape {
-    void options;
-    throw new Error(
-      "CCMPColshapesManager.createSphere: client-side colshape creation is not supported by CCMP. Use server-side ccmp.colshapes.createSphere.",
-    );
+    const ccmpColshape = ccmp.colshapes.createSphere(options.position, options.range, {
+      dimension: options.dimension,
+    });
+    return this._register(ccmpColshape);
   }
 
   public syncWithMpPool(): void {

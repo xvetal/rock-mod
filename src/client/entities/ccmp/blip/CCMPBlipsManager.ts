@@ -30,10 +30,34 @@ export class CCMPBlipsManager implements IBlipsManager {
   }
 
   public create(options: IBlipCreateOptions): CCMPBlip {
-    void options;
-    throw new Error(
-      "CCMPBlipsManager.create: client-side blip creation is not supported by CCMP. Use server-side ccmp.blips.create.",
-    );
+    const createOptions: {
+      dimension?: number;
+      alpha?: number;
+      color?: number;
+      drawDistance?: number;
+      name?: string;
+      rotation?: number;
+      scale?: number;
+      shortRange?: boolean;
+    } = {
+      dimension: options.dimension,
+    };
+
+    if (options.alpha !== undefined) createOptions.alpha = options.alpha;
+    if (options.color !== undefined) createOptions.color = options.color;
+    if (options.drawDistance !== undefined) createOptions.drawDistance = options.drawDistance;
+    if (options.name !== undefined) createOptions.name = options.name;
+    if (options.rotation !== undefined) createOptions.rotation = options.rotation;
+    if (options.scale !== undefined) createOptions.scale = options.scale;
+    if (options.shortRange !== undefined) createOptions.shortRange = options.shortRange;
+
+    const ccmpBlip = ccmp.blips.create(options.sprite, options.position, createOptions);
+
+    if (!ccmpBlip) {
+      throw new Error(`CCMPBlipsManager.create: ccmp.blips.create failed for sprite "${options.sprite}"`);
+    }
+
+    return this._register(ccmpBlip);
   }
 
   public syncWithMpPool(): void {
