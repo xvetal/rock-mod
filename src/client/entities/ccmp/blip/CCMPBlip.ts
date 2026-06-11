@@ -39,6 +39,7 @@ export class CCMPBlip implements IBlip {
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
+    this._ccmpBlip.destroy();
     this._onDestroy(this);
   }
 

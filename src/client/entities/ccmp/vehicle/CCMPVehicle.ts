@@ -18,6 +18,7 @@ export interface ICCMPNativeVehicle {
   readonly heading: number;
   readonly numberPlateText: string;
   readonly numberPlate: string;
+  destroy(): boolean;
 }
 
 const notImplemented = (memberName: string): never => {
@@ -68,6 +69,7 @@ export class CCMPVehicle implements IVehicle {
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
+    this._ccmpVehicle.destroy();
     this._onDestroy(this);
   }
 

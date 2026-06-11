@@ -39,6 +39,7 @@ export class CCMPColshape implements IColshape {
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
+    this._ccmpColshape.destroy();
     this._onDestroy(this);
   }
 

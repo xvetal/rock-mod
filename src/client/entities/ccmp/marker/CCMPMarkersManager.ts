@@ -30,10 +30,19 @@ export class CCMPMarkersManager implements IMarkersManager {
   }
 
   public create(options: IMarkerCreateOptions): CCMPMarker {
-    void options;
-    throw new Error(
-      "CCMPMarkersManager.create: client-side marker creation is not supported by CCMP. Use server-side ccmp.markers.create.",
-    );
+    const { r, g, b, a } = options.color;
+    const ccmpMarker = ccmp.markers.create(options.type, options.position, {
+      dimension: options.dimension,
+      rotation: options.rotation,
+      scale: options.scale,
+      color: { r, g, b, a: a ?? 255 },
+    });
+
+    if (!ccmpMarker) {
+      throw new Error(`CCMPMarkersManager.create: ccmp.markers.create failed for marker type "${options.type}"`);
+    }
+
+    return this._register(ccmpMarker);
   }
 
   public syncWithMpPool(): void {

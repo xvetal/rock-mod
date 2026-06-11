@@ -30,10 +30,16 @@ export class CCMPObjectsManager implements IObjectsManager {
   }
 
   public create(options: IObjectCreateOptions): CCMPObject {
-    void options;
-    throw new Error(
-      "CCMPObjectsManager.create: client-side object creation is not supported by CCMP. Use server-side ccmp.objects.create.",
-    );
+    const ccmpObject = ccmp.objects.create(options.model, options.position, options.rotation, {
+      dimension: options.dimension,
+      alpha: options.alpha,
+    });
+
+    if (!ccmpObject) {
+      throw new Error(`CCMPObjectsManager.create: ccmp.objects.create failed for model "${options.model}"`);
+    }
+
+    return this._register(ccmpObject);
   }
 
   public syncWithMpPool(): void {

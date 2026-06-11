@@ -41,6 +41,7 @@ export class CCMPObject implements IObject {
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
+    this._ccmpObject.destroy();
     this._onDestroy(this);
   }
 
