@@ -1,4 +1,4 @@
-import { type IEntity, type IEntityPoolRouter } from "@RockMod/client/entities";
+import { type IBaseObject, type IEntityPoolRouter } from "@RockMod/client/entities";
 import { type IDataHandler } from "@RockMod/client/net/common/dataHandler/IDataHandler";
 
 export class RageDataHandler implements IDataHandler {
@@ -8,7 +8,10 @@ export class RageDataHandler implements IDataHandler {
     this._entityPoolRouter = entityPoolRouter;
   }
 
-  public addDataHandler(key: string, callback: (entity: IEntity, value: unknown, oldValue?: unknown) => void): void {
+  public addDataHandler(
+    key: string,
+    callback: (object: IBaseObject, value: unknown, oldValue?: unknown) => void,
+  ): void {
     mp.events.addDataHandler(key, (mpEntity, value, oldValue) => {
       const entity = this._entityPoolRouter.resolveFromMp(mpEntity);
       if (!entity) {
