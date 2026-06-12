@@ -410,22 +410,28 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public taskEnterVehicle(
-    _vehicleHandle: number,
-    _timeout: number,
-    _seat: number,
-    _speed: number,
-    _flag: number,
+    vehicleHandle: number,
+    timeout: number,
+    seat: number,
+    speed: number,
+    flag: number,
     _p6: number,
   ): void {
-    this._warnOnce("taskEnterVehicle");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.task.taskEnterVehicle(handle, vehicleHandle, timeout, seat, speed, flag, "");
+    });
   }
 
   public clearTasks(): void {
-    this._warnOnce("clearTasks");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.task.clearPedTasks(handle);
+    });
   }
 
   public clearTasksImmediately(): void {
-    this._warnOnce("clearTasksImmediately");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.task.clearPedTasksImmediately(handle);
+    });
   }
 
   public taskPlayAnim(

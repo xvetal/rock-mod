@@ -278,8 +278,8 @@ export class CCMPVehicle implements IVehicle {
     notImplemented("explode");
   }
 
-  public getPedInSeat(_seat: number): number {
-    return notImplemented("getPedInSeat");
+  public getPedInSeat(seat: number): number {
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getPedInVehicleSeat(handle, seat, false));
   }
 
   public setUndriveable(_toggle: boolean): void {
