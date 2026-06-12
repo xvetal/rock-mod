@@ -36,6 +36,12 @@ type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] exten
 export class CCMPManagersFactory implements IManagersFactory {
   private _netManager: CCMPNetManager | null = null;
 
+  private _blipsManager: CCMPBlipsManager | null = null;
+
+  private _colshapesManager: CCMPColshapesManager | null = null;
+
+  private _markersManager: CCMPMarkersManager | null = null;
+
   private _objectsManager: CCMPObjectsManager | null = null;
 
   private _pedsManager: CCMPPedsManager | null = null;
@@ -65,6 +71,9 @@ export class CCMPManagersFactory implements IManagersFactory {
     if (
       this._syncedMetaBridgeRegistered ||
       !this._netManager ||
+      !this._blipsManager ||
+      !this._colshapesManager ||
+      !this._markersManager ||
       !this._objectsManager ||
       !this._pedsManager ||
       !this._playersManager ||
@@ -74,6 +83,9 @@ export class CCMPManagersFactory implements IManagersFactory {
     }
 
     new CCMPSyncedMetaBridge(this._netManager.events, {
+      blips: this._blipsManager,
+      colshapes: this._colshapesManager,
+      markers: this._markersManager,
       objects: this._objectsManager,
       peds: this._pedsManager,
       players: this._playersManager,
@@ -85,17 +97,23 @@ export class CCMPManagersFactory implements IManagersFactory {
 
   public createBlipsManager(): ManagerReturn<"createBlipsManager"> {
     const netManager = this._requireNetManager("createBlipsManager");
-    return new CCMPBlipsManager(netManager.events);
+    this._blipsManager = new CCMPBlipsManager(netManager.events);
+    this._registerSyncedMetaBridgeIfReady();
+    return this._blipsManager;
   }
 
   public createColshapesManager(): ManagerReturn<"createColshapesManager"> {
     const netManager = this._requireNetManager("createColshapesManager");
-    return new CCMPColshapesManager(netManager.events);
+    this._colshapesManager = new CCMPColshapesManager(netManager.events);
+    this._registerSyncedMetaBridgeIfReady();
+    return this._colshapesManager;
   }
 
   public createMarkersManager(): ManagerReturn<"createMarkersManager"> {
     const netManager = this._requireNetManager("createMarkersManager");
-    return new CCMPMarkersManager(netManager.events);
+    this._markersManager = new CCMPMarkersManager(netManager.events);
+    this._registerSyncedMetaBridgeIfReady();
+    return this._markersManager;
   }
 
   public createObjectsManager(): ManagerReturn<"createObjectsManager"> {

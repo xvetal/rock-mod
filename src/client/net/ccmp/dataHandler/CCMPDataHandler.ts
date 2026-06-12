@@ -1,9 +1,9 @@
-import { type IEntity } from "../../../entities";
+import { type IBaseObject } from "../../../entities";
 import { type IDataHandler } from "../../common/dataHandler/IDataHandler";
 import { type CCMPEventsManager } from "../events/CCMPEventsManager";
 import { ClientInternalEventName } from "../../common/events/types";
 
-type DataHandlerCallback = (entity: IEntity, value: unknown, oldValue?: unknown) => void;
+type DataHandlerCallback = (object: IBaseObject, value: unknown, oldValue?: unknown) => void;
 
 /**
  * Реализация `IDataHandler` под CCMP поверх `rm::syncedMetaChange`.
@@ -24,7 +24,7 @@ export class CCMPDataHandler implements IDataHandler {
   public constructor(events: CCMPEventsManager) {
     events.onInternal({
       [ClientInternalEventName.SyncedMetaChange]: (
-        entity: IEntity,
+        object: IBaseObject,
         key: string,
         value: unknown,
         oldValue: unknown,
@@ -35,7 +35,7 @@ export class CCMPDataHandler implements IDataHandler {
         }
         for (const callback of [...callbacks]) {
           try {
-            callback(entity, value, oldValue);
+            callback(object, value, oldValue);
           } catch (error) {
             console.error(`[CCMPDataHandler] callback for key "${key}" failed:`, error);
           }

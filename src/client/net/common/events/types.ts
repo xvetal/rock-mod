@@ -1,4 +1,4 @@
-import { type IBaseObject, type IEntity, type IPlayer, type IVehicle } from "@RockMod/client/entities";
+import { type IBaseObject, type IPlayer, type IVehicle } from "@RockMod/client/entities";
 import { type IVector3D } from "@shared/common/utils";
 
 export enum ClientInternalEventName {
@@ -47,5 +47,10 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.PlayerWeaponShot]: () => void;
   [ClientInternalEventName.Render]: () => void;
   [ClientInternalEventName.Click]: (options: IClickOptions) => void;
-  [ClientInternalEventName.SyncedMetaChange]: (entity: IEntity, key: string, value: unknown, oldValue: unknown) => void;
+  [ClientInternalEventName.SyncedMetaChange]: (
+    object: IBaseObject,
+    key: string,
+    value: unknown,
+    oldValue: unknown,
+  ) => void;
 }

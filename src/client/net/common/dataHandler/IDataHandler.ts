@@ -1,5 +1,5 @@
-import { type IEntity } from "@RockMod/client/entities";
+import { type IBaseObject } from "@RockMod/client/entities";
 
 export interface IDataHandler {
-  addDataHandler(key: string, callback: (entity: IEntity, value: unknown, oldValue?: unknown) => void): void;
+  addDataHandler(key: string, callback: (object: IBaseObject, value: unknown, oldValue?: unknown) => void): void;
 }
