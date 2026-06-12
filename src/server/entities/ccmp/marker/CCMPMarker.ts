@@ -78,6 +78,14 @@ export class CCMPMarker extends CCMPWorldObject implements IMarker {
     this._ccmpMarker.dimension = value;
   }
 
+  public getNetData(name: string): unknown {
+    return this._ccmpMarker.getStreamSyncedMeta(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this._ccmpMarker.setStreamSyncedMeta(name, value);
+  }
+
   public setVisible(value: boolean): void {
     this._ccmpMarker.visible = value;
   }

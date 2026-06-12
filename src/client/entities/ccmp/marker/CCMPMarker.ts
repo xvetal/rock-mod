@@ -85,6 +85,43 @@ export class CCMPMarker implements IMarker {
     return new Vector3D(x, y, z);
   }
 
+  public getVariable(name: string): unknown | null {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return null;
+    }
+
+    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Marker, remoteId, name);
+    return value === undefined ? null : value;
+  }
+
+  public getSyncedMeta(key: string): unknown | undefined {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return undefined;
+    }
+
+    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Marker, remoteId, key);
+  }
+
+  public hasSyncedMeta(key: string): boolean {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return false;
+    }
+
+    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Marker, remoteId, key);
+  }
+
+  public getSyncedMetaKeys(): readonly string[] {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return [];
+    }
+
+    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Marker, remoteId);
+  }
+
   public setVisible(_value: boolean): void {
     notImplemented("setVisible");
   }

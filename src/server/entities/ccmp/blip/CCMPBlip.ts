@@ -87,6 +87,14 @@ export class CCMPBlip extends CCMPWorldObject implements IBlip {
     this._ccmpBlip.dimension = value;
   }
 
+  public getNetData(name: string): unknown {
+    return this._ccmpBlip.getStreamSyncedMeta(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this._ccmpBlip.setStreamSyncedMeta(name, value);
+  }
+
   public setName(value: string): void {
     this._ccmpBlip.name = value;
   }
