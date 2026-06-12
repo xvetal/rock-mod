@@ -34,14 +34,17 @@ type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] exten
   : never;
 
 export class CCMPManagersFactory implements IManagersFactory {
-  /**
-   * Сохраняем созданный `CCMPNetManager` потому что другим менеджерам
-   * (например, `CCMPPlayersManager`) нужен доступ к его событиям. Порядок
-   * создания в `RockMod` гарантирует, что `createNetManager` вызывается
-   * первым — мы можем безопасно полагаться на наличие `_netManager` в
-   * последующих фабричных методах.
-   */
   private _netManager: CCMPNetManager | null = null;
+
+  private _objectsManager: CCMPObjectsManager | null = null;
+
+  private _pedsManager: CCMPPedsManager | null = null;
+
+  private _playersManager: CCMPPlayersManager | null = null;
+
+  private _vehiclesManager: CCMPVehiclesManager | null = null;
+
+  private _syncedMetaBridgeRegistered = false;
 
   public createNetManager(): ManagerReturn<"createNetManager"> {
     this._netManager = new CCMPNetManager();
@@ -52,11 +55,32 @@ export class CCMPManagersFactory implements IManagersFactory {
     if (!this._netManager) {
       throw new Error(
         `CCMPManagersFactory.${forMethod}: ` +
-          "createNetManager() ещё не вызывался. Это нарушение контракта порядка " +
-          "фабричных методов в RockMod-конструкторе.",
+          "createNetManager() was not called yet. This violates RockMod manager factory order.",
       );
     }
     return this._netManager;
+  }
+
+  private _registerSyncedMetaBridgeIfReady(): void {
+    if (
+      this._syncedMetaBridgeRegistered ||
+      !this._netManager ||
+      !this._objectsManager ||
+      !this._pedsManager ||
+      !this._playersManager ||
+      !this._vehiclesManager
+    ) {
+      return;
+    }
+
+    new CCMPSyncedMetaBridge(this._netManager.events, {
+      objects: this._objectsManager,
+      peds: this._pedsManager,
+      players: this._playersManager,
+      vehicles: this._vehiclesManager,
+    }).register();
+
+    this._syncedMetaBridgeRegistered = true;
   }
 
   public createBlipsManager(): ManagerReturn<"createBlipsManager"> {
@@ -76,23 +100,23 @@ export class CCMPManagersFactory implements IManagersFactory {
 
   public createObjectsManager(): ManagerReturn<"createObjectsManager"> {
     const netManager = this._requireNetManager("createObjectsManager");
-    return new CCMPObjectsManager(netManager.events);
+    this._objectsManager = new CCMPObjectsManager(netManager.events);
+    this._registerSyncedMetaBridgeIfReady();
+    return this._objectsManager;
   }
 
   public createPedsManager(): ManagerReturn<"createPedsManager"> {
     const netManager = this._requireNetManager("createPedsManager");
-    return new CCMPPedsManager(netManager.events);
+    this._pedsManager = new CCMPPedsManager(netManager.events);
+    this._registerSyncedMetaBridgeIfReady();
+    return this._pedsManager;
   }
 
   public createPlayersManager(): ManagerReturn<"createPlayersManager"> {
     const netManager = this._requireNetManager("createPlayersManager");
-    const playersManager = new CCMPPlayersManager(netManager.events);
-    // Bridge для `streamSyncedMetaChange` создаётся здесь — ему нужен
-    // players manager для резолва `entityId → CCMPPlayer`, а events bus
-    // — для эмиссии `rm::syncedMetaChange` (на который уже подписан
-    // `CCMPDataHandler`, инстанцированный в `CCMPNetManager`).
-    new CCMPSyncedMetaBridge(netManager.events, playersManager).register();
-    return playersManager;
+    this._playersManager = new CCMPPlayersManager(netManager.events);
+    this._registerSyncedMetaBridgeIfReady();
+    return this._playersManager;
   }
 
   public createUtilsManager(): ManagerReturn<"createUtilsManager"> {
@@ -100,7 +124,9 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createVehiclesManager(): ManagerReturn<"createVehiclesManager"> {
-    return new CCMPVehiclesManager();
+    this._vehiclesManager = new CCMPVehiclesManager();
+    this._registerSyncedMetaBridgeIfReady();
+    return this._vehiclesManager;
   }
 
   public createBrowserManager(): ManagerReturn<"createBrowserManager"> {
