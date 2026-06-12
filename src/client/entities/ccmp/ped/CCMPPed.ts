@@ -144,22 +144,40 @@ export class CCMPPed implements IPed {
   }
 
   public getVariable(name: string): unknown | null {
-    void name;
-    return null;
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return null;
+    }
+
+    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Ped, remoteId, name);
+    return value === undefined ? null : value;
   }
 
   public getSyncedMeta(key: string): unknown | undefined {
-    void key;
-    return undefined;
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return undefined;
+    }
+
+    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Ped, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
-    void key;
-    return false;
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return false;
+    }
+
+    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Ped, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
-    return [];
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return [];
+    }
+
+    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Ped, remoteId);
   }
 
   public attachToEntity(
