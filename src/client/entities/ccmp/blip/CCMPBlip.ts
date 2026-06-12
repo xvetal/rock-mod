@@ -104,6 +104,43 @@ export class CCMPBlip implements IBlip {
     return this._ccmpBlip.rotation;
   }
 
+  public getVariable(name: string): unknown | null {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return null;
+    }
+
+    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Blip, remoteId, name);
+    return value === undefined ? null : value;
+  }
+
+  public getSyncedMeta(key: string): unknown | undefined {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return undefined;
+    }
+
+    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Blip, remoteId, key);
+  }
+
+  public hasSyncedMeta(key: string): boolean {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return false;
+    }
+
+    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Blip, remoteId, key);
+  }
+
+  public getSyncedMetaKeys(): readonly string[] {
+    const remoteId = this.remoteId;
+    if (remoteId === null) {
+      return [];
+    }
+
+    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Blip, remoteId);
+  }
+
   public setSprite(_value: IBlipSprite): void {
     notImplemented("setSprite");
   }
