@@ -8,6 +8,33 @@ import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 const ZERO_VECTOR: IVector3D = new Vector3D(0, 0, 0);
 
+type CcmpPlayerWithAppearance = CcmpPlayer & {
+  setModel(model: number | string): void;
+  setDecoration(collection: string | number, overlay: string | number): void;
+  removeDecoration(collection: string | number, overlay: string | number): void;
+  clearDecorations(): void;
+  setHeadBlendData(
+    shapeFirstId: number,
+    shapeSecondId: number,
+    shapeThirdId: number,
+    skinFirstId: number,
+    skinSecondId: number,
+    skinThirdId: number,
+    shapeMix: number,
+    skinMix: number,
+    thirdMix: number,
+    isParent: boolean,
+  ): void;
+  setFaceFeature(index: number, value: number): void;
+  setHeadOverlay(overlayId: number, index: number, opacity: number): void;
+  setHeadOverlayColor(overlayId: number, colorTypeId: number, firstColor: number, secondColor: number): void;
+  setEyeColor(eyeColor: number): void;
+  setHairColor(colorId: number, highlightColorId: number): void;
+  setComponentVariation(componentId: number, drawableId: number, textureId: number, paletteId: number): void;
+  setPropertyVariation(componentId: number, drawableId: number, textureId: number, attach: boolean): void;
+  clearProp(componentId: number): void;
+};
+
 export interface ICCMPPlayerOptions {
   /** Network id of the player (same as remoteId — CCMP exposes only one id). */
   readonly id: number;
@@ -127,8 +154,8 @@ export class CCMPPlayer implements IPlayer {
     this._getNativePlayer()?.setHeading(heading);
   }
 
-  public setModel(_value: string): void {
-    this._warnOnce("setModel");
+  public setModel(value: string): void {
+    this._getNativePlayer()?.setModel(value);
   }
 
   public get rotation(): IVector3D {
@@ -326,79 +353,80 @@ export class CCMPPlayer implements IPlayer {
     return this._withHandle(-1, (handle) => ccmp.natives.ped.getPedBoneIndex(handle, boneId));
   }
 
-  public setDecoration(_collection: string, _overlay: string): void {
-    this._warnOnce("setDecoration");
+  public setDecoration(collection: string, overlay: string): void {
+    this._getNativePlayer()?.setDecoration(collection, overlay);
   }
 
-  public removeDecoration(_collection: string, _overlay: string): void {
-    this._warnOnce("removeDecoration");
+  public removeDecoration(collection: string, overlay: string): void {
+    this._getNativePlayer()?.removeDecoration(collection, overlay);
   }
 
   public clearDecorations(): void {
-    this._warnOnce("clearDecorations");
+    this._getNativePlayer()?.clearDecorations();
   }
 
   public setHeadBlendData(
-    _shapeFirstId: number,
-    _shapeSecondId: number,
-    _shapeThirdId: number,
-    _skinFirstId: number,
-    _skinSecondId: number,
-    _skinThirdId: number,
-    _shapeMix: number,
-    _skinMix: number,
-    _thirdMix: number,
-    _isParent: boolean,
+    shapeFirstId: number,
+    shapeSecondId: number,
+    shapeThirdId: number,
+    skinFirstId: number,
+    skinSecondId: number,
+    skinThirdId: number,
+    shapeMix: number,
+    skinMix: number,
+    thirdMix: number,
+    isParent: boolean,
   ): void {
-    this._warnOnce("setHeadBlendData");
+    this._getNativePlayer()?.setHeadBlendData(
+      shapeFirstId,
+      shapeSecondId,
+      shapeThirdId,
+      skinFirstId,
+      skinSecondId,
+      skinThirdId,
+      shapeMix,
+      skinMix,
+      thirdMix,
+      isParent,
+    );
   }
 
-  public setFaceFeature(_index: number, _value: number): void {
-    this._warnOnce("setFaceFeature");
+  public setFaceFeature(index: number, value: number): void {
+    this._getNativePlayer()?.setFaceFeature(index, value);
   }
 
   public setHeadOverlay(
-    _overlayId: number,
-    _index: number,
-    _opacity: number,
+    overlayId: number,
+    index: number,
+    opacity: number,
     _firstColor: number,
     _secondColor: number,
   ): void {
-    this._warnOnce("setHeadOverlay");
+    this._getNativePlayer()?.setHeadOverlay(overlayId, index, opacity);
   }
 
-  public setHeadOverlayColor(
-    _overlayId: number,
-    _colorTypeId: number,
-    _firstColor: number,
-    _secondColor: number,
-  ): void {
-    this._warnOnce("setHeadOverlayColor");
+  public setHeadOverlayColor(overlayId: number, colorTypeId: number, firstColor: number, secondColor: number): void {
+    this._getNativePlayer()?.setHeadOverlayColor(overlayId, colorTypeId, firstColor, secondColor);
   }
 
-  public setEyeColor(_eyeColor: number): void {
-    this._warnOnce("setEyeColor");
+  public setEyeColor(eyeColor: number): void {
+    this._getNativePlayer()?.setEyeColor(eyeColor);
   }
 
-  public setHairColor(_colorId: number, _highlightColorId: number): void {
-    this._warnOnce("setHairColor");
+  public setHairColor(colorId: number, highlightColorId: number): void {
+    this._getNativePlayer()?.setHairColor(colorId, highlightColorId);
   }
 
-  public setComponentVariation(
-    _componentId: number,
-    _drawableId: number,
-    _textureId: number,
-    _paletteId: number,
-  ): void {
-    this._warnOnce("setComponentVariation");
+  public setComponentVariation(componentId: number, drawableId: number, textureId: number, paletteId: number): void {
+    this._getNativePlayer()?.setComponentVariation(componentId, drawableId, textureId, paletteId);
   }
 
-  public setPropertyVariation(_componentId: number, _drawableId: number, _textureId: number, _attach: boolean): void {
-    this._warnOnce("setPropertyVariation");
+  public setPropertyVariation(componentId: number, drawableId: number, textureId: number, attach: boolean): void {
+    this._getNativePlayer()?.setPropertyVariation(componentId, drawableId, textureId, attach);
   }
 
-  public clearProp(_componentId: number): void {
-    this._warnOnce("clearProp");
+  public clearProp(componentId: number): void {
+    this._getNativePlayer()?.clearProp(componentId);
   }
 
   public get isLocalPlayer(): boolean {
@@ -476,14 +504,14 @@ export class CCMPPlayer implements IPlayer {
     });
   }
 
-  private _getNativePlayer(): CcmpPlayer | null {
+  private _getNativePlayer(): CcmpPlayerWithAppearance | null {
     try {
-      const player = ccmp.players.getById(this._id) as CcmpPlayer | null;
+      const player = ccmp.players.getById(this._id) as CcmpPlayerWithAppearance | null;
       if (player) {
         return player;
       }
 
-      const localPlayer = ccmp.players.local as CcmpPlayer | null;
+      const localPlayer = ccmp.players.local as CcmpPlayerWithAppearance | null;
       return localPlayer?.id === this._id ? localPlayer : null;
     } catch {
       return null;
