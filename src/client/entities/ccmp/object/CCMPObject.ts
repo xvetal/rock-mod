@@ -222,23 +222,31 @@ export class CCMPObject implements IObject {
   ): void {
     const targetHandle = this._normalizeHandle(entity);
     if (!targetHandle) return;
+    const normalizedBoneIndex = this._normalizeNativeInt(boneIndex);
+    const normalizedXPos = this._normalizeNativeNumber(xPos);
+    const normalizedYPos = this._normalizeNativeNumber(yPos);
+    const normalizedZPos = this._normalizeNativeNumber(zPos);
+    const normalizedXRot = this._normalizeNativeNumber(xRot);
+    const normalizedYRot = this._normalizeNativeNumber(yRot);
+    const normalizedZRot = this._normalizeNativeNumber(zRot);
+    const normalizedVertexIndex = this._normalizeNativeInt(vertexIndex);
 
     this._withHandleVoid((handle) => {
       ccmp.natives.entity.attachEntityToEntity(
         handle,
         targetHandle,
-        boneIndex,
-        xPos,
-        yPos,
-        zPos,
-        xRot,
-        yRot,
-        zRot,
+        normalizedBoneIndex,
+        normalizedXPos,
+        normalizedYPos,
+        normalizedZPos,
+        normalizedXRot,
+        normalizedYRot,
+        normalizedZRot,
         false,
         useSoftPinning,
         collision,
         isPed,
-        vertexIndex,
+        normalizedVertexIndex,
         fixedRot,
         0,
       );
@@ -266,23 +274,31 @@ export class CCMPObject implements IObject {
   ): void {
     const targetHandle = this._normalizeHandle(target.handle);
     if (!targetHandle) return;
+    const normalizedBoneIndex = this._normalizeNativeInt(boneIndex);
+    const normalizedOffsetX = this._normalizeNativeNumber(offset.x);
+    const normalizedOffsetY = this._normalizeNativeNumber(offset.y);
+    const normalizedOffsetZ = this._normalizeNativeNumber(offset.z);
+    const normalizedRotationX = this._normalizeNativeNumber(rotation.x);
+    const normalizedRotationY = this._normalizeNativeNumber(rotation.y);
+    const normalizedRotationZ = this._normalizeNativeNumber(rotation.z);
+    const normalizedVertexIndex = this._normalizeNativeInt(vertexIndex);
 
     this._withHandleVoid((handle) => {
       ccmp.natives.entity.attachEntityToEntity(
         handle,
         targetHandle,
-        boneIndex,
-        offset.x,
-        offset.y,
-        offset.z,
-        rotation.x,
-        rotation.y,
-        rotation.z,
+        normalizedBoneIndex,
+        normalizedOffsetX,
+        normalizedOffsetY,
+        normalizedOffsetZ,
+        normalizedRotationX,
+        normalizedRotationY,
+        normalizedRotationZ,
         p9,
         useSoftPinning,
         collision,
         isPed,
-        vertexIndex,
+        normalizedVertexIndex,
         fixedRot,
         0,
       );
@@ -326,6 +342,15 @@ export class CCMPObject implements IObject {
   private _normalizeHandle(value: number): number {
     const handle = Number(value);
     return Number.isFinite(handle) && handle > 0 ? Math.trunc(handle) : 0;
+  }
+
+  private _normalizeNativeNumber(value: number): number {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  private _normalizeNativeInt(value: number): number {
+    return Math.trunc(this._normalizeNativeNumber(value));
   }
 
   private _getOffsetFromCachedTransform(offsetX: number, offsetY: number, offsetZ: number): Vector3D {
