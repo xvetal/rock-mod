@@ -1,11 +1,23 @@
-import { type CcmpServerBuiltinEvents } from "@classic-mp/types/server";
+import {
+  type CcmpServerBuiltinEvents,
+  type Player as CcmpServerPlayer,
+  type Vehicle as CcmpServerVehicle,
+} from "@classic-mp/types/server";
 import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IServerInternalEvents } from "../../common/events/types";
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
 import { type CCMPPlayer } from "../../../entities/ccmp/player/CCMPPlayer";
 import { RockMod } from "../../../RockMod";
 
-export interface ICCMPServerInternalEvents extends IServerInternalEvents, CcmpServerBuiltinEvents {}
+export interface ICCMPServerVehicleEvents {
+  playerEnterVehicle: (player: CcmpServerPlayer, vehicle: CcmpServerVehicle, seat: number) => void;
+  playerExitVehicle: (player: CcmpServerPlayer, vehicle: CcmpServerVehicle, seat: number) => void;
+}
+
+export interface ICCMPServerInternalEvents
+  extends IServerInternalEvents,
+    CcmpServerBuiltinEvents,
+    ICCMPServerVehicleEvents {}
 
 export class CCMPEventsManager implements IEventsManager {
   public onInternal(events: Partial<ICCMPServerInternalEvents>): void {

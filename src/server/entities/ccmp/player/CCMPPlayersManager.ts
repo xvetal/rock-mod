@@ -3,6 +3,7 @@ import { CCMPEntitiesManager } from "../entity/CCMPEntitiesManager";
 import { CCMPPlayer } from "./CCMPPlayer";
 import { type CCMPNetManager } from "../../../net/ccmp/CCMPNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
+import { RockMod } from "../../../RockMod";
 
 export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implements IPlayersManager {
   public constructor(net: CCMPNetManager) {
@@ -69,6 +70,20 @@ export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implemen
         const player = this.findByID(ccmpPlayer.id);
         if (!player) return;
         net.events.emitInternal(ServerInternalEventName.PlayerDimensionChange, player, oldDim, newDim);
+      },
+      playerEnterVehicle: (ccmpPlayer, ccmpVehicle, seat) => {
+        const player = this.findByID(ccmpPlayer.id);
+        const vehicle = RockMod.instance.vehicles.findByID(ccmpVehicle.id);
+        if (!player || !vehicle) return;
+
+        net.events.emitInternal(ServerInternalEventName.PlayerEnterVehicle, player, vehicle, seat);
+      },
+      playerExitVehicle: (ccmpPlayer, ccmpVehicle) => {
+        const player = this.findByID(ccmpPlayer.id);
+        const vehicle = RockMod.instance.vehicles.findByID(ccmpVehicle.id);
+        if (!player || !vehicle) return;
+
+        net.events.emitInternal(ServerInternalEventName.PlayerExitVehicle, player, vehicle);
       },
     });
   }
