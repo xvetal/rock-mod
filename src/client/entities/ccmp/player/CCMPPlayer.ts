@@ -434,7 +434,9 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public taskSwapWeapon(): void {
-    this._warnOnce("taskSwapWeapon");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.task.taskSwapWeapon(handle, true);
+    });
   }
 
   public taskEnterVehicle(
