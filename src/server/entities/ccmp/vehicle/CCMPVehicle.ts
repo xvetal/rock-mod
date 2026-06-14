@@ -1,15 +1,11 @@
 import { CCMPEntity } from "../entity/CCMPEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
-import { type IRGBA } from "../../../../shared/common/utils";
+import { type IRGBA, RGBA } from "../../../../shared/common/utils";
 import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { BaseObjectType } from "../../../../shared";
 import { RockMod } from "../../../RockMod";
 import { type CCMPPlayer } from "../player/CCMPPlayer";
 import type { Vehicle as CcmpVehicle } from "@classic-mp/types/server";
-
-const notImplemented = (name: string): never => {
-  throw new Error(`Not implemented yet: ${name}`);
-};
 
 export interface ICCMPVehicleOptions {
   ccmpVehicle: CcmpVehicle;
@@ -17,9 +13,29 @@ export interface ICCMPVehicleOptions {
 }
 
 export class CCMPVehicle extends CCMPEntity implements IVehicle {
+  private static readonly _customPrimaryColorMeta = "rockMod:customPrimaryColor";
+
+  private static readonly _customSecondaryColorMeta = "rockMod:customSecondaryColor";
+
+  private static readonly _vehicleModsMeta = "rockMod:vehicleMods";
+
+  private static readonly _neonEnabledMeta = "rockMod:neonEnabled";
+
+  private static readonly _neonColorMeta = "rockMod:neonColor";
+
+  private static readonly _windowTintMeta = "rockMod:windowTint";
+
+  private static readonly _wheelTypeMeta = "rockMod:wheelType";
+
   private readonly _ccmpVehicle: CcmpVehicle;
 
   private readonly _onDestroy: (vehicle: CCMPVehicle) => void;
+
+  private readonly _mods = new Map<number, number>();
+
+  private _customPrimaryColor = new RGBA(0, 0, 0);
+
+  private _customSecondaryColor = new RGBA(0, 0, 0);
 
   public override get id(): number {
     return this._ccmpVehicle.id;
@@ -52,11 +68,11 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public get bodyHealth(): number {
-    return notImplemented("CCMPVehicle.bodyHealth");
+    return this._ccmpVehicle.bodyHealth;
   }
 
   public get engineHealth(): number {
-    return notImplemented("CCMPVehicle.engineHealth");
+    return this._ccmpVehicle.engineHealth;
   }
 
   public get numberPlate(): string {
@@ -64,27 +80,28 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public get isLocked(): boolean {
-    return notImplemented("CCMPVehicle.isLocked");
+    const lockState = this._ccmpVehicle.lockState;
+    return lockState !== 0 && lockState !== 1;
   }
 
   public get isDead(): boolean {
-    return notImplemented("CCMPVehicle.isDead");
+    return !this.isExists || this.bodyHealth <= 0;
   }
 
   public get primaryColor(): number {
-    return notImplemented("CCMPVehicle.primaryColor");
+    return this._ccmpVehicle.primaryColor;
   }
 
   public get secondaryColor(): number {
-    return notImplemented("CCMPVehicle.secondaryColor");
+    return this._ccmpVehicle.secondaryColor;
   }
 
   public get customPrimaryColor(): IRGBA {
-    return notImplemented("CCMPVehicle.customPrimaryColor");
+    return this._customPrimaryColor;
   }
 
   public get customSecondaryColor(): IRGBA {
-    return notImplemented("CCMPVehicle.customSecondaryColor");
+    return this._customSecondaryColor;
   }
 
   public get driver(): CCMPPlayer | null {
@@ -112,6 +129,7 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     super();
     this._ccmpVehicle = options.ccmpVehicle;
     this._onDestroy = options.onDestroy;
+    this._restoreCompatibilityState();
   }
 
   public override destroy(): void {
@@ -136,12 +154,12 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     this._ccmpVehicle.rotation = { x: value.x, y: value.y, z: value.z };
   }
 
-  public setBodyHealth(_value: number): void {
-    notImplemented("CCMPVehicle.setBodyHealth");
+  public setBodyHealth(value: number): void {
+    this._ccmpVehicle.bodyHealth = value;
   }
 
-  public setEngineHealth(_value: number): void {
-    notImplemented("CCMPVehicle.setEngineHealth");
+  public setEngineHealth(value: number): void {
+    this._ccmpVehicle.engineHealth = value;
   }
 
   public setEngineOn(value: boolean): void {
@@ -152,48 +170,51 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     this._ccmpVehicle.numberPlateText = value;
   }
 
-  public setLocked(_value: boolean): void {
-    notImplemented("CCMPVehicle.setLocked");
+  public setLocked(value: boolean): void {
+    this._ccmpVehicle.lockState = value ? 2 : 1;
   }
 
-  public setPrimaryColor(_value: number): void {
-    notImplemented("CCMPVehicle.setPrimaryColor");
+  public setPrimaryColor(value: number): void {
+    this._ccmpVehicle.primaryColor = value;
   }
 
-  public setSecondaryColor(_value: number): void {
-    notImplemented("CCMPVehicle.setSecondaryColor");
+  public setSecondaryColor(value: number): void {
+    this._ccmpVehicle.secondaryColor = value;
   }
 
-  public setCustomPrimaryColor(_value: IRGBA): void {
-    notImplemented("CCMPVehicle.setCustomPrimaryColor");
+  public setCustomPrimaryColor(value: IRGBA): void {
+    this._customPrimaryColor = this._toRgba(value);
+    this._setCompatibilityMeta(CCMPVehicle._customPrimaryColorMeta, this._customPrimaryColor);
   }
 
-  public setCustomSecondaryColor(_value: IRGBA): void {
-    notImplemented("CCMPVehicle.setCustomSecondaryColor");
+  public setCustomSecondaryColor(value: IRGBA): void {
+    this._customSecondaryColor = this._toRgba(value);
+    this._setCompatibilityMeta(CCMPVehicle._customSecondaryColorMeta, this._customSecondaryColor);
   }
 
-  public setMod(_modType: number, _modIndex: number): void {
-    notImplemented("CCMPVehicle.setMod");
+  public setMod(modType: number, modIndex: number): void {
+    this._mods.set(Math.trunc(modType), Math.trunc(modIndex));
+    this._setCompatibilityMeta(CCMPVehicle._vehicleModsMeta, Object.fromEntries(this._mods));
   }
 
-  public getMod(_modType: number): number {
-    return notImplemented("CCMPVehicle.getMod");
+  public getMod(modType: number): number {
+    return this._mods.get(Math.trunc(modType)) ?? -1;
   }
 
-  public setNeonEnabled(_enabled: boolean): void {
-    notImplemented("CCMPVehicle.setNeonEnabled");
+  public setNeonEnabled(enabled: boolean): void {
+    this._setCompatibilityMeta(CCMPVehicle._neonEnabledMeta, enabled);
   }
 
-  public setNeonColor(_r: number, _g: number, _b: number): void {
-    notImplemented("CCMPVehicle.setNeonColor");
+  public setNeonColor(r: number, g: number, b: number): void {
+    this._setCompatibilityMeta(CCMPVehicle._neonColorMeta, new RGBA(r, g, b));
   }
 
-  public setWindowTint(_tintType: number): void {
-    notImplemented("CCMPVehicle.setWindowTint");
+  public setWindowTint(tintType: number): void {
+    this._setCompatibilityMeta(CCMPVehicle._windowTintMeta, Math.trunc(tintType));
   }
 
-  public setWheelType(_wheelType: number): void {
-    notImplemented("CCMPVehicle.setWheelType");
+  public setWheelType(wheelType: number): void {
+    this._setCompatibilityMeta(CCMPVehicle._wheelTypeMeta, Math.trunc(wheelType));
   }
 
   public setPlateType(plateType: number): void {
@@ -201,10 +222,45 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public explode(): void {
-    notImplemented("CCMPVehicle.explode");
+    this._ccmpVehicle.bodyHealth = 0;
+    this._ccmpVehicle.engineHealth = -4000;
+    this._ccmpVehicle.engineOn = false;
   }
 
   public repair(): void {
-    notImplemented("CCMPVehicle.repair");
+    this._ccmpVehicle.bodyHealth = 1000;
+    this._ccmpVehicle.engineHealth = 1000;
+  }
+
+  private _restoreCompatibilityState(): void {
+    this._customPrimaryColor = this._readColorMeta(CCMPVehicle._customPrimaryColorMeta);
+    this._customSecondaryColor = this._readColorMeta(CCMPVehicle._customSecondaryColorMeta);
+
+    const mods = this._ccmpVehicle.getStreamSyncedMeta<Record<string, unknown>>(CCMPVehicle._vehicleModsMeta);
+    if (!mods || typeof mods !== "object") return;
+    for (const [key, value] of Object.entries(mods)) {
+      const modType = Number(key);
+      const modIndex = Number(value);
+      if (Number.isFinite(modType) && Number.isFinite(modIndex)) {
+        this._mods.set(Math.trunc(modType), Math.trunc(modIndex));
+      }
+    }
+  }
+
+  private _readColorMeta(key: string): RGBA {
+    const value = this._ccmpVehicle.getStreamSyncedMeta<Partial<IRGBA>>(key);
+    if (!value || typeof value !== "object") {
+      return new RGBA(0, 0, 0);
+    }
+
+    return new RGBA(Number(value.r) || 0, Number(value.g) || 0, Number(value.b) || 0, value.a);
+  }
+
+  private _setCompatibilityMeta(key: string, value: unknown): void {
+    this._ccmpVehicle.setStreamSyncedMeta(key, value);
+  }
+
+  private _toRgba(value: IRGBA): RGBA {
+    return new RGBA(value.r, value.g, value.b, value.a);
   }
 }

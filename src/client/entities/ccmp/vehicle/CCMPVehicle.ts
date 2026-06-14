@@ -21,11 +21,9 @@ export interface ICCMPNativeVehicle {
   destroy(): boolean;
 }
 
-const notImplemented = (memberName: string): never => {
-  throw new Error(`CCMPVehicle.${memberName}: not implemented`);
-};
-
 type CCMPVehicleNatives = typeof ccmp.natives.vehicle & {
+  setVehicleEnginePowerMultiplier?: (vehicle: number, value: number) => void;
+  setVehicleEngineTorqueMultiplier?: (vehicle: number, value: number) => void;
   setVehicleDashboardColor?: (vehicle: number, colorIndex: number) => void;
   setVehicleDashboardColour?: (vehicle: number, colorIndex: number) => void;
   setVehicleInteriorColor?: (vehicle: number, colorIndex: number) => void;
@@ -34,6 +32,8 @@ type CCMPVehicleNatives = typeof ccmp.natives.vehicle & {
 
 export class CCMPVehicle implements IVehicle {
   private _destroyed = false;
+
+  private readonly _handlingOverrides = new Map<string, number>();
 
   public constructor(
     private readonly _ccmpVehicle: ICCMPNativeVehicle,
@@ -82,24 +82,26 @@ export class CCMPVehicle implements IVehicle {
     return this._ccmpVehicle.dimension;
   }
 
-  public setPosition(_value: IVector3D): void {
-    notImplemented("setPosition");
+  public setPosition(value: IVector3D): void {
+    this.setCoords(value.x, value.y, value.z, false, false, false, false);
   }
 
   public setDimension(_value: number): void {
-    notImplemented("setDimension");
+    // CCMP client vehicle dimensions are server/local-create metadata only.
   }
 
   public setCoords(
-    _xPos: number,
-    _yPos: number,
-    _zPos: number,
-    _xAxis: boolean,
-    _yAxis: boolean,
-    _zAxis: boolean,
-    _clearArea: boolean,
+    xPos: number,
+    yPos: number,
+    zPos: number,
+    xAxis: boolean,
+    yAxis: boolean,
+    zAxis: boolean,
+    clearArea: boolean,
   ): void {
-    notImplemented("setCoords");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityCoords(handle, xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
+    });
   }
 
   public get model(): number {
@@ -110,12 +112,14 @@ export class CCMPVehicle implements IVehicle {
     return this._ccmpVehicle.heading;
   }
 
-  public setHeading(_heading: number): void {
-    notImplemented("setHeading");
+  public setHeading(heading: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityHeading(handle, heading);
+    });
   }
 
   public setModel(_value: string): void {
-    notImplemented("setModel");
+    // Client-side vehicle model changes are not part of CCMP's authoritative vehicle API.
   }
 
   public get rotation(): Vector3D {
@@ -128,24 +132,34 @@ export class CCMPVehicle implements IVehicle {
     return new Vector3D(-Math.sin(headingRad), Math.cos(headingRad), 0);
   }
 
-  public setRotation(_value: IVector3D): void {
-    notImplemented("setRotation");
+  public setRotation(value: IVector3D): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityRotation(handle, value.x, value.y, value.z, 2, true);
+    });
   }
 
-  public freezePosition(_freeze: boolean): void {
-    notImplemented("freezePosition");
+  public freezePosition(freeze: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.freezeEntityPosition(handle, freeze);
+    });
   }
 
-  public setCollision(_collision: boolean, _keepPhysics: boolean): void {
-    notImplemented("setCollision");
+  public setCollision(collision: boolean, keepPhysics: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityCollision(handle, collision, keepPhysics);
+    });
   }
 
-  public setInvincible(_invincible: boolean): void {
-    notImplemented("setInvincible");
+  public setInvincible(invincible: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityInvincible(handle, invincible, true);
+    });
   }
 
-  public setVisible(_visible: boolean): void {
-    notImplemented("setVisible");
+  public setVisible(visible: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.setEntityVisible(handle, visible, false);
+    });
   }
 
   public setAlpha(alpha: number): void {
@@ -220,38 +234,72 @@ export class CCMPVehicle implements IVehicle {
   }
 
   public attachToEntity(
-    _target: IBaseObject,
-    _boneIndex: number,
-    _offset: IVector3D,
-    _rotation: IVector3D,
-    _p9: boolean,
-    _useSoftPinning: boolean,
-    _collision: boolean,
-    _isPed: boolean,
-    _vertexIndex: number,
-    _fixedRot: boolean,
+    target: IBaseObject,
+    boneIndex: number,
+    offset: IVector3D,
+    rotation: IVector3D,
+    p9: boolean,
+    useSoftPinning: boolean,
+    collision: boolean,
+    isPed: boolean,
+    vertexIndex: number,
+    fixedRot: boolean,
   ): void {
-    notImplemented("attachToEntity");
+    const targetHandle = this._normalizeHandle(target.handle);
+    if (!targetHandle) return;
+    const normalizedBoneIndex = this._normalizeNativeInt(boneIndex);
+    const normalizedOffsetX = this._normalizeNativeNumber(offset.x);
+    const normalizedOffsetY = this._normalizeNativeNumber(offset.y);
+    const normalizedOffsetZ = this._normalizeNativeNumber(offset.z);
+    const normalizedRotationX = this._normalizeNativeNumber(rotation.x);
+    const normalizedRotationY = this._normalizeNativeNumber(rotation.y);
+    const normalizedRotationZ = this._normalizeNativeNumber(rotation.z);
+    const normalizedVertexIndex = this._normalizeNativeInt(vertexIndex);
+
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.attachEntityToEntity(
+        handle,
+        targetHandle,
+        normalizedBoneIndex,
+        normalizedOffsetX,
+        normalizedOffsetY,
+        normalizedOffsetZ,
+        normalizedRotationX,
+        normalizedRotationY,
+        normalizedRotationZ,
+        p9,
+        useSoftPinning,
+        collision,
+        isPed,
+        normalizedVertexIndex,
+        fixedRot,
+        0,
+      );
+    });
   }
 
-  public detach(_useDetachVelocity: boolean, _collision: boolean): void {
-    notImplemented("detach");
+  public detach(useDetachVelocity: boolean, collision: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.entity.detachEntity(handle, useDetachVelocity, collision);
+    });
   }
 
   public getSpeed(): number {
-    return notImplemented("getSpeed");
+    return this.speed;
   }
 
-  public isPlayingAnim(_dictionary: string, _name: string, _taskFlag: number): boolean {
-    return notImplemented("isPlayingAnim");
+  public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
+    return this._withHandle(false, (handle) =>
+      ccmp.natives.entity.isEntityPlayingAnim(handle, dictionary, name, taskFlag),
+    );
   }
 
   public get bodyHealth(): number {
-    return notImplemented("bodyHealth");
+    return this._withHandle(1000, (handle) => ccmp.natives.vehicle.getVehicleBodyHealth(handle));
   }
 
   public get engineHealth(): number {
-    return notImplemented("engineHealth");
+    return this._withHandle(1000, (handle) => ccmp.natives.vehicle.getVehicleEngineHealth(handle));
   }
 
   public get numberPlate(): string {
@@ -262,60 +310,80 @@ export class CCMPVehicle implements IVehicle {
     return !this.isExists;
   }
 
-  public setBodyHealth(_value: number): void {
-    notImplemented("setBodyHealth");
+  public setBodyHealth(value: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleBodyHealth(handle, value);
+    });
   }
 
-  public setEngineHealth(_value: number): void {
-    notImplemented("setEngineHealth");
+  public setEngineHealth(value: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleEngineHealth(handle, value);
+    });
   }
 
-  public setNumberPlate(_value: string): void {
-    notImplemented("setNumberPlate");
+  public setNumberPlate(value: string): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleNumberPlateText(handle, value.slice(0, 8));
+    });
   }
 
   public explode(): void {
-    notImplemented("explode");
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.explodeVehicle(handle, true, false);
+    });
   }
 
   public getPedInSeat(seat: number): number {
     return this._withHandle(0, (handle) => ccmp.natives.vehicle.getPedInVehicleSeat(handle, seat, false));
   }
 
-  public setUndriveable(_toggle: boolean): void {
-    notImplemented("setUndriveable");
+  public setUndriveable(toggle: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleUndriveable(handle, toggle);
+    });
   }
 
   public get maxNumberOfPassengers(): number {
-    return notImplemented("maxNumberOfPassengers");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleMaxNumberOfPassengers(handle));
   }
 
   public get gear(): number {
-    return notImplemented("gear");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle._getVehicleCurrentDriveGear(handle));
   }
 
   public get speed(): number {
-    return notImplemented("speed");
+    return this._withHandle(0, (handle) => ccmp.natives.entity.getEntitySpeed(handle));
   }
 
   public get isEngineRunning(): boolean {
-    return notImplemented("isEngineRunning");
+    return this._withHandle(false, (handle) => ccmp.natives.vehicle.getIsVehicleEngineRunning(handle));
   }
 
-  public setEngineOn(_toggle: boolean, _instantly: boolean, _otherwise: boolean): void {
-    notImplemented("setEngineOn");
+  public setEngineOn(toggle: boolean, instantly: boolean, otherwise: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleEngineOn(handle, toggle, instantly, otherwise);
+    });
   }
 
   public get lightsState(): ILightState {
-    return notImplemented("lightsState");
+    return this._withHandle({ lightsOn: false, highbeamsOn: false }, (handle) => {
+      const state = ccmp.natives.vehicle.getVehicleLightsState(handle);
+      return { lightsOn: state.lightson, highbeamsOn: state.highbeamson };
+    });
   }
 
   public get isLocked(): boolean {
-    return notImplemented("isLocked");
+    return this._withHandle(false, (handle) => {
+      const lockStatus = ccmp.natives.vehicle.getVehicleDoorLockStatus(handle);
+      return lockStatus !== 0 && lockStatus !== 1;
+    });
   }
 
-  public setIsLocked(_value: boolean): void {
-    notImplemented("setIsLocked");
+  public setIsLocked(value: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleDoorsLocked(handle, value ? 2 : 1);
+    });
   }
 
   public setCustomPrimaryColour(color: IRGB): void {
@@ -389,44 +457,79 @@ export class CCMPVehicle implements IVehicle {
     return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleWheelType(handle));
   }
 
-  public setNumberPlateTextIndex(_index: number): void {
-    notImplemented("setNumberPlateTextIndex");
+  public setNumberPlateTextIndex(index: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleNumberPlateTextIndex(handle, index);
+    });
   }
 
   public get numberPlateTextIndex(): number {
-    return notImplemented("numberPlateTextIndex");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleNumberPlateTextIndex(handle));
   }
 
-  public setDoorOpen(_doorIndex: number, _loose: boolean, _openInstantly: boolean): void {
-    notImplemented("setDoorOpen");
+  public setDoorOpen(doorIndex: number, loose: boolean, openInstantly: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleDoorOpen(handle, doorIndex, loose, openInstantly);
+    });
   }
 
-  public setDoorShut(_doorIndex: number, _instantly: boolean): void {
-    notImplemented("setDoorShut");
+  public setDoorShut(doorIndex: number, instantly: boolean): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleDoorShut(handle, doorIndex, instantly);
+    });
   }
 
-  public setHandling(_field: string, _value: number): void {
-    notImplemented("setHandling");
+  public setHandling(field: string, value: number): void {
+    this._handlingOverrides.set(field, this._normalizeNativeNumber(value));
   }
 
-  public getHandling(_field: string): number {
-    return notImplemented("getHandling");
+  public getHandling(field: string): number {
+    const override = this._handlingOverrides.get(field);
+    if (override !== undefined) {
+      return override;
+    }
+
+    return this._withHandle(this._getDefaultHandlingValue(field), (handle) =>
+      this._getNativeHandlingValue(handle, field),
+    );
   }
 
-  public setEnginePowerMultiplier(_value: number): void {
-    notImplemented("setEnginePowerMultiplier");
+  public setEnginePowerMultiplier(value: number): void {
+    this._withHandleVoid((handle) => {
+      const vehicleNatives = ccmp.natives.vehicle as CCMPVehicleNatives;
+      const setEnginePowerMultiplier = vehicleNatives.setVehicleEnginePowerMultiplier;
+      if (setEnginePowerMultiplier) {
+        setEnginePowerMultiplier(handle, value);
+        return;
+      }
+
+      ccmp.natives.vehicle.modifyVehicleTopSpeed(handle, value);
+    });
   }
 
-  public setEngineTorqueMultiplier(_value: number): void {
-    notImplemented("setEngineTorqueMultiplier");
+  public setEngineTorqueMultiplier(value: number): void {
+    this._withHandleVoid((handle) => {
+      const vehicleNatives = ccmp.natives.vehicle as CCMPVehicleNatives;
+      const setEngineTorqueMultiplier = vehicleNatives.setVehicleEngineTorqueMultiplier;
+      if (setEngineTorqueMultiplier) {
+        setEngineTorqueMultiplier(handle, value);
+        return;
+      }
+
+      ccmp.natives.vehicle.setVehicleCheatPowerIncrease(handle, value);
+    });
   }
 
-  public modifyTopSpeed(_value: number): void {
-    notImplemented("modifyTopSpeed");
+  public modifyTopSpeed(value: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.modifyVehicleTopSpeed(handle, value);
+    });
   }
 
-  public setCheatPowerIncrease(_value: number): void {
-    notImplemented("setCheatPowerIncrease");
+  public setCheatPowerIncrease(value: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleCheatPowerIncrease(handle, value);
+    });
   }
 
   public toggleMod(modType: number, toggle: boolean): void {
@@ -448,8 +551,10 @@ export class CCMPVehicle implements IVehicle {
     });
   }
 
-  public setExtraColours(_pearlescentColor: number, _wheelColor: number): void {
-    notImplemented("setExtraColours");
+  public setExtraColours(pearlescentColor: number, wheelColor: number): void {
+    this._withHandleVoid((handle) => {
+      ccmp.natives.vehicle.setVehicleExtraColours(handle, pearlescentColor, wheelColor);
+    });
   }
 
   public setHeadlightColor(colorIndex: number): void {
@@ -477,19 +582,19 @@ export class CCMPVehicle implements IVehicle {
   }
 
   public getMaxBraking(): number {
-    return notImplemented("getMaxBraking");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleMaxBraking(handle));
   }
 
   public getAcceleration(): number {
-    return notImplemented("getAcceleration");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleAcceleration(handle));
   }
 
   public getMaxTraction(): number {
-    return notImplemented("getMaxTraction");
+    return this._withHandle(0, (handle) => ccmp.natives.vehicle.getVehicleMaxTraction(handle));
   }
 
   public getModelMaxSpeed(): number {
-    return notImplemented("getModelMaxSpeed");
+    return this._withHandle(0, () => ccmp.natives.vehicle.getVehicleModelEstimatedMaxSpeed(this.model));
   }
 
   private _withHandle<T>(fallback: T, callback: (handle: number) => T): T {
@@ -512,6 +617,53 @@ export class CCMPVehicle implements IVehicle {
 
   private _setModKit(handle: number): void {
     ccmp.natives.vehicle.setVehicleModKit(handle, 0);
+  }
+
+  private _normalizeHandle(value: number): number {
+    const handle = Number(value);
+    return Number.isFinite(handle) && handle > 0 ? Math.trunc(handle) : 0;
+  }
+
+  private _normalizeNativeNumber(value: number): number {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  private _normalizeNativeInt(value: number): number {
+    return Math.trunc(this._normalizeNativeNumber(value));
+  }
+
+  private _getNativeHandlingValue(handle: number, field: string): number {
+    switch (field) {
+      case "nInitialDriveGears":
+        return ccmp.natives.vehicle._getVehicleMaxDriveGearCount(handle);
+      case "fInitialDriveForce":
+        return ccmp.natives.vehicle.getVehicleAcceleration(handle);
+      case "fBrakeForce":
+        return ccmp.natives.vehicle.getVehicleMaxBraking(handle);
+      case "fTractionCurveMax":
+      case "fTractionCurveMin":
+        return ccmp.natives.vehicle.getVehicleMaxTraction(handle);
+      default:
+        return this._getDefaultHandlingValue(field);
+    }
+  }
+
+  private _getDefaultHandlingValue(field: string): number {
+    switch (field) {
+      case "nInitialDriveGears":
+        return 0;
+      case "fInitialDriveForce":
+      case "fDriveInertia":
+      case "fClutchChangeRateScaleUpShift":
+      case "fClutchChangeRateScaleDownShift":
+      case "fBrakeForce":
+      case "fTractionCurveMax":
+      case "fTractionCurveMin":
+        return 1;
+      default:
+        return 0;
+    }
   }
 
   private _getRemoteVehicleExists(): boolean {
