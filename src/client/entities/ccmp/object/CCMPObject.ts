@@ -1,13 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { type Object as CcmpObject } from "@classic-mp/types/client";
 import { BaseObjectType } from "@shared/entities";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
-import { type Object as CcmpObject } from "@classic-mp/types/client";
 import { type IBaseObject } from "../../common/baseObject/IBaseObject";
 import { type IObject } from "../../common/object/IObject";
-
-const notImplemented = (memberName: string): never => {
-  throw new Error(`CCMPObject.${memberName}: not implemented`);
-};
 
 export class CCMPObject implements IObject {
   private _destroyed = false;
@@ -34,8 +30,7 @@ export class CCMPObject implements IObject {
   }
 
   public get handle(): number {
-    const handle = Number(this._ccmpObject.handle);
-    return Number.isFinite(handle) && handle > 0 ? Math.trunc(handle) : 0;
+    return this._normalizeHandle(this._ccmpObject.handle);
   }
 
   public destroy(): void {
@@ -55,11 +50,11 @@ export class CCMPObject implements IObject {
   }
 
   public setPosition(value: IVector3D): void {
-    this.setCoords(value.x, value.y, value.z, false, false, false, false);
+    this._ccmpObject.setPosition(value);
   }
 
-  public setDimension(_value: number): void {
-    notImplemented("setDimension");
+  public setDimension(value: number): void {
+    this._ccmpObject.setDimension(value);
   }
 
   public setCoords(
@@ -71,9 +66,7 @@ export class CCMPObject implements IObject {
     zAxis: boolean,
     clearArea: boolean,
   ): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityCoords(handle, xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
-    });
+    this._ccmpObject.setCoords(xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
   }
 
   public get model(): number {
@@ -85,13 +78,11 @@ export class CCMPObject implements IObject {
   }
 
   public setHeading(heading: number): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityHeading(handle, heading);
-    });
+    this._ccmpObject.setHeading(heading);
   }
 
-  public setModel(_value: string): void {
-    notImplemented("setModel");
+  public setModel(value: string): void {
+    this._ccmpObject.setModel(value);
   }
 
   public get rotation(): Vector3D {
@@ -100,79 +91,59 @@ export class CCMPObject implements IObject {
   }
 
   public get forwardVector(): Vector3D {
-    const headingRad = (this.heading * Math.PI) / 180;
-    return new Vector3D(-Math.sin(headingRad), Math.cos(headingRad), 0);
+    const { x, y, z } = this._ccmpObject.forwardVector;
+    return new Vector3D(x, y, z);
   }
 
   public setRotation(value: IVector3D): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityRotation(handle, value.x, value.y, value.z, 2, true);
-    });
+    this._ccmpObject.setRotation(value);
   }
 
   public freezePosition(freeze: boolean): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.freezeEntityPosition(handle, freeze);
-    });
+    this._ccmpObject.freezePosition(freeze);
   }
 
   public setCollision(collision: boolean, keepPhysics: boolean): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityCollision(handle, collision, keepPhysics);
-    });
+    this._ccmpObject.setCollision(collision, keepPhysics);
   }
 
   public setInvincible(invincible: boolean): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityInvincible(handle, invincible, true);
-    });
+    this._ccmpObject.setInvincible(invincible);
   }
 
   public setVisible(visible: boolean): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityVisible(handle, visible, false);
-    });
+    this._ccmpObject.setVisible(visible);
   }
 
   public setAlpha(alpha: number): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityAlpha(handle, alpha, false);
-    });
+    this._ccmpObject.setAlpha(alpha);
   }
 
   public get alpha(): number {
-    return this._withHandle(this._ccmpObject.alpha, (handle) => ccmp.natives.entity.getEntityAlpha(handle));
+    return this._ccmpObject.alpha;
   }
 
   public resetAlpha(): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.resetEntityAlpha(handle);
-    });
+    this._ccmpObject.resetAlpha();
   }
 
   public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
-    return this._withHandle(this._getOffsetFromCachedTransform(offsetX, offsetY, offsetZ), (handle) => {
-      const { x, y, z } = ccmp.natives.entity.getOffsetFromEntityInWorldCoords(handle, offsetX, offsetY, offsetZ);
-      return new Vector3D(x, y, z);
-    });
+    const { x, y, z } = this._ccmpObject.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
+    return new Vector3D(x, y, z);
   }
 
   public getBoneIndexByName(boneName: string): number {
-    return this._withHandle(-1, (handle) => ccmp.natives.entity.getEntityBoneIndexByName(handle, boneName));
+    return this._ccmpObject.getBoneIndexByName(boneName);
   }
 
   public getWorldPositionOfBone(boneIndex: number): IVector3D {
-    return this._withHandle(this.position, (handle) => {
-      const { x, y, z } = ccmp.natives.entity.getWorldPositionOfEntityBone(handle, boneIndex);
-      return new Vector3D(x, y, z);
-    });
+    const { x, y, z } = this._ccmpObject.getWorldPositionOfBone(boneIndex);
+    return new Vector3D(x, y, z);
   }
 
   public getVariable(name: string): unknown | null {
     const remoteId = this.remoteId;
-    if (remoteId === null) {
-      return null;
-    }
+    if (remoteId === null) return null;
 
     const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, name);
     return value === undefined ? null : value;
@@ -180,27 +151,21 @@ export class CCMPObject implements IObject {
 
   public getSyncedMeta(key: string): unknown | undefined {
     const remoteId = this.remoteId;
-    if (remoteId === null) {
-      return undefined;
-    }
+    if (remoteId === null) return undefined;
 
     return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
     const remoteId = this.remoteId;
-    if (remoteId === null) {
-      return false;
-    }
+    if (remoteId === null) return false;
 
     return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
     const remoteId = this.remoteId;
-    if (remoteId === null) {
-      return [];
-    }
+    if (remoteId === null) return [];
 
     return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Object, remoteId);
   }
@@ -220,44 +185,25 @@ export class CCMPObject implements IObject {
     vertexIndex: number,
     fixedRot: boolean,
   ): void {
-    const targetHandle = this._normalizeHandle(entity);
-    if (!targetHandle) return;
-    const normalizedBoneIndex = this._normalizeNativeInt(boneIndex);
-    const normalizedXPos = this._normalizeNativeNumber(xPos);
-    const normalizedYPos = this._normalizeNativeNumber(yPos);
-    const normalizedZPos = this._normalizeNativeNumber(zPos);
-    const normalizedXRot = this._normalizeNativeNumber(xRot);
-    const normalizedYRot = this._normalizeNativeNumber(yRot);
-    const normalizedZRot = this._normalizeNativeNumber(zRot);
-    const normalizedVertexIndex = this._normalizeNativeInt(vertexIndex);
-
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.attachEntityToEntity(
-        handle,
-        targetHandle,
-        normalizedBoneIndex,
-        normalizedXPos,
-        normalizedYPos,
-        normalizedZPos,
-        normalizedXRot,
-        normalizedYRot,
-        normalizedZRot,
-        false,
-        useSoftPinning,
-        collision,
-        isPed,
-        normalizedVertexIndex,
-        fixedRot,
-        0,
-      );
-    });
+    this._ccmpObject.attachTo(
+      entity,
+      boneIndex,
+      xPos,
+      yPos,
+      zPos,
+      xRot,
+      yRot,
+      zRot,
+      useSoftPinning,
+      collision,
+      isPed,
+      vertexIndex,
+      fixedRot,
+    );
   }
 
   public isAttachedTo(entity: number): boolean {
-    const targetHandle = this._normalizeHandle(entity);
-    if (!targetHandle) return false;
-
-    return this._withHandle(false, (handle) => ccmp.natives.entity.isEntityAttachedToEntity(handle, targetHandle));
+    return this._ccmpObject.isAttachedTo(entity);
   }
 
   public attachToEntity(
@@ -272,99 +218,34 @@ export class CCMPObject implements IObject {
     vertexIndex: number,
     fixedRot: boolean,
   ): void {
-    const targetHandle = this._normalizeHandle(target.handle);
-    if (!targetHandle) return;
-    const normalizedBoneIndex = this._normalizeNativeInt(boneIndex);
-    const normalizedOffsetX = this._normalizeNativeNumber(offset.x);
-    const normalizedOffsetY = this._normalizeNativeNumber(offset.y);
-    const normalizedOffsetZ = this._normalizeNativeNumber(offset.z);
-    const normalizedRotationX = this._normalizeNativeNumber(rotation.x);
-    const normalizedRotationY = this._normalizeNativeNumber(rotation.y);
-    const normalizedRotationZ = this._normalizeNativeNumber(rotation.z);
-    const normalizedVertexIndex = this._normalizeNativeInt(vertexIndex);
-
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.attachEntityToEntity(
-        handle,
-        targetHandle,
-        normalizedBoneIndex,
-        normalizedOffsetX,
-        normalizedOffsetY,
-        normalizedOffsetZ,
-        normalizedRotationX,
-        normalizedRotationY,
-        normalizedRotationZ,
-        p9,
-        useSoftPinning,
-        collision,
-        isPed,
-        normalizedVertexIndex,
-        fixedRot,
-        0,
-      );
-    });
-  }
-
-  public detach(useDetachVelocity: boolean, collision: boolean): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.detachEntity(handle, useDetachVelocity, collision);
-    });
-  }
-
-  public getSpeed(): number {
-    return this._withHandle(0, (handle) => ccmp.natives.entity.getEntitySpeed(handle));
-  }
-
-  public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
-    return this._withHandle(false, (handle) =>
-      ccmp.natives.entity.isEntityPlayingAnim(handle, dictionary, name, taskFlag),
+    this._ccmpObject.attachToEntity(
+      target,
+      boneIndex,
+      offset,
+      rotation,
+      p9,
+      useSoftPinning,
+      collision,
+      isPed,
+      vertexIndex,
+      fixedRot,
     );
   }
 
-  private _withHandle<T>(fallback: T, callback: (handle: number) => T): T {
-    const handle = this.handle;
-    if (!handle) {
-      return fallback;
-    }
-
-    return callback(handle);
+  public detach(useDetachVelocity: boolean, collision: boolean): void {
+    this._ccmpObject.detach(useDetachVelocity, collision);
   }
 
-  private _withHandleVoid(callback: (handle: number) => void): void {
-    const handle = this.handle;
-    if (!handle) {
-      return;
-    }
+  public getSpeed(): number {
+    return this._ccmpObject.getSpeed();
+  }
 
-    callback(handle);
+  public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
+    return this._ccmpObject.isPlayingAnim(dictionary, name, taskFlag);
   }
 
   private _normalizeHandle(value: number): number {
     const handle = Number(value);
     return Number.isFinite(handle) && handle > 0 ? Math.trunc(handle) : 0;
-  }
-
-  private _normalizeNativeNumber(value: number): number {
-    const numeric = Number(value);
-    return Number.isFinite(numeric) ? numeric : 0;
-  }
-
-  private _normalizeNativeInt(value: number): number {
-    return Math.trunc(this._normalizeNativeNumber(value));
-  }
-
-  private _getOffsetFromCachedTransform(offsetX: number, offsetY: number, offsetZ: number): Vector3D {
-    const position = this.position;
-    const headingRad = (this.heading * Math.PI) / 180;
-    const rightX = Math.cos(headingRad);
-    const rightY = Math.sin(headingRad);
-    const forwardX = -Math.sin(headingRad);
-    const forwardY = Math.cos(headingRad);
-
-    return new Vector3D(
-      position.x + rightX * offsetX + forwardX * offsetY,
-      position.y + rightY * offsetX + forwardY * offsetY,
-      position.z + offsetZ,
-    );
   }
 }

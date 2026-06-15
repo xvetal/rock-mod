@@ -8,33 +8,6 @@ import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 const ZERO_VECTOR: IVector3D = new Vector3D(0, 0, 0);
 
-type CcmpPlayerWithAppearance = CcmpPlayer & {
-  setModel(model: number | string): void;
-  setDecoration(collection: string | number, overlay: string | number): void;
-  removeDecoration(collection: string | number, overlay: string | number): void;
-  clearDecorations(): void;
-  setHeadBlendData(
-    shapeFirstId: number,
-    shapeSecondId: number,
-    shapeThirdId: number,
-    skinFirstId: number,
-    skinSecondId: number,
-    skinThirdId: number,
-    shapeMix: number,
-    skinMix: number,
-    thirdMix: number,
-    isParent: boolean,
-  ): void;
-  setFaceFeature(index: number, value: number): void;
-  setHeadOverlay(overlayId: number, index: number, opacity: number): void;
-  setHeadOverlayColor(overlayId: number, colorTypeId: number, firstColor: number, secondColor: number): void;
-  setEyeColor(eyeColor: number): void;
-  setHairColor(colorId: number, highlightColorId: number): void;
-  setComponentVariation(componentId: number, drawableId: number, textureId: number, paletteId: number): void;
-  setPropertyVariation(componentId: number, drawableId: number, textureId: number, attach: boolean): void;
-  clearProp(componentId: number): void;
-};
-
 export interface ICCMPPlayerOptions {
   /** Network id of the player (same as remoteId — CCMP exposes only one id). */
   readonly id: number;
@@ -143,7 +116,7 @@ export class CCMPPlayer implements IPlayer {
   // -- IEntity --------------------------------------------------------------
 
   public get model(): number {
-    return this._withHandle(0, (handle) => ccmp.natives.entity.getEntityModel(handle));
+    return this._getNativePlayer()?.model ?? 0;
   }
 
   public get heading(): number {
@@ -159,23 +132,17 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public get rotation(): IVector3D {
-    return this._withHandle(ZERO_VECTOR, (handle) => {
-      const rotation = ccmp.natives.entity.getEntityRotation(handle, 2);
-      return new Vector3D(rotation.x, rotation.y, rotation.z);
-    });
+    const rotation = this._getNativePlayer()?.rotation;
+    return rotation ? new Vector3D(rotation.x, rotation.y, rotation.z) : ZERO_VECTOR;
   }
 
   public setRotation(value: IVector3D): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.setEntityRotation(handle, value.x, value.y, value.z, 2, true);
-    });
+    this._getNativePlayer()?.setRotation(value);
   }
 
   public get forwardVector(): IVector3D {
-    return this._withHandle(ZERO_VECTOR, (handle) => {
-      const vector = ccmp.natives.entity.getEntityForwardVector(handle);
-      return new Vector3D(vector.x, vector.y, vector.z);
-    });
+    const vector = this._getNativePlayer()?.forwardVector;
+    return vector ? new Vector3D(vector.x, vector.y, vector.z) : ZERO_VECTOR;
   }
 
   public freezePosition(freeze: boolean): void {
@@ -207,21 +174,17 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
-    return this._withHandle(ZERO_VECTOR, (handle) => {
-      const position = ccmp.natives.entity.getOffsetFromEntityInWorldCoords(handle, offsetX, offsetY, offsetZ);
-      return new Vector3D(position.x, position.y, position.z);
-    });
+    const position = this._getNativePlayer()?.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
+    return position ? new Vector3D(position.x, position.y, position.z) : ZERO_VECTOR;
   }
 
   public getBoneIndexByName(boneName: string): number {
-    return this._withHandle(-1, (handle) => ccmp.natives.entity.getEntityBoneIndexByName(handle, boneName));
+    return this._getNativePlayer()?.getBoneIndexByName(boneName) ?? -1;
   }
 
   public getWorldPositionOfBone(boneIndex: number): IVector3D {
-    return this._withHandle(ZERO_VECTOR, (handle) => {
-      const position = ccmp.natives.entity.getWorldPositionOfEntityBone(handle, boneIndex);
-      return new Vector3D(position.x, position.y, position.z);
-    });
+    const position = this._getNativePlayer()?.getWorldPositionOfBone(boneIndex);
+    return position ? new Vector3D(position.x, position.y, position.z) : ZERO_VECTOR;
   }
 
   public getVariable(name: string): unknown | null {
@@ -253,42 +216,30 @@ export class CCMPPlayer implements IPlayer {
     vertexIndex: number,
     fixedRot: boolean,
   ): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.attachEntityToEntity(
-        handle,
-        target.handle,
-        boneIndex,
-        offset.x,
-        offset.y,
-        offset.z,
-        rotation.x,
-        rotation.y,
-        rotation.z,
-        p9,
-        useSoftPinning,
-        collision,
-        isPed,
-        vertexIndex,
-        fixedRot,
-        0,
-      );
-    });
+    this._getNativePlayer()?.attachToEntity(
+      target,
+      boneIndex,
+      offset,
+      rotation,
+      p9,
+      useSoftPinning,
+      collision,
+      isPed,
+      vertexIndex,
+      fixedRot,
+    );
   }
 
   public detach(useDetachVelocity: boolean, collision: boolean): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.entity.detachEntity(handle, useDetachVelocity, collision);
-    });
+    this._getNativePlayer()?.detach(useDetachVelocity, collision);
   }
 
   public getSpeed(): number {
-    return this._withHandle(0, (handle) => ccmp.natives.entity.getEntitySpeed(handle));
+    return this._getNativePlayer()?.getSpeed() ?? 0;
   }
 
   public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
-    return this._withHandle(false, (handle) =>
-      ccmp.natives.entity.isEntityPlayingAnim(handle, dictionary, name, taskFlag),
-    );
+    return this._getNativePlayer()?.isPlayingAnim(dictionary, name, taskFlag) ?? false;
   }
 
   // -- IPlayer --------------------------------------------------------------
@@ -350,7 +301,7 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public getBoneIndex(boneId: number): number {
-    return this._withHandle(-1, (handle) => ccmp.natives.ped.getPedBoneIndex(handle, boneId));
+    return this._getNativePlayer()?.getBoneIndex(boneId) ?? -1;
   }
 
   public setDecoration(collection: string, overlay: string): void {
@@ -434,9 +385,7 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public taskSwapWeapon(): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.task.taskSwapWeapon(handle, true);
-    });
+    this._getNativePlayer()?.taskSwapWeapon(true);
   }
 
   public taskEnterVehicle(
@@ -447,40 +396,45 @@ export class CCMPPlayer implements IPlayer {
     flag: number,
     _p6: number,
   ): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.task.taskEnterVehicle(handle, vehicleHandle, timeout, seat, speed, flag, "");
-    });
+    this._getNativePlayer()?.taskEnterVehicle(vehicleHandle, timeout, seat, speed, flag);
   }
 
   public clearTasks(): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.task.clearPedTasks(handle);
-    });
+    this._getNativePlayer()?.clearTasks();
   }
 
   public clearTasksImmediately(): void {
-    this._withHandleVoid((handle) => {
-      ccmp.natives.task.clearPedTasksImmediately(handle);
-    });
+    this._getNativePlayer()?.clearTasksImmediately();
   }
 
   public taskPlayAnim(
-    _dictionary: string,
-    _name: string,
-    _blendInSpeed: number,
-    _blendOutSpeed: number,
-    _duration: number,
-    _flag: number,
-    _playbackRate: number,
-    _lockX: boolean,
-    _lockY: boolean,
-    _lockZ: boolean,
+    dictionary: string,
+    name: string,
+    blendInSpeed: number,
+    blendOutSpeed: number,
+    duration: number,
+    flag: number,
+    playbackRate: number,
+    lockX: boolean,
+    lockY: boolean,
+    lockZ: boolean,
   ): void {
-    this._warnOnce("taskPlayAnim");
+    this._getNativePlayer()?.taskPlayAnim(
+      dictionary,
+      name,
+      blendInSpeed,
+      blendOutSpeed,
+      duration,
+      flag,
+      playbackRate,
+      lockX,
+      lockY,
+      lockZ,
+    );
   }
 
-  public stopAnim(_dictionary: string, _name: string, _blendOutSpeed: number): void {
-    this._warnOnce("stopAnim");
+  public stopAnim(dictionary: string, name: string, blendOutSpeed: number): void {
+    this._getNativePlayer()?.stopAnim(dictionary, name, blendOutSpeed);
   }
 
   public setMovementClipset(_clipset: string, _speed: number): void {
@@ -492,50 +446,26 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D {
-    return this._withHandle(ZERO_VECTOR, (handle) => {
-      const position = ccmp.natives.ped.getPedBoneCoords(handle, boneId, offsetX, offsetY, offsetZ);
-      return new Vector3D(position.x, position.y, position.z);
-    });
+    const position = this._getNativePlayer()?.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
+    return position ? new Vector3D(position.x, position.y, position.z) : ZERO_VECTOR;
   }
 
   public setNoCollision(otherHandle: number, thisFrameOnly: boolean): void {
-    this._withHandleVoid((handle) => {
-      if (otherHandle !== 0) {
-        ccmp.natives.entity.setEntityNoCollisionEntity(handle, otherHandle, thisFrameOnly);
-      }
-    });
+    this._getNativePlayer()?.setNoCollision(otherHandle, thisFrameOnly);
   }
 
-  private _getNativePlayer(): CcmpPlayerWithAppearance | null {
+  private _getNativePlayer(): CcmpPlayer | null {
     try {
-      const player = ccmp.players.getById(this._id) as CcmpPlayerWithAppearance | null;
+      const player = ccmp.players.getById(this._id);
       if (player) {
         return player;
       }
 
-      const localPlayer = ccmp.players.local as CcmpPlayerWithAppearance | null;
+      const localPlayer = ccmp.players.local;
       return localPlayer?.id === this._id ? localPlayer : null;
     } catch {
       return null;
     }
-  }
-
-  private _withHandle<T>(fallback: T, callback: (handle: number) => T): T {
-    const handle = this.handle;
-    if (!handle) {
-      return fallback;
-    }
-
-    return callback(handle);
-  }
-
-  private _withHandleVoid(callback: (handle: number) => void): void {
-    const handle = this.handle;
-    if (!handle) {
-      return;
-    }
-
-    callback(handle);
   }
 
   private _warnOnce(method: string): void {

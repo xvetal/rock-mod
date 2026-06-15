@@ -13,6 +13,7 @@ interface ICCMPVehiclesApi {
   readonly count: number;
   getById(id: number): ICCMPNativeVehicle | null;
   getByRemoteId(remoteId: number): ICCMPNativeVehicle | null;
+  getDisplayNameFromModel(model: string | number): string;
   create(
     model: string | number,
     position: { x: number; y: number; z: number },
@@ -63,7 +64,7 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   }
 
   public getDisplayNameFromVehicleModel(modelHash: number): string {
-    return ccmp.natives.vehicle.getDisplayNameFromVehicleModel(modelHash);
+    return this._getNativeVehiclesApi()?.getDisplayNameFromModel(modelHash) ?? "";
   }
 
   public syncWithMpPool(): void {
