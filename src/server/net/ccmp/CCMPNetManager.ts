@@ -111,12 +111,6 @@ export class CCMPNetManager implements INetManager {
 
     this._registerClientReadyCooperation();
     this._registerClientLogForwarder();
-
-    // Маркер успешной загрузки актуального rock-mod на серверной стороне.
-    // Если эта строка не появилась в stdout при старте ccmp-server.exe —
-    // значит сервер всё ещё держит в памяти старую сборку rock-mod (не
-    // забыт перезапуск процесса).
-    console.log("[rock-mod] CCMP server net manager initialized");
   }
 
   private _registerClientReadyCooperation(): void {
