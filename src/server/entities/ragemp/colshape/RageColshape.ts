@@ -9,4 +9,12 @@ export abstract class RageColshape extends RageWorldObject<ColshapeMp> {
   protected constructor(options: IRageColshapeOptions) {
     super(options);
   }
+
+  public getNetData(name: string): unknown {
+    return this.mpEntity.getVariable(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this.mpEntity.setVariable(name, value);
+  }
 }

@@ -7,4 +7,12 @@ export abstract class AltVColshape extends AltVWorldObject<Colshape> {
   protected constructor(options: IAltVColshapeOptions) {
     super(options);
   }
+
+  public getNetData(name: string): unknown {
+    return this.mpEntity.getSyncedMeta(name);
+  }
+
+  public setNetData(name: string, value: unknown): void {
+    this.mpEntity.setSyncedMeta({ name, value });
+  }
 }
