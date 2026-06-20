@@ -63,25 +63,13 @@ export class CCMPGraphicsManager implements IGraphicsManager {
     const outline = options?.outline ?? true;
     const centre = options?.centre ?? false;
 
-    const hud = ccmp.natives.hud;
-
-    hud.setTextFont(font);
-    // Натив `SET_TEXT_SCALE(scale, size)` — первый параметр обычно игнорируется,
-    // эффективный размер задаётся вторым. RageMP передаёт оба из массива
-    // `[scaleX, scaleY]` — повторяем тот же контракт.
-    hud.setTextScale(scaleX, scaleY);
-    hud.setTextColour(r, g, b, a);
-    if (outline) {
-      hud.setTextOutline();
-    }
-    if (centre) {
-      hud.setTextCentre(true);
-    }
-
-    hud.beginTextCommandDisplayText("STRING");
-    hud.addTextComponentSubstringPlayerName(text);
-    // p2 — `unk_const_0` (введён в b2699); 0 — стандартное значение.
-    hud.endTextCommandDisplayText(position.x, position.y, 0);
+    ccmp.graphics.drawText(text, position.x, position.y, {
+      font,
+      scale: [scaleX, scaleY],
+      color: [r, g, b, a],
+      outline,
+      centre,
+    });
   }
 
   public world3dToScreen2d(position: IVector3D): IVector2D | null {
