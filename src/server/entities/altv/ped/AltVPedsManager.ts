@@ -13,10 +13,12 @@ export class AltVPedsManager extends AltVEntitiesManager<AltVPed> implements IPe
   }
 
   public create(options: IAltVPedCreateOptions): AltVPed {
-    const { model, position, dimension, rotation } = options;
+    const { model, frozen, invincible = false, position, dimension, rotation } = options;
 
     const mpEntity = new alt.Ped(model, position, rotation);
     mpEntity.dimension = dimension;
+    mpEntity.frozen = frozen;
+    (mpEntity as alt.Ped & { invincible: boolean }).invincible = invincible;
 
     const ped = new AltVPed({ mpEntity });
     this.registerBaseObject(ped);
