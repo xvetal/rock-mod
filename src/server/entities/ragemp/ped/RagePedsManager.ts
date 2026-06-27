@@ -12,12 +12,13 @@ export class RagePedsManager extends RageEntitiesManager<RagePed> implements IPe
   }
 
   public create(options: IRagePedCreateOptions): RagePed {
-    const { model, frozen, position, dimension, rotation } = options;
+    const { model, frozen, invincible = false, position, dimension, rotation } = options;
 
     const mpEntity = mp.peds.new(mp.joaat(model), new mp.Vector3(position), {
       dimension,
       heading: rotation.z,
       frozen,
+      invincible,
     });
     mpEntity.isExists = (): boolean => mp.peds.exists(mpEntity);
 
