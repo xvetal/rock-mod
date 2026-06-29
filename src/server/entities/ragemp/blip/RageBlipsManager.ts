@@ -12,13 +12,14 @@ export class RageBlipsManager extends RageWorldObjectsManager<RageBlip> implemen
   }
 
   public create(options: IRageBlipCreateOptions): RageBlip {
-    const { sprite, position } = options;
+    const { sprite, position, global = false, ...createOptions } = options;
 
-    const mpEntity = mp.blips.new(sprite, new mp.Vector3(position), options);
+    const mpEntity = mp.blips.new(sprite, new mp.Vector3(position), createOptions);
     mpEntity.isExists = (): boolean => mp.blips.exists(mpEntity);
 
     const blip = new RageBlip({
       mpEntity: mpEntity as unknown as EntityMp,
+      global,
     });
     this.registerBaseObject(blip);
 

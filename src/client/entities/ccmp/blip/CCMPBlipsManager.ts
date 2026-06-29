@@ -35,6 +35,7 @@ export class CCMPBlipsManager implements IBlipsManager {
       alpha?: number;
       color?: number;
       drawDistance?: number;
+      global?: boolean;
       name?: string;
       rotation?: number;
       scale?: number;
@@ -46,6 +47,7 @@ export class CCMPBlipsManager implements IBlipsManager {
     if (options.alpha !== undefined) createOptions.alpha = options.alpha;
     if (options.color !== undefined) createOptions.color = options.color;
     if (options.drawDistance !== undefined) createOptions.drawDistance = options.drawDistance;
+    if (options.global !== undefined) createOptions.global = options.global;
     if (options.name !== undefined) createOptions.name = options.name;
     if (options.rotation !== undefined) createOptions.rotation = options.rotation;
     if (options.scale !== undefined) createOptions.scale = options.scale;

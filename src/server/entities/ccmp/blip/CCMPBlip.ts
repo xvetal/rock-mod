@@ -59,6 +59,10 @@ export class CCMPBlip extends CCMPWorldObject implements IBlip {
     return this._ccmpBlip.drawDistance;
   }
 
+  public get global(): boolean {
+    return this._ccmpBlip.global;
+  }
+
   public get shortRange(): boolean {
     return this._ccmpBlip.shortRange;
   }

@@ -3,9 +3,13 @@ import { type IBlip } from "../../common";
 import BlipSprite = AltVShared.BlipSprite;
 import { type IBlipColor, type IBlipSprite } from "../../../../shared";
 
-export interface IAltVBlipOptions extends IAltVWorldObjectOptions<AltVServer.Blip> {}
+export interface IAltVBlipOptions extends IAltVWorldObjectOptions<AltVServer.Blip> {
+  global: boolean;
+}
 
 export class AltVBlip extends AltVWorldObject<AltVServer.Blip> implements IBlip {
+  private readonly _global: boolean;
+
   public get name(): string {
     return this.mpEntity.name;
   }
@@ -31,6 +35,10 @@ export class AltVBlip extends AltVWorldObject<AltVServer.Blip> implements IBlip 
     return 0;
   }
 
+  public get global(): boolean {
+    return this._global;
+  }
+
   public get shortRange(): boolean {
     return this.mpEntity.shortRange;
   }
@@ -41,6 +49,7 @@ export class AltVBlip extends AltVWorldObject<AltVServer.Blip> implements IBlip 
 
   public constructor(options: IAltVBlipOptions) {
     super(options);
+    this._global = options.global;
   }
 
   public setName(value: string): void {

@@ -5,6 +5,7 @@ export interface IBlipCreateOptions extends IWorldObjectCreateOptions {
   alpha?: number;
   color?: number;
   drawDistance?: number;
+  global?: boolean;
   name?: string;
   rotation?: number;
   scale?: number;
