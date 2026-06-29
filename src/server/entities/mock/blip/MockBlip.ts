@@ -6,6 +6,7 @@ export interface IMockBlipOptions extends IMockWorldObjectOptions {
   alpha: number;
   color: number;
   drawDistance: number;
+  global: boolean;
   name: string;
   rotation: number;
   scale: number;
@@ -25,6 +26,8 @@ export class MockBlip extends MockWorldObject implements IBlip {
   private readonly _scale: number;
 
   private readonly _drawDistance: number;
+
+  private readonly _global: boolean;
 
   private readonly _shortRange: boolean;
 
@@ -54,6 +57,10 @@ export class MockBlip extends MockWorldObject implements IBlip {
     return this._drawDistance;
   }
 
+  public get global(): boolean {
+    return this._global;
+  }
+
   public get shortRange(): boolean {
     return this._shortRange;
   }
@@ -71,6 +78,7 @@ export class MockBlip extends MockWorldObject implements IBlip {
     this._alpha = options.alpha;
     this._scale = options.scale;
     this._drawDistance = options.drawDistance;
+    this._global = options.global;
     this._shortRange = options.shortRange;
     this._rotation = options.rotation;
   }

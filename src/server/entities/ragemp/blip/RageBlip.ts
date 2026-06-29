@@ -2,9 +2,13 @@ import { type IRageWorldObjectOptions, RageWorldObject } from "../worldObject/Ra
 import { type IBlip } from "../../common";
 import { type IBlipColor, type IBlipSprite } from "../../../../shared";
 
-export interface IRageBlipOptions extends IRageWorldObjectOptions<EntityMp> {}
+export interface IRageBlipOptions extends IRageWorldObjectOptions<EntityMp> {
+  global: boolean;
+}
 
 export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
+  private readonly _global: boolean;
+
   public get name(): string {
     return (this.mpEntity as unknown as BlipMp).name;
   }
@@ -29,6 +33,10 @@ export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
     return (this.mpEntity as unknown as BlipMp).drawDistance;
   }
 
+  public get global(): boolean {
+    return this._global;
+  }
+
   public get shortRange(): boolean {
     return (this.mpEntity as unknown as BlipMp).shortRange;
   }
@@ -39,6 +47,7 @@ export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
 
   public constructor(options: IRageBlipOptions) {
     super(options);
+    this._global = options.global;
   }
 
   public setName(value: string): void {

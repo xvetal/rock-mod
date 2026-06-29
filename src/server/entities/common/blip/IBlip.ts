@@ -10,6 +10,7 @@ export interface IBlip extends IWorldObject {
   get alpha(): number;
   get scale(): number;
   get drawDistance(): number;
+  get global(): boolean;
   get shortRange(): boolean;
   get rotation(): number;
   get dimension(): number;

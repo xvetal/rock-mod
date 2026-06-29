@@ -7,6 +7,7 @@ export interface IBlip extends IWorldObject {
   get sprite(): IBlipSprite;
   get color(): number;
   get alpha(): number;
+  get global(): boolean;
   get shortRange(): boolean;
   setSprite(value: IBlipSprite): void;
   setColor(value: IBlipColor): void;
