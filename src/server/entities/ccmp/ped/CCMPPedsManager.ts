@@ -1,4 +1,5 @@
 import { type IPedCreateOptions, type IPedsManager } from "../../common/ped/IPedsManager";
+import type { PedExtras } from "@classic-mp/types/server";
 import { CCMPEntitiesManager } from "../entity/CCMPEntitiesManager";
 import { CCMPPed } from "./CCMPPed";
 
@@ -12,13 +13,18 @@ export class CCMPPedsManager extends CCMPEntitiesManager<CCMPPed> implements IPe
   }
 
   public create(options: ICCMPPedCreateOptions): CCMPPed {
-    const { model, frozen, invincible = false, position, rotation, dimension } = options;
+    const { model, frozen, invincible = false, placeOnGround, position, rotation, dimension } = options;
 
-    const ccmpPed = ccmp.peds.create(ccmp.hash(model), position.x, position.y, position.z, rotation.z, {
+    const extras: PedExtras = {
       dimension,
       frozen,
       invincible,
-    });
+    };
+    if (placeOnGround !== undefined) {
+      extras.placeOnGround = placeOnGround;
+    }
+
+    const ccmpPed = ccmp.peds.create(ccmp.hash(model), position.x, position.y, position.z, rotation.z, extras);
     if (!ccmpPed) {
       throw new Error("CCMPPedsManager.create: ccmp.peds.create failed (server full?)");
     }
