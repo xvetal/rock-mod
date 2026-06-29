@@ -16,6 +16,7 @@ export class MockBlipsManager extends MockWorldObjectsManager<MockBlip> implemen
     const {
       alpha = 255,
       drawDistance = 30,
+      global = false,
       shortRange = false,
       sprite,
       scale = 1,
@@ -31,6 +32,7 @@ export class MockBlipsManager extends MockWorldObjectsManager<MockBlip> implemen
       type: BaseObjectType.Blip,
       alpha,
       drawDistance,
+      global,
       shortRange,
       sprite,
       scale,
