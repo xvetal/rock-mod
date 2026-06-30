@@ -22,19 +22,31 @@ export class CCMPBlipsManager extends CCMPWorldObjectsManager<CCMPBlip> implemen
       drawDistance = 0,
       global = false,
       name = "",
-      rotation = 0,
       shortRange = false,
     } = options;
 
-    const ccmpBlip = ccmp.blips.create(sprite, position.x, position.y, position.z, color, scale, {
+    const createOptions: {
+      name: string;
+      alpha: number;
+      drawDistance: number;
+      global: boolean;
+      shortRange: boolean;
+      dimension?: number;
+      rotation?: number;
+    } = {
       name,
       alpha,
       drawDistance,
       global,
       shortRange,
-      rotation,
       dimension,
-    });
+    };
+
+    if (options.rotation !== undefined) {
+      createOptions.rotation = options.rotation;
+    }
+
+    const ccmpBlip = ccmp.blips.create(sprite, position.x, position.y, position.z, color, scale, createOptions);
     if (!ccmpBlip) {
       throw new Error("CCMPBlipsManager.create: ccmp.blips.create failed (server full?)");
     }
