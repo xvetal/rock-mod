@@ -11,6 +11,8 @@ export class RageEventsBridge implements IEventsBridge {
 
   private readonly _entityPoolRouter: IEntityPoolRouter;
 
+  private _lastEnteredVehicle: IVehicle | null = null;
+
   public constructor(events: IEventsManager, entityPoolRouter: IEntityPoolRouter) {
     this._events = events;
     this._entityPoolRouter = entityPoolRouter;
@@ -77,20 +79,23 @@ export class RageEventsBridge implements IEventsBridge {
       },
 
       playerEnterVehicle: (mpVehicle, seat) => {
-        const vehicle = this._entityPoolRouter.registerFromMp(mpVehicle) as IVehicle;
+        const vehicle = this._entityPoolRouter.registerFromMp(mpVehicle) as IVehicle | null;
         if (!vehicle) {
           return;
         }
 
+        this._lastEnteredVehicle = vehicle;
         this._events.emitInternal(ClientInternalEventName.PlayerEnterVehicle, vehicle, seat);
       },
 
       playerLeaveVehicle: (mpVehicle, seat) => {
-        const vehicle = this._entityPoolRouter.resolveFromMp(mpVehicle) as IVehicle;
+        const vehicle =
+          (this._entityPoolRouter.resolveFromMp(mpVehicle) as IVehicle | null) ?? this._lastEnteredVehicle;
         if (!vehicle) {
           return;
         }
 
+        this._lastEnteredVehicle = null;
         this._events.emitInternal(ClientInternalEventName.PlayerLeaveVehicle, vehicle, seat);
       },
 
