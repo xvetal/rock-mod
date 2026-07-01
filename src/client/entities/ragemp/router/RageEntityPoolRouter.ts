@@ -40,13 +40,21 @@ export class RageEntityPoolRouter implements IEntityPoolRouter {
     });
   }
 
-  public registerFromMp(mpEntity: EntityMp): IEntity | null {
+  public registerFromMp(mpEntity: EntityMp | null | undefined): IEntity | null {
+    if (!mpEntity) {
+      return null;
+    }
+
     const entityType = mpEntity.type as unknown as BaseObjectType;
 
     return this._withEntityPool(entityType, (pool) => pool.registerById(mpEntity.id));
   }
 
-  public resolveFromMp(mpEntity: EntityMp): IEntity | null {
+  public resolveFromMp(mpEntity: EntityMp | null | undefined): IEntity | null {
+    if (!mpEntity) {
+      return null;
+    }
+
     const entityType = mpEntity.type as unknown as BaseObjectType;
 
     return this._withEntityPool(entityType, (pool) => pool.findByID(mpEntity.id));
