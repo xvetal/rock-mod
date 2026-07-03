@@ -12,18 +12,25 @@ export class CCMPVehiclesManager extends CCMPEntitiesManager<CCMPVehicle> implem
   }
 
   public create(options: ICCMPVehicleCreateOptions): CCMPVehicle {
-    const { model, position, rotation, engine, dimension } = options;
-    // CCMP vehicles API has no `locked` field yet — it is silently ignored.
+    const { model, position, rotation, engine, dimension, locked } = options;
+    const createOptions: {
+      dimension: number;
+      engineOn: boolean;
+      lockState: number;
+      numberPlate?: string;
+      numberPlateType?: number;
+    } = {
+      dimension,
+      engineOn: engine,
+      lockState: locked ? 2 : 1,
+    };
 
-    const ccmpVehicle = ccmp.vehicles.create(ccmp.hash(model), position.x, position.y, position.z, rotation.z);
+    if (options.numberPlate !== undefined) createOptions.numberPlate = options.numberPlate;
+    if (options.numberPlateType !== undefined) createOptions.numberPlateType = options.numberPlateType;
+
+    const ccmpVehicle = ccmp.vehicles.create(ccmp.hash(model), position.x, position.y, position.z, rotation.z, createOptions);
     if (!ccmpVehicle) {
       throw new Error("CCMPVehiclesManager.create: ccmp.vehicles.create failed (server full?)");
-    }
-
-    ccmpVehicle.dimension = dimension;
-
-    if (engine) {
-      ccmpVehicle.engineOn = true;
     }
 
     const vehicle = new CCMPVehicle({

@@ -44,8 +44,8 @@ export interface IVehicle extends IEntity {
   get windowTint(): number;
   setWheelType(wheelType: number): void;
   get wheelType(): number;
-  setNumberPlateTextIndex(index: number): void;
-  get numberPlateTextIndex(): number;
+  setNumberPlateType(index: number): void;
+  get numberPlateType(): number;
 
   setDoorOpen(doorIndex: number, loose: boolean, openInstantly: boolean): void;
   setDoorShut(doorIndex: number, instantly: boolean): void;

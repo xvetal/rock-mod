@@ -18,7 +18,13 @@ interface ICCMPVehiclesApi {
     model: string | number,
     position: { x: number; y: number; z: number },
     rotation?: { x: number; y: number; z: number },
-    options?: { dimension?: number; engine?: boolean; locked?: boolean },
+    options?: {
+      dimension?: number;
+      engine?: boolean;
+      locked?: boolean;
+      numberPlate?: string;
+      numberPlateType?: number;
+    },
   ): ICCMPNativeVehicle | null;
 }
 
@@ -50,11 +56,16 @@ export class CCMPVehiclesManager implements IVehiclesManager {
   }
 
   public create(options: IVehicleCreateOptions): IVehicle {
-    const ccmpVehicle = this._getNativeVehiclesApi()?.create(options.model, options.position, options.rotation, {
+    const createOptions: NonNullable<Parameters<ICCMPVehiclesApi["create"]>[3]> = {
       dimension: options.dimension,
       engine: options.engine,
       locked: options.locked,
-    });
+    };
+
+    if (options.numberPlate !== undefined) createOptions.numberPlate = options.numberPlate;
+    if (options.numberPlateType !== undefined) createOptions.numberPlateType = options.numberPlateType;
+
+    const ccmpVehicle = this._getNativeVehiclesApi()?.create(options.model, options.position, options.rotation, createOptions);
 
     if (!ccmpVehicle) {
       throw new Error(`CCMPVehiclesManager.create: ccmp.vehicles.create failed for model "${options.model}"`);

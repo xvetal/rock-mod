@@ -12,6 +12,10 @@ export interface ICCMPVehicleOptions {
   onDestroy: (vehicle: CCMPVehicle) => void;
 }
 
+type CcmpVehicleWithNumberPlate = CcmpVehicle & {
+  numberPlate: string;
+};
+
 export class CCMPVehicle extends CCMPEntity implements IVehicle {
   private static readonly _customPrimaryColorMeta = "rockMod:customPrimaryColor";
 
@@ -76,7 +80,7 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public get numberPlate(): string {
-    return this._ccmpVehicle.numberPlateText;
+    return (this._ccmpVehicle as CcmpVehicleWithNumberPlate).numberPlate;
   }
 
   public get isLocked(): boolean {
@@ -167,7 +171,7 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public setNumberPlate(value: string): void {
-    this._ccmpVehicle.numberPlateText = value;
+    (this._ccmpVehicle as CcmpVehicleWithNumberPlate).numberPlate = value;
   }
 
   public setLocked(value: boolean): void {

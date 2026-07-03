@@ -135,11 +135,11 @@ export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
     return this.mpEntity.getWheelType();
   }
 
-  public setNumberPlateTextIndex(index: number): void {
+  public setNumberPlateType(index: number): void {
     this.mpEntity.setNumberPlateTextIndex(index);
   }
 
-  public get numberPlateTextIndex(): number {
+  public get numberPlateType(): number {
     return this.mpEntity.getNumberPlateTextIndex();
   }
 
