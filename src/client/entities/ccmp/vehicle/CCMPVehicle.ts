@@ -7,6 +7,10 @@ import { type ILightState, type IVehicle } from "../../common/vehicle/IVehicle";
 
 export type ICCMPNativeVehicle = CcmpVehicle;
 
+type CcmpVehicleWithNumberPlateType = CcmpVehicle & {
+  setNumberPlateType(index: number): void;
+};
+
 export class CCMPVehicle implements IVehicle {
   private _destroyed = false;
 
@@ -336,12 +340,12 @@ export class CCMPVehicle implements IVehicle {
     return this._ccmpVehicle.wheelType;
   }
 
-  public setNumberPlateTextIndex(index: number): void {
-    this._ccmpVehicle.setNumberPlateTextIndex(index);
+  public setNumberPlateType(index: number): void {
+    (this._ccmpVehicle as CcmpVehicleWithNumberPlateType).setNumberPlateType(index);
   }
 
-  public get numberPlateTextIndex(): number {
-    return this._ccmpVehicle.numberPlateTextIndex;
+  public get numberPlateType(): number {
+    return this._ccmpVehicle.numberPlateType;
   }
 
   public setDoorOpen(doorIndex: number, loose: boolean, openInstantly: boolean): void {

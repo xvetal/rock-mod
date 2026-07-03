@@ -4,6 +4,8 @@ import { type IVehicle } from "./IVehicle";
 export interface IVehicleCreateOptions extends IEntityCreateOptions {
   engine: boolean;
   locked: boolean;
+  numberPlate?: string;
+  numberPlateType?: number;
 }
 
 export interface IVehiclesManager extends IEntitiesManager<IVehicle> {
