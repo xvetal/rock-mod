@@ -107,13 +107,7 @@ export class CCMPPlayersManager implements IPlayersManager {
 
     // 2) Prepopulate уже-существующих remote-игроков из CCMP-runtime'а.
     // `ccmp.players.all` исключает local (см. js_runtime.rs::setup_globals).
-    try {
-      for (const ccmpPlayer of ccmp.players.all as unknown as ICCMPNativePlayer[]) {
-        this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
-      }
-    } catch (error) {
-      console.warn("[CCMPPlayersManager] failed to prepopulate from ccmp.players.all:", error);
-    }
+    this._syncRemotePlayersFromRuntime();
 
     // 3) Fast-path: попытка эмитнуть rm::playerReady сразу. Если local не
     // готов (handshake ещё не отработал) — пропускаем, дальше connectionStateChanged
@@ -185,9 +179,9 @@ export class CCMPPlayersManager implements IPlayersManager {
   // -- IEntitiesManager -----------------------------------------------------
 
   public syncWithMpPool(): void {
-    // RageMP-pool API не существует под CCMP. Игроки управляются событиями
-    // `rm::playerConnected`/`rm::playerDisconnected`, prepopulation идёт
-    // из `ccmp.players.all` в конструкторе. No-op для соответствия интерфейсу.
+    this._syncRemotePlayersFromRuntime();
+    this._syncLocalPlayerFromRuntime();
+    this._tryEmitLocalPlayerReady();
   }
 
   public registerById(id: number): CCMPPlayer {
@@ -269,6 +263,28 @@ export class CCMPPlayersManager implements IPlayersManager {
     });
   }
 
+  private _syncRemotePlayersFromRuntime(): void {
+    try {
+      for (const ccmpPlayer of ccmp.players.all as unknown as ICCMPNativePlayer[]) {
+        this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+      }
+    } catch (error) {
+      console.warn("[CCMPPlayersManager] failed to sync from ccmp.players.all:", error);
+    }
+  }
+
+  private _syncLocalPlayerFromRuntime(): void {
+    let nativeLocal: ICCMPNativePlayer | null;
+    try {
+      nativeLocal = ccmp.players.local as unknown as ICCMPNativePlayer | null;
+    } catch {
+      return;
+    }
+    if (nativeLocal) {
+      this._ensurePlayer(nativeLocal.id, nativeLocal.name ?? "", /* isLocal */ true);
+    }
+  }
+
   /**
    * Идемпотентная точка создания/обновления CCMPPlayer. Все источники
    * (events, prepopulation, fast-path) проходят сюда.
@@ -303,6 +319,7 @@ export class CCMPPlayersManager implements IPlayersManager {
    */
   private _tryEmitLocalPlayerReady(): void {
     if (this._localPlayer) {
+      this._syncLocalPlayerFromRuntime();
       return;
     }
 
