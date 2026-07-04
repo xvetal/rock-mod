@@ -88,8 +88,7 @@ export class CCMPPed implements IPed {
   }
 
   public get rotation(): Vector3D {
-    const { x, y, z } = this._ccmpPed.rotation;
-    return new Vector3D(x, y, z);
+    return new Vector3D(0, 0, this._ccmpPed.heading);
   }
 
   public setRotation(value: IVector3D): void {
