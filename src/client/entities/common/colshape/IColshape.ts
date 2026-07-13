@@ -2,4 +2,6 @@ import { type IWorldObject, type IWorldObjectOptions } from "../worldObject";
 
 export interface IColshapeOptions extends IWorldObjectOptions {}
 
-export interface IColshape extends IWorldObject {}
+export interface IColshape extends IWorldObject {
+  get key(): string | undefined;
+}

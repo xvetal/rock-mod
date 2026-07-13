@@ -64,65 +64,70 @@ export class AltVColshapesManager extends AltVWorldObjectsManager<AltVColshape> 
   }
 
   public createCircle(options: IAltVCircleColshapeCreateOptions): AltVCircleColshape {
-    const { range, position, dimension } = options;
+    const { range, position, dimension, key } = options;
     const { x, y } = position;
 
     const mpEntity = new ColshapeCircle(x, y, range);
     mpEntity.dimension = dimension;
 
     const colshape = new AltVCircleColshape({ mpEntity });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createCuboid(options: IAltVCuboidColshapeCreateOptions): AltVCuboidColshape {
-    const { width, depth, height, position, dimension } = options;
+    const { width, depth, height, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const mpEntity = new ColshapeCuboid(x, y, z, x + width, y + depth, z + height);
     mpEntity.dimension = dimension;
 
     const colshape = new AltVCuboidColshape({ mpEntity });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createCylinder(options: IAltVCylinderColshapeCreateOptions): AltVCylinderColshape {
-    const { height, range, position, dimension } = options;
+    const { height, range, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const mpEntity = new ColshapeCylinder(x, y, z, range, height);
     mpEntity.dimension = dimension;
 
     const colshape = new AltVCylinderColshape({ mpEntity });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createRectangle(options: IAltVRectangleColshapeCreateOptions): AltVRectangleColshape {
-    const { width, height, position, dimension } = options;
+    const { width, height, position, dimension, key } = options;
     const { x, y } = position;
 
     const mpEntity = new ColshapeRectangle(x, y, x + width, y + height);
     mpEntity.dimension = dimension;
 
     const colshape = new AltVRectangleColshape({ mpEntity });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createSphere(options: IAltVSphereColshapeCreateOptions): AltVSphereColshape {
-    const { range, position, dimension } = options;
+    const { range, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const mpEntity = new ColshapeSphere(x, y, z, range);
     mpEntity.dimension = dimension;
 
     const colshape = new AltVSphereColshape({ mpEntity });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;

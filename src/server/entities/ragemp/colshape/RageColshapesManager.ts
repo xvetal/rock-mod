@@ -54,65 +54,70 @@ export class RageColshapesManager extends RageWorldObjectsManager<RageColshape> 
   }
 
   public createCircle(options: IRageCircleColshapeCreateOptions): RageCircleColshape {
-    const { range, position, dimension } = options;
+    const { range, position, dimension, key } = options;
     const { x, y } = position;
 
     const mpEntity = mp.colshapes.newCircle(x, y, range, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
     const colshape = new RageCircleColshape({ mpEntity, position });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createCuboid(options: IRageCuboidColshapeCreateOptions): RageCuboidColshape {
-    const { width, depth, height, position, dimension } = options;
+    const { width, depth, height, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const mpEntity = mp.colshapes.newCuboid(x, y, z, width, depth, height, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
     const colshape = new RageCuboidColshape({ mpEntity, position });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createCylinder(options: IRageCylinderColshapeCreateOptions): RageCylinderColshape {
-    const { height, range, position, dimension } = options;
+    const { height, range, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const mpEntity = mp.colshapes.newTube(x, y, z, height, range, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
     const colshape = new RageCylinderColshape({ mpEntity, position });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createRectangle(options: IRageRectangleColshapeCreateOptions): RageRectangleColshape {
-    const { width, height, position, dimension } = options;
+    const { width, height, position, dimension, key } = options;
     const { x, y } = position;
 
     const mpEntity = mp.colshapes.newRectangle(x, y, width, height, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
     const colshape = new RageRectangleColshape({ mpEntity, position });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;
   }
 
   public createSphere(options: IRageSphereColshapeCreateOptions): RageSphereColshape {
-    const { range, position, dimension } = options;
+    const { range, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const mpEntity = mp.colshapes.newSphere(x, y, z, range, dimension);
     mpEntity.isExists = (): boolean => mp.colshapes.exists(mpEntity);
 
     const colshape = new RageSphereColshape({ mpEntity, position });
+    if (key !== undefined) colshape.setNetData("key", key);
     this.registerBaseObject(colshape);
 
     return colshape;

@@ -10,6 +10,11 @@ export abstract class RageColshape extends RageWorldObject<ColshapeMp> {
     super(options);
   }
 
+  public get key(): string | undefined {
+    const value = this.getNetData("key");
+    return typeof value === "string" ? value : undefined;
+  }
+
   public getNetData(name: string): unknown {
     return this.mpEntity.getVariable(name);
   }

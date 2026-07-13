@@ -52,9 +52,10 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
   }
 
   public createCircle(options: ICCMPCircleColshapeCreateOptions): CCMPCircleColshape {
-    const { position, range, dimension } = options;
+    const { position, range, dimension, key } = options;
+    const extras = key === undefined ? { dimension } : { dimension, key };
 
-    const ccmpColshape = ccmp.colshapes.createCircle(position.x, position.y, position.z, range, { dimension });
+    const ccmpColshape = ccmp.colshapes.createCircle(position.x, position.y, position.z, range, extras);
     if (!ccmpColshape) {
       throw new Error("CCMPColshapesManager.createCircle: ccmp.colshapes.createCircle failed (server full?)");
     }
@@ -69,7 +70,8 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
   }
 
   public createCuboid(options: ICCMPCuboidColshapeCreateOptions): CCMPCuboidColshape {
-    const { position, width, depth, height, dimension } = options;
+    const { position, width, depth, height, dimension, key } = options;
+    const extras = key === undefined ? { dimension } : { dimension, key };
 
     // CCMP cube uses HALF-extents (centered at position); rock-mod options describe full sizes.
     const ccmpColshape = ccmp.colshapes.createCube(
@@ -79,7 +81,7 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
       width / 2,
       depth / 2,
       height / 2,
-      { dimension },
+      extras,
     );
     if (!ccmpColshape) {
       throw new Error("CCMPColshapesManager.createCuboid: ccmp.colshapes.createCube failed (server full?)");
@@ -95,11 +97,10 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
   }
 
   public createCylinder(options: ICCMPCylinderColshapeCreateOptions): CCMPCylinderColshape {
-    const { position, range, height, dimension } = options;
+    const { position, range, height, dimension, key } = options;
+    const extras = key === undefined ? { dimension } : { dimension, key };
 
-    const ccmpColshape = ccmp.colshapes.createCylinder(position.x, position.y, position.z, range, height, {
-      dimension,
-    });
+    const ccmpColshape = ccmp.colshapes.createCylinder(position.x, position.y, position.z, range, height, extras);
     if (!ccmpColshape) {
       throw new Error("CCMPColshapesManager.createCylinder: ccmp.colshapes.createCylinder failed (server full?)");
     }
@@ -118,9 +119,10 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
   }
 
   public createSphere(options: ICCMPSphereColshapeCreateOptions): CCMPSphereColshape {
-    const { position, range, dimension } = options;
+    const { position, range, dimension, key } = options;
+    const extras = key === undefined ? { dimension } : { dimension, key };
 
-    const ccmpColshape = ccmp.colshapes.createSphere(position.x, position.y, position.z, range, { dimension });
+    const ccmpColshape = ccmp.colshapes.createSphere(position.x, position.y, position.z, range, extras);
     if (!ccmpColshape) {
       throw new Error("CCMPColshapesManager.createSphere: ccmp.colshapes.createSphere failed (server full?)");
     }
