@@ -1,0 +1,4 @@
+# Vendored runtime declarations contain quoted method names whose semantics
+# change when Prettier removes the quotes (for example, "new" becomes new).
+src/client/@types/
+src/server/@types/
