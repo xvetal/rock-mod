@@ -4,10 +4,13 @@ import { type IBlipColor, type IBlipSprite } from "@shared/entities";
 
 export interface IRageBlipOptions extends IRageWorldObjectOptions<EntityMp> {
   global: boolean;
+  name: string;
 }
 
 export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
   private readonly _global: boolean;
+
+  private readonly _name: string;
 
   private get _blipEntity(): BlipMp {
     return this.mpEntity as unknown as BlipMp;
@@ -15,6 +18,10 @@ export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
 
   public get sprite(): IBlipSprite {
     return this._blipEntity.getSprite();
+  }
+
+  public get name(): string {
+    return this._name;
   }
 
   public get color(): IBlipColor {
@@ -36,6 +43,7 @@ export class RageBlip extends RageWorldObject<EntityMp> implements IBlip {
   public constructor(options: IRageBlipOptions) {
     super(options);
     this._global = options.global;
+    this._name = options.name;
   }
 
   public setSprite(value: IBlipSprite): void {

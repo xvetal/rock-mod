@@ -20,6 +20,7 @@ export class RageBlipsManager extends RageWorldObjectsManager<RageBlip> implemen
     const blip = new RageBlip({
       mpEntity: mpEntity as unknown as EntityMp,
       global,
+      name: options.name ?? "",
     });
     this.registerBaseObject(blip);
 
