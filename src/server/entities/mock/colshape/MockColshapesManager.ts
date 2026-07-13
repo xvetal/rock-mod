@@ -35,7 +35,7 @@ export class MockColshapesManager extends MockWorldObjectsManager<MockColshape> 
   }
 
   public createCircle(options: IMockCircleColshapeCreateOptions): MockCircleColshape {
-    const { range, position, dimension } = options;
+    const { range, position, dimension, key } = options;
     const { x, y } = position;
 
     const colshape = new MockCircleColshape({
@@ -46,12 +46,14 @@ export class MockColshapesManager extends MockWorldObjectsManager<MockColshape> 
       dimension,
     });
 
+    if (key !== undefined) colshape.setNetData("key", key);
+
     this.registerBaseObject(colshape);
     return colshape;
   }
 
   public createCuboid(options: IMockCuboidColshapeCreateOptions): MockCuboidColshape {
-    const { width, depth, height, position, dimension } = options;
+    const { width, depth, height, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const colshape = new MockCuboidColshape({
@@ -64,12 +66,14 @@ export class MockColshapesManager extends MockWorldObjectsManager<MockColshape> 
       dimension,
     });
 
+    if (key !== undefined) colshape.setNetData("key", key);
+
     this.registerBaseObject(colshape);
     return colshape;
   }
 
   public createCylinder(options: IMockCylinderColshapeCreateOptions): MockCylinderColshape {
-    const { height, range, position, dimension } = options;
+    const { height, range, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const colshape = new MockCylinderColshape({
@@ -81,12 +85,14 @@ export class MockColshapesManager extends MockWorldObjectsManager<MockColshape> 
       dimension,
     });
 
+    if (key !== undefined) colshape.setNetData("key", key);
+
     this.registerBaseObject(colshape);
     return colshape;
   }
 
   public createRectangle(options: IMockRectangleColshapeCreateOptions): MockRectangleColshape {
-    const { width, height, position, dimension } = options;
+    const { width, height, position, dimension, key } = options;
     const { x, y } = position;
 
     const colshape = new MockRectangleColshape({
@@ -98,12 +104,14 @@ export class MockColshapesManager extends MockWorldObjectsManager<MockColshape> 
       dimension,
     });
 
+    if (key !== undefined) colshape.setNetData("key", key);
+
     this.registerBaseObject(colshape);
     return colshape;
   }
 
   public createSphere(options: IMockSphereColshapeCreateOptions): MockSphereColshape {
-    const { range, position, dimension } = options;
+    const { range, position, dimension, key } = options;
     const { x, y, z } = position;
 
     const colshape = new MockSphereColshape({
@@ -113,6 +121,8 @@ export class MockColshapesManager extends MockWorldObjectsManager<MockColshape> 
       position: new Vector3D(x, y, z),
       dimension,
     });
+
+    if (key !== undefined) colshape.setNetData("key", key);
 
     this.registerBaseObject(colshape);
     return colshape;

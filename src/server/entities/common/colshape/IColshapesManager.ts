@@ -8,26 +8,31 @@ import { type ISphereColshape } from "./ISphereColshape";
 import { type IPlayer } from "../player";
 
 export interface ICircleColshapeCreateOptions extends IWorldObjectCreateOptions {
+  key?: string;
   range: number;
 }
 
 export interface ICuboidColshapeCreateOptions extends IWorldObjectCreateOptions {
+  key?: string;
   width: number;
   depth: number;
   height: number;
 }
 
 export interface ICylinderColshapeCreateOptions extends IWorldObjectCreateOptions {
+  key?: string;
   range: number;
   height: number;
 }
 
 export interface IRectangleColshapeCreateOptions extends IWorldObjectCreateOptions {
+  key?: string;
   width: number;
   height: number;
 }
 
 export interface ISphereColshapeCreateOptions extends IWorldObjectCreateOptions {
+  key?: string;
   range: number;
 }
 

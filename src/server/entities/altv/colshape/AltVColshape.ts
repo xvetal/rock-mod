@@ -8,6 +8,11 @@ export abstract class AltVColshape extends AltVWorldObject<Colshape> {
     super(options);
   }
 
+  public get key(): string | undefined {
+    const value = this.getNetData("key");
+    return typeof value === "string" ? value : undefined;
+  }
+
   public getNetData(name: string): unknown {
     return this.mpEntity.getSyncedMeta(name);
   }

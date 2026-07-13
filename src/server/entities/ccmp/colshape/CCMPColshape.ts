@@ -35,6 +35,10 @@ export abstract class CCMPColshape extends CCMPWorldObject implements IColshape 
     return this._ccmpColshape.dimension;
   }
 
+  public get key(): string | undefined {
+    return this._ccmpColshape.key;
+  }
+
   public get playersInside(): readonly CcmpPlayer[] {
     return this._ccmpColshape.playersInside;
   }
