@@ -53,8 +53,7 @@ export class CCMPColshape implements IColshape {
   }
 
   public get key(): string | undefined {
-    const value = this.getSyncedMeta("key");
-    return typeof value === "string" ? value : undefined;
+    return this._ccmpColshape.key;
   }
 
   public setPosition(_value: IVector3D): void {
