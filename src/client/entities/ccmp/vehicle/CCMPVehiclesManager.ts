@@ -65,7 +65,12 @@ export class CCMPVehiclesManager implements IVehiclesManager {
     if (options.numberPlate !== undefined) createOptions.numberPlate = options.numberPlate;
     if (options.numberPlateType !== undefined) createOptions.numberPlateType = options.numberPlateType;
 
-    const ccmpVehicle = this._getNativeVehiclesApi()?.create(options.model, options.position, options.rotation, createOptions);
+    const ccmpVehicle = this._getNativeVehiclesApi()?.create(
+      options.model,
+      options.position,
+      options.rotation,
+      createOptions,
+    );
 
     if (!ccmpVehicle) {
       throw new Error(`CCMPVehiclesManager.create: ccmp.vehicles.create failed for model "${options.model}"`);

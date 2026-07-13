@@ -28,7 +28,14 @@ export class CCMPVehiclesManager extends CCMPEntitiesManager<CCMPVehicle> implem
     if (options.numberPlate !== undefined) createOptions.numberPlate = options.numberPlate;
     if (options.numberPlateType !== undefined) createOptions.numberPlateType = options.numberPlateType;
 
-    const ccmpVehicle = ccmp.vehicles.create(ccmp.hash(model), position.x, position.y, position.z, rotation.z, createOptions);
+    const ccmpVehicle = ccmp.vehicles.create(
+      ccmp.hash(model),
+      position.x,
+      position.y,
+      position.z,
+      rotation.z,
+      createOptions,
+    );
     if (!ccmpVehicle) {
       throw new Error("CCMPVehiclesManager.create: ccmp.vehicles.create failed (server full?)");
     }
