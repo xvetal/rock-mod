@@ -84,7 +84,8 @@
   "author": "xvetal",
   "license": "MIT",
   "dependencies": {
-    "@swc/helpers": "^0.5.15"
+    "@swc/helpers": "^0.5.15",
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
     "@classic-mp/types": "^1.9.0",

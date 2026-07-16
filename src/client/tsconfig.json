@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "esnext",
+    "importHelpers": true,
     "moduleResolution": "node",
     "outDir": "../../dist/client",
     "rootDir": ".",
