@@ -14,5 +14,6 @@ export {
   IWorldObject as IRockModWorldObject,
   ICamera as IRockModCamera,
 } from "./entities";
+export { type IOutgoingDamageEvent as IRockModOutgoingDamageEvent } from "./net/common/events/types";
 export * from "./game";
 export * from "./console";
