@@ -1,4 +1,4 @@
-import { type IBaseObject, type IPlayer, type IVehicle } from "@RockMod/client/entities";
+import { type IBaseObject, type IEntity, type IPlayer, type IVehicle } from "@RockMod/client/entities";
 import { type IVector3D } from "@shared/common/utils";
 
 export enum ClientInternalEventName {
@@ -15,6 +15,7 @@ export enum ClientInternalEventName {
   PlayerDeath = "rm::playerDeath",
   PlayerSpawn = "rm::playerSpawn",
   PlayerWeaponShot = "rm::playerWeaponShot",
+  OutgoingDamage = "rm::outgoingDamage",
   Render = "rm::render",
   Click = "rm::click",
   SyncedMetaChange = "rm::syncedMetaChange",
@@ -31,6 +32,15 @@ export interface IClickOptions {
   hitEntity: number | null;
 }
 
+export interface IOutgoingDamageEvent {
+  source: IEntity | null;
+  target: IEntity | null;
+  weaponHash: number;
+  boneIndex: number;
+  nativeDamage: number;
+  cancel(): void;
+}
+
 export interface IClientInternalEvents {
   [ClientInternalEventName.PlayerConnected]: (player: IPlayer) => void;
   [ClientInternalEventName.PlayerDisconnected]: (player: IPlayer) => void;
@@ -45,6 +55,7 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.PlayerDeath]: (player: IPlayer) => void;
   [ClientInternalEventName.PlayerSpawn]: (player: IPlayer) => void;
   [ClientInternalEventName.PlayerWeaponShot]: () => void;
+  [ClientInternalEventName.OutgoingDamage]: (event: IOutgoingDamageEvent) => void;
   [ClientInternalEventName.Render]: () => void;
   [ClientInternalEventName.Click]: (options: IClickOptions) => void;
   [ClientInternalEventName.SyncedMetaChange]: (

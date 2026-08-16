@@ -1268,7 +1268,7 @@ declare interface IClientEvents {
     weapon: number,
     boneIndex: number,
     damage: number,
-  ) => void;
+  ) => boolean | void;
   meleeActionDamage: (
     source: PlayerMp,
     target: PlayerMp,
