@@ -1,6 +1,6 @@
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { RockMod } from "@RockMod/client/RockMod";
-import { type IEntityPoolRouter, type IPlayer, type IVehicle } from "@RockMod/client/entities/common";
+import { type IEntity, type IEntityPoolRouter, type IPlayer, type IVehicle } from "@RockMod/client/entities/common";
 import { type IEventsBridge } from "@RockMod/client/net/common/events/IEventsBridge";
 import { ServerToClientEventName } from "@shared/net/common/events/types";
 import { type IEventsManager } from "@RockMod/client/net/common/events/IEventsManager";
@@ -34,6 +34,7 @@ export class RageEventsBridge implements IEventsBridge {
           return;
         }
 
+        mp.game.weapon.setEnableLocalOutgoingDamage(true);
         this._events.emitInternal(ClientInternalEventName.PlayerReady, localPlayer);
       },
 
@@ -121,6 +122,23 @@ export class RageEventsBridge implements IEventsBridge {
         this._events.emitInternal(ClientInternalEventName.PlayerWeaponShot);
       },
 
+      outgoingDamage: (sourceEntity, targetEntity, _targetPlayer, weaponHash, boneIndex, nativeDamage) => {
+        let cancelled = false;
+
+        this._events.emitInternal(ClientInternalEventName.OutgoingDamage, {
+          source: this._resolveOrRegisterEntity(sourceEntity),
+          target: this._resolveOrRegisterEntity(targetEntity),
+          weaponHash,
+          boneIndex,
+          nativeDamage,
+          cancel: () => {
+            cancelled = true;
+          },
+        });
+
+        return cancelled;
+      },
+
       browserDomReady: () => {
         this._events.emitInternal(ClientInternalEventName.BrowserDomReady);
       },
@@ -180,5 +198,9 @@ export class RageEventsBridge implements IEventsBridge {
     this._rockMod?.vehicles.syncWithMpPool();
     this._rockMod?.objects.syncWithMpPool();
     this._rockMod?.peds.syncWithMpPool();
+  }
+
+  private _resolveOrRegisterEntity(mpEntity: EntityMp | null | undefined): IEntity | null {
+    return this._entityPoolRouter.resolveFromMp(mpEntity) ?? this._entityPoolRouter.registerFromMp(mpEntity);
   }
 }
