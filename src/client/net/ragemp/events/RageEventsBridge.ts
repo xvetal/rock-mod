@@ -122,11 +122,30 @@ export class RageEventsBridge implements IEventsBridge {
         this._events.emitInternal(ClientInternalEventName.PlayerWeaponShot);
       },
 
-      outgoingDamage: (sourceEntity, targetEntity, _targetPlayer, weaponHash, boneIndex, nativeDamage) => {
+      outgoingDamage: (sourceEntity, targetEntity, targetPlayer, weaponHash, boneIndex, nativeDamage) => {
         let cancelled = false;
 
         this._events.emitInternal(ClientInternalEventName.OutgoingDamage, {
           source: this._resolveOrRegisterEntity(sourceEntity),
+          target: this._resolveOrRegisterEntity(targetEntity),
+          targetPlayer: this._resolveOrRegisterPlayer(targetPlayer),
+          weaponHash,
+          boneIndex,
+          nativeDamage,
+          cancel: () => {
+            cancelled = true;
+          },
+        });
+
+        return cancelled;
+      },
+
+      incomingDamage: (sourceEntity, sourcePlayer, targetEntity, weaponHash, boneIndex, nativeDamage) => {
+        let cancelled = false;
+
+        this._events.emitInternal(ClientInternalEventName.IncomingDamage, {
+          source: this._resolveOrRegisterEntity(sourceEntity),
+          sourcePlayer: this._resolveOrRegisterPlayer(sourcePlayer),
           target: this._resolveOrRegisterEntity(targetEntity),
           weaponHash,
           boneIndex,
@@ -202,5 +221,9 @@ export class RageEventsBridge implements IEventsBridge {
 
   private _resolveOrRegisterEntity(mpEntity: EntityMp | null | undefined): IEntity | null {
     return this._entityPoolRouter.resolveFromMp(mpEntity) ?? this._entityPoolRouter.registerFromMp(mpEntity);
+  }
+
+  private _resolveOrRegisterPlayer(mpPlayer: PlayerMp | null | undefined): IPlayer | null {
+    return this._resolveOrRegisterEntity(mpPlayer) as IPlayer | null;
   }
 }

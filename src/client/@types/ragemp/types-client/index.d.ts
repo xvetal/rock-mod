@@ -1260,7 +1260,7 @@ declare interface IClientEvents {
     weapon: number,
     boneIndex: number,
     damage: number,
-  ) => void;
+  ) => boolean | void;
   outgoingDamage: (
     sourceEntity: EntityMp,
     targetEntity: EntityMp,
