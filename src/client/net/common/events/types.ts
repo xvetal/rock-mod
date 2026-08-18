@@ -16,6 +16,7 @@ export enum ClientInternalEventName {
   PlayerSpawn = "rm::playerSpawn",
   PlayerWeaponShot = "rm::playerWeaponShot",
   OutgoingDamage = "rm::outgoingDamage",
+  IncomingDamage = "rm::incomingDamage",
   Render = "rm::render",
   Click = "rm::click",
   SyncedMetaChange = "rm::syncedMetaChange",
@@ -34,6 +35,17 @@ export interface IClickOptions {
 
 export interface IOutgoingDamageEvent {
   source: IEntity | null;
+  target: IEntity | null;
+  targetPlayer: IPlayer | null;
+  weaponHash: number;
+  boneIndex: number;
+  nativeDamage: number;
+  cancel(): void;
+}
+
+export interface IIncomingDamageEvent {
+  source: IEntity | null;
+  sourcePlayer: IPlayer | null;
   target: IEntity | null;
   weaponHash: number;
   boneIndex: number;
@@ -56,6 +68,7 @@ export interface IClientInternalEvents {
   [ClientInternalEventName.PlayerSpawn]: (player: IPlayer) => void;
   [ClientInternalEventName.PlayerWeaponShot]: () => void;
   [ClientInternalEventName.OutgoingDamage]: (event: IOutgoingDamageEvent) => void;
+  [ClientInternalEventName.IncomingDamage]: (event: IIncomingDamageEvent) => void;
   [ClientInternalEventName.Render]: () => void;
   [ClientInternalEventName.Click]: (options: IClickOptions) => void;
   [ClientInternalEventName.SyncedMetaChange]: (
