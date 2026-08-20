@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { type Player as VimpPlayer } from "@vimp-mp/types/client";
+import { RockMod } from "@RockMod/client/RockMod";
 import { BaseObjectType } from "@shared/entities";
 import { type IBaseObject } from "../../common/baseObject/IBaseObject";
 import { type IPlayer } from "../../common/player/IPlayer";
@@ -264,7 +265,22 @@ export class VIMPPlayer implements IPlayer {
   }
 
   public get vehicle(): IVehicle | null {
-    return null;
+    const pedHandle = this.handle;
+    if (!pedHandle) return null;
+
+    // `atGetIn = false` — only a fully seated ped counts: while the entry
+    // animation is playing `vehicle` must stay null.
+    if (!vimp.natives.ped.isPedInAnyVehicle(pedHandle, false)) return null;
+
+    const vehicleHandle = vimp.natives.ped.getVehiclePedIsIn(pedHandle, false);
+    if (!vehicleHandle) return null;
+
+    // The native returns a GTA handle while the manager needs a client-local
+    // wrapper id. VIMP has no handle -> id index, so scan the pool.
+    const vimpVehicle = vimp.vehicles.all.find((vehicle) => vehicle.handle === vehicleHandle) ?? null;
+    if (!vimpVehicle) return null;
+
+    return RockMod.instance.vehicles.findByID(vimpVehicle.id);
   }
 
   public get isVoice3DEnabled(): boolean {
