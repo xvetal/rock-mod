@@ -265,19 +265,9 @@ export class VIMPPlayer implements IPlayer {
   }
 
   public get vehicle(): IVehicle | null {
-    const pedHandle = this.handle;
-    if (!pedHandle) return null;
-
-    // `atGetIn = false` — only a fully seated ped counts: while the entry
-    // animation is playing `vehicle` must stay null.
-    if (!vimp.natives.ped.isPedInAnyVehicle(pedHandle, false)) return null;
-
-    const vehicleHandle = vimp.natives.ped.getVehiclePedIsIn(pedHandle, false);
-    if (!vehicleHandle) return null;
-
-    // The native returns a GTA handle while the manager needs a client-local
-    // wrapper id. VIMP has no handle -> id index, so scan the pool.
-    const vimpVehicle = vimp.vehicles.all.find((vehicle) => vehicle.handle === vehicleHandle) ?? null;
+    // VIMP keeps its own handle -> Vehicle index and returns null until the
+    // player is fully seated: entry animation, not streamed or on foot give null.
+    const vimpVehicle = this._getNativePlayer()?.vehicle;
     if (!vimpVehicle) return null;
 
     return RockMod.instance.vehicles.findByID(vimpVehicle.id);
