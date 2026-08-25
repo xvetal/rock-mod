@@ -7,7 +7,12 @@ import {
 import { VIMPNativeCallerManager } from "../native/VIMPNativeCallerManager";
 import { Vector3D, type IVector3D } from "../../../../shared/common/utils";
 
-const START_SHAPE_TEST_LOS_PROBE = "0x7EE9F5D83DD4F90E";
+/**
+ * The blocking probe: its result is ready as soon as the call returns. The async variant
+ * (0x7EE9F5D83DD4F90E) is still pending on the same frame and reports `hit: false`, while
+ * `testPointToPoint` is synchronous by contract and reads the result right away.
+ */
+const START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE = "0x377906D8A31E5586";
 const GET_SHAPE_TEST_RESULT = "0x3D87450E15D98694";
 const DEFAULT_TRACE_FLAG = 7;
 
@@ -29,7 +34,7 @@ export class VIMPRaycastingManager implements IRaycastingManager {
     flags?: number | number[],
   ): IRaycastResult | null {
     const shapeTestHandle = this._native.callNative(
-      START_SHAPE_TEST_LOS_PROBE,
+      START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE,
       startPos.x,
       startPos.y,
       startPos.z,
