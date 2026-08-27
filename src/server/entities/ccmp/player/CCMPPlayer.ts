@@ -185,11 +185,13 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public enableVoiceTo(_player: CCMPPlayer): void {
-    notImplemented("CCMPPlayer.enableVoiceTo");
+    // CCMP routes proximity voice to the speaker's streaming observers
+    // automatically. There is no per-listener allow-list to update here.
   }
 
   public disableVoiceTo(_player: CCMPPlayer): void {
-    notImplemented("CCMPPlayer.disableVoiceTo");
+    // CCMP removes observers from proximity voice routing automatically when
+    // they leave the speaker's streaming range.
   }
 
   public putIntoVehicle(vehicle: CCMPVehicle, seat?: number): void {

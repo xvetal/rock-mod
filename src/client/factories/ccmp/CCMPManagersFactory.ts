@@ -28,6 +28,7 @@ import { CCMPCursorManager } from "@RockMod/client/game/ccmp/cursor/CCMPCursorMa
 import { CCMPGameObjectManager } from "@RockMod/client/game/ccmp/object/CCMPGameObjectManager";
 import { CCMPGameplayManager } from "@RockMod/client/game/ccmp/gameplay/CCMPGameplayManager";
 import { CCMPWeaponManager } from "@RockMod/client/game/ccmp/weapon/CCMPWeaponManager";
+import { CCMPVoiceChatManager } from "@RockMod/client/game/ccmp/voiceChat/CCMPVoiceChatManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -169,7 +170,7 @@ export class CCMPManagersFactory implements IManagersFactory {
   }
 
   public createVoiceChatManager(): ManagerReturn<"createVoiceChatManager"> {
-    return createNotImplementedProxy("CCMPVoiceChatManager");
+    return new CCMPVoiceChatManager();
   }
 
   public createCameraManager(): ManagerReturn<"createCameraManager"> {
