@@ -37,6 +37,9 @@ export class CCMPPlayer implements IPlayer {
 
   private _isExists: boolean;
 
+  /** Compatibility state; CCMP selects spatialization from the active voice route. */
+  private _isVoice3DEnabled = true;
+
   public constructor(options: ICCMPPlayerOptions) {
     this._id = options.id;
     this._name = options.name;
@@ -265,23 +268,25 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public get isVoice3DEnabled(): boolean {
-    return false;
+    return this._isVoice3DEnabled;
   }
 
   public get voiceVolume(): number {
-    return 0;
+    return ccmp.voice.getPlayerVolume(this._id);
   }
 
   public get isVoiceActive(): boolean {
-    return false;
+    return this._getNativePlayer()?.isTalking ?? false;
   }
 
-  public setVoice3D(_enable: boolean): void {
-    this._warnOnce("setVoice3D");
+  public setVoice3D(enable: boolean): void {
+    // CCMP applies spatialization from the server-selected proximity/channel
+    // route. Keep the requested value for Rock-Mod API compatibility.
+    this._isVoice3DEnabled = enable;
   }
 
-  public setVoiceVolume(_volume: number): void {
-    this._warnOnce("setVoiceVolume");
+  public setVoiceVolume(volume: number): void {
+    ccmp.voice.setPlayerVolume(this._id, Math.max(0, Math.min(2, volume)));
   }
 
   public get isReloading(): boolean {
