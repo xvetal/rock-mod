@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { type Blip as CcmpBlip } from "@classic-mp/types/client";
+import { type Blip as VimpBlip } from "@vimp-mp/types/client";
 import { BaseObjectType, type IBlipColor, type IBlipSprite } from "@shared/entities";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 import { type IBlip } from "../../common/blip/IBlip";
 
 const notImplemented = (memberName: string): never => {
-  throw new Error(`CCMPBlip.${memberName}: not implemented`);
+  throw new Error(`VIMPBlip.${memberName}: not implemented`);
 };
 
-export class CCMPBlip implements IBlip {
+export class VIMPBlip implements IBlip {
   private _destroyed = false;
 
   public constructor(
-    private readonly _ccmpBlip: CcmpBlip,
-    private readonly _onDestroy: (blip: CCMPBlip) => void = () => {},
+    private readonly _vimpBlip: VimpBlip,
+    private readonly _onDestroy: (blip: VIMPBlip) => void = () => {},
   ) {}
 
   public get id(): number {
-    return this._ccmpBlip.id;
+    return this._vimpBlip.id;
   }
 
   public get remoteId(): number | null {
-    return this._ccmpBlip.remoteId;
+    return this._vimpBlip.remoteId;
   }
 
   public get type(): BaseObjectType {
@@ -29,27 +29,27 @@ export class CCMPBlip implements IBlip {
   }
 
   public get isExists(): boolean {
-    return !this._destroyed && this._ccmpBlip.isExists;
+    return !this._destroyed && this._vimpBlip.isExists;
   }
 
   public get handle(): number {
-    return this._ccmpBlip.handle;
+    return this._vimpBlip.handle;
   }
 
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
-    this._ccmpBlip.destroy();
+    this._vimpBlip.destroy();
     this._onDestroy(this);
   }
 
   public get position(): Vector3D {
-    const { x, y, z } = this._ccmpBlip.position;
+    const { x, y, z } = this._vimpBlip.position;
     return new Vector3D(x, y, z);
   }
 
   public get dimension(): number {
-    return this._ccmpBlip.dimension;
+    return this._vimpBlip.dimension;
   }
 
   public setPosition(_value: IVector3D): void {
@@ -73,39 +73,39 @@ export class CCMPBlip implements IBlip {
   }
 
   public get name(): string {
-    return this._ccmpBlip.name;
+    return this._vimpBlip.name;
   }
 
   public get sprite(): IBlipSprite {
-    return this._ccmpBlip.sprite as IBlipSprite;
+    return this._vimpBlip.sprite as IBlipSprite;
   }
 
   public get color(): number {
-    return this._ccmpBlip.color;
+    return this._vimpBlip.color;
   }
 
   public get alpha(): number {
-    return this._ccmpBlip.alpha;
+    return this._vimpBlip.alpha;
   }
 
   public get scale(): number {
-    return this._ccmpBlip.scale;
+    return this._vimpBlip.scale;
   }
 
   public get drawDistance(): number {
-    return this._ccmpBlip.drawDistance;
+    return this._vimpBlip.drawDistance;
   }
 
   public get global(): boolean {
-    return this._ccmpBlip.global;
+    return this._vimpBlip.global;
   }
 
   public get shortRange(): boolean {
-    return this._ccmpBlip.shortRange;
+    return this._vimpBlip.shortRange;
   }
 
   public get rotation(): number {
-    return this._ccmpBlip.rotation;
+    return this._vimpBlip.rotation;
   }
 
   public getVariable(name: string): unknown | null {
@@ -114,7 +114,7 @@ export class CCMPBlip implements IBlip {
       return null;
     }
 
-    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Blip, remoteId, name);
+    const value = vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Blip, remoteId, name);
     return value === undefined ? null : value;
   }
 
@@ -124,7 +124,7 @@ export class CCMPBlip implements IBlip {
       return undefined;
     }
 
-    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Blip, remoteId, key);
+    return vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Blip, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
@@ -133,7 +133,7 @@ export class CCMPBlip implements IBlip {
       return false;
     }
 
-    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Blip, remoteId, key);
+    return vimp.entities.hasStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Blip, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
@@ -142,7 +142,7 @@ export class CCMPBlip implements IBlip {
       return [];
     }
 
-    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Blip, remoteId);
+    return vimp.entities.getStreamSyncedMetaKeys(vimp.entities.ENTITY_TYPE.Blip, remoteId);
   }
 
   public setSprite(_value: IBlipSprite): void {

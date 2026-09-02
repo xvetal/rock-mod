@@ -1,1 +1,1 @@
-/// <reference types="@classic-mp/types/server" />
+/// <reference types="@vimp-mp/types/server" />

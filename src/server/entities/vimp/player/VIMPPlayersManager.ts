@@ -1,19 +1,19 @@
 import { type IPlayersManager } from "../../common/player/IPlayersManager";
-import { CCMPEntitiesManager } from "../entity/VIMPEntitiesManager";
-import { CCMPPlayer } from "./VIMPPlayer";
-import { type CCMPNetManager } from "../../../net/vimp/VIMPNetManager";
+import { VIMPEntitiesManager } from "../entity/VIMPEntitiesManager";
+import { VIMPPlayer } from "./VIMPPlayer";
+import { type VIMPNetManager } from "../../../net/vimp/VIMPNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 import { RockMod } from "../../../RockMod";
 
-export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implements IPlayersManager {
-  public constructor(net: CCMPNetManager) {
+export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implements IPlayersManager {
+  public constructor(net: VIMPNetManager) {
     super({
       baseObjectsType: "player",
     });
     this._init(net);
   }
 
-  public getByName(name: string): CCMPPlayer {
+  public getByName(name: string): VIMPPlayer {
     const player = this.findByName(name);
 
     if (!player) {
@@ -23,7 +23,7 @@ export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implemen
     return player;
   }
 
-  public findByName(name: string): CCMPPlayer | null {
+  public findByName(name: string): VIMPPlayer | null {
     for (const player of this.iterator.all()) {
       if (player.name === name) {
         return player;
@@ -33,7 +33,7 @@ export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implemen
     return null;
   }
 
-  public getBySocialClub(socialClub: string): CCMPPlayer {
+  public getBySocialClub(socialClub: string): VIMPPlayer {
     const player = this.findBySocialClub(socialClub);
 
     if (!player) {
@@ -43,7 +43,7 @@ export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implemen
     return player;
   }
 
-  public findBySocialClub(socialClub: string): CCMPPlayer | null {
+  public findBySocialClub(socialClub: string): VIMPPlayer | null {
     for (const player of this.iterator.all()) {
       if (player.socialClub === socialClub) {
         return player;
@@ -53,34 +53,34 @@ export class CCMPPlayersManager extends CCMPEntitiesManager<CCMPPlayer> implemen
     return null;
   }
 
-  private _init(net: CCMPNetManager): void {
+  private _init(net: VIMPNetManager): void {
     net.events.onInternal({
-      playerConnected: (ccmpPlayer) => {
-        const player = new CCMPPlayer({ ccmpPlayer });
+      playerConnected: (vimpPlayer) => {
+        const player = new VIMPPlayer({ vimpPlayer });
         this.registerBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
       },
-      playerDisconnected: (ccmpPlayer) => {
-        const player = this.getByID(ccmpPlayer.id);
+      playerDisconnected: (vimpPlayer) => {
+        const player = this.getByID(vimpPlayer.id);
         net.events.emitInternal(ServerInternalEventName.PlayerQuit, player, "disconnect", "");
         this.unregisterBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
       },
-      playerDimensionChange: (ccmpPlayer, oldDim, newDim) => {
-        const player = this.findByID(ccmpPlayer.id);
+      playerDimensionChange: (vimpPlayer, oldDim, newDim) => {
+        const player = this.findByID(vimpPlayer.id);
         if (!player) return;
         net.events.emitInternal(ServerInternalEventName.PlayerDimensionChange, player, oldDim, newDim);
       },
-      playerEnterVehicle: (ccmpPlayer, ccmpVehicle, seat) => {
-        const player = this.findByID(ccmpPlayer.id);
-        const vehicle = RockMod.instance.vehicles.findByID(ccmpVehicle.id);
+      playerEnterVehicle: (vimpPlayer, vimpVehicle, seat) => {
+        const player = this.findByID(vimpPlayer.id);
+        const vehicle = RockMod.instance.vehicles.findByID(vimpVehicle.id);
         if (!player || !vehicle) return;
 
         net.events.emitInternal(ServerInternalEventName.PlayerEnterVehicle, player, vehicle, seat);
       },
-      playerExitVehicle: (ccmpPlayer, ccmpVehicle) => {
-        const player = this.findByID(ccmpPlayer.id);
-        const vehicle = RockMod.instance.vehicles.findByID(ccmpVehicle.id);
+      playerExitVehicle: (vimpPlayer, vimpVehicle) => {
+        const player = this.findByID(vimpPlayer.id);
+        const vehicle = RockMod.instance.vehicles.findByID(vimpVehicle.id);
         if (!player || !vehicle) return;
 
         net.events.emitInternal(ServerInternalEventName.PlayerExitVehicle, player, vehicle);

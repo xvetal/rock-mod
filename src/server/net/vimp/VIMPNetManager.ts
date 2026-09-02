@@ -1,23 +1,23 @@
 import { type INetManager } from "../common/INetManager";
-import { CCMPEventsManager } from "./events/VIMPEventsManager";
-import { CCMPRPCManager } from "./rpc/VIMPRPCManager";
+import { VIMPEventsManager } from "./events/VIMPEventsManager";
+import { VIMPRPCManager } from "./rpc/VIMPRPCManager";
 
 /**
  * Имя cooperation-события для синтеза `rm::playerReady` на клиенте.
  *
  * Клиент шлёт это сразу после `connectionStateChanged.connected = true`;
  * сервер отвечает тому же игроку этим же именем с `{ remoteId }`. Клиентский
- * `CCMPEventsBridge` ловит ответ и эмитит `rm::playerReady`.
+ * `VIMPEventsBridge` ловит ответ и эмитит `rm::playerReady`.
  */
 const CLIENT_READY_EVENT = "rm::clientReady";
 
 /**
  * Имя приватного события для зеркалирования клиентских `console.*` вызовов
- * в серверный stdout. Реализация клиента — `CCMPConsoleForwarder`.
+ * в серверный stdout. Реализация клиента — `VIMPConsoleForwarder`.
  */
 const CLIENT_LOG_EVENT = "rm::clientLog";
 
-interface CcmpPlayerLike {
+interface VimpPlayerLike {
   readonly id: number;
 }
 
@@ -92,52 +92,52 @@ function pickConsoleSink(level: ClientLogLevel): (...args: unknown[]) => void {
   }
 }
 
-export class CCMPNetManager implements INetManager {
-  private readonly _eventsManager: CCMPEventsManager;
+export class VIMPNetManager implements INetManager {
+  private readonly _eventsManager: VIMPEventsManager;
 
-  private readonly _rpcManager: CCMPRPCManager;
+  private readonly _rpcManager: VIMPRPCManager;
 
-  public get events(): CCMPEventsManager {
+  public get events(): VIMPEventsManager {
     return this._eventsManager;
   }
 
-  public get rpc(): CCMPRPCManager {
+  public get rpc(): VIMPRPCManager {
     return this._rpcManager;
   }
 
   public constructor() {
-    this._eventsManager = new CCMPEventsManager();
-    this._rpcManager = new CCMPRPCManager();
+    this._eventsManager = new VIMPEventsManager();
+    this._rpcManager = new VIMPRPCManager();
 
     this._registerClientReadyCooperation();
     this._registerClientLogForwarder();
   }
 
   private _registerClientReadyCooperation(): void {
-    // Регистрируем напрямую через `ccmp.on` (а не через events.onClient),
+    // Регистрируем напрямую через `vimp.on` (а не через events.onClient),
     // потому что событие не входит в `IClientToServerEvents` — это
     // приватный rock-mod протокол.
-    ccmp.on(CLIENT_READY_EVENT, (player: CcmpPlayerLike) => {
-      const ccmpPlayer = ccmp.players.getById(player.id);
-      if (!ccmpPlayer) {
+    vimp.on(CLIENT_READY_EVENT, (player: VimpPlayerLike) => {
+      const vimpPlayer = vimp.players.getById(player.id);
+      if (!vimpPlayer) {
         return;
       }
 
-      // Зеркалит контракт client-side `CCMPEventsManager`: payload всегда
+      // Зеркалит контракт client-side `VIMPEventsManager`: payload всегда
       // массивом, на клиенте развернётся обратно в позиционные аргументы.
-      ccmpPlayer.emit(CLIENT_READY_EVENT, [{ remoteId: player.id }]);
+      vimpPlayer.emit(CLIENT_READY_EVENT, [{ remoteId: player.id }]);
     });
   }
 
   /**
    * Принимает зеркалированные клиентские `console.*` вызовы и печатает в
-   * серверный stdout. Необходимо для отладки CCMP-клиента: иначе ошибки
+   * серверный stdout. Необходимо для отладки VIMP-клиента: иначе ошибки
    * boot'а уходят в игровую консоль (F8), не видны разработчику.
    *
-   * Парный клиент — `CCMPConsoleForwarder`.
+   * Парный клиент — `VIMPConsoleForwarder`.
    */
   private _registerClientLogForwarder(): void {
-    ccmp.on(CLIENT_LOG_EVENT, (player: CcmpPlayerLike, payload: ClientLogPayload) => {
+    vimp.on(CLIENT_LOG_EVENT, (player: VimpPlayerLike, payload: ClientLogPayload) => {
       const level = payload?.level ?? "log";
       const args = Array.isArray(payload?.args) ? payload.args : [];
 

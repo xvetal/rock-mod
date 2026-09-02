@@ -1,11 +1,11 @@
-/// <reference types="@classic-mp/types/client" />
+/// <reference types="@vimp-mp/types/client" />
 
 import { type IUtilsManager } from "../common/IUtilsManager";
 
 /**
- * Реализация `IUtilsManager` под CCMP.
+ * Реализация `IUtilsManager` под VIMP.
  *
- * `hash(value)` — обёртка вокруг `ccmp.natives.misc.getHashKey(value)`,
+ * `hash(value)` — обёртка вокруг `vimp.natives.misc.getHashKey(value)`,
  * который вызывает GTA V натив `GET_HASH_KEY` (joaat). Алгоритм идентичен
  * RageMP'шному `mp.game.joaat(value)`, так что результат бит-в-бит совпадает —
  * хеши моделей/нативов из shared-кода (`@shared/common/enums/Model`,
@@ -16,8 +16,8 @@ import { type IUtilsManager } from "../common/IUtilsManager";
  * Это синхронный V8-op без аллокаций, стоимость — единицы микросекунд. JS-side
  * кешировать не нужно: натив сам кеширует на стороне Rust-рантайма.
  */
-export class CCMPUtilsManager implements IUtilsManager {
+export class VIMPUtilsManager implements IUtilsManager {
   public hash(value: string): number {
-    return ccmp.natives.misc.getHashKey(value);
+    return vimp.natives.misc.getHashKey(value);
   }
 }

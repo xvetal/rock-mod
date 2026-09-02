@@ -1,5 +1,5 @@
 import { ClientInternalEventName } from "../../common/events/types";
-import { type CCMPEventsManager } from "./VIMPEventsManager";
+import { type VIMPEventsManager } from "./VIMPEventsManager";
 
 const TARGET_FPS = 60;
 const TICK_INTERVAL_MS = Math.floor(1000 / TARGET_FPS);
@@ -7,7 +7,7 @@ const TICK_INTERVAL_MS = Math.floor(1000 / TARGET_FPS);
 type IntervalHandle = ReturnType<typeof setInterval>;
 type SetInterval = (handler: () => void, ms: number) => IntervalHandle;
 type ClearInterval = (handle: IntervalHandle) => void;
-type CCMPRenderEventSource = {
+type VIMPRenderEventSource = {
   on?: (eventName: "render", callback: () => void) => void;
 };
 
@@ -28,29 +28,29 @@ function getClearInterval(): ClearInterval | null {
   return typeof fn === "function" ? fn : null;
 }
 
-function getNativeRenderEventSource(): CCMPRenderEventSource | null {
-  const maybeCcmp = (globalThis as { ccmp?: CCMPRenderEventSource }).ccmp;
-  return typeof maybeCcmp?.on === "function" ? maybeCcmp : null;
+function getNativeRenderEventSource(): VIMPRenderEventSource | null {
+  const maybeVimp = (globalThis as { vimp?: VIMPRenderEventSource }).vimp;
+  return typeof maybeVimp?.on === "function" ? maybeVimp : null;
 }
 
 /**
- * Per-frame событие `rm::render` под CCMP.
+ * Per-frame событие `rm::render` под VIMP.
  *
  * У RageMP клиента есть нативный raw-event `render`, на котором завязаны
- * декораторы `@Render` и `@Interval` в геймоде. Современный CCMP runtime
- * эмитит coalesced native `ccmp.on("render")` из game loop; используем его,
+ * декораторы `@Render` и `@Interval` в геймоде. Современный VIMP runtime
+ * эмитит coalesced native `vimp.on("render")` из game loop; используем его,
  * чтобы render не зависел от JS timer pump и не копился в очереди.
  *
  * `setInterval` остаётся только fallback'ом для старых runtime.
  */
-export class CCMPRenderTicker {
-  private _emitter: CCMPEventsManager | null = null;
+export class VIMPRenderTicker {
+  private _emitter: VIMPEventsManager | null = null;
 
   private _handle: IntervalHandle | null = null;
 
   private _nativeRenderRegistered = false;
 
-  public start(emitter: CCMPEventsManager): void {
+  public start(emitter: VIMPEventsManager): void {
     this._emitter = emitter;
 
     const nativeRender = getNativeRenderEventSource();
@@ -69,7 +69,7 @@ export class CCMPRenderTicker {
     const setIntervalFn = getSetInterval();
     if (!setIntervalFn) {
       console.warn(
-        '[CCMPRenderTicker] native `ccmp.on("render")` and `setInterval` are unavailable. ' +
+        '[VIMPRenderTicker] native `vimp.on("render")` and `setInterval` are unavailable. ' +
           "`rm::render` will not be emitted.",
       );
       return;

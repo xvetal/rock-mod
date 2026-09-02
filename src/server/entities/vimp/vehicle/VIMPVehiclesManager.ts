@@ -1,17 +1,17 @@
 import { type IVehicleCreateOptions, type IVehiclesManager } from "../../common/vehicle/IVehiclesManager";
-import { CCMPEntitiesManager } from "../entity/VIMPEntitiesManager";
-import { CCMPVehicle } from "./VIMPVehicle";
+import { VIMPEntitiesManager } from "../entity/VIMPEntitiesManager";
+import { VIMPVehicle } from "./VIMPVehicle";
 
-export interface ICCMPVehicleCreateOptions extends IVehicleCreateOptions {}
+export interface IVIMPVehicleCreateOptions extends IVehicleCreateOptions {}
 
-export class CCMPVehiclesManager extends CCMPEntitiesManager<CCMPVehicle> implements IVehiclesManager {
+export class VIMPVehiclesManager extends VIMPEntitiesManager<VIMPVehicle> implements IVehiclesManager {
   public constructor() {
     super({
       baseObjectsType: "vehicle",
     });
   }
 
-  public create(options: ICCMPVehicleCreateOptions): CCMPVehicle {
+  public create(options: IVIMPVehicleCreateOptions): VIMPVehicle {
     const { model, position, rotation, engine, dimension, locked } = options;
     const createOptions: {
       dimension: number;
@@ -28,20 +28,20 @@ export class CCMPVehiclesManager extends CCMPEntitiesManager<CCMPVehicle> implem
     if (options.numberPlate !== undefined) createOptions.numberPlate = options.numberPlate;
     if (options.numberPlateType !== undefined) createOptions.numberPlateType = options.numberPlateType;
 
-    const ccmpVehicle = ccmp.vehicles.create(
-      ccmp.hash(model),
+    const vimpVehicle = vimp.vehicles.create(
+      vimp.hash(model),
       position.x,
       position.y,
       position.z,
       rotation.z,
       createOptions,
     );
-    if (!ccmpVehicle) {
-      throw new Error("CCMPVehiclesManager.create: ccmp.vehicles.create failed (server full?)");
+    if (!vimpVehicle) {
+      throw new Error("VIMPVehiclesManager.create: vimp.vehicles.create failed (server full?)");
     }
 
-    const vehicle = new CCMPVehicle({
-      ccmpVehicle,
+    const vehicle = new VIMPVehicle({
+      vimpVehicle,
       onDestroy: (v): void => this.unregisterBaseObject(v),
     });
     this.registerBaseObject(vehicle);

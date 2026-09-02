@@ -1,7 +1,7 @@
 import { type IUtilsManager } from "../common";
 
-export class CCMPUtilsManager implements IUtilsManager {
+export class VIMPUtilsManager implements IUtilsManager {
   public hash(value: string): number {
-    return ccmp.hash(value);
+    return vimp.hash(value);
   }
 }

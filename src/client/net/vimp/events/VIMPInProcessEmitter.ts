@@ -1,15 +1,15 @@
 type Listener = (...args: unknown[]) => void;
 
-type CCMPCallbackProfiler = {
-  __ccmp_profileCallback?: (label: string, callback: Listener, args: unknown[], thresholdMs?: number) => void;
-  __ccmp_registerCallbackProfile?: (label: string, callback: Listener, site?: string) => void;
+type VIMPCallbackProfiler = {
+  __vimp_profileCallback?: (label: string, callback: Listener, args: unknown[], thresholdMs?: number) => void;
+  __vimp_registerCallbackProfile?: (label: string, callback: Listener, site?: string) => void;
 };
 
 const RENDER_EVENT = "rm::render";
 const RENDER_LISTENER_WARN_THRESHOLD_MS = 10;
 
-function getCCMPCallbackProfiler(): CCMPCallbackProfiler {
-  return globalThis as CCMPCallbackProfiler;
+function getVIMPCallbackProfiler(): VIMPCallbackProfiler {
+  return globalThis as VIMPCallbackProfiler;
 }
 
 function profileLabel(event: string): string {
@@ -27,8 +27,8 @@ function captureRegistrationSite(): string {
     if (
       line === "Error" ||
       line.includes("captureRegistrationSite") ||
-      line.includes("CCMPInProcessEmitter") ||
-      line.includes("getCCMPCallbackProfiler") ||
+      line.includes("VIMPInProcessEmitter") ||
+      line.includes("getVIMPCallbackProfiler") ||
       line.includes("profileLabel")
     ) {
       continue;
@@ -44,9 +44,9 @@ function captureRegistrationSite(): string {
  * Тонкий внутренний event bus.
  *
  * RageMP даёт `mp.events.call(name, ...args)` для локальной шины поверх своего
- * движка событий. У CCMP нативной внутренней шины нет — её роль выполняет этот
- * класс. Используется только из `CCMPEventsManager` для `onInternal` /
- * `offInternal` / `emitInternal` и из `CCMPEventsBridge` для синтезированных
+ * движка событий. У VIMP нативной внутренней шины нет — её роль выполняет этот
+ * класс. Используется только из `VIMPEventsManager` для `onInternal` /
+ * `offInternal` / `emitInternal` и из `VIMPEventsBridge` для синтезированных
  * `rm::*` событий.
  *
  * Поддерживает "sticky" events (см. `emitSticky`) для one-shot lifecycle-
@@ -55,7 +55,7 @@ function captureRegistrationSite(): string {
  * Sticky-кэш гарантирует, что любой `on()`-вызов после `emitSticky` получит
  * последнее значение synchronously.
  */
-export class CCMPInProcessEmitter {
+export class VIMPInProcessEmitter {
   private readonly _listeners = new Map<string, Set<Listener>>();
 
   /** Кэш аргументов для sticky-events. См. `emitSticky` / `on`. */
@@ -69,7 +69,7 @@ export class CCMPInProcessEmitter {
     }
 
     bucket.add(listener);
-    getCCMPCallbackProfiler().__ccmp_registerCallbackProfile?.(
+    getVIMPCallbackProfiler().__vimp_registerCallbackProfile?.(
       profileLabel(event),
       listener,
       captureRegistrationSite(),
@@ -77,14 +77,14 @@ export class CCMPInProcessEmitter {
 
     // Sticky replay: если событие уже было эмитнуто как sticky — сразу
     // воспроизводим последнее значение новому подписчику. Это решает гонку
-    // "CCMPEventsBridge эмитит rm::playerReady до того, как геймод-адаптер
+    // "VIMPEventsBridge эмитит rm::playerReady до того, как геймод-адаптер
     // успел подписаться" — типично для async DI-bootstrap'а.
     const sticky = this._stickyCache.get(event);
     if (sticky !== undefined) {
       try {
         this._callListener(event, listener, sticky);
       } catch (error) {
-        console.error(`[CCMPInProcessEmitter] sticky replay "${event}" failed for new subscriber:`, error);
+        console.error(`[VIMPInProcessEmitter] sticky replay "${event}" failed for new subscriber:`, error);
       }
     }
   }
@@ -117,7 +117,7 @@ export class CCMPInProcessEmitter {
       try {
         this._callListener(event, listener, args);
       } catch (error) {
-        console.error(`[CCMPInProcessEmitter] listener "${event}" failed:`, error);
+        console.error(`[VIMPInProcessEmitter] listener "${event}" failed:`, error);
       }
     }
   }
@@ -149,7 +149,7 @@ export class CCMPInProcessEmitter {
   }
 
   private _callListener(event: string, listener: Listener, args: unknown[]): void {
-    const profiler = getCCMPCallbackProfiler().__ccmp_profileCallback;
+    const profiler = getVIMPCallbackProfiler().__vimp_profileCallback;
     if (profiler) {
       profiler(
         profileLabel(event),

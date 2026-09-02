@@ -1,37 +1,37 @@
-/// <reference types="@classic-mp/types/client" />
+/// <reference types="@vimp-mp/types/client" />
 import { type IBaseObject } from "@RockMod/client/entities";
-import { type CCMPBlipsManager } from "@RockMod/client/entities/vimp/blip/VIMPBlipsManager";
-import { type CCMPColshapesManager } from "@RockMod/client/entities/vimp/colshape/VIMPColshapesManager";
-import { type CCMPMarkersManager } from "@RockMod/client/entities/vimp/marker/VIMPMarkersManager";
-import { type CCMPObjectsManager } from "@RockMod/client/entities/vimp/object/VIMPObjectsManager";
-import { type CCMPPedsManager } from "@RockMod/client/entities/vimp/ped/VIMPPedsManager";
-import { type CCMPPlayersManager } from "@RockMod/client/entities/vimp/player/VIMPPlayersManager";
-import { type CCMPVehiclesManager } from "@RockMod/client/entities/vimp/vehicle/VIMPVehiclesManager";
+import { type VIMPBlipsManager } from "@RockMod/client/entities/vimp/blip/VIMPBlipsManager";
+import { type VIMPColshapesManager } from "@RockMod/client/entities/vimp/colshape/VIMPColshapesManager";
+import { type VIMPMarkersManager } from "@RockMod/client/entities/vimp/marker/VIMPMarkersManager";
+import { type VIMPObjectsManager } from "@RockMod/client/entities/vimp/object/VIMPObjectsManager";
+import { type VIMPPedsManager } from "@RockMod/client/entities/vimp/ped/VIMPPedsManager";
+import { type VIMPPlayersManager } from "@RockMod/client/entities/vimp/player/VIMPPlayersManager";
+import { type VIMPVehiclesManager } from "@RockMod/client/entities/vimp/vehicle/VIMPVehiclesManager";
 import { ClientInternalEventName } from "../../common/events/types";
-import { type CCMPEventsManager } from "./VIMPEventsManager";
+import { type VIMPEventsManager } from "./VIMPEventsManager";
 
-export interface ICCMPSyncedMetaBridgeManagers {
-  blips: CCMPBlipsManager;
-  colshapes: CCMPColshapesManager;
-  markers: CCMPMarkersManager;
-  objects: CCMPObjectsManager;
-  peds: CCMPPedsManager;
-  players: CCMPPlayersManager;
-  vehicles: CCMPVehiclesManager;
+export interface IVIMPSyncedMetaBridgeManagers {
+  blips: VIMPBlipsManager;
+  colshapes: VIMPColshapesManager;
+  markers: VIMPMarkersManager;
+  objects: VIMPObjectsManager;
+  peds: VIMPPedsManager;
+  players: VIMPPlayersManager;
+  vehicles: VIMPVehiclesManager;
 }
 
 /**
- * Translates CCMP `streamSyncedMetaChange` into Rock-Mod's internal
+ * Translates VIMP `streamSyncedMetaChange` into Rock-Mod's internal
  * `rm::syncedMetaChange` for stream-synced base objects.
  */
-export class CCMPSyncedMetaBridge {
-  private readonly _events: CCMPEventsManager;
+export class VIMPSyncedMetaBridge {
+  private readonly _events: VIMPEventsManager;
 
-  private readonly _managers: ICCMPSyncedMetaBridgeManagers;
+  private readonly _managers: IVIMPSyncedMetaBridgeManagers;
 
   private _registered = false;
 
-  public constructor(events: CCMPEventsManager, managers: ICCMPSyncedMetaBridgeManagers) {
+  public constructor(events: VIMPEventsManager, managers: IVIMPSyncedMetaBridgeManagers) {
     this._events = events;
     this._managers = managers;
   }
@@ -42,7 +42,7 @@ export class CCMPSyncedMetaBridge {
     }
     this._registered = true;
 
-    ccmp.on("streamSyncedMetaChange", (payload) => {
+    vimp.on("streamSyncedMetaChange", (payload) => {
       const object = this._resolveObject(payload.entityType, payload.entityId);
       if (!object) {
         return;
@@ -60,19 +60,19 @@ export class CCMPSyncedMetaBridge {
 
   private _resolveObject(entityType: number, entityId: number): IBaseObject | null {
     switch (entityType) {
-      case ccmp.entities.ENTITY_TYPE.Player:
+      case vimp.entities.ENTITY_TYPE.Player:
         return this._managers.players.findByRemoteId(entityId);
-      case ccmp.entities.ENTITY_TYPE.Vehicle:
+      case vimp.entities.ENTITY_TYPE.Vehicle:
         return this._managers.vehicles.findByRemoteID(entityId);
-      case ccmp.entities.ENTITY_TYPE.Object:
+      case vimp.entities.ENTITY_TYPE.Object:
         return this._managers.objects.findByRemoteID(entityId);
-      case ccmp.entities.ENTITY_TYPE.Ped:
+      case vimp.entities.ENTITY_TYPE.Ped:
         return this._managers.peds.findByRemoteID(entityId);
-      case ccmp.entities.ENTITY_TYPE.Marker:
+      case vimp.entities.ENTITY_TYPE.Marker:
         return this._managers.markers.findByRemoteID(entityId);
-      case ccmp.entities.ENTITY_TYPE.Blip:
+      case vimp.entities.ENTITY_TYPE.Blip:
         return this._managers.blips.findByRemoteID(entityId);
-      case ccmp.entities.ENTITY_TYPE.Colshape:
+      case vimp.entities.ENTITY_TYPE.Colshape:
         return this._managers.colshapes.findByRemoteID(entityId);
       default:
         return null;

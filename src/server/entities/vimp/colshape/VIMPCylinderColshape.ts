@@ -1,10 +1,10 @@
-import { type ICCMPColshapeOptions, CCMPColshape } from "./VIMPColshape";
+import { type IVIMPColshapeOptions, VIMPColshape } from "./VIMPColshape";
 import { type ICylinderColshape } from "../../common/colshape/ICylinderColshape";
 
-export interface ICCMPCylinderColshapeOptions extends ICCMPColshapeOptions {}
+export interface IVIMPCylinderColshapeOptions extends IVIMPColshapeOptions {}
 
-export class CCMPCylinderColshape extends CCMPColshape implements ICylinderColshape {
-  public constructor(options: ICCMPCylinderColshapeOptions) {
+export class VIMPCylinderColshape extends VIMPColshape implements ICylinderColshape {
+  public constructor(options: IVIMPCylinderColshapeOptions) {
     super(options);
   }
 }

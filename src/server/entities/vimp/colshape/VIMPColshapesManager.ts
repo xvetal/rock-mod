@@ -6,62 +6,62 @@ import {
   type IRectangleColshapeCreateOptions,
   type ISphereColshapeCreateOptions,
 } from "../../common/colshape/IColshapesManager";
-import { CCMPWorldObjectsManager } from "../worldObject/VIMPWorldObjectsManager";
-import { type CCMPColshape } from "./VIMPColshape";
-import { CCMPCircleColshape } from "./VIMPCircleColshape";
-import { CCMPCuboidColshape } from "./VIMPCuboidColshape";
-import { CCMPCylinderColshape } from "./VIMPCylinderColshape";
-import { type CCMPRectangleColshape } from "./VIMPRectangleColshape";
-import { CCMPSphereColshape } from "./VIMPSphereColshape";
-import { type CCMPPlayer } from "../player/VIMPPlayer";
+import { VIMPWorldObjectsManager } from "../worldObject/VIMPWorldObjectsManager";
+import { type VIMPColshape } from "./VIMPColshape";
+import { VIMPCircleColshape } from "./VIMPCircleColshape";
+import { VIMPCuboidColshape } from "./VIMPCuboidColshape";
+import { VIMPCylinderColshape } from "./VIMPCylinderColshape";
+import { type VIMPRectangleColshape } from "./VIMPRectangleColshape";
+import { VIMPSphereColshape } from "./VIMPSphereColshape";
+import { type VIMPPlayer } from "../player/VIMPPlayer";
 import { RockMod } from "../../../RockMod";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 
-export interface ICCMPCircleColshapeCreateOptions extends ICircleColshapeCreateOptions {}
+export interface IVIMPCircleColshapeCreateOptions extends ICircleColshapeCreateOptions {}
 
-export interface ICCMPCuboidColshapeCreateOptions extends ICuboidColshapeCreateOptions {}
+export interface IVIMPCuboidColshapeCreateOptions extends ICuboidColshapeCreateOptions {}
 
-export interface ICCMPCylinderColshapeCreateOptions extends ICylinderColshapeCreateOptions {}
+export interface IVIMPCylinderColshapeCreateOptions extends ICylinderColshapeCreateOptions {}
 
-export interface ICCMPRectangleColshapeCreateOptions extends IRectangleColshapeCreateOptions {}
+export interface IVIMPRectangleColshapeCreateOptions extends IRectangleColshapeCreateOptions {}
 
-export interface ICCMPSphereColshapeCreateOptions extends ISphereColshapeCreateOptions {}
+export interface IVIMPSphereColshapeCreateOptions extends ISphereColshapeCreateOptions {}
 
-export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> implements IColshapesManager {
+export class VIMPColshapesManager extends VIMPWorldObjectsManager<VIMPColshape> implements IColshapesManager {
   public constructor() {
     super({
       baseObjectsType: "colshape",
     });
 
-    ccmp.on("playerEnterColshape", (ccmpPlayer, ccmpColshape) => {
-      if (!ccmpColshape) return;
-      const colshape = this.findByID(ccmpColshape.id);
+    vimp.on("playerEnterColshape", (vimpPlayer, vimpColshape) => {
+      if (!vimpColshape) return;
+      const colshape = this.findByID(vimpColshape.id);
       if (!colshape) return;
-      const player = RockMod.instance.players.findByID(ccmpPlayer.id) as CCMPPlayer | null;
+      const player = RockMod.instance.players.findByID(vimpPlayer.id) as VIMPPlayer | null;
       if (!player) return;
       RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerEnteredColshape, player, colshape);
     });
-    ccmp.on("playerExitColshape", (ccmpPlayer, ccmpColshape) => {
-      if (!ccmpColshape) return;
-      const colshape = this.findByID(ccmpColshape.id);
+    vimp.on("playerExitColshape", (vimpPlayer, vimpColshape) => {
+      if (!vimpColshape) return;
+      const colshape = this.findByID(vimpColshape.id);
       if (!colshape) return;
-      const player = RockMod.instance.players.findByID(ccmpPlayer.id) as CCMPPlayer | null;
+      const player = RockMod.instance.players.findByID(vimpPlayer.id) as VIMPPlayer | null;
       if (!player) return;
       RockMod.instance.net.events.emitInternal(ServerInternalEventName.PlayerLeftColshape, player, colshape);
     });
   }
 
-  public createCircle(options: ICCMPCircleColshapeCreateOptions): CCMPCircleColshape {
+  public createCircle(options: IVIMPCircleColshapeCreateOptions): VIMPCircleColshape {
     const { position, range, dimension, key } = options;
     const extras = key === undefined ? { dimension } : { dimension, key };
 
-    const ccmpColshape = ccmp.colshapes.createCircle(position.x, position.y, position.z, range, extras);
-    if (!ccmpColshape) {
-      throw new Error("CCMPColshapesManager.createCircle: ccmp.colshapes.createCircle failed (server full?)");
+    const vimpColshape = vimp.colshapes.createCircle(position.x, position.y, position.z, range, extras);
+    if (!vimpColshape) {
+      throw new Error("VIMPColshapesManager.createCircle: vimp.colshapes.createCircle failed (server full?)");
     }
 
-    const colshape = new CCMPCircleColshape({
-      ccmpColshape,
+    const colshape = new VIMPCircleColshape({
+      vimpColshape,
       onDestroy: (c): void => this.unregisterBaseObject(c),
     });
     this.registerBaseObject(colshape);
@@ -69,12 +69,12 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
     return colshape;
   }
 
-  public createCuboid(options: ICCMPCuboidColshapeCreateOptions): CCMPCuboidColshape {
+  public createCuboid(options: IVIMPCuboidColshapeCreateOptions): VIMPCuboidColshape {
     const { position, width, depth, height, dimension, key } = options;
     const extras = key === undefined ? { dimension } : { dimension, key };
 
-    // CCMP cube uses HALF-extents (centered at position); rock-mod options describe full sizes.
-    const ccmpColshape = ccmp.colshapes.createCube(
+    // VIMP cube uses HALF-extents (centered at position); rock-mod options describe full sizes.
+    const vimpColshape = vimp.colshapes.createCube(
       position.x,
       position.y,
       position.z,
@@ -83,12 +83,12 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
       height / 2,
       extras,
     );
-    if (!ccmpColshape) {
-      throw new Error("CCMPColshapesManager.createCuboid: ccmp.colshapes.createCube failed (server full?)");
+    if (!vimpColshape) {
+      throw new Error("VIMPColshapesManager.createCuboid: vimp.colshapes.createCube failed (server full?)");
     }
 
-    const colshape = new CCMPCuboidColshape({
-      ccmpColshape,
+    const colshape = new VIMPCuboidColshape({
+      vimpColshape,
       onDestroy: (c): void => this.unregisterBaseObject(c),
     });
     this.registerBaseObject(colshape);
@@ -96,17 +96,17 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
     return colshape;
   }
 
-  public createCylinder(options: ICCMPCylinderColshapeCreateOptions): CCMPCylinderColshape {
+  public createCylinder(options: IVIMPCylinderColshapeCreateOptions): VIMPCylinderColshape {
     const { position, range, height, dimension, key } = options;
     const extras = key === undefined ? { dimension } : { dimension, key };
 
-    const ccmpColshape = ccmp.colshapes.createCylinder(position.x, position.y, position.z, range, height, extras);
-    if (!ccmpColshape) {
-      throw new Error("CCMPColshapesManager.createCylinder: ccmp.colshapes.createCylinder failed (server full?)");
+    const vimpColshape = vimp.colshapes.createCylinder(position.x, position.y, position.z, range, height, extras);
+    if (!vimpColshape) {
+      throw new Error("VIMPColshapesManager.createCylinder: vimp.colshapes.createCylinder failed (server full?)");
     }
 
-    const colshape = new CCMPCylinderColshape({
-      ccmpColshape,
+    const colshape = new VIMPCylinderColshape({
+      vimpColshape,
       onDestroy: (c): void => this.unregisterBaseObject(c),
     });
     this.registerBaseObject(colshape);
@@ -114,21 +114,21 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
     return colshape;
   }
 
-  public createRectangle(_options: ICCMPRectangleColshapeCreateOptions): CCMPRectangleColshape {
-    throw new Error("CCMPColshapesManager.createRectangle: not supported by CCMP");
+  public createRectangle(_options: IVIMPRectangleColshapeCreateOptions): VIMPRectangleColshape {
+    throw new Error("VIMPColshapesManager.createRectangle: not supported by VIMP");
   }
 
-  public createSphere(options: ICCMPSphereColshapeCreateOptions): CCMPSphereColshape {
+  public createSphere(options: IVIMPSphereColshapeCreateOptions): VIMPSphereColshape {
     const { position, range, dimension, key } = options;
     const extras = key === undefined ? { dimension } : { dimension, key };
 
-    const ccmpColshape = ccmp.colshapes.createSphere(position.x, position.y, position.z, range, extras);
-    if (!ccmpColshape) {
-      throw new Error("CCMPColshapesManager.createSphere: ccmp.colshapes.createSphere failed (server full?)");
+    const vimpColshape = vimp.colshapes.createSphere(position.x, position.y, position.z, range, extras);
+    if (!vimpColshape) {
+      throw new Error("VIMPColshapesManager.createSphere: vimp.colshapes.createSphere failed (server full?)");
     }
 
-    const colshape = new CCMPSphereColshape({
-      ccmpColshape,
+    const colshape = new VIMPSphereColshape({
+      vimpColshape,
       onDestroy: (c): void => this.unregisterBaseObject(c),
     });
     this.registerBaseObject(colshape);
@@ -136,10 +136,10 @@ export class CCMPColshapesManager extends CCMPWorldObjectsManager<CCMPColshape> 
     return colshape;
   }
 
-  public getParticipants(colshape: CCMPColshape): Set<CCMPPlayer> {
-    const participants = new Set<CCMPPlayer>();
-    for (const ccmpPlayer of colshape.playersInside) {
-      const player = RockMod.instance.players.findByID(ccmpPlayer.id) as CCMPPlayer | null;
+  public getParticipants(colshape: VIMPColshape): Set<VIMPPlayer> {
+    const participants = new Set<VIMPPlayer>();
+    for (const vimpPlayer of colshape.playersInside) {
+      const player = RockMod.instance.players.findByID(vimpPlayer.id) as VIMPPlayer | null;
       if (player) {
         participants.add(player);
       }
