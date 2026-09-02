@@ -52,7 +52,7 @@ export class RockMod {
         return new RageManagersFactory();
       }
       case "CCMP": {
-        const { CCMPManagersFactory } = await import("./factories/ccmp/CCMPManagersFactory");
+        const { CCMPManagersFactory } = await import("./factories/vimp/VIMPManagersFactory");
         return new CCMPManagersFactory();
       }
       case "AltV":
