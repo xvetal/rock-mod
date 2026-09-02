@@ -24,7 +24,7 @@ import url from "node:url";
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..");
 const NATIVES_JSON = path.join(REPO_ROOT, "scripts", "data", "natives.json");
-const OUT_TS = path.join(REPO_ROOT, "src", "client", "game", "ccmp", "native", "_generated", "nativeDispatch.ts");
+const OUT_TS = path.join(REPO_ROOT, "src", "client", "game", "vimp", "native", "_generated", "nativeDispatch.ts");
 
 /**
  * SCREAMING_SNAKE_CASE → camelCase.
