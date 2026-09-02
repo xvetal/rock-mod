@@ -1,44 +1,44 @@
-/// <reference types="@classic-mp/types/client" />
+/// <reference types="@vimp-mp/types/client" />
 
 import { type IUiManager } from "../../common/ui/IUiManager";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 
-export class CCMPUiManager implements IUiManager {
+export class VIMPUiManager implements IUiManager {
   public getStreetNameFromHashKey(hash: number): string {
-    return ccmp.natives.hud.getStreetNameFromHashKey(hash);
+    return vimp.natives.hud.getStreetNameFromHashKey(hash);
   }
 
   public getLabelText(labelName: string): string {
-    if (!ccmp.natives.hud.doesTextLabelExist(labelName)) {
+    if (!vimp.natives.hud.doesTextLabelExist(labelName)) {
       return labelName;
     }
 
-    const text = ccmp.natives.hud.getFilenameForAudioConversation(labelName);
+    const text = vimp.natives.hud.getFilenameForAudioConversation(labelName);
     return text && text !== "NULL" ? text : labelName;
   }
 
   public hideHudComponentThisFrame(componentIndex: number): void {
-    ccmp.natives.hud.hideHudComponentThisFrame(componentIndex);
+    vimp.natives.hud.hideHudComponentThisFrame(componentIndex);
   }
 
   public displayRadar(display: boolean): void {
-    ccmp.natives.hud.displayRadar(display);
+    vimp.natives.hud.displayRadar(display);
   }
 
   public setPauseMenuActive(toggle: boolean): void {
-    ccmp.natives.hud.setPauseMenuActive(toggle);
+    vimp.natives.hud.setPauseMenuActive(toggle);
   }
 
   public setWaypoint(x: number, y: number): void {
-    ccmp.natives.hud.setNewWaypoint(x, y);
+    vimp.natives.hud.setNewWaypoint(x, y);
   }
 
   public deleteWaypoint(): void {
-    ccmp.natives.hud.setWaypointOff();
+    vimp.natives.hud.setWaypointOff();
   }
 
   public getBlipInfoIdCoord(blip: number): IVector3D {
-    const { x, y, z } = ccmp.natives.hud.getBlipInfoIdCoord(blip);
+    const { x, y, z } = vimp.natives.hud.getBlipInfoIdCoord(blip);
     return new Vector3D(x, y, z);
   }
 }

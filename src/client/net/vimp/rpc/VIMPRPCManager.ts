@@ -4,17 +4,17 @@ import { type IClientRPCList, type IServerRPCList } from "@shared/net/common/rpc
 type UIHandler = (...args: unknown[]) => unknown;
 
 /**
- * CCMP implementation of the rock-mod client RPC registry.
+ * VIMP implementation of the rock-mod client RPC registry.
  *
  * The current gamemod routes UI RPC through the event bridge:
- * `window.ccmp.emitClient(...)` -> `ccmp.on(...)` -> NetworkRPCService.
+ * `window.vimp.emitClient(...)` -> `vimp.on(...)` -> NetworkRPCService.
  * `register` therefore keeps the same public contract as RageMP's
  * `mp.events.addProc` without emitting noisy startup warnings.
  *
  * Native client->server RPC is still intentionally unsupported here. The
  * gamemod uses its correlation-id protocol over `net.events` for that path.
  */
-export class CCMPRPCManager implements IRPCManager {
+export class VIMPRPCManager implements IRPCManager {
   private readonly _uiHandlers = new Map<string, UIHandler>();
 
   public register<K extends keyof IClientRPCList>(
@@ -35,8 +35,8 @@ export class CCMPRPCManager implements IRPCManager {
     void args;
     return Promise.reject(
       new Error(
-        `CCMPRPCManager.emitServer(${String(rpcName)}): native client→server ` +
-          `RPC не реализован под CCMP. Используй net.events с собственным ` +
+        `VIMPRPCManager.emitServer(${String(rpcName)}): native client→server ` +
+          `RPC не реализован под VIMP. Используй net.events с собственным ` +
           `correlationId-протоколом (как делает rock-mod-rpc-caller.adapter).`,
       ),
     );

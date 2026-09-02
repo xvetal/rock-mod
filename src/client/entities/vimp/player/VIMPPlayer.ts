@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { type Player as CcmpPlayer } from "@classic-mp/types/client";
+import { type Player as VimpPlayer } from "@vimp-mp/types/client";
 import { BaseObjectType } from "@shared/entities";
 import { type IBaseObject } from "../../common/baseObject/IBaseObject";
 import { type IPlayer } from "../../common/player/IPlayer";
@@ -8,8 +8,8 @@ import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 const ZERO_VECTOR: IVector3D = new Vector3D(0, 0, 0);
 
-export interface ICCMPPlayerOptions {
-  /** Network id of the player (same as remoteId — CCMP exposes only one id). */
+export interface IVIMPPlayerOptions {
+  /** Network id of the player (same as remoteId — VIMP exposes only one id). */
   readonly id: number;
   /** Human-readable name from the handshake. May be empty if not yet known. */
   readonly name: string;
@@ -18,14 +18,14 @@ export interface ICCMPPlayerOptions {
 }
 
 /**
- * CCMP implementation of the Rock-Mod player facade.
+ * VIMP implementation of the Rock-Mod player facade.
  *
  * Identity and synced meta are tracked by id. Runtime entity operations are
- * delegated to `ccmp.players.getById(id)`, whose `handle` is live for the
+ * delegated to `vimp.players.getById(id)`, whose `handle` is live for the
  * local player and for streamed remote players. Missing remote handles degrade
  * to safe defaults/no-ops, matching RageMP-style best-effort client behavior.
  */
-export class CCMPPlayer implements IPlayer {
+export class VIMPPlayer implements IPlayer {
   /** Глобальный set для one-time warnings, чтобы не флудить лог. */
   private static readonly _warnedMethods = new Set<string>();
 
@@ -37,17 +37,17 @@ export class CCMPPlayer implements IPlayer {
 
   private _isExists: boolean;
 
-  /** Compatibility state; CCMP selects spatialization from the active voice route. */
+  /** Compatibility state; VIMP selects spatialization from the active voice route. */
   private _isVoice3DEnabled = true;
 
-  public constructor(options: ICCMPPlayerOptions) {
+  public constructor(options: IVIMPPlayerOptions) {
     this._id = options.id;
     this._name = options.name;
     this._isLocal = options.isLocal;
     this._isExists = true;
   }
 
-  /** Помечает игрока как удалённого — вызывается из `CCMPPlayersManager`. */
+  /** Помечает игрока как удалённого — вызывается из `VIMPPlayersManager`. */
   public markRemoved(): void {
     this._isExists = false;
   }
@@ -191,20 +191,20 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public getVariable(name: string): unknown | null {
-    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Player, this._id, name);
+    const value = vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Player, this._id, name);
     return value === undefined ? null : value;
   }
 
   public getSyncedMeta(key: string): unknown | undefined {
-    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Player, this._id, key);
+    return vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Player, this._id, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
-    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Player, this._id, key);
+    return vimp.entities.hasStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Player, this._id, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
-    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Player, this._id);
+    return vimp.entities.getStreamSyncedMetaKeys(vimp.entities.ENTITY_TYPE.Player, this._id);
   }
 
   public attachToEntity(
@@ -272,7 +272,7 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public get voiceVolume(): number {
-    return ccmp.voice.getPlayerVolume(this._id);
+    return vimp.voice.getPlayerVolume(this._id);
   }
 
   public get isVoiceActive(): boolean {
@@ -280,13 +280,13 @@ export class CCMPPlayer implements IPlayer {
   }
 
   public setVoice3D(enable: boolean): void {
-    // CCMP applies spatialization from the server-selected proximity/channel
+    // VIMP applies spatialization from the server-selected proximity/channel
     // route. Keep the requested value for Rock-Mod API compatibility.
     this._isVoice3DEnabled = enable;
   }
 
   public setVoiceVolume(volume: number): void {
-    ccmp.voice.setPlayerVolume(this._id, Math.max(0, Math.min(2, volume)));
+    vimp.voice.setPlayerVolume(this._id, Math.max(0, Math.min(2, volume)));
   }
 
   public get isReloading(): boolean {
@@ -459,14 +459,14 @@ export class CCMPPlayer implements IPlayer {
     this._getNativePlayer()?.setNoCollision(otherHandle, thisFrameOnly);
   }
 
-  private _getNativePlayer(): CcmpPlayer | null {
+  private _getNativePlayer(): VimpPlayer | null {
     try {
-      const player = ccmp.players.getById(this._id);
+      const player = vimp.players.getById(this._id);
       if (player) {
         return player;
       }
 
-      const localPlayer = ccmp.players.local;
+      const localPlayer = vimp.players.local;
       return localPlayer?.id === this._id ? localPlayer : null;
     } catch {
       return null;
@@ -474,12 +474,12 @@ export class CCMPPlayer implements IPlayer {
   }
 
   private _warnOnce(method: string): void {
-    if (CCMPPlayer._warnedMethods.has(method)) {
+    if (VIMPPlayer._warnedMethods.has(method)) {
       return;
     }
-    CCMPPlayer._warnedMethods.add(method);
+    VIMPPlayer._warnedMethods.add(method);
     console.warn(
-      `[CCMPPlayer] ${method}() пока не реализован для CCMP — вызов проигнорирован ` +
+      `[VIMPPlayer] ${method}() пока не реализован для VIMP — вызов проигнорирован ` +
         `(следующие вызовы этого метода будут проигнорированы молча).`,
     );
   }

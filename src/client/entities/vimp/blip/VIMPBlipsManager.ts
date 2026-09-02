@@ -1,35 +1,35 @@
-import { type Blip as CcmpBlip } from "@classic-mp/types/client";
-import { type CCMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
+import { type Blip as VimpBlip } from "@vimp-mp/types/client";
+import { type VIMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
 import { type IBlipCreateOptions, type IBlipsManager } from "../../common/blip/IBlipsManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
-import { CCMPBlip } from "./VIMPBlip";
+import { VIMPBlip } from "./VIMPBlip";
 
-export class CCMPBlipsManager implements IBlipsManager {
-  private readonly _blips = new Map<number, CCMPBlip>();
+export class VIMPBlipsManager implements IBlipsManager {
+  private readonly _blips = new Map<number, VIMPBlip>();
 
-  private readonly _blipsByRemoteId = new Map<number, CCMPBlip>();
+  private readonly _blipsByRemoteId = new Map<number, VIMPBlip>();
 
-  private readonly _iterator: IWorldObjectsIterator<CCMPBlip> = {
-    all: (): IterableIterator<CCMPBlip> => this._filter(() => true),
-    dimension: (value: number): IterableIterator<CCMPBlip> => this._filter((blip) => blip.dimension === value),
-    range2D: (center: Vector2D, range: number): IterableIterator<CCMPBlip> =>
+  private readonly _iterator: IWorldObjectsIterator<VIMPBlip> = {
+    all: (): IterableIterator<VIMPBlip> => this._filter(() => true),
+    dimension: (value: number): IterableIterator<VIMPBlip> => this._filter((blip) => blip.dimension === value),
+    range2D: (center: Vector2D, range: number): IterableIterator<VIMPBlip> =>
       this._filter((blip) => {
         const position = blip.position;
         const squaredDistance = (position.x - center.x) ** 2 + (position.y - center.y) ** 2;
         return squaredDistance <= range * range;
       }),
-    range3D: (center: Vector3D, range: number): IterableIterator<CCMPBlip> =>
+    range3D: (center: Vector3D, range: number): IterableIterator<VIMPBlip> =>
       this._filter((blip) => blip.position.isInRange(center, range)),
   };
 
-  public constructor(private readonly _events: CCMPEventsManager) {
+  public constructor(private readonly _events: VIMPEventsManager) {
     this._registerLifecycleEvents();
     this.syncWithMpPool();
   }
 
-  public create(options: IBlipCreateOptions): CCMPBlip {
+  public create(options: IBlipCreateOptions): VIMPBlip {
     const createOptions: {
       dimension?: number;
       alpha?: number;
@@ -53,42 +53,42 @@ export class CCMPBlipsManager implements IBlipsManager {
     if (options.scale !== undefined) createOptions.scale = options.scale;
     if (options.shortRange !== undefined) createOptions.shortRange = options.shortRange;
 
-    const ccmpBlip = ccmp.blips.create(options.sprite, options.position, createOptions);
+    const vimpBlip = vimp.blips.create(options.sprite, options.position, createOptions);
 
-    if (!ccmpBlip) {
-      throw new Error(`CCMPBlipsManager.create: ccmp.blips.create failed for sprite "${options.sprite}"`);
+    if (!vimpBlip) {
+      throw new Error(`VIMPBlipsManager.create: vimp.blips.create failed for sprite "${options.sprite}"`);
     }
 
-    return this._register(ccmpBlip);
+    return this._register(vimpBlip);
   }
 
   public syncWithMpPool(): void {
     this._pruneDestroyed();
 
-    for (const ccmpBlip of ccmp.blips.all) {
-      this._register(ccmpBlip);
+    for (const vimpBlip of vimp.blips.all) {
+      this._register(vimpBlip);
     }
   }
 
-  public registerById(id: number): CCMPBlip {
+  public registerById(id: number): VIMPBlip {
     const existingBlip = this.findByID(id);
     if (existingBlip) {
       return existingBlip;
     }
 
-    const ccmpBlip = ccmp.blips.getById(id);
-    if (!ccmpBlip) {
-      throw new Error(`CCMPBlipsManager.registerById(${id}): blip not found.`);
+    const vimpBlip = vimp.blips.getById(id);
+    if (!vimpBlip) {
+      throw new Error(`VIMPBlipsManager.registerById(${id}): blip not found.`);
     }
 
-    return this._register(ccmpBlip);
+    return this._register(vimpBlip);
   }
 
-  public unregisterById(id: number): CCMPBlip {
+  public unregisterById(id: number): VIMPBlip {
     return this.deleteById(id);
   }
 
-  public findByID(id: number): CCMPBlip | null {
+  public findByID(id: number): VIMPBlip | null {
     const blip = this._blips.get(id) ?? null;
     if (blip && !blip.isExists) {
       this._unregister(blip);
@@ -96,23 +96,23 @@ export class CCMPBlipsManager implements IBlipsManager {
       return blip;
     }
 
-    const ccmpBlip = ccmp.blips.getById(id);
-    if (!ccmpBlip) {
+    const vimpBlip = vimp.blips.getById(id);
+    if (!vimpBlip) {
       return null;
     }
 
-    return this._register(ccmpBlip);
+    return this._register(vimpBlip);
   }
 
-  public getByID(id: number): CCMPBlip {
+  public getByID(id: number): VIMPBlip {
     const blip = this.findByID(id);
     if (!blip) {
-      throw new Error(`CCMPBlipsManager.getByID(${id}): blip not found.`);
+      throw new Error(`VIMPBlipsManager.getByID(${id}): blip not found.`);
     }
     return blip;
   }
 
-  public findByRemoteID(remoteId: number): CCMPBlip | null {
+  public findByRemoteID(remoteId: number): VIMPBlip | null {
     const blip = this._blipsByRemoteId.get(remoteId) ?? null;
     if (blip && !blip.isExists) {
       this._unregister(blip);
@@ -120,34 +120,34 @@ export class CCMPBlipsManager implements IBlipsManager {
       return blip;
     }
 
-    const ccmpBlip = ccmp.blips.getByRemoteId(remoteId);
-    if (!ccmpBlip) {
+    const vimpBlip = vimp.blips.getByRemoteId(remoteId);
+    if (!vimpBlip) {
       return null;
     }
 
-    return this._register(ccmpBlip);
+    return this._register(vimpBlip);
   }
 
-  public getByRemoteID(remoteId: number): CCMPBlip {
+  public getByRemoteID(remoteId: number): VIMPBlip {
     const blip = this.findByRemoteID(remoteId);
     if (!blip) {
-      throw new Error(`CCMPBlipsManager.getByRemoteID(${remoteId}): blip not found.`);
+      throw new Error(`VIMPBlipsManager.getByRemoteID(${remoteId}): blip not found.`);
     }
     return blip;
   }
 
-  public deleteById(id: number): CCMPBlip {
+  public deleteById(id: number): VIMPBlip {
     const blip = this.getByID(id);
     blip.destroy();
     return blip;
   }
 
-  public get iterator(): IWorldObjectsIterator<CCMPBlip> {
+  public get iterator(): IWorldObjectsIterator<VIMPBlip> {
     return this._iterator;
   }
 
-  private _register(ccmpBlip: CcmpBlip): CCMPBlip {
-    const existingBlip = this._findRegistered(ccmpBlip);
+  private _register(vimpBlip: VimpBlip): VIMPBlip {
+    const existingBlip = this._findRegistered(vimpBlip);
     if (existingBlip && existingBlip.isExists) {
       return existingBlip;
     }
@@ -155,7 +155,7 @@ export class CCMPBlipsManager implements IBlipsManager {
       this._unregister(existingBlip);
     }
 
-    const blip = new CCMPBlip(ccmpBlip, (destroyedBlip) => {
+    const blip = new VIMPBlip(vimpBlip, (destroyedBlip) => {
       this._unregister(destroyedBlip);
     });
     this._blips.set(blip.id, blip);
@@ -165,49 +165,49 @@ export class CCMPBlipsManager implements IBlipsManager {
     return blip;
   }
 
-  private _unregister(blip: CCMPBlip): void {
+  private _unregister(blip: VIMPBlip): void {
     this._blips.delete(blip.id);
     if (blip.remoteId !== null) {
       this._blipsByRemoteId.delete(blip.remoteId);
     }
   }
 
-  private _findRegistered(ccmpBlip: CcmpBlip): CCMPBlip | null {
+  private _findRegistered(vimpBlip: VimpBlip): VIMPBlip | null {
     return (
-      (ccmpBlip.remoteId === null ? null : (this._blipsByRemoteId.get(ccmpBlip.remoteId) ?? null)) ??
-      this._blips.get(ccmpBlip.id) ??
+      (vimpBlip.remoteId === null ? null : (this._blipsByRemoteId.get(vimpBlip.remoteId) ?? null)) ??
+      this._blips.get(vimpBlip.id) ??
       null
     );
   }
 
   private _registerLifecycleEvents(): void {
-    ccmp.on("blipCreated", (ccmpBlip: CcmpBlip | null) => {
-      if (!ccmpBlip) return;
-      const blip = this._register(ccmpBlip);
+    vimp.on("blipCreated", (vimpBlip: VimpBlip | null) => {
+      if (!vimpBlip) return;
+      const blip = this._register(vimpBlip);
       this._events.emitInternal(ClientInternalEventName.EntityCreated, blip);
     });
 
-    ccmp.on("blipDestroyed", (ccmpBlip: CcmpBlip | null) => {
-      if (!ccmpBlip) return;
-      const blip = this._findRegistered(ccmpBlip) ?? this._register(ccmpBlip);
+    vimp.on("blipDestroyed", (vimpBlip: VimpBlip | null) => {
+      if (!vimpBlip) return;
+      const blip = this._findRegistered(vimpBlip) ?? this._register(vimpBlip);
       this._events.emitInternal(ClientInternalEventName.EntityDestroyed, blip);
       this._unregister(blip);
     });
 
-    ccmp.on("blipStreamIn", (ccmpBlip: CcmpBlip | null) => {
-      if (!ccmpBlip) return;
-      const blip = this._register(ccmpBlip);
+    vimp.on("blipStreamIn", (vimpBlip: VimpBlip | null) => {
+      if (!vimpBlip) return;
+      const blip = this._register(vimpBlip);
       this._events.emitInternal(ClientInternalEventName.EntityStreamIn, blip);
     });
 
-    ccmp.on("blipStreamOut", (ccmpBlip: CcmpBlip | null) => {
-      if (!ccmpBlip) return;
-      const blip = this._findRegistered(ccmpBlip) ?? this._register(ccmpBlip);
+    vimp.on("blipStreamOut", (vimpBlip: VimpBlip | null) => {
+      if (!vimpBlip) return;
+      const blip = this._findRegistered(vimpBlip) ?? this._register(vimpBlip);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, blip);
     });
   }
 
-  private *_filter(predicate: (blip: CCMPBlip) => boolean): IterableIterator<CCMPBlip> {
+  private *_filter(predicate: (blip: VIMPBlip) => boolean): IterableIterator<VIMPBlip> {
     for (const blip of this._blips.values()) {
       if (!blip.isExists) {
         this._unregister(blip);

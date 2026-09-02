@@ -1,72 +1,72 @@
-import { type Ped as CcmpPed } from "@classic-mp/types/client";
-import { type CCMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
+import { type Ped as VimpPed } from "@vimp-mp/types/client";
+import { type VIMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type IPedCreateOptions, type IPedsManager } from "../../common/ped/IPedsManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
-import { CCMPPed } from "./VIMPPed";
+import { VIMPPed } from "./VIMPPed";
 
-export class CCMPPedsManager implements IPedsManager {
-  private readonly _peds = new Map<number, CCMPPed>();
+export class VIMPPedsManager implements IPedsManager {
+  private readonly _peds = new Map<number, VIMPPed>();
 
-  private readonly _pedsByRemoteId = new Map<number, CCMPPed>();
+  private readonly _pedsByRemoteId = new Map<number, VIMPPed>();
 
-  private readonly _iterator: IWorldObjectsIterator<CCMPPed> = {
-    all: (): IterableIterator<CCMPPed> => this._filter(() => true),
-    dimension: (value: number): IterableIterator<CCMPPed> => this._filter((ped) => ped.dimension === value),
-    range2D: (center: Vector2D, range: number): IterableIterator<CCMPPed> =>
+  private readonly _iterator: IWorldObjectsIterator<VIMPPed> = {
+    all: (): IterableIterator<VIMPPed> => this._filter(() => true),
+    dimension: (value: number): IterableIterator<VIMPPed> => this._filter((ped) => ped.dimension === value),
+    range2D: (center: Vector2D, range: number): IterableIterator<VIMPPed> =>
       this._filter((ped) => {
         const position = ped.position;
         const squaredDistance = (position.x - center.x) ** 2 + (position.y - center.y) ** 2;
         return squaredDistance <= range * range;
       }),
-    range3D: (center: Vector3D, range: number): IterableIterator<CCMPPed> =>
+    range3D: (center: Vector3D, range: number): IterableIterator<VIMPPed> =>
       this._filter((ped) => ped.position.isInRange(center, range)),
   };
 
-  public constructor(private readonly _events: CCMPEventsManager) {
+  public constructor(private readonly _events: VIMPEventsManager) {
     this._registerStreamEvents();
     this.syncWithMpPool();
   }
 
-  public create(options: IPedCreateOptions): CCMPPed {
+  public create(options: IPedCreateOptions): VIMPPed {
     const { model, position, rotation, dimension } = options;
-    const ccmpPed = ccmp.peds.create(model, position, rotation.z, { dimension });
+    const vimpPed = vimp.peds.create(model, position, rotation.z, { dimension });
 
-    if (!ccmpPed) {
-      throw new Error(`CCMPPedsManager.create: ccmp.peds.create failed for model "${model}"`);
+    if (!vimpPed) {
+      throw new Error(`VIMPPedsManager.create: vimp.peds.create failed for model "${model}"`);
     }
 
-    return this._register(ccmpPed);
+    return this._register(vimpPed);
   }
 
   public syncWithMpPool(): void {
     this._pruneDestroyed();
 
-    for (const ccmpPed of ccmp.peds.all) {
-      this._register(ccmpPed);
+    for (const vimpPed of vimp.peds.all) {
+      this._register(vimpPed);
     }
   }
 
-  public registerById(id: number): CCMPPed {
+  public registerById(id: number): VIMPPed {
     const existingPed = this.findByID(id);
     if (existingPed) {
       return existingPed;
     }
 
-    const ccmpPed = ccmp.peds.getById(id);
-    if (!ccmpPed) {
-      throw new Error(`CCMPPedsManager.registerById(${id}): ped not found.`);
+    const vimpPed = vimp.peds.getById(id);
+    if (!vimpPed) {
+      throw new Error(`VIMPPedsManager.registerById(${id}): ped not found.`);
     }
 
-    return this._register(ccmpPed);
+    return this._register(vimpPed);
   }
 
-  public unregisterById(id: number): CCMPPed {
+  public unregisterById(id: number): VIMPPed {
     return this.deleteById(id);
   }
 
-  public findByID(id: number): CCMPPed | null {
+  public findByID(id: number): VIMPPed | null {
     const ped = this._peds.get(id) ?? null;
     if (ped && !ped.isExists) {
       this._unregister(ped);
@@ -74,23 +74,23 @@ export class CCMPPedsManager implements IPedsManager {
       return ped;
     }
 
-    const ccmpPed = ccmp.peds.getById(id);
-    if (!ccmpPed) {
+    const vimpPed = vimp.peds.getById(id);
+    if (!vimpPed) {
       return null;
     }
 
-    return this._register(ccmpPed);
+    return this._register(vimpPed);
   }
 
-  public getByID(id: number): CCMPPed {
+  public getByID(id: number): VIMPPed {
     const ped = this.findByID(id);
     if (!ped) {
-      throw new Error(`CCMPPedsManager.getByID(${id}): ped not found.`);
+      throw new Error(`VIMPPedsManager.getByID(${id}): ped not found.`);
     }
     return ped;
   }
 
-  public findByRemoteID(remoteId: number): CCMPPed | null {
+  public findByRemoteID(remoteId: number): VIMPPed | null {
     const ped = this._pedsByRemoteId.get(remoteId) ?? null;
     if (ped && !ped.isExists) {
       this._unregister(ped);
@@ -98,33 +98,33 @@ export class CCMPPedsManager implements IPedsManager {
       return ped;
     }
 
-    const ccmpPed = ccmp.peds.getByRemoteId(remoteId);
-    if (!ccmpPed) {
+    const vimpPed = vimp.peds.getByRemoteId(remoteId);
+    if (!vimpPed) {
       return null;
     }
 
-    return this._register(ccmpPed);
+    return this._register(vimpPed);
   }
 
-  public getByRemoteID(remoteId: number): CCMPPed {
+  public getByRemoteID(remoteId: number): VIMPPed {
     const ped = this.findByRemoteID(remoteId);
     if (!ped) {
-      throw new Error(`CCMPPedsManager.getByRemoteID(${remoteId}): ped not found.`);
+      throw new Error(`VIMPPedsManager.getByRemoteID(${remoteId}): ped not found.`);
     }
     return ped;
   }
 
-  public deleteById(id: number): CCMPPed {
+  public deleteById(id: number): VIMPPed {
     const ped = this.getByID(id);
     ped.destroy();
     return ped;
   }
 
-  public get iterator(): IWorldObjectsIterator<CCMPPed> {
+  public get iterator(): IWorldObjectsIterator<VIMPPed> {
     return this._iterator;
   }
 
-  private *_filter(predicate: (ped: CCMPPed) => boolean): IterableIterator<CCMPPed> {
+  private *_filter(predicate: (ped: VIMPPed) => boolean): IterableIterator<VIMPPed> {
     for (const ped of this._peds.values()) {
       if (!ped.isExists) {
         this._unregister(ped);
@@ -137,8 +137,8 @@ export class CCMPPedsManager implements IPedsManager {
     }
   }
 
-  private _register(ccmpPed: CcmpPed): CCMPPed {
-    const existingPed = this._findRegistered(ccmpPed);
+  private _register(vimpPed: VimpPed): VIMPPed {
+    const existingPed = this._findRegistered(vimpPed);
     if (existingPed && existingPed.isExists) {
       return existingPed;
     }
@@ -146,7 +146,7 @@ export class CCMPPedsManager implements IPedsManager {
       this._unregister(existingPed);
     }
 
-    const ped = new CCMPPed(ccmpPed, (destroyedPed) => {
+    const ped = new VIMPPed(vimpPed, (destroyedPed) => {
       this._unregister(destroyedPed);
     });
     this._peds.set(ped.id, ped);
@@ -156,47 +156,47 @@ export class CCMPPedsManager implements IPedsManager {
     return ped;
   }
 
-  private _unregister(ped: CCMPPed): void {
+  private _unregister(ped: VIMPPed): void {
     this._peds.delete(ped.id);
     if (ped.remoteId !== null) {
       this._pedsByRemoteId.delete(ped.remoteId);
     }
   }
 
-  private _findRegistered(ccmpPed: CcmpPed): CCMPPed | null {
+  private _findRegistered(vimpPed: VimpPed): VIMPPed | null {
     return (
-      (ccmpPed.remoteId === null ? null : (this._pedsByRemoteId.get(ccmpPed.remoteId) ?? null)) ??
-      this._peds.get(ccmpPed.id) ??
+      (vimpPed.remoteId === null ? null : (this._pedsByRemoteId.get(vimpPed.remoteId) ?? null)) ??
+      this._peds.get(vimpPed.id) ??
       null
     );
   }
 
   private _registerStreamEvents(): void {
-    ccmp.on("pedCreated", (ccmpPed: CcmpPed | null) => {
-      if (ccmpPed) {
-        const ped = this._register(ccmpPed);
+    vimp.on("pedCreated", (vimpPed: VimpPed | null) => {
+      if (vimpPed) {
+        const ped = this._register(vimpPed);
         this._events.emitInternal(ClientInternalEventName.EntityCreated, ped);
       }
     });
 
-    ccmp.on("pedDestroyed", (ccmpPed: CcmpPed | null) => {
-      if (ccmpPed) {
-        const ped = this._findRegistered(ccmpPed) ?? this._register(ccmpPed);
+    vimp.on("pedDestroyed", (vimpPed: VimpPed | null) => {
+      if (vimpPed) {
+        const ped = this._findRegistered(vimpPed) ?? this._register(vimpPed);
         this._events.emitInternal(ClientInternalEventName.EntityDestroyed, ped);
         this._unregister(ped);
       }
     });
 
-    ccmp.on("pedStreamIn", (ccmpPed: CcmpPed | null) => {
-      if (ccmpPed) {
-        const ped = this._register(ccmpPed);
+    vimp.on("pedStreamIn", (vimpPed: VimpPed | null) => {
+      if (vimpPed) {
+        const ped = this._register(vimpPed);
         this._events.emitInternal(ClientInternalEventName.EntityStreamIn, ped);
       }
     });
 
-    ccmp.on("pedStreamOut", (ccmpPed: CcmpPed | null) => {
-      if (ccmpPed) {
-        const ped = this._findRegistered(ccmpPed) ?? this._register(ccmpPed);
+    vimp.on("pedStreamOut", (vimpPed: VimpPed | null) => {
+      if (vimpPed) {
+        const ped = this._findRegistered(vimpPed) ?? this._register(vimpPed);
         if (ped) {
           this._events.emitInternal(ClientInternalEventName.EntityStreamOut, ped);
         }

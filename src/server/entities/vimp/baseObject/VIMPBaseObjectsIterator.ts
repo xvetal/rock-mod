@@ -1,7 +1,7 @@
 import { type IBaseObjectsIterator } from "../../common/baseObject/IBaseObjectsIterator";
-import { type CCMPBaseObject } from "./VIMPBaseObject";
+import { type VIMPBaseObject } from "./VIMPBaseObject";
 
-export class CCMPBaseObjectsIterator<T extends CCMPBaseObject> implements IBaseObjectsIterator<T> {
+export class VIMPBaseObjectsIterator<T extends VIMPBaseObject> implements IBaseObjectsIterator<T> {
   private readonly _baseObjects: ReadonlyMap<number, T>;
 
   public constructor(baseObjects: ReadonlyMap<number, T>) {

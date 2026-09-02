@@ -1,13 +1,13 @@
 // AUTO-GENERATED — do not edit. Regenerate via:
 //   node scripts/generate-native-dispatch.mjs
 //
-// Source: scripts/data/natives.json (alloc8or-format CCMP nativedb).
+// Source: scripts/data/natives.json (alloc8or-format VIMP nativedb).
 // Generated entries: 6649 / 6649 natives.
-// Cross-referenced against ccmp.natives.<namespace>.<camelMethod> typed surface
-// in @classic-mp/types. The runtime dispatcher (CCMPNativeCallerManager)
+// Cross-referenced against vimp.natives.<namespace>.<camelMethod> typed surface
+// in @vimp-mp/types. The runtime dispatcher (VIMPNativeCallerManager)
 // resolves each hash to (namespace, method) and tries every method candidate
 // in order — first match wins. Candidates include the canonical `name` plus
-// any `old_names` from nativedb (CCMP-generated types may use either depending
+// any `old_names` from nativedb (VIMP-generated types may use either depending
 // on binding-generation timing).
 
 export interface NativeDispatchEntry {

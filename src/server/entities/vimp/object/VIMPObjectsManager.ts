@@ -1,20 +1,20 @@
 import { type IObjectCreateOptions, type IObjectsManager } from "../../common/object/IObjectsManager";
-import { CCMPEntitiesManager } from "../entity/VIMPEntitiesManager";
-import { CCMPObject, type ICCMPObjectNative } from "./VIMPObject";
+import { VIMPEntitiesManager } from "../entity/VIMPEntitiesManager";
+import { VIMPObject, type IVIMPObjectNative } from "./VIMPObject";
 
-export interface ICCMPObjectCreateOptions extends IObjectCreateOptions {}
+export interface IVIMPObjectCreateOptions extends IObjectCreateOptions {}
 
-export class CCMPObjectsManager extends CCMPEntitiesManager<CCMPObject> implements IObjectsManager {
+export class VIMPObjectsManager extends VIMPEntitiesManager<VIMPObject> implements IObjectsManager {
   public constructor() {
     super({
       baseObjectsType: "object",
     });
   }
 
-  public create(options: ICCMPObjectCreateOptions): CCMPObject {
+  public create(options: IVIMPObjectCreateOptions): VIMPObject {
     const { model, position, dimension, rotation, alpha } = options;
-    const ccmpObject = ccmp.objects.create(
-      ccmp.hash(model),
+    const vimpObject = vimp.objects.create(
+      vimp.hash(model),
       position.x,
       position.y,
       position.z,
@@ -22,14 +22,14 @@ export class CCMPObjectsManager extends CCMPEntitiesManager<CCMPObject> implemen
       rotation.y,
       rotation.z,
       { dimension, alpha },
-    ) as ICCMPObjectNative | null;
+    ) as IVIMPObjectNative | null;
 
-    if (!ccmpObject) {
-      throw new Error("CCMPObjectsManager.create: ccmp.objects.create failed (server full?)");
+    if (!vimpObject) {
+      throw new Error("VIMPObjectsManager.create: vimp.objects.create failed (server full?)");
     }
 
-    const object = new CCMPObject({
-      ccmpObject,
+    const object = new VIMPObject({
+      vimpObject,
       alpha,
       onDestroy: (o): void => this.unregisterBaseObject(o),
     });

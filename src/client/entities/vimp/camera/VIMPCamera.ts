@@ -1,10 +1,10 @@
 import { BaseObjectType } from "@shared/entities";
-import { type Camera as CcmpCamera } from "@classic-mp/types/client";
+import { type Camera as VimpCamera } from "@vimp-mp/types/client";
 import { type ICamera } from "../../common/camera/ICamera";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 
-export class CCMPCamera implements ICamera {
-  public constructor(private readonly _camera: CcmpCamera) {}
+export class VIMPCamera implements ICamera {
+  public constructor(private readonly _camera: VimpCamera) {}
 
   public get id(): number {
     return this._camera.id;

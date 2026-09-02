@@ -1,53 +1,53 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
-import { CCMPNetManager } from "../../net/vimp/VIMPNetManager";
-import { CCMPBlipsManager } from "../../entities/vimp/blip/VIMPBlipsManager";
-import { CCMPColshapesManager } from "../../entities/vimp/colshape/VIMPColshapesManager";
-import { CCMPMarkersManager } from "../../entities/vimp/marker/VIMPMarkersManager";
-import { CCMPObjectsManager } from "../../entities/vimp/object/VIMPObjectsManager";
-import { CCMPPedsManager } from "../../entities/vimp/ped/VIMPPedsManager";
-import { CCMPPlayersManager } from "../../entities/vimp/player/VIMPPlayersManager";
-import { CCMPUtilsManager } from "../../utils/vimp/VIMPUtilsManager";
-import { CCMPVehiclesManager } from "../../entities/vimp/vehicle/VIMPVehiclesManager";
-import { CCMPWorldManager } from "../../world/vimp/VIMPWorldManager";
+import { VIMPNetManager } from "../../net/vimp/VIMPNetManager";
+import { VIMPBlipsManager } from "../../entities/vimp/blip/VIMPBlipsManager";
+import { VIMPColshapesManager } from "../../entities/vimp/colshape/VIMPColshapesManager";
+import { VIMPMarkersManager } from "../../entities/vimp/marker/VIMPMarkersManager";
+import { VIMPObjectsManager } from "../../entities/vimp/object/VIMPObjectsManager";
+import { VIMPPedsManager } from "../../entities/vimp/ped/VIMPPedsManager";
+import { VIMPPlayersManager } from "../../entities/vimp/player/VIMPPlayersManager";
+import { VIMPUtilsManager } from "../../utils/vimp/VIMPUtilsManager";
+import { VIMPVehiclesManager } from "../../entities/vimp/vehicle/VIMPVehiclesManager";
+import { VIMPWorldManager } from "../../world/vimp/VIMPWorldManager";
 
-export class CCMPManagersFactory implements IManagersFactory {
-  public createNetManager(): CCMPNetManager {
-    return new CCMPNetManager();
+export class VIMPManagersFactory implements IManagersFactory {
+  public createNetManager(): VIMPNetManager {
+    return new VIMPNetManager();
   }
 
-  public createBlipsManager(): CCMPBlipsManager {
-    return new CCMPBlipsManager();
+  public createBlipsManager(): VIMPBlipsManager {
+    return new VIMPBlipsManager();
   }
 
-  public createColshapesManager(): CCMPColshapesManager {
-    return new CCMPColshapesManager();
+  public createColshapesManager(): VIMPColshapesManager {
+    return new VIMPColshapesManager();
   }
 
-  public createMarkersManager(): CCMPMarkersManager {
-    return new CCMPMarkersManager();
+  public createMarkersManager(): VIMPMarkersManager {
+    return new VIMPMarkersManager();
   }
 
-  public createObjectsManager(): CCMPObjectsManager {
-    return new CCMPObjectsManager();
+  public createObjectsManager(): VIMPObjectsManager {
+    return new VIMPObjectsManager();
   }
 
-  public createPedsManager(): CCMPPedsManager {
-    return new CCMPPedsManager();
+  public createPedsManager(): VIMPPedsManager {
+    return new VIMPPedsManager();
   }
 
-  public createPlayersManager(net: CCMPNetManager): CCMPPlayersManager {
-    return new CCMPPlayersManager(net);
+  public createPlayersManager(net: VIMPNetManager): VIMPPlayersManager {
+    return new VIMPPlayersManager(net);
   }
 
-  public createUtilsManager(): CCMPUtilsManager {
-    return new CCMPUtilsManager();
+  public createUtilsManager(): VIMPUtilsManager {
+    return new VIMPUtilsManager();
   }
 
-  public createVehiclesManager(): CCMPVehiclesManager {
-    return new CCMPVehiclesManager();
+  public createVehiclesManager(): VIMPVehiclesManager {
+    return new VIMPVehiclesManager();
   }
 
-  public createWorldManager(): CCMPWorldManager {
-    return new CCMPWorldManager();
+  public createWorldManager(): VIMPWorldManager {
+    return new VIMPWorldManager();
   }
 }

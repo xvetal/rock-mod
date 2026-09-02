@@ -1,40 +1,40 @@
-/// <reference types="@classic-mp/types/client" />
-import { type CCMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
+/// <reference types="@vimp-mp/types/client" />
+import { type VIMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
 import { type IPlayer } from "../../common/player/IPlayer";
 import { type IPlayersManager } from "../../common/player/IPlayersManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
-import { CCMPPlayer } from "./VIMPPlayer";
+import { VIMPPlayer } from "./VIMPPlayer";
 
-interface ICCMPNativePlayer {
+interface IVIMPNativePlayer {
   readonly id: number;
   readonly name: string;
   readonly socialClub?: string;
 }
 
 /**
- * Реализация `IPlayersManager` под CCMP — single source of truth для
+ * Реализация `IPlayersManager` под VIMP — single source of truth для
  * `IPlayer`-инстансов и `rm::playerReady`/`rm::playerConnected`-эмиссий
- * с настоящими `CCMPPlayer`-инстансами.
+ * с настоящими `VIMPPlayer`-инстансами.
  *
  * ### Хранилище
  *
- * `Map<id, CCMPPlayer>`. For CCMP players only, `id` and `remoteId` still
- * mean the same server/network id. Non-player CCMP wrappers have a separate
+ * `Map<id, VIMPPlayer>`. For VIMP players only, `id` and `remoteId` still
+ * mean the same server/network id. Non-player VIMP wrappers have a separate
  * client-local `id` and nullable server `remoteId`.
  * `findByID`/`findByRemoteID`/`findByRemoteId` map to one lookup for players.
  *
  * ### Жизненный цикл local player'а
  *
- * `ccmp.players.local` (backed by `op_get_local_player_id`) валиден сразу
+ * `vimp.players.local` (backed by `op_get_local_player_id`) валиден сразу
  * после handshake'а — `PlayerManager::set_local_player_id` срабатывает до
  * того, как scripts загружаются. Мы используем его, чтобы синхронно
  * выпустить `rm::playerReady` как sticky-event (см. ниже):
  *
  *  1. **На конструкторе** — fast-path. Если local op возвращает игрока,
  *     эмитим `rm::playerReady` через `emitInternalSticky` с реальным
- *     `CCMPPlayer`-инстансом. Sticky-кэш гарантирует, что поздние
+ *     `VIMPPlayer`-инстансом. Sticky-кэш гарантирует, что поздние
  *     подписчики из async DI-bootstrap'а геймода тоже получат сигнал
  *     при подписке.
  *  2. **На `connectionStateChanged`** — fallback / handler реконнекта.
@@ -43,7 +43,7 @@ interface ICCMPNativePlayer {
  *     чистим _localPlayer и sticky-кэш, чтобы при следующем connect'е
  *     эмитнуть с актуальным remoteId.
  *
- * `CCMPPlayer`-инстанс важен (а не структурный stub) потому что
+ * `VIMPPlayer`-инстанс важен (а не структурный stub) потому что
  * `RockModStateAdapter` в геймоде хранит `rockModPlayer`-ссылку и через
  * неё вызывает методы (`setNoCollision`, etc). На структурном stub'е
  * без методов это падало бы с `TypeError`.
@@ -51,19 +51,19 @@ interface ICCMPNativePlayer {
  * ### Remote-игроки
  *
  * Источники:
- *  - `ccmp.players.all` — prepopulation для уже-существующих на момент
+ *  - `vimp.players.all` — prepopulation для уже-существующих на момент
  *    подключения (заполнен Rust'ом в `ClientScriptingService::init`).
  *  - `rm::playerConnected`/`rm::playerDisconnected` internal events
- *    (эмитит `CCMPEventsBridge` из нативных `ccmp.on('playerConnected'/...)`).
+ *    (эмитит `VIMPEventsBridge` из нативных `vimp.on('playerConnected'/...)`).
  */
-export class CCMPPlayersManager implements IPlayersManager {
-  private readonly _players = new Map<number, CCMPPlayer>();
+export class VIMPPlayersManager implements IPlayersManager {
+  private readonly _players = new Map<number, VIMPPlayer>();
 
-  private readonly _events: CCMPEventsManager;
+  private readonly _events: VIMPEventsManager;
 
-  private _localPlayer: CCMPPlayer | null = null;
+  private _localPlayer: VIMPPlayer | null = null;
 
-  public constructor(events: CCMPEventsManager) {
+  public constructor(events: VIMPEventsManager) {
     this._events = events;
 
     // 1) Subscribe ПЕРВЫМ — чтобы между подпиской и prepopulation'ом не
@@ -105,8 +105,8 @@ export class CCMPPlayersManager implements IPlayersManager {
 
     this._registerNativePlayerEvents();
 
-    // 2) Prepopulate уже-существующих remote-игроков из CCMP-runtime'а.
-    // `ccmp.players.all` исключает local (см. js_runtime.rs::setup_globals).
+    // 2) Prepopulate уже-существующих remote-игроков из VIMP-runtime'а.
+    // `vimp.players.all` исключает local (см. js_runtime.rs::setup_globals).
     this._syncRemotePlayersFromRuntime();
 
     // 3) Fast-path: попытка эмитнуть rm::playerReady сразу. Если local не
@@ -115,9 +115,9 @@ export class CCMPPlayersManager implements IPlayersManager {
     this._tryEmitLocalPlayerReady();
 
     // 4) Retry-on-reconnect + reset-on-disconnect. Listener регистрируем
-    // через `ccmp.on` напрямую (не через bridge), чтобы наша логика была
+    // через `vimp.on` напрямую (не через bridge), чтобы наша логика была
     // независимой от состояния других менеджеров.
-    ccmp.on("connectionStateChanged", (state: { connected: boolean }): void => {
+    vimp.on("connectionStateChanged", (state: { connected: boolean }): void => {
       if (state?.connected) {
         this._tryEmitLocalPlayerReady();
       } else {
@@ -128,7 +128,7 @@ export class CCMPPlayersManager implements IPlayersManager {
 
   // -- IPlayersManager ------------------------------------------------------
 
-  public findLocalPlayer(): CCMPPlayer | null {
+  public findLocalPlayer(): VIMPPlayer | null {
     // Кэшированный _localPlayer проставлен из rm::playerReady-эмиссии
     // (либо нашей собственной из конструктора, либо чьей-то ещё).
     // Если кэш пуст, lazy-retry: возможно local op теперь валиден.
@@ -139,27 +139,27 @@ export class CCMPPlayersManager implements IPlayersManager {
     return this._localPlayer;
   }
 
-  public getLocalPlayer(): CCMPPlayer {
+  public getLocalPlayer(): VIMPPlayer {
     const player = this.findLocalPlayer();
     if (!player) {
-      throw new Error("CCMPPlayersManager.getLocalPlayer: local player ещё не известен — handshake не завершён");
+      throw new Error("VIMPPlayersManager.getLocalPlayer: local player ещё не известен — handshake не завершён");
     }
     return player;
   }
 
-  public findByRemoteId(remoteId: number): CCMPPlayer | null {
+  public findByRemoteId(remoteId: number): VIMPPlayer | null {
     return this._players.get(remoteId) ?? null;
   }
 
-  public getByRemoteId(remoteId: number): CCMPPlayer {
+  public getByRemoteId(remoteId: number): VIMPPlayer {
     const player = this.findByRemoteId(remoteId);
     if (!player) {
-      throw new Error(`CCMPPlayersManager.getByRemoteId: player remoteId=${remoteId} не найден`);
+      throw new Error(`VIMPPlayersManager.getByRemoteId: player remoteId=${remoteId} не найден`);
     }
     return player;
   }
 
-  public findByName(name: string): CCMPPlayer | null {
+  public findByName(name: string): VIMPPlayer | null {
     for (const player of this._players.values()) {
       if (player.name === name) {
         return player;
@@ -168,10 +168,10 @@ export class CCMPPlayersManager implements IPlayersManager {
     return null;
   }
 
-  public getByName(name: string): CCMPPlayer {
+  public getByName(name: string): VIMPPlayer {
     const player = this.findByName(name);
     if (!player) {
-      throw new Error(`CCMPPlayersManager.getByName: player name="${name}" не найден`);
+      throw new Error(`VIMPPlayersManager.getByName: player name="${name}" не найден`);
     }
     return player;
   }
@@ -184,36 +184,36 @@ export class CCMPPlayersManager implements IPlayersManager {
     this._tryEmitLocalPlayerReady();
   }
 
-  public registerById(id: number): CCMPPlayer {
-    // Под CCMP мы не можем "достать" игрока по id из глобального пула без
+  public registerById(id: number): VIMPPlayer {
+    // Под VIMP мы не можем "достать" игрока по id из глобального пула без
     // дополнительных данных (name, isLocal). Возвращаем существующего или
     // создаём минимальный stub. Корректный путь регистрации — через события.
     return this._ensurePlayer(id, /* name */ "", /* isLocal */ false);
   }
 
-  public unregisterById(id: number): CCMPPlayer {
+  public unregisterById(id: number): VIMPPlayer {
     return this.deleteById(id);
   }
 
   // -- IBaseObjectsManager / IWorldObjectsManager ---------------------------
 
-  public findByID(id: number): CCMPPlayer | null {
+  public findByID(id: number): VIMPPlayer | null {
     return this.findByRemoteId(id);
   }
 
-  public getByID(id: number): CCMPPlayer {
+  public getByID(id: number): VIMPPlayer {
     return this.getByRemoteId(id);
   }
 
-  public findByRemoteID(remoteId: number): CCMPPlayer | null {
+  public findByRemoteID(remoteId: number): VIMPPlayer | null {
     return this.findByRemoteId(remoteId);
   }
 
-  public getByRemoteID(remoteId: number): CCMPPlayer {
+  public getByRemoteID(remoteId: number): VIMPPlayer {
     return this.getByRemoteId(remoteId);
   }
 
-  public deleteById(id: number): CCMPPlayer {
+  public deleteById(id: number): VIMPPlayer {
     const player = this.getByRemoteId(id);
     player.markRemoved();
     this._players.delete(id);
@@ -224,25 +224,25 @@ export class CCMPPlayersManager implements IPlayersManager {
     return player;
   }
 
-  public get iterator(): IWorldObjectsIterator<CCMPPlayer> {
+  public get iterator(): IWorldObjectsIterator<VIMPPlayer> {
     return this._iterator;
   }
 
   // -- Внутреннее -----------------------------------------------------------
 
   private _registerNativePlayerEvents(): void {
-    ccmp.on("playerConnected", (ccmpPlayer: ICCMPNativePlayer): void => {
-      const player = this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+    vimp.on("playerConnected", (vimpPlayer: IVIMPNativePlayer): void => {
+      const player = this._ensurePlayer(vimpPlayer.id, vimpPlayer.name ?? "", /* isLocal */ false);
       this._events.emitInternal(ClientInternalEventName.PlayerConnected, player);
     });
 
-    ccmp.on("playerDisconnected", (ccmpPlayer: ICCMPNativePlayer): void => {
+    vimp.on("playerDisconnected", (vimpPlayer: IVIMPNativePlayer): void => {
       const player =
-        this._players.get(ccmpPlayer.id) ??
-        this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+        this._players.get(vimpPlayer.id) ??
+        this._ensurePlayer(vimpPlayer.id, vimpPlayer.name ?? "", /* isLocal */ false);
 
       player.markRemoved();
-      this._players.delete(ccmpPlayer.id);
+      this._players.delete(vimpPlayer.id);
       if (this._localPlayer === player) {
         this._localPlayer = null;
         this._events.clearInternalSticky(ClientInternalEventName.PlayerReady);
@@ -250,33 +250,33 @@ export class CCMPPlayersManager implements IPlayersManager {
       this._events.emitInternal(ClientInternalEventName.PlayerDisconnected, player);
     });
 
-    ccmp.on("playerStreamIn", (ccmpPlayer: ICCMPNativePlayer): void => {
-      const player = this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+    vimp.on("playerStreamIn", (vimpPlayer: IVIMPNativePlayer): void => {
+      const player = this._ensurePlayer(vimpPlayer.id, vimpPlayer.name ?? "", /* isLocal */ false);
       this._events.emitInternal(ClientInternalEventName.EntityStreamIn, player);
     });
 
-    ccmp.on("playerStreamOut", (ccmpPlayer: ICCMPNativePlayer): void => {
+    vimp.on("playerStreamOut", (vimpPlayer: IVIMPNativePlayer): void => {
       const player =
-        this._players.get(ccmpPlayer.id) ??
-        this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+        this._players.get(vimpPlayer.id) ??
+        this._ensurePlayer(vimpPlayer.id, vimpPlayer.name ?? "", /* isLocal */ false);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, player);
     });
   }
 
   private _syncRemotePlayersFromRuntime(): void {
     try {
-      for (const ccmpPlayer of ccmp.players.all as unknown as ICCMPNativePlayer[]) {
-        this._ensurePlayer(ccmpPlayer.id, ccmpPlayer.name ?? "", /* isLocal */ false);
+      for (const vimpPlayer of vimp.players.all as unknown as IVIMPNativePlayer[]) {
+        this._ensurePlayer(vimpPlayer.id, vimpPlayer.name ?? "", /* isLocal */ false);
       }
     } catch (error) {
-      console.warn("[CCMPPlayersManager] failed to sync from ccmp.players.all:", error);
+      console.warn("[VIMPPlayersManager] failed to sync from vimp.players.all:", error);
     }
   }
 
   private _syncLocalPlayerFromRuntime(): void {
-    let nativeLocal: ICCMPNativePlayer | null;
+    let nativeLocal: IVIMPNativePlayer | null;
     try {
-      nativeLocal = ccmp.players.local as unknown as ICCMPNativePlayer | null;
+      nativeLocal = vimp.players.local as unknown as IVIMPNativePlayer | null;
     } catch {
       return;
     }
@@ -286,10 +286,10 @@ export class CCMPPlayersManager implements IPlayersManager {
   }
 
   /**
-   * Идемпотентная точка создания/обновления CCMPPlayer. Все источники
+   * Идемпотентная точка создания/обновления VIMPPlayer. Все источники
    * (events, prepopulation, fast-path) проходят сюда.
    */
-  private _ensurePlayer(id: number, name: string, isLocal: boolean): CCMPPlayer {
+  private _ensurePlayer(id: number, name: string, isLocal: boolean): VIMPPlayer {
     const existing = this._players.get(id);
     if (existing) {
       if (name) {
@@ -300,7 +300,7 @@ export class CCMPPlayersManager implements IPlayersManager {
       }
       return existing;
     }
-    const player = new CCMPPlayer({
+    const player = new VIMPPlayer({
       id,
       name,
       isLocal,
@@ -313,7 +313,7 @@ export class CCMPPlayersManager implements IPlayersManager {
   }
 
   /**
-   * Пытается синхронно достать local player из CCMP, создать CCMPPlayer
+   * Пытается синхронно достать local player из VIMP, создать VIMPPlayer
    * и эмитнуть rm::playerReady как sticky-event. Идемпотентна: повторный
    * вызов после успешной эмиссии — no-op (`_localPlayer !== null`).
    */
@@ -323,11 +323,11 @@ export class CCMPPlayersManager implements IPlayersManager {
       return;
     }
 
-    let nativeLocal: ICCMPNativePlayer | null;
+    let nativeLocal: IVIMPNativePlayer | null;
     try {
-      nativeLocal = ccmp.players.local as unknown as ICCMPNativePlayer | null;
+      nativeLocal = vimp.players.local as unknown as IVIMPNativePlayer | null;
     } catch (error) {
-      console.warn("[CCMPPlayersManager] ccmp.players.local read failed:", error);
+      console.warn("[VIMPPlayersManager] vimp.players.local read failed:", error);
       return;
     }
     if (!nativeLocal) {
@@ -352,16 +352,16 @@ export class CCMPPlayersManager implements IPlayersManager {
     this._events.clearInternalSticky(ClientInternalEventName.PlayerReady);
   }
 
-  // Iterator реализован inline — у CCMP нет per-dimension/per-range
+  // Iterator реализован inline — у VIMP нет per-dimension/per-range
   // фильтрации игроков на JS-уровне.
-  private readonly _iterator: IWorldObjectsIterator<CCMPPlayer> = {
-    all: (): IterableIterator<CCMPPlayer> => this._players.values(),
-    dimension: (value: number): IterableIterator<CCMPPlayer> => this._iterateDimension(value),
-    range2D: (center: Vector2D, range: number): IterableIterator<CCMPPlayer> => this._iterateRange2D(center, range),
-    range3D: (center: Vector3D, range: number): IterableIterator<CCMPPlayer> => this._iterateRange3D(center, range),
+  private readonly _iterator: IWorldObjectsIterator<VIMPPlayer> = {
+    all: (): IterableIterator<VIMPPlayer> => this._players.values(),
+    dimension: (value: number): IterableIterator<VIMPPlayer> => this._iterateDimension(value),
+    range2D: (center: Vector2D, range: number): IterableIterator<VIMPPlayer> => this._iterateRange2D(center, range),
+    range3D: (center: Vector3D, range: number): IterableIterator<VIMPPlayer> => this._iterateRange3D(center, range),
   };
 
-  private *_iterateDimension(value: number): IterableIterator<CCMPPlayer> {
+  private *_iterateDimension(value: number): IterableIterator<VIMPPlayer> {
     for (const player of this._players.values()) {
       if (player.dimension === value) {
         yield player;
@@ -369,7 +369,7 @@ export class CCMPPlayersManager implements IPlayersManager {
     }
   }
 
-  private *_iterateRange2D(center: Vector2D, range: number): IterableIterator<CCMPPlayer> {
+  private *_iterateRange2D(center: Vector2D, range: number): IterableIterator<VIMPPlayer> {
     const squaredRange = range * range;
     for (const player of this._players.values()) {
       if (!player.isExists || player.handle === 0) {
@@ -385,7 +385,7 @@ export class CCMPPlayersManager implements IPlayersManager {
     }
   }
 
-  private *_iterateRange3D(center: Vector3D, range: number): IterableIterator<CCMPPlayer> {
+  private *_iterateRange3D(center: Vector3D, range: number): IterableIterator<VIMPPlayer> {
     const squaredRange = range * range;
     for (const player of this._players.values()) {
       if (!player.isExists || player.handle === 0) {

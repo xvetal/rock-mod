@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 /*
- * Codegen: hash → CCMP-typed-native dispatch table.
+ * Codegen: hash → VIMP-typed-native dispatch table.
  *
- * Reads alloc8or-format `scripts/data/natives.json` (CCMP's vendored nativedb),
- * cross-references each (namespace, hash, name) with the CCMP-typed namespace
- * methods in `@classic-mp/types/natives/index.d.ts`, and emits a TypeScript
+ * Reads alloc8or-format `scripts/data/natives.json` (VIMP's vendored nativedb),
+ * cross-references each (namespace, hash, name) with the VIMP-typed namespace
+ * methods in `@vimp-mp/types/natives/index.d.ts`, and emits a TypeScript
  * const Map: hash → { ns, methods[] }.
  *
  * The `methods[]` array contains all candidate camelCase names for the hash
  * (the canonical `name` + any historical `old_names` from nativedb). The
- * runtime dispatcher tries each candidate in order — necessary because CCMP's
+ * runtime dispatcher tries each candidate in order — necessary because VIMP's
  * generated types sometimes use the new official name and sometimes the legacy
  * alias depending on when the binding was generated.
  *
- * Output: `src/client/game/ccmp/native/_generated/nativeDispatch.ts`. Commit
+ * Output: `src/client/game/vimp/native/_generated/nativeDispatch.ts`. Commit
  * the generated file. Re-run when nativedb updates:
  *   `node scripts/generate-native-dispatch.mjs`
  */
@@ -81,13 +81,13 @@ function main() {
   const header = `// AUTO-GENERATED — do not edit. Regenerate via:
 //   node scripts/generate-native-dispatch.mjs
 //
-// Source: scripts/data/natives.json (alloc8or-format CCMP nativedb).
+// Source: scripts/data/natives.json (alloc8or-format VIMP nativedb).
 // Generated entries: ${entries.length} / ${totalNatives} natives.
-// Cross-referenced against ccmp.natives.<namespace>.<camelMethod> typed surface
-// in @classic-mp/types. The runtime dispatcher (CCMPNativeCallerManager)
+// Cross-referenced against vimp.natives.<namespace>.<camelMethod> typed surface
+// in @vimp-mp/types. The runtime dispatcher (VIMPNativeCallerManager)
 // resolves each hash to (namespace, method) and tries every method candidate
 // in order — first match wins. Candidates include the canonical \`name\` plus
-// any \`old_names\` from nativedb (CCMP-generated types may use either depending
+// any \`old_names\` from nativedb (VIMP-generated types may use either depending
 // on binding-generation timing).
 
 export interface NativeDispatchEntry {

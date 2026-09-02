@@ -4,7 +4,7 @@ import {
   type IRaycastingManager,
   type TIgnoreEntityType,
 } from "../../common/raycasting/IRaycastingManager";
-import { CCMPNativeCallerManager } from "../native/VIMPNativeCallerManager";
+import { VIMPNativeCallerManager } from "../native/VIMPNativeCallerManager";
 import { Vector3D, type IVector3D } from "../../../../shared/common/utils";
 
 const START_SHAPE_TEST_LOS_PROBE = "0x7EE9F5D83DD4F90E";
@@ -19,8 +19,8 @@ type ShapeTestResultTuple = [
   number,
 ];
 
-export class CCMPRaycastingManager implements IRaycastingManager {
-  private readonly _native = new CCMPNativeCallerManager();
+export class VIMPRaycastingManager implements IRaycastingManager {
+  private readonly _native = new VIMPNativeCallerManager();
 
   public testPointToPoint(
     startPos: IVector3D,

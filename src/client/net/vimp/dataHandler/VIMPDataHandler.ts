@@ -1,27 +1,27 @@
 import { type IBaseObject } from "../../../entities";
 import { type IDataHandler } from "../../common/dataHandler/IDataHandler";
-import { type CCMPEventsManager } from "../events/VIMPEventsManager";
+import { type VIMPEventsManager } from "../events/VIMPEventsManager";
 import { ClientInternalEventName } from "../../common/events/types";
 
 type DataHandlerCallback = (object: IBaseObject, value: unknown, oldValue?: unknown) => void;
 
 /**
- * Реализация `IDataHandler` под CCMP поверх `rm::syncedMetaChange`.
+ * Реализация `IDataHandler` под VIMP поверх `rm::syncedMetaChange`.
  *
- * `CCMPSyncedMetaBridge` переводит нативное событие
- * `ccmp.on('streamSyncedMetaChange')` в internal-bus
+ * `VIMPSyncedMetaBridge` переводит нативное событие
+ * `vimp.on('streamSyncedMetaChange')` в internal-bus
  * `rm::syncedMetaChange(entity, key, value, oldValue)`. Этот класс
  * держит per-key реестр колбэков и диспатчит на них пришедшие изменения.
  *
- * Снапшот всех ключей сущности (отправляется CCMP'ом сразу после
+ * Снапшот всех ключей сущности (отправляется VIMP'ом сразу после
  * `StreamIn`) тоже проходит через это событие — поэтому первое появление
  * сущности у клиента триггерит колбэк на каждый уже выставленный сервером
  * ключ (с `oldValue === undefined`).
  */
-export class CCMPDataHandler implements IDataHandler {
+export class VIMPDataHandler implements IDataHandler {
   private readonly _handlers = new Map<string, DataHandlerCallback[]>();
 
-  public constructor(events: CCMPEventsManager) {
+  public constructor(events: VIMPEventsManager) {
     events.onInternal({
       [ClientInternalEventName.SyncedMetaChange]: (
         object: IBaseObject,
@@ -37,7 +37,7 @@ export class CCMPDataHandler implements IDataHandler {
           try {
             callback(object, value, oldValue);
           } catch (error) {
-            console.error(`[CCMPDataHandler] callback for key "${key}" failed:`, error);
+            console.error(`[VIMPDataHandler] callback for key "${key}" failed:`, error);
           }
         }
       },

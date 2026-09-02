@@ -1,11 +1,11 @@
-/// <reference types="@classic-mp/types/client" />
+/// <reference types="@vimp-mp/types/client" />
 import { type IVehicle } from "@RockMod/client/entities/common";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { RockMod } from "@RockMod/client/RockMod";
 import { type IEventsBridge } from "../../common/events/IEventsBridge";
-import { type CCMPEventsManager } from "./VIMPEventsManager";
+import { type VIMPEventsManager } from "./VIMPEventsManager";
 
-interface ICCMPVehicleEventPayload {
+interface IVIMPVehicleEventPayload {
   readonly vehicle?: {
     readonly id?: unknown;
   } | null;
@@ -13,14 +13,14 @@ interface ICCMPVehicleEventPayload {
 }
 
 /**
- * Legacy bridge slot for CCMP raw events.
+ * Legacy bridge slot for VIMP raw events.
  *
- * Player lifecycle and stream events are handled by `CCMPPlayersManager`,
- * because it can resolve every native `ccmp.players.Player` into the stable
- * Rock-Mod `CCMPPlayer` instance before emitting internal `rm::*` events.
+ * Player lifecycle and stream events are handled by `VIMPPlayersManager`,
+ * because it can resolve every native `vimp.players.Player` into the stable
+ * Rock-Mod `VIMPPlayer` instance before emitting internal `rm::*` events.
  */
-export class CCMPEventsBridge implements IEventsBridge {
-  public constructor(private readonly _events: CCMPEventsManager) {}
+export class VIMPEventsBridge implements IEventsBridge {
+  public constructor(private readonly _events: VIMPEventsManager) {}
 
   public registerRawEvents(): void {
     this._events.register("playerEnterVehicle", (payload) => {
@@ -40,22 +40,22 @@ export class CCMPEventsBridge implements IEventsBridge {
 
   public registerServerEvents(): void {
     // No-op: ранее тут жил handler для cooperation `rm::clientReady`-ответа.
-    // Теперь это responsibility `CCMPPlayersManager`.
+    // Теперь это responsibility `VIMPPlayersManager`.
   }
 
   private _resolveVehicleEventPayload(payload: unknown): { vehicle: IVehicle; seat: number } | null {
-    const ccmpPayload = payload as ICCMPVehicleEventPayload | null;
-    const ccmpVehicleId = ccmpPayload?.vehicle?.id;
+    const vimpPayload = payload as IVIMPVehicleEventPayload | null;
+    const vimpVehicleId = vimpPayload?.vehicle?.id;
 
-    if (typeof ccmpVehicleId !== "number" || !Number.isFinite(ccmpVehicleId)) {
+    if (typeof vimpVehicleId !== "number" || !Number.isFinite(vimpVehicleId)) {
       return null;
     }
 
-    const rawSeat = Number(ccmpPayload?.seat);
+    const rawSeat = Number(vimpPayload?.seat);
     const seat = Number.isFinite(rawSeat) ? rawSeat : -1;
 
     try {
-      const vehicle = RockMod.instance.vehicles.registerById(ccmpVehicleId);
+      const vehicle = RockMod.instance.vehicles.registerById(vimpVehicleId);
       return { vehicle, seat };
     } catch {
       return null;
