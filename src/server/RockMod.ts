@@ -58,7 +58,7 @@ export class RockMod {
         return new MockManagersFactory();
       }
       case "CCMP": {
-        const { CCMPManagersFactory } = await import("./factories/ccmp/CCMPManagersFactory");
+        const { CCMPManagersFactory } = await import("./factories/vimp/VIMPManagersFactory");
         return new CCMPManagersFactory();
       }
     }
