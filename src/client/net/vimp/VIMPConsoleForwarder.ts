@@ -1,12 +1,12 @@
-/// <reference types="@classic-mp/types/client" />
+/// <reference types="@vimp-mp/types/client" />
 
 /**
  * Имя приватного rock-mod события для зеркалирования клиентских `console.*`
  * вызовов в серверный stdout.
  *
- * Серверная сторона (`src/server/net/ccmp/CCMPNetManager.ts`) ловит это
+ * Серверная сторона (`src/server/net/vimp/VIMPNetManager.ts`) ловит это
  * событие и печатает payload через свой `console.log`/`error`/`warn`. Это
- * критически важно для отладки CCMP: на клиенте `console.log` идёт в игровую
+ * критически важно для отладки VIMP: на клиенте `console.log` идёт в игровую
  * консоль (F8), и разработчик в серверном терминале не видит ничего.
  */
 const CLIENT_LOG_EVENT = "rm::clientLog";
@@ -118,7 +118,7 @@ function serializeArg(value: unknown): unknown {
 
 /**
  * Создаёт обёртку для конкретного level. Извлечено в именованную функцию,
- * чтобы избежать `no-loop-func` (захват `ccmp` в замыкании внутри `for`).
+ * чтобы избежать `no-loop-func` (захват `vimp` в замыкании внутри `for`).
  */
 function createForwardingMethod(level: LogLevel, original: ConsoleMethod): ConsoleMethod {
   return (...args: unknown[]): void => {
@@ -133,7 +133,7 @@ function createForwardingMethod(level: LogLevel, original: ConsoleMethod): Conso
         level,
         args: args.map(serializeArg),
       };
-      ccmp.emitServer(CLIENT_LOG_EVENT, payload);
+      vimp.emitServer(CLIENT_LOG_EVENT, payload);
     } catch {
       // Если сервер недоступен (раннее в boot до handshake) — молча.
     }
@@ -147,7 +147,7 @@ function createForwardingMethod(level: LogLevel, original: ConsoleMethod): Conso
  *
  * Идемпотентно: повторный `install()` ничего не делает.
  */
-export class CCMPConsoleForwarder {
+export class VIMPConsoleForwarder {
   private _installed = false;
 
   public install(): void {

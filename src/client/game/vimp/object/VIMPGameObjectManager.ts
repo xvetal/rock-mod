@@ -1,8 +1,8 @@
-/// <reference types="@classic-mp/types/client" />
+/// <reference types="@vimp-mp/types/client" />
 
 import { type IGameObjectManager } from "../../common/object/IGameObjectManager";
 
-export class CCMPGameObjectManager implements IGameObjectManager {
+export class VIMPGameObjectManager implements IGameObjectManager {
   public doorControl(
     modelHash: number,
     x: number,
@@ -13,6 +13,6 @@ export class CCMPGameObjectManager implements IGameObjectManager {
     yRotMult: number,
     zRotMult: number,
   ): void {
-    ccmp.natives.object.setLockedUnstreamedInDoorOfType(modelHash, x, y, z, locked, xRotMult, yRotMult, zRotMult);
+    vimp.natives.object.setLockedUnstreamedInDoorOfType(modelHash, x, y, z, locked, xRotMult, yRotMult, zRotMult);
   }
 }

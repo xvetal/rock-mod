@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { type Object as CcmpObject } from "@classic-mp/types/client";
+import { type Object as VimpObject } from "@vimp-mp/types/client";
 import { BaseObjectType } from "@shared/entities";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 import { type IBaseObject } from "../../common/baseObject/IBaseObject";
 import { type IObject } from "../../common/object/IObject";
 
-export class CCMPObject implements IObject {
+export class VIMPObject implements IObject {
   private _destroyed = false;
 
   public constructor(
-    private readonly _ccmpObject: CcmpObject,
-    private readonly _onDestroy: (object: CCMPObject) => void = () => {},
+    private readonly _vimpObject: VimpObject,
+    private readonly _onDestroy: (object: VIMPObject) => void = () => {},
   ) {}
 
   public get id(): number {
-    return this._ccmpObject.id;
+    return this._vimpObject.id;
   }
 
   public get remoteId(): number | null {
-    return this._ccmpObject.remoteId;
+    return this._vimpObject.remoteId;
   }
 
   public get type(): BaseObjectType {
@@ -26,35 +26,35 @@ export class CCMPObject implements IObject {
   }
 
   public get isExists(): boolean {
-    return !this._destroyed && this._ccmpObject.isExists;
+    return !this._destroyed && this._vimpObject.isExists;
   }
 
   public get handle(): number {
-    return this._normalizeHandle(this._ccmpObject.handle);
+    return this._normalizeHandle(this._vimpObject.handle);
   }
 
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
-    this._ccmpObject.destroy();
+    this._vimpObject.destroy();
     this._onDestroy(this);
   }
 
   public get position(): Vector3D {
-    const { x, y, z } = this._ccmpObject.position;
+    const { x, y, z } = this._vimpObject.position;
     return new Vector3D(x, y, z);
   }
 
   public get dimension(): number {
-    return this._ccmpObject.dimension;
+    return this._vimpObject.dimension;
   }
 
   public setPosition(value: IVector3D): void {
-    this._ccmpObject.setPosition(value);
+    this._vimpObject.setPosition(value);
   }
 
   public setDimension(value: number): void {
-    this._ccmpObject.setDimension(value);
+    this._vimpObject.setDimension(value);
   }
 
   public setCoords(
@@ -66,78 +66,78 @@ export class CCMPObject implements IObject {
     zAxis: boolean,
     clearArea: boolean,
   ): void {
-    this._ccmpObject.setCoords(xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
+    this._vimpObject.setCoords(xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
   }
 
   public get model(): number {
-    return this._ccmpObject.model;
+    return this._vimpObject.model;
   }
 
   public get heading(): number {
-    return this._ccmpObject.heading;
+    return this._vimpObject.heading;
   }
 
   public setHeading(heading: number): void {
-    this._ccmpObject.setHeading(heading);
+    this._vimpObject.setHeading(heading);
   }
 
   public setModel(value: string): void {
-    this._ccmpObject.setModel(value);
+    this._vimpObject.setModel(value);
   }
 
   public get rotation(): Vector3D {
-    const { x, y, z } = this._ccmpObject.rotation;
+    const { x, y, z } = this._vimpObject.rotation;
     return new Vector3D(x, y, z);
   }
 
   public get forwardVector(): Vector3D {
-    const { x, y, z } = this._ccmpObject.forwardVector;
+    const { x, y, z } = this._vimpObject.forwardVector;
     return new Vector3D(x, y, z);
   }
 
   public setRotation(value: IVector3D): void {
-    this._ccmpObject.setRotation(value);
+    this._vimpObject.setRotation(value);
   }
 
   public freezePosition(freeze: boolean): void {
-    this._ccmpObject.freezePosition(freeze);
+    this._vimpObject.freezePosition(freeze);
   }
 
   public setCollision(collision: boolean, keepPhysics: boolean): void {
-    this._ccmpObject.setCollision(collision, keepPhysics);
+    this._vimpObject.setCollision(collision, keepPhysics);
   }
 
   public setInvincible(invincible: boolean): void {
-    this._ccmpObject.setInvincible(invincible);
+    this._vimpObject.setInvincible(invincible);
   }
 
   public setVisible(visible: boolean): void {
-    this._ccmpObject.setVisible(visible);
+    this._vimpObject.setVisible(visible);
   }
 
   public setAlpha(alpha: number): void {
-    this._ccmpObject.setAlpha(alpha);
+    this._vimpObject.setAlpha(alpha);
   }
 
   public get alpha(): number {
-    return this._ccmpObject.alpha;
+    return this._vimpObject.alpha;
   }
 
   public resetAlpha(): void {
-    this._ccmpObject.resetAlpha();
+    this._vimpObject.resetAlpha();
   }
 
   public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
-    const { x, y, z } = this._ccmpObject.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
+    const { x, y, z } = this._vimpObject.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
     return new Vector3D(x, y, z);
   }
 
   public getBoneIndexByName(boneName: string): number {
-    return this._ccmpObject.getBoneIndexByName(boneName);
+    return this._vimpObject.getBoneIndexByName(boneName);
   }
 
   public getWorldPositionOfBone(boneIndex: number): IVector3D {
-    const { x, y, z } = this._ccmpObject.getWorldPositionOfBone(boneIndex);
+    const { x, y, z } = this._vimpObject.getWorldPositionOfBone(boneIndex);
     return new Vector3D(x, y, z);
   }
 
@@ -145,7 +145,7 @@ export class CCMPObject implements IObject {
     const remoteId = this.remoteId;
     if (remoteId === null) return null;
 
-    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, name);
+    const value = vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Object, remoteId, name);
     return value === undefined ? null : value;
   }
 
@@ -153,21 +153,21 @@ export class CCMPObject implements IObject {
     const remoteId = this.remoteId;
     if (remoteId === null) return undefined;
 
-    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, key);
+    return vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Object, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
     const remoteId = this.remoteId;
     if (remoteId === null) return false;
 
-    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Object, remoteId, key);
+    return vimp.entities.hasStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Object, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
     const remoteId = this.remoteId;
     if (remoteId === null) return [];
 
-    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Object, remoteId);
+    return vimp.entities.getStreamSyncedMetaKeys(vimp.entities.ENTITY_TYPE.Object, remoteId);
   }
 
   public attachTo(
@@ -185,7 +185,7 @@ export class CCMPObject implements IObject {
     vertexIndex: number,
     fixedRot: boolean,
   ): void {
-    this._ccmpObject.attachTo(
+    this._vimpObject.attachTo(
       entity,
       boneIndex,
       xPos,
@@ -203,7 +203,7 @@ export class CCMPObject implements IObject {
   }
 
   public isAttachedTo(entity: number): boolean {
-    return this._ccmpObject.isAttachedTo(entity);
+    return this._vimpObject.isAttachedTo(entity);
   }
 
   public attachToEntity(
@@ -218,7 +218,7 @@ export class CCMPObject implements IObject {
     vertexIndex: number,
     fixedRot: boolean,
   ): void {
-    this._ccmpObject.attachToEntity(
+    this._vimpObject.attachToEntity(
       target,
       boneIndex,
       offset,
@@ -233,15 +233,15 @@ export class CCMPObject implements IObject {
   }
 
   public detach(useDetachVelocity: boolean, collision: boolean): void {
-    this._ccmpObject.detach(useDetachVelocity, collision);
+    this._vimpObject.detach(useDetachVelocity, collision);
   }
 
   public getSpeed(): number {
-    return this._ccmpObject.getSpeed();
+    return this._vimpObject.getSpeed();
   }
 
   public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
-    return this._ccmpObject.isPlayingAnim(dictionary, name, taskFlag);
+    return this._vimpObject.isPlayingAnim(dictionary, name, taskFlag);
   }
 
   private _normalizeHandle(value: number): number {

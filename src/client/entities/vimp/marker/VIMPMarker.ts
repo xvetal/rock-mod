@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseObjectType, type IMarkerType } from "@shared/entities";
 import { type IRGBA, RGBA, type IVector3D, Vector3D } from "@shared/common/utils";
-import { type Marker as CcmpMarker } from "@classic-mp/types/client";
+import { type Marker as VimpMarker } from "@vimp-mp/types/client";
 import { type IMarker } from "../../common/marker/IMarker";
 
 const notImplemented = (memberName: string): never => {
-  throw new Error(`CCMPMarker.${memberName}: not implemented`);
+  throw new Error(`VIMPMarker.${memberName}: not implemented`);
 };
 
-export class CCMPMarker implements IMarker {
+export class VIMPMarker implements IMarker {
   private _destroyed = false;
 
   public constructor(
-    private readonly _ccmpMarker: CcmpMarker,
-    private readonly _onDestroy: (marker: CCMPMarker) => void = () => {},
+    private readonly _vimpMarker: VimpMarker,
+    private readonly _onDestroy: (marker: VIMPMarker) => void = () => {},
   ) {}
 
   public get id(): number {
-    return this._ccmpMarker.id;
+    return this._vimpMarker.id;
   }
 
   public get remoteId(): number | null {
-    return this._ccmpMarker.remoteId;
+    return this._vimpMarker.remoteId;
   }
 
   public get type(): BaseObjectType {
@@ -29,7 +29,7 @@ export class CCMPMarker implements IMarker {
   }
 
   public get isExists(): boolean {
-    return !this._destroyed && this._ccmpMarker.isExists;
+    return !this._destroyed && this._vimpMarker.isExists;
   }
 
   public get handle(): number {
@@ -39,17 +39,17 @@ export class CCMPMarker implements IMarker {
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
-    this._ccmpMarker.destroy();
+    this._vimpMarker.destroy();
     this._onDestroy(this);
   }
 
   public get position(): Vector3D {
-    const { x, y, z } = this._ccmpMarker.position;
+    const { x, y, z } = this._vimpMarker.position;
     return new Vector3D(x, y, z);
   }
 
   public get dimension(): number {
-    return this._ccmpMarker.dimension;
+    return this._vimpMarker.dimension;
   }
 
   public setPosition(_value: IVector3D): void {
@@ -73,15 +73,15 @@ export class CCMPMarker implements IMarker {
   }
 
   public get markerType(): IMarkerType {
-    return this._ccmpMarker.markerType as IMarkerType;
+    return this._vimpMarker.markerType as IMarkerType;
   }
 
   public get visible(): boolean {
-    return this._ccmpMarker.visible;
+    return this._vimpMarker.visible;
   }
 
   public get rotation(): Vector3D {
-    const { x, y, z } = this._ccmpMarker.rotation;
+    const { x, y, z } = this._vimpMarker.rotation;
     return new Vector3D(x, y, z);
   }
 
@@ -91,7 +91,7 @@ export class CCMPMarker implements IMarker {
       return null;
     }
 
-    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Marker, remoteId, name);
+    const value = vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Marker, remoteId, name);
     return value === undefined ? null : value;
   }
 
@@ -101,7 +101,7 @@ export class CCMPMarker implements IMarker {
       return undefined;
     }
 
-    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Marker, remoteId, key);
+    return vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Marker, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
@@ -110,7 +110,7 @@ export class CCMPMarker implements IMarker {
       return false;
     }
 
-    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Marker, remoteId, key);
+    return vimp.entities.hasStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Marker, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
@@ -119,7 +119,7 @@ export class CCMPMarker implements IMarker {
       return [];
     }
 
-    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Marker, remoteId);
+    return vimp.entities.getStreamSyncedMetaKeys(vimp.entities.ENTITY_TYPE.Marker, remoteId);
   }
 
   public setVisible(_value: boolean): void {
@@ -131,7 +131,7 @@ export class CCMPMarker implements IMarker {
   }
 
   public get scale(): number {
-    return this._ccmpMarker.scale;
+    return this._vimpMarker.scale;
   }
 
   public setScale(_value: number): void {
@@ -139,7 +139,7 @@ export class CCMPMarker implements IMarker {
   }
 
   public get color(): IRGBA {
-    const { r, g, b, a } = this._ccmpMarker.color;
+    const { r, g, b, a } = this._vimpMarker.color;
     return new RGBA(r, g, b, a);
   }
 

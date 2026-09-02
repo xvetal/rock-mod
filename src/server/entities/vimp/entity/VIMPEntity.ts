@@ -1,36 +1,36 @@
 import { type IEntity } from "../../common/entity/IEntity";
-import { CCMPWorldObject } from "../worldObject/VIMPWorldObject";
+import { VIMPWorldObject } from "../worldObject/VIMPWorldObject";
 import { type IVector3D } from "../../../../shared/common/utils/math/Vectors";
-import type { StreamSyncedMeta } from "@classic-mp/types/server";
+import type { StreamSyncedMeta } from "@vimp-mp/types/server";
 
 const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
-export abstract class CCMPEntity extends CCMPWorldObject implements IEntity {
-  protected abstract get ccmpMeta(): StreamSyncedMeta;
+export abstract class VIMPEntity extends VIMPWorldObject implements IEntity {
+  protected abstract get vimpMeta(): StreamSyncedMeta;
 
   public get model(): number {
-    return notImplemented("CCMPEntity.model");
+    return notImplemented("VIMPEntity.model");
   }
 
   public get rotation(): IVector3D {
-    return notImplemented("CCMPEntity.rotation");
+    return notImplemented("VIMPEntity.rotation");
   }
 
   public setModel(_value: string): void {
-    notImplemented("CCMPEntity.setModel");
+    notImplemented("VIMPEntity.setModel");
   }
 
   public setRotation(_value: IVector3D): void {
-    notImplemented("CCMPEntity.setRotation");
+    notImplemented("VIMPEntity.setRotation");
   }
 
   public getNetData(name: string): unknown {
-    return this.ccmpMeta.getStreamSyncedMeta(name);
+    return this.vimpMeta.getStreamSyncedMeta(name);
   }
 
   public setNetData(name: string, value: unknown): void {
-    this.ccmpMeta.setStreamSyncedMeta(name, value);
+    this.vimpMeta.setStreamSyncedMeta(name, value);
   }
 }

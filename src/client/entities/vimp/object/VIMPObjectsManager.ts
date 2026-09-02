@@ -1,74 +1,74 @@
-import { type Object as CcmpObject } from "@classic-mp/types/client";
-import { type CCMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
+import { type Object as VimpObject } from "@vimp-mp/types/client";
+import { type VIMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
 import { type IObjectCreateOptions, type IObjectsManager } from "../../common/object/IObjectsManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
-import { CCMPObject } from "./VIMPObject";
+import { VIMPObject } from "./VIMPObject";
 
-export class CCMPObjectsManager implements IObjectsManager {
-  private readonly _objects = new Map<number, CCMPObject>();
+export class VIMPObjectsManager implements IObjectsManager {
+  private readonly _objects = new Map<number, VIMPObject>();
 
-  private readonly _objectsByRemoteId = new Map<number, CCMPObject>();
+  private readonly _objectsByRemoteId = new Map<number, VIMPObject>();
 
-  private readonly _iterator: IWorldObjectsIterator<CCMPObject> = {
-    all: (): IterableIterator<CCMPObject> => this._filter(() => true),
-    dimension: (value: number): IterableIterator<CCMPObject> => this._filter((object) => object.dimension === value),
-    range2D: (center: Vector2D, range: number): IterableIterator<CCMPObject> =>
+  private readonly _iterator: IWorldObjectsIterator<VIMPObject> = {
+    all: (): IterableIterator<VIMPObject> => this._filter(() => true),
+    dimension: (value: number): IterableIterator<VIMPObject> => this._filter((object) => object.dimension === value),
+    range2D: (center: Vector2D, range: number): IterableIterator<VIMPObject> =>
       this._filter((object) => {
         const position = object.position;
         const squaredDistance = (position.x - center.x) ** 2 + (position.y - center.y) ** 2;
         return squaredDistance <= range * range;
       }),
-    range3D: (center: Vector3D, range: number): IterableIterator<CCMPObject> =>
+    range3D: (center: Vector3D, range: number): IterableIterator<VIMPObject> =>
       this._filter((object) => object.position.isInRange(center, range)),
   };
 
-  public constructor(private readonly _events: CCMPEventsManager) {
+  public constructor(private readonly _events: VIMPEventsManager) {
     this._registerLifecycleEvents();
     this.syncWithMpPool();
   }
 
-  public create(options: IObjectCreateOptions): CCMPObject {
-    const ccmpObject = ccmp.objects.create(options.model, options.position, options.rotation, {
+  public create(options: IObjectCreateOptions): VIMPObject {
+    const vimpObject = vimp.objects.create(options.model, options.position, options.rotation, {
       dimension: options.dimension,
       alpha: options.alpha,
     });
 
-    if (!ccmpObject) {
-      throw new Error(`CCMPObjectsManager.create: ccmp.objects.create failed for model "${options.model}"`);
+    if (!vimpObject) {
+      throw new Error(`VIMPObjectsManager.create: vimp.objects.create failed for model "${options.model}"`);
     }
 
-    return this._register(ccmpObject);
+    return this._register(vimpObject);
   }
 
   public syncWithMpPool(): void {
     this._pruneDestroyed();
 
-    for (const ccmpObject of ccmp.objects.all) {
-      this._register(ccmpObject);
+    for (const vimpObject of vimp.objects.all) {
+      this._register(vimpObject);
     }
   }
 
-  public registerById(id: number): CCMPObject {
+  public registerById(id: number): VIMPObject {
     const existingObject = this.findByID(id);
     if (existingObject) {
       return existingObject;
     }
 
-    const ccmpObject = ccmp.objects.getById(id);
-    if (!ccmpObject) {
-      throw new Error(`CCMPObjectsManager.registerById(${id}): object not found.`);
+    const vimpObject = vimp.objects.getById(id);
+    if (!vimpObject) {
+      throw new Error(`VIMPObjectsManager.registerById(${id}): object not found.`);
     }
 
-    return this._register(ccmpObject);
+    return this._register(vimpObject);
   }
 
-  public unregisterById(id: number): CCMPObject {
+  public unregisterById(id: number): VIMPObject {
     return this.deleteById(id);
   }
 
-  public findByID(id: number): CCMPObject | null {
+  public findByID(id: number): VIMPObject | null {
     const object = this._objects.get(id) ?? null;
     if (object && !object.isExists) {
       this._unregister(object);
@@ -76,23 +76,23 @@ export class CCMPObjectsManager implements IObjectsManager {
       return object;
     }
 
-    const ccmpObject = ccmp.objects.getById(id);
-    if (!ccmpObject) {
+    const vimpObject = vimp.objects.getById(id);
+    if (!vimpObject) {
       return null;
     }
 
-    return this._register(ccmpObject);
+    return this._register(vimpObject);
   }
 
-  public getByID(id: number): CCMPObject {
+  public getByID(id: number): VIMPObject {
     const object = this.findByID(id);
     if (!object) {
-      throw new Error(`CCMPObjectsManager.getByID(${id}): object not found.`);
+      throw new Error(`VIMPObjectsManager.getByID(${id}): object not found.`);
     }
     return object;
   }
 
-  public findByRemoteID(remoteId: number): CCMPObject | null {
+  public findByRemoteID(remoteId: number): VIMPObject | null {
     const object = this._objectsByRemoteId.get(remoteId) ?? null;
     if (object && !object.isExists) {
       this._unregister(object);
@@ -100,34 +100,34 @@ export class CCMPObjectsManager implements IObjectsManager {
       return object;
     }
 
-    const ccmpObject = ccmp.objects.getByRemoteId(remoteId);
-    if (!ccmpObject) {
+    const vimpObject = vimp.objects.getByRemoteId(remoteId);
+    if (!vimpObject) {
       return null;
     }
 
-    return this._register(ccmpObject);
+    return this._register(vimpObject);
   }
 
-  public getByRemoteID(remoteId: number): CCMPObject {
+  public getByRemoteID(remoteId: number): VIMPObject {
     const object = this.findByRemoteID(remoteId);
     if (!object) {
-      throw new Error(`CCMPObjectsManager.getByRemoteID(${remoteId}): object not found.`);
+      throw new Error(`VIMPObjectsManager.getByRemoteID(${remoteId}): object not found.`);
     }
     return object;
   }
 
-  public deleteById(id: number): CCMPObject {
+  public deleteById(id: number): VIMPObject {
     const object = this.getByID(id);
     object.destroy();
     return object;
   }
 
-  public get iterator(): IWorldObjectsIterator<CCMPObject> {
+  public get iterator(): IWorldObjectsIterator<VIMPObject> {
     return this._iterator;
   }
 
-  private _register(ccmpObject: CcmpObject): CCMPObject {
-    const existingObject = this._findRegistered(ccmpObject);
+  private _register(vimpObject: VimpObject): VIMPObject {
+    const existingObject = this._findRegistered(vimpObject);
     if (existingObject && existingObject.isExists) {
       return existingObject;
     }
@@ -135,7 +135,7 @@ export class CCMPObjectsManager implements IObjectsManager {
       this._unregister(existingObject);
     }
 
-    const object = new CCMPObject(ccmpObject, (destroyedObject) => {
+    const object = new VIMPObject(vimpObject, (destroyedObject) => {
       this._unregister(destroyedObject);
     });
     this._objects.set(object.id, object);
@@ -145,49 +145,49 @@ export class CCMPObjectsManager implements IObjectsManager {
     return object;
   }
 
-  private _unregister(object: CCMPObject): void {
+  private _unregister(object: VIMPObject): void {
     this._objects.delete(object.id);
     if (object.remoteId !== null) {
       this._objectsByRemoteId.delete(object.remoteId);
     }
   }
 
-  private _findRegistered(ccmpObject: CcmpObject): CCMPObject | null {
+  private _findRegistered(vimpObject: VimpObject): VIMPObject | null {
     return (
-      (ccmpObject.remoteId === null ? null : (this._objectsByRemoteId.get(ccmpObject.remoteId) ?? null)) ??
-      this._objects.get(ccmpObject.id) ??
+      (vimpObject.remoteId === null ? null : (this._objectsByRemoteId.get(vimpObject.remoteId) ?? null)) ??
+      this._objects.get(vimpObject.id) ??
       null
     );
   }
 
   private _registerLifecycleEvents(): void {
-    ccmp.on("objectCreated", (ccmpObject: CcmpObject | null) => {
-      if (!ccmpObject) return;
-      const object = this._register(ccmpObject);
+    vimp.on("objectCreated", (vimpObject: VimpObject | null) => {
+      if (!vimpObject) return;
+      const object = this._register(vimpObject);
       this._events.emitInternal(ClientInternalEventName.EntityCreated, object);
     });
 
-    ccmp.on("objectDestroyed", (ccmpObject: CcmpObject | null) => {
-      if (!ccmpObject) return;
-      const object = this._findRegistered(ccmpObject) ?? this._register(ccmpObject);
+    vimp.on("objectDestroyed", (vimpObject: VimpObject | null) => {
+      if (!vimpObject) return;
+      const object = this._findRegistered(vimpObject) ?? this._register(vimpObject);
       this._events.emitInternal(ClientInternalEventName.EntityDestroyed, object);
       this._unregister(object);
     });
 
-    ccmp.on("objectStreamIn", (ccmpObject: CcmpObject | null) => {
-      if (!ccmpObject) return;
-      const object = this._register(ccmpObject);
+    vimp.on("objectStreamIn", (vimpObject: VimpObject | null) => {
+      if (!vimpObject) return;
+      const object = this._register(vimpObject);
       this._events.emitInternal(ClientInternalEventName.EntityStreamIn, object);
     });
 
-    ccmp.on("objectStreamOut", (ccmpObject: CcmpObject | null) => {
-      if (!ccmpObject) return;
-      const object = this._findRegistered(ccmpObject) ?? this._register(ccmpObject);
+    vimp.on("objectStreamOut", (vimpObject: VimpObject | null) => {
+      if (!vimpObject) return;
+      const object = this._findRegistered(vimpObject) ?? this._register(vimpObject);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, object);
     });
   }
 
-  private *_filter(predicate: (object: CCMPObject) => boolean): IterableIterator<CCMPObject> {
+  private *_filter(predicate: (object: VIMPObject) => boolean): IterableIterator<VIMPObject> {
     for (const object of this._objects.values()) {
       if (!object.isExists) {
         this._unregister(object);

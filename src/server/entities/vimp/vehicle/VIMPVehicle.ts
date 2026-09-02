@@ -1,22 +1,22 @@
-import { CCMPEntity } from "../entity/VIMPEntity";
+import { VIMPEntity } from "../entity/VIMPEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IRGBA, RGBA } from "../../../../shared/common/utils";
 import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { BaseObjectType } from "../../../../shared";
 import { RockMod } from "../../../RockMod";
-import { type CCMPPlayer } from "../player/VIMPPlayer";
-import type { Vehicle as CcmpVehicle } from "@classic-mp/types/server";
+import { type VIMPPlayer } from "../player/VIMPPlayer";
+import type { Vehicle as VimpVehicle } from "@vimp-mp/types/server";
 
-export interface ICCMPVehicleOptions {
-  ccmpVehicle: CcmpVehicle;
-  onDestroy: (vehicle: CCMPVehicle) => void;
+export interface IVIMPVehicleOptions {
+  vimpVehicle: VimpVehicle;
+  onDestroy: (vehicle: VIMPVehicle) => void;
 }
 
-type CcmpVehicleWithNumberPlate = CcmpVehicle & {
+type VimpVehicleWithNumberPlate = VimpVehicle & {
   numberPlate: string;
 };
 
-export class CCMPVehicle extends CCMPEntity implements IVehicle {
+export class VIMPVehicle extends VIMPEntity implements IVehicle {
   private static readonly _customPrimaryColorMeta = "rockMod:customPrimaryColor";
 
   private static readonly _customSecondaryColorMeta = "rockMod:customSecondaryColor";
@@ -31,9 +31,9 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
 
   private static readonly _wheelTypeMeta = "rockMod:wheelType";
 
-  private readonly _ccmpVehicle: CcmpVehicle;
+  private readonly _vimpVehicle: VimpVehicle;
 
-  private readonly _onDestroy: (vehicle: CCMPVehicle) => void;
+  private readonly _onDestroy: (vehicle: VIMPVehicle) => void;
 
   private readonly _mods = new Map<number, number>();
 
@@ -42,7 +42,7 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   private _customSecondaryColor = new RGBA(0, 0, 0);
 
   public override get id(): number {
-    return this._ccmpVehicle.id;
+    return this._vimpVehicle.id;
   }
 
   public override get type(): BaseObjectType {
@@ -50,41 +50,41 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public override get isExists(): boolean {
-    return this._ccmpVehicle.isExists;
+    return this._vimpVehicle.isExists;
   }
 
   public override get position(): IVector3D {
-    const p = this._ccmpVehicle.position;
+    const p = this._vimpVehicle.position;
     return new Vector3D(p.x, p.y, p.z);
   }
 
   public override get dimension(): number {
-    return this._ccmpVehicle.dimension;
+    return this._vimpVehicle.dimension;
   }
 
   public override get model(): number {
-    return this._ccmpVehicle.model;
+    return this._vimpVehicle.model;
   }
 
   public override get rotation(): IVector3D {
-    const r = this._ccmpVehicle.rotation;
+    const r = this._vimpVehicle.rotation;
     return new Vector3D(r.x, r.y, r.z);
   }
 
   public get bodyHealth(): number {
-    return this._ccmpVehicle.bodyHealth;
+    return this._vimpVehicle.bodyHealth;
   }
 
   public get engineHealth(): number {
-    return this._ccmpVehicle.engineHealth;
+    return this._vimpVehicle.engineHealth;
   }
 
   public get numberPlate(): string {
-    return (this._ccmpVehicle as CcmpVehicleWithNumberPlate).numberPlate;
+    return (this._vimpVehicle as VimpVehicleWithNumberPlate).numberPlate;
   }
 
   public get isLocked(): boolean {
-    const lockState = this._ccmpVehicle.lockState;
+    const lockState = this._vimpVehicle.lockState;
     return lockState !== 0 && lockState !== 1;
   }
 
@@ -93,11 +93,11 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public get primaryColor(): number {
-    return this._ccmpVehicle.primaryColor;
+    return this._vimpVehicle.primaryColor;
   }
 
   public get secondaryColor(): number {
-    return this._ccmpVehicle.secondaryColor;
+    return this._vimpVehicle.secondaryColor;
   }
 
   public get customPrimaryColor(): IRGBA {
@@ -108,16 +108,16 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     return this._customSecondaryColor;
   }
 
-  public get driver(): CCMPPlayer | null {
-    const ccmpDriver = this._ccmpVehicle.driver;
-    if (!ccmpDriver) return null;
-    return RockMod.instance.players.findByID(ccmpDriver.id) as CCMPPlayer | null;
+  public get driver(): VIMPPlayer | null {
+    const vimpDriver = this._vimpVehicle.driver;
+    if (!vimpDriver) return null;
+    return RockMod.instance.players.findByID(vimpDriver.id) as VIMPPlayer | null;
   }
 
-  public get passengers(): Set<CCMPPlayer> {
-    const passengers = new Set<CCMPPlayer>();
-    for (const ccmpPassenger of this._ccmpVehicle.passengers) {
-      const player = RockMod.instance.players.findByID(ccmpPassenger.id) as CCMPPlayer | null;
+  public get passengers(): Set<VIMPPlayer> {
+    const passengers = new Set<VIMPPlayer>();
+    for (const vimpPassenger of this._vimpVehicle.passengers) {
+      const player = RockMod.instance.players.findByID(vimpPassenger.id) as VIMPPlayer | null;
       if (player) {
         passengers.add(player);
       }
@@ -125,80 +125,80 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
     return passengers;
   }
 
-  protected override get ccmpMeta(): CcmpVehicle {
-    return this._ccmpVehicle;
+  protected override get vimpMeta(): VimpVehicle {
+    return this._vimpVehicle;
   }
 
-  public constructor(options: ICCMPVehicleOptions) {
+  public constructor(options: IVIMPVehicleOptions) {
     super();
-    this._ccmpVehicle = options.ccmpVehicle;
+    this._vimpVehicle = options.vimpVehicle;
     this._onDestroy = options.onDestroy;
     this._restoreCompatibilityState();
   }
 
   public override destroy(): void {
-    if (!this._ccmpVehicle.isExists) return;
-    this._ccmpVehicle.destroy();
+    if (!this._vimpVehicle.isExists) return;
+    this._vimpVehicle.destroy();
     this._onDestroy(this);
   }
 
   public override setPosition(value: IVector3D): void {
-    this._ccmpVehicle.position = { x: value.x, y: value.y, z: value.z };
+    this._vimpVehicle.position = { x: value.x, y: value.y, z: value.z };
   }
 
   public override setDimension(value: number): void {
-    this._ccmpVehicle.dimension = value;
+    this._vimpVehicle.dimension = value;
   }
 
   public override setModel(value: string): void {
-    this._ccmpVehicle.model = RockMod.instance.utils.hash(value);
+    this._vimpVehicle.model = RockMod.instance.utils.hash(value);
   }
 
   public override setRotation(value: IVector3D): void {
-    this._ccmpVehicle.rotation = { x: value.x, y: value.y, z: value.z };
+    this._vimpVehicle.rotation = { x: value.x, y: value.y, z: value.z };
   }
 
   public setBodyHealth(value: number): void {
-    this._ccmpVehicle.bodyHealth = value;
+    this._vimpVehicle.bodyHealth = value;
   }
 
   public setEngineHealth(value: number): void {
-    this._ccmpVehicle.engineHealth = value;
+    this._vimpVehicle.engineHealth = value;
   }
 
   public setEngineOn(value: boolean): void {
-    this._ccmpVehicle.engineOn = value;
+    this._vimpVehicle.engineOn = value;
   }
 
   public setNumberPlate(value: string): void {
-    (this._ccmpVehicle as CcmpVehicleWithNumberPlate).numberPlate = value;
+    (this._vimpVehicle as VimpVehicleWithNumberPlate).numberPlate = value;
   }
 
   public setLocked(value: boolean): void {
-    this._ccmpVehicle.lockState = value ? 2 : 1;
+    this._vimpVehicle.lockState = value ? 2 : 1;
   }
 
   public setPrimaryColor(value: number): void {
-    this._ccmpVehicle.primaryColor = value;
+    this._vimpVehicle.primaryColor = value;
   }
 
   public setSecondaryColor(value: number): void {
-    this._ccmpVehicle.secondaryColor = value;
+    this._vimpVehicle.secondaryColor = value;
   }
 
   public setCustomPrimaryColor(value: IRGBA): void {
     this._customPrimaryColor = this._toRgba(value);
-    this._setCompatibilityMeta(CCMPVehicle._customPrimaryColorMeta, this._customPrimaryColor);
+    this._setCompatibilityMeta(VIMPVehicle._customPrimaryColorMeta, this._customPrimaryColor);
   }
 
   public setCustomSecondaryColor(value: IRGBA): void {
     this._customSecondaryColor = this._toRgba(value);
-    this._setCompatibilityMeta(CCMPVehicle._customSecondaryColorMeta, this._customSecondaryColor);
+    this._setCompatibilityMeta(VIMPVehicle._customSecondaryColorMeta, this._customSecondaryColor);
   }
 
   public setMod(modType: number, modIndex: number): void {
     this._mods.set(Math.trunc(modType), Math.trunc(modIndex));
-    this._setCompatibilityMeta(CCMPVehicle._vehicleModsMeta, Object.fromEntries(this._mods));
+    this._setCompatibilityMeta(VIMPVehicle._vehicleModsMeta, Object.fromEntries(this._mods));
   }
 
   public getMod(modType: number): number {
@@ -206,41 +206,41 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   public setNeonEnabled(enabled: boolean): void {
-    this._setCompatibilityMeta(CCMPVehicle._neonEnabledMeta, enabled);
+    this._setCompatibilityMeta(VIMPVehicle._neonEnabledMeta, enabled);
   }
 
   public setNeonColor(r: number, g: number, b: number): void {
-    this._setCompatibilityMeta(CCMPVehicle._neonColorMeta, new RGBA(r, g, b));
+    this._setCompatibilityMeta(VIMPVehicle._neonColorMeta, new RGBA(r, g, b));
   }
 
   public setWindowTint(tintType: number): void {
-    this._setCompatibilityMeta(CCMPVehicle._windowTintMeta, Math.trunc(tintType));
+    this._setCompatibilityMeta(VIMPVehicle._windowTintMeta, Math.trunc(tintType));
   }
 
   public setWheelType(wheelType: number): void {
-    this._setCompatibilityMeta(CCMPVehicle._wheelTypeMeta, Math.trunc(wheelType));
+    this._setCompatibilityMeta(VIMPVehicle._wheelTypeMeta, Math.trunc(wheelType));
   }
 
   public setPlateType(plateType: number): void {
-    this._ccmpVehicle.numberPlateType = plateType;
+    this._vimpVehicle.numberPlateType = plateType;
   }
 
   public explode(): void {
-    this._ccmpVehicle.bodyHealth = 0;
-    this._ccmpVehicle.engineHealth = -4000;
-    this._ccmpVehicle.engineOn = false;
+    this._vimpVehicle.bodyHealth = 0;
+    this._vimpVehicle.engineHealth = -4000;
+    this._vimpVehicle.engineOn = false;
   }
 
   public repair(): void {
-    this._ccmpVehicle.bodyHealth = 1000;
-    this._ccmpVehicle.engineHealth = 1000;
+    this._vimpVehicle.bodyHealth = 1000;
+    this._vimpVehicle.engineHealth = 1000;
   }
 
   private _restoreCompatibilityState(): void {
-    this._customPrimaryColor = this._readColorMeta(CCMPVehicle._customPrimaryColorMeta);
-    this._customSecondaryColor = this._readColorMeta(CCMPVehicle._customSecondaryColorMeta);
+    this._customPrimaryColor = this._readColorMeta(VIMPVehicle._customPrimaryColorMeta);
+    this._customSecondaryColor = this._readColorMeta(VIMPVehicle._customSecondaryColorMeta);
 
-    const mods = this._ccmpVehicle.getStreamSyncedMeta<Record<string, unknown>>(CCMPVehicle._vehicleModsMeta);
+    const mods = this._vimpVehicle.getStreamSyncedMeta<Record<string, unknown>>(VIMPVehicle._vehicleModsMeta);
     if (!mods || typeof mods !== "object") return;
     for (const [key, value] of Object.entries(mods)) {
       const modType = Number(key);
@@ -252,7 +252,7 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   private _readColorMeta(key: string): RGBA {
-    const value = this._ccmpVehicle.getStreamSyncedMeta<Partial<IRGBA>>(key);
+    const value = this._vimpVehicle.getStreamSyncedMeta<Partial<IRGBA>>(key);
     if (!value || typeof value !== "object") {
       return new RGBA(0, 0, 0);
     }
@@ -261,7 +261,7 @@ export class CCMPVehicle extends CCMPEntity implements IVehicle {
   }
 
   private _setCompatibilityMeta(key: string, value: unknown): void {
-    this._ccmpVehicle.setStreamSyncedMeta(key, value);
+    this._vimpVehicle.setStreamSyncedMeta(key, value);
   }
 
   private _toRgba(value: IRGBA): RGBA {

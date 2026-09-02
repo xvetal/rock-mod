@@ -1,10 +1,10 @@
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
-import { type CCMPWorldObject } from "./VIMPWorldObject";
-import { CCMPBaseObjectsIterator } from "../baseObject/VIMPBaseObjectsIterator";
+import { type VIMPWorldObject } from "./VIMPWorldObject";
+import { VIMPBaseObjectsIterator } from "../baseObject/VIMPBaseObjectsIterator";
 import { type Vector2D, type Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
-export class CCMPWorldObjectsIterator<T extends CCMPWorldObject>
-  extends CCMPBaseObjectsIterator<T>
+export class VIMPWorldObjectsIterator<T extends VIMPWorldObject>
+  extends VIMPBaseObjectsIterator<T>
   implements IWorldObjectsIterator<T>
 {
   public constructor(baseObjects: ReadonlyMap<number, T>) {

@@ -1,26 +1,26 @@
-import { CCMPEntity } from "../entity/VIMPEntity";
+import { VIMPEntity } from "../entity/VIMPEntity";
 import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
-import { type CCMPVehicle } from "../vehicle/VIMPVehicle";
+import { type VIMPVehicle } from "../vehicle/VIMPVehicle";
 import { BaseObjectType, type IServerToClientEvents } from "../../../../shared";
 import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
 import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
 import { RockMod } from "../../../RockMod";
-import type { Player as CcmpPlayer } from "@classic-mp/types/server";
+import type { Player as VimpPlayer } from "@vimp-mp/types/server";
 
 const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
-export interface ICCMPPlayerOptions {
-  ccmpPlayer: CcmpPlayer;
+export interface IVIMPPlayerOptions {
+  vimpPlayer: VimpPlayer;
 }
 
-export class CCMPPlayer extends CCMPEntity implements IPlayer {
-  private readonly _ccmpPlayer: CcmpPlayer;
+export class VIMPPlayer extends VIMPEntity implements IPlayer {
+  private readonly _vimpPlayer: VimpPlayer;
 
   public override get id(): number {
-    return this._ccmpPlayer.id;
+    return this._vimpPlayer.id;
   }
 
   public override get type(): BaseObjectType {
@@ -28,114 +28,114 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public override get isExists(): boolean {
-    return ccmp.players.getById(this._ccmpPlayer.id) !== null;
+    return vimp.players.getById(this._vimpPlayer.id) !== null;
   }
 
   public override get position(): IVector3D {
-    const p = this._ccmpPlayer.position;
+    const p = this._vimpPlayer.position;
     if (!p) return new Vector3D(0, 0, 0);
     return new Vector3D(p.x, p.y, p.z);
   }
 
   public override get dimension(): number {
-    return this._ccmpPlayer.dimension;
+    return this._vimpPlayer.dimension;
   }
 
   public override get model(): number {
-    return this._ccmpPlayer.model;
+    return this._vimpPlayer.model;
   }
 
-  // CCMP exposes only heading; pitch/roll (x/y components) are silently dropped on setRotation.
+  // VIMP exposes only heading; pitch/roll (x/y components) are silently dropped on setRotation.
   public override get rotation(): IVector3D {
-    return new Vector3D(0, 0, this._ccmpPlayer.heading);
+    return new Vector3D(0, 0, this._vimpPlayer.heading);
   }
 
   public get name(): string {
-    return this._ccmpPlayer.name;
+    return this._vimpPlayer.name;
   }
 
   public get socialClub(): string {
-    return this._ccmpPlayer.socialClub;
+    return this._vimpPlayer.socialClub;
   }
 
   public get heading(): number {
-    return this._ccmpPlayer.heading;
+    return this._vimpPlayer.heading;
   }
 
   public get health(): number {
-    return this._ccmpPlayer.health;
+    return this._vimpPlayer.health;
   }
 
   public get armour(): number {
-    return this._ccmpPlayer.armour;
+    return this._vimpPlayer.armour;
   }
 
   public get isDead(): boolean {
-    return this._ccmpPlayer.health <= 0;
+    return this._vimpPlayer.health <= 0;
   }
 
   public get ip(): string {
-    return notImplemented("CCMPPlayer.ip");
+    return notImplemented("VIMPPlayer.ip");
   }
 
   public get serial(): string {
-    return notImplemented("CCMPPlayer.serial");
+    return notImplemented("VIMPPlayer.serial");
   }
 
-  public get vehicle(): CCMPVehicle | null {
-    const ccmpVehicle = this._ccmpPlayer.vehicle;
-    if (!ccmpVehicle) return null;
-    return RockMod.instance.vehicles.findByID(ccmpVehicle.id) as CCMPVehicle | null;
+  public get vehicle(): VIMPVehicle | null {
+    const vimpVehicle = this._vimpPlayer.vehicle;
+    if (!vimpVehicle) return null;
+    return RockMod.instance.vehicles.findByID(vimpVehicle.id) as VIMPVehicle | null;
   }
 
   public get seat(): number {
-    return this._ccmpPlayer.seat;
+    return this._vimpPlayer.seat;
   }
 
   public get weapon(): number {
-    return this._ccmpPlayer.currentWeapon;
+    return this._vimpPlayer.currentWeapon;
   }
 
   public get weaponAmmo(): number {
-    return this._ccmpPlayer.ammo;
+    return this._vimpPlayer.ammo;
   }
 
-  protected override get ccmpMeta(): CcmpPlayer {
-    return this._ccmpPlayer;
+  protected override get vimpMeta(): VimpPlayer {
+    return this._vimpPlayer;
   }
 
   public get eyeColor(): number {
-    return notImplemented("CCMPPlayer.eyeColor");
+    return notImplemented("VIMPPlayer.eyeColor");
   }
 
-  public get streamedPlayers(): CCMPPlayer[] {
-    return notImplemented("CCMPPlayer.streamedPlayers");
+  public get streamedPlayers(): VIMPPlayer[] {
+    return notImplemented("VIMPPlayer.streamedPlayers");
   }
 
-  public constructor(options: ICCMPPlayerOptions) {
+  public constructor(options: IVIMPPlayerOptions) {
     super();
-    this._ccmpPlayer = options.ccmpPlayer;
+    this._vimpPlayer = options.vimpPlayer;
   }
 
   public override destroy(): void {
-    notImplemented("CCMPPlayer.destroy");
+    notImplemented("VIMPPlayer.destroy");
   }
 
   public override setPosition(value: IVector3D): void {
-    this._ccmpPlayer.teleport(value.x, value.y, value.z);
+    this._vimpPlayer.teleport(value.x, value.y, value.z);
   }
 
   public override setDimension(value: number): void {
-    this._ccmpPlayer.dimension = value;
+    this._vimpPlayer.dimension = value;
   }
 
   public override setModel(value: string): void {
-    // CCMP runtime accepts a string and JOAATs server-side via op_set_player_model.
-    this._ccmpPlayer.model = value as unknown as number;
+    // VIMP runtime accepts a string and JOAATs server-side via op_set_player_model.
+    this._vimpPlayer.model = value as unknown as number;
   }
 
   public override setRotation(value: IVector3D): void {
-    this._ccmpPlayer.heading = value.z;
+    this._vimpPlayer.heading = value.z;
   }
 
   public emitEvent<K extends keyof IServerToClientEvents>(
@@ -153,57 +153,57 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
   }
 
   public spawn(_position: Vector3D): void {
-    notImplemented("CCMPPlayer.spawn");
+    notImplemented("VIMPPlayer.spawn");
   }
 
   public setName(name: string): void {
-    this._ccmpPlayer.name = name;
+    this._vimpPlayer.name = name;
   }
 
   public setHeading(value: number): void {
-    this._ccmpPlayer.heading = value;
+    this._vimpPlayer.heading = value;
   }
 
   public setHealth(value: number): void {
-    this._ccmpPlayer.health = MathClamp(value, 0, 100);
+    this._vimpPlayer.health = MathClamp(value, 0, 100);
   }
 
   public setArmour(value: number): void {
-    this._ccmpPlayer.armour = MathClamp(value, 0, 100);
+    this._vimpPlayer.armour = MathClamp(value, 0, 100);
   }
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
-    this._ccmpPlayer.setWeaponAmmo(RockMod.instance.utils.hash(weapon), ammo);
+    this._vimpPlayer.setWeaponAmmo(RockMod.instance.utils.hash(weapon), ammo);
   }
 
   public giveWeapon(weapon: string, ammo: number): void {
-    this._ccmpPlayer.giveWeapon(RockMod.instance.utils.hash(weapon), ammo);
+    this._vimpPlayer.giveWeapon(RockMod.instance.utils.hash(weapon), ammo);
   }
 
   public removeWeapon(weapon: string): void {
-    this._ccmpPlayer.removeWeapon(RockMod.instance.utils.hash(weapon));
+    this._vimpPlayer.removeWeapon(RockMod.instance.utils.hash(weapon));
   }
 
-  public enableVoiceTo(_player: CCMPPlayer): void {
-    // CCMP routes proximity voice to the speaker's streaming observers
+  public enableVoiceTo(_player: VIMPPlayer): void {
+    // VIMP routes proximity voice to the speaker's streaming observers
     // automatically. There is no per-listener allow-list to update here.
   }
 
-  public disableVoiceTo(_player: CCMPPlayer): void {
-    // CCMP removes observers from proximity voice routing automatically when
+  public disableVoiceTo(_player: VIMPPlayer): void {
+    // VIMP removes observers from proximity voice routing automatically when
     // they leave the speaker's streaming range.
   }
 
-  public putIntoVehicle(vehicle: CCMPVehicle, seat?: number): void {
-    this._ccmpPlayer.putIntoVehicle(vehicle.id, seat);
+  public putIntoVehicle(vehicle: VIMPVehicle, seat?: number): void {
+    this._vimpPlayer.putIntoVehicle(vehicle.id, seat);
   }
 
   public ejectFromVehicle(): void {
-    this._ccmpPlayer.removeFromVehicle();
+    this._vimpPlayer.removeFromVehicle();
   }
 
   public setCustomization(_data: ICustomization): void {
-    notImplemented("CCMPPlayer.setCustomization");
+    notImplemented("VIMPPlayer.setCustomization");
   }
 
   public setHeadOverlay(
@@ -213,38 +213,38 @@ export class CCMPPlayer extends CCMPEntity implements IPlayer {
     _firstColor: number,
     _secondColor: number,
   ): void {
-    notImplemented("CCMPPlayer.setHeadOverlay");
+    notImplemented("VIMPPlayer.setHeadOverlay");
   }
 
   public setEyeColor(_colorID: number): void {
-    notImplemented("CCMPPlayer.setEyeColor");
+    notImplemented("VIMPPlayer.setEyeColor");
   }
 
   public setProp(_propID: number, _drawableID: number, _textureID: number): void {
-    notImplemented("CCMPPlayer.setProp");
+    notImplemented("VIMPPlayer.setProp");
   }
 
   public setClothes(_componentID: number, _drawableID: number, _textureID: number, _paletteID: number): void {
-    notImplemented("CCMPPlayer.setClothes");
+    notImplemented("VIMPPlayer.setClothes");
   }
 
   public setHairColor(_colorID: number, _highlightColorID: number): void {
-    notImplemented("CCMPPlayer.setHairColor");
+    notImplemented("VIMPPlayer.setHairColor");
   }
 
   public kick(reason?: string): void {
-    this._ccmpPlayer.kick(reason ?? "");
+    this._vimpPlayer.kick(reason ?? "");
   }
 
   public playAnimation(dictionary: string, name: string, speed: number, flag: number): void {
-    this._ccmpPlayer.playAnimation(dictionary, name, speed, flag);
+    this._vimpPlayer.playAnimation(dictionary, name, speed, flag);
   }
 
   public stopAnimation(): void {
-    this._ccmpPlayer.stopAnimation();
+    this._vimpPlayer.stopAnimation();
   }
 
   public removeFromVehicle(): void {
-    this._ccmpPlayer.removeFromVehicle();
+    this._vimpPlayer.removeFromVehicle();
   }
 }

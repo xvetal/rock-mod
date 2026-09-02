@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { type Colshape as CcmpColshape } from "@classic-mp/types/client";
+import { type Colshape as VimpColshape } from "@vimp-mp/types/client";
 import { BaseObjectType } from "@shared/entities";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 import { type IColshape } from "../../common/colshape/IColshape";
 
 const notImplemented = (memberName: string): never => {
-  throw new Error(`CCMPColshape.${memberName}: not implemented`);
+  throw new Error(`VIMPColshape.${memberName}: not implemented`);
 };
 
-export class CCMPColshape implements IColshape {
+export class VIMPColshape implements IColshape {
   private _destroyed = false;
 
   public constructor(
-    private readonly _ccmpColshape: CcmpColshape,
-    private readonly _onDestroy: (colshape: CCMPColshape) => void = () => {},
+    private readonly _vimpColshape: VimpColshape,
+    private readonly _onDestroy: (colshape: VIMPColshape) => void = () => {},
   ) {}
 
   public get id(): number {
-    return this._ccmpColshape.id;
+    return this._vimpColshape.id;
   }
 
   public get remoteId(): number | null {
-    return this._ccmpColshape.remoteId;
+    return this._vimpColshape.remoteId;
   }
 
   public get type(): BaseObjectType {
@@ -29,7 +29,7 @@ export class CCMPColshape implements IColshape {
   }
 
   public get isExists(): boolean {
-    return !this._destroyed && this._ccmpColshape.isExists;
+    return !this._destroyed && this._vimpColshape.isExists;
   }
 
   public get handle(): number {
@@ -39,21 +39,21 @@ export class CCMPColshape implements IColshape {
   public destroy(): void {
     if (this._destroyed) return;
     this._destroyed = true;
-    this._ccmpColshape.destroy();
+    this._vimpColshape.destroy();
     this._onDestroy(this);
   }
 
   public get position(): Vector3D {
-    const { x, y, z } = this._ccmpColshape.position;
+    const { x, y, z } = this._vimpColshape.position;
     return new Vector3D(x, y, z);
   }
 
   public get dimension(): number {
-    return this._ccmpColshape.dimension;
+    return this._vimpColshape.dimension;
   }
 
   public get key(): string | undefined {
-    return this._ccmpColshape.key;
+    return this._vimpColshape.key;
   }
 
   public setPosition(_value: IVector3D): void {
@@ -82,7 +82,7 @@ export class CCMPColshape implements IColshape {
       return null;
     }
 
-    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Colshape, remoteId, name);
+    const value = vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Colshape, remoteId, name);
     return value === undefined ? null : value;
   }
 
@@ -92,7 +92,7 @@ export class CCMPColshape implements IColshape {
       return undefined;
     }
 
-    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Colshape, remoteId, key);
+    return vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Colshape, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
@@ -101,7 +101,7 @@ export class CCMPColshape implements IColshape {
       return false;
     }
 
-    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Colshape, remoteId, key);
+    return vimp.entities.hasStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Colshape, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
@@ -110,6 +110,6 @@ export class CCMPColshape implements IColshape {
       return [];
     }
 
-    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Colshape, remoteId);
+    return vimp.entities.getStreamSyncedMetaKeys(vimp.entities.ENTITY_TYPE.Colshape, remoteId);
   }
 }

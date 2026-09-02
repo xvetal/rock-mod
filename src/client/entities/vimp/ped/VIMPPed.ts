@@ -1,23 +1,23 @@
 import { BaseObjectType } from "@shared/entities";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
-import { type Ped as CcmpPed } from "@classic-mp/types/client";
+import { type Ped as VimpPed } from "@vimp-mp/types/client";
 import { type IBaseObject } from "../../common/baseObject/IBaseObject";
 import { type IPed } from "../../common/ped/IPed";
 
-export class CCMPPed implements IPed {
+export class VIMPPed implements IPed {
   private _destroyed = false;
 
   public constructor(
-    private readonly _ccmpPed: CcmpPed,
-    private readonly _onDestroy: (ped: CCMPPed) => void = () => {},
+    private readonly _vimpPed: VimpPed,
+    private readonly _onDestroy: (ped: VIMPPed) => void = () => {},
   ) {}
 
   public get id(): number {
-    return this._ccmpPed.id;
+    return this._vimpPed.id;
   }
 
   public get remoteId(): number | null {
-    return this._ccmpPed.remoteId;
+    return this._vimpPed.remoteId;
   }
 
   public get type(): BaseObjectType {
@@ -25,11 +25,11 @@ export class CCMPPed implements IPed {
   }
 
   public get isExists(): boolean {
-    return !this._destroyed && this._ccmpPed.isAlive;
+    return !this._destroyed && this._vimpPed.isAlive;
   }
 
   public get handle(): number {
-    return this._ccmpPed.handle;
+    return this._vimpPed.handle;
   }
 
   public destroy(): void {
@@ -38,25 +38,25 @@ export class CCMPPed implements IPed {
     }
 
     this._destroyed = true;
-    this._ccmpPed.destroy();
+    this._vimpPed.destroy();
     this._onDestroy(this);
   }
 
   public get position(): Vector3D {
-    const { x, y, z } = this._ccmpPed.position;
+    const { x, y, z } = this._vimpPed.position;
     return new Vector3D(x, y, z);
   }
 
   public get dimension(): number {
-    return this._ccmpPed.dimension;
+    return this._vimpPed.dimension;
   }
 
   public setPosition(value: IVector3D): void {
-    this._ccmpPed.setPosition(value);
+    this._vimpPed.setPosition(value);
   }
 
   public setDimension(value: number): void {
-    this._ccmpPed.setDimension(value);
+    this._vimpPed.setDimension(value);
   }
 
   public setCoords(
@@ -68,77 +68,77 @@ export class CCMPPed implements IPed {
     zAxis: boolean,
     clearArea: boolean,
   ): void {
-    this._ccmpPed.setCoords(xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
+    this._vimpPed.setCoords(xPos, yPos, zPos, xAxis, yAxis, zAxis, clearArea);
   }
 
   public get model(): number {
-    return this._ccmpPed.model;
+    return this._vimpPed.model;
   }
 
   public get heading(): number {
-    return this._ccmpPed.heading;
+    return this._vimpPed.heading;
   }
 
   public setHeading(heading: number): void {
-    this._ccmpPed.setHeading(heading);
+    this._vimpPed.setHeading(heading);
   }
 
   public setModel(value: string): void {
-    this._ccmpPed.setModel(value);
+    this._vimpPed.setModel(value);
   }
 
   public get rotation(): Vector3D {
-    return new Vector3D(0, 0, this._ccmpPed.heading);
+    return new Vector3D(0, 0, this._vimpPed.heading);
   }
 
   public setRotation(value: IVector3D): void {
-    this._ccmpPed.setRotation(value);
+    this._vimpPed.setRotation(value);
   }
 
   public get forwardVector(): Vector3D {
-    const { x, y, z } = this._ccmpPed.forwardVector;
+    const { x, y, z } = this._vimpPed.forwardVector;
     return new Vector3D(x, y, z);
   }
 
   public freezePosition(freeze: boolean): void {
-    this._ccmpPed.freezePosition(freeze);
+    this._vimpPed.freezePosition(freeze);
   }
 
   public setCollision(collision: boolean, keepPhysics: boolean): void {
-    this._ccmpPed.setCollision(collision, keepPhysics);
+    this._vimpPed.setCollision(collision, keepPhysics);
   }
 
   public setInvincible(invincible: boolean): void {
-    this._ccmpPed.setInvincible(invincible);
+    this._vimpPed.setInvincible(invincible);
   }
 
   public setVisible(visible: boolean): void {
-    this._ccmpPed.setVisible(visible);
+    this._vimpPed.setVisible(visible);
   }
 
   public setAlpha(alpha: number): void {
-    this._ccmpPed.setAlpha(alpha);
+    this._vimpPed.setAlpha(alpha);
   }
 
   public get alpha(): number {
-    return this._ccmpPed.alpha;
+    return this._vimpPed.alpha;
   }
 
   public resetAlpha(): void {
-    this._ccmpPed.resetAlpha();
+    this._vimpPed.resetAlpha();
   }
 
   public getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
-    const { x, y, z } = this._ccmpPed.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
+    const { x, y, z } = this._vimpPed.getOffsetFromInWorldCoords(offsetX, offsetY, offsetZ);
     return new Vector3D(x, y, z);
   }
 
   public getBoneIndexByName(boneName: string): number {
-    return this._ccmpPed.getBoneIndexByName(boneName);
+    return this._vimpPed.getBoneIndexByName(boneName);
   }
 
   public getWorldPositionOfBone(boneIndex: number): IVector3D {
-    const { x, y, z } = this._ccmpPed.getWorldPositionOfBone(boneIndex);
+    const { x, y, z } = this._vimpPed.getWorldPositionOfBone(boneIndex);
     return new Vector3D(x, y, z);
   }
 
@@ -148,7 +148,7 @@ export class CCMPPed implements IPed {
       return null;
     }
 
-    const value = ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Ped, remoteId, name);
+    const value = vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Ped, remoteId, name);
     return value === undefined ? null : value;
   }
 
@@ -158,7 +158,7 @@ export class CCMPPed implements IPed {
       return undefined;
     }
 
-    return ccmp.entities.getStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Ped, remoteId, key);
+    return vimp.entities.getStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Ped, remoteId, key);
   }
 
   public hasSyncedMeta(key: string): boolean {
@@ -167,7 +167,7 @@ export class CCMPPed implements IPed {
       return false;
     }
 
-    return ccmp.entities.hasStreamSyncedMeta(ccmp.entities.ENTITY_TYPE.Ped, remoteId, key);
+    return vimp.entities.hasStreamSyncedMeta(vimp.entities.ENTITY_TYPE.Ped, remoteId, key);
   }
 
   public getSyncedMetaKeys(): readonly string[] {
@@ -176,7 +176,7 @@ export class CCMPPed implements IPed {
       return [];
     }
 
-    return ccmp.entities.getStreamSyncedMetaKeys(ccmp.entities.ENTITY_TYPE.Ped, remoteId);
+    return vimp.entities.getStreamSyncedMetaKeys(vimp.entities.ENTITY_TYPE.Ped, remoteId);
   }
 
   public attachToEntity(
@@ -191,7 +191,7 @@ export class CCMPPed implements IPed {
     vertexIndex: number,
     fixedRot: boolean,
   ): void {
-    this._ccmpPed.attachToEntity(
+    this._vimpPed.attachToEntity(
       target,
       boneIndex,
       offset,
@@ -206,27 +206,27 @@ export class CCMPPed implements IPed {
   }
 
   public detach(useDetachVelocity: boolean, collision: boolean): void {
-    this._ccmpPed.detach(useDetachVelocity, collision);
+    this._vimpPed.detach(useDetachVelocity, collision);
   }
 
   public getSpeed(): number {
-    return this._ccmpPed.getSpeed();
+    return this._vimpPed.getSpeed();
   }
 
   public isPlayingAnim(dictionary: string, name: string, taskFlag: number): boolean {
-    return this._ccmpPed.isPlayingAnim(dictionary, name, taskFlag);
+    return this._vimpPed.isPlayingAnim(dictionary, name, taskFlag);
   }
 
   public setDecoration(collection: string, overlay: string): void {
-    this._ccmpPed.setDecoration(collection, overlay);
+    this._vimpPed.setDecoration(collection, overlay);
   }
 
   public removeDecoration(collection: string, overlay: string): void {
-    this._ccmpPed.removeDecoration(collection, overlay);
+    this._vimpPed.removeDecoration(collection, overlay);
   }
 
   public clearDecorations(): void {
-    this._ccmpPed.clearDecorations();
+    this._vimpPed.clearDecorations();
   }
 
   public setHeadBlendData(
@@ -241,7 +241,7 @@ export class CCMPPed implements IPed {
     thirdMix: number,
     isParent: boolean,
   ): void {
-    this._ccmpPed.setHeadBlendData(
+    this._vimpPed.setHeadBlendData(
       shapeFirstId,
       shapeSecondId,
       shapeThirdId,
@@ -256,44 +256,44 @@ export class CCMPPed implements IPed {
   }
 
   public setFaceFeature(index: number, value: number): void {
-    this._ccmpPed.setFaceFeature(index, value);
+    this._vimpPed.setFaceFeature(index, value);
   }
 
   public setHeadOverlay(overlayId: number, index: number, opacity: number): void {
-    this._ccmpPed.setHeadOverlay(overlayId, index, opacity);
+    this._vimpPed.setHeadOverlay(overlayId, index, opacity);
   }
 
   public setHeadOverlayColor(overlayId: number, colorTypeId: number, firstColor: number, secondColor: number): void {
-    this._ccmpPed.setHeadOverlayColor(overlayId, colorTypeId, firstColor, secondColor);
+    this._vimpPed.setHeadOverlayColor(overlayId, colorTypeId, firstColor, secondColor);
   }
 
   public setEyeColor(eyeColor: number): void {
-    this._ccmpPed.setEyeColor(eyeColor);
+    this._vimpPed.setEyeColor(eyeColor);
   }
 
   public setHairColor(colorId: number, highlightColorId: number): void {
-    this._ccmpPed.setHairColor(colorId, highlightColorId);
+    this._vimpPed.setHairColor(colorId, highlightColorId);
   }
 
   public setComponentVariation(componentId: number, drawableId: number, textureId: number, paletteId: number): void {
-    this._ccmpPed.setComponentVariation(componentId, drawableId, textureId, paletteId);
+    this._vimpPed.setComponentVariation(componentId, drawableId, textureId, paletteId);
   }
 
   public setPropertyVariation(componentId: number, drawableId: number, textureId: number, attach: boolean): void {
-    this._ccmpPed.setPropertyVariation(componentId, drawableId, textureId, attach);
+    this._vimpPed.setPropertyVariation(componentId, drawableId, textureId, attach);
   }
 
   public clearProp(componentId: number): void {
-    this._ccmpPed.clearProp(componentId);
+    this._vimpPed.clearProp(componentId);
   }
 
   public getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D {
-    const { x, y, z } = this._ccmpPed.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
+    const { x, y, z } = this._vimpPed.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
     return new Vector3D(x, y, z);
   }
 
   public clearTasks(): void {
-    this._ccmpPed.clearTasks();
+    this._vimpPed.clearTasks();
   }
 
   public taskPlayAnim(
@@ -305,7 +305,7 @@ export class CCMPPed implements IPed {
     flag: number,
     playbackRate: number,
   ): void {
-    this._ccmpPed.taskPlayAnim(dictionary, name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate);
+    this._vimpPed.taskPlayAnim(dictionary, name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate);
   }
 
   public taskGoToCoordAnyMeans(
@@ -316,14 +316,14 @@ export class CCMPPed implements IPed {
     walkingStyle?: number,
     drivingFlags?: number,
   ): void {
-    this._ccmpPed.taskGoToCoordAnyMeans(x, y, z, speed, walkingStyle, drivingFlags);
+    this._vimpPed.taskGoToCoordAnyMeans(x, y, z, speed, walkingStyle, drivingFlags);
   }
 
   public stopAnim(dictionary: string, name: string, blendOutSpeed: number): void {
-    this._ccmpPed.stopAnim(dictionary, name, blendOutSpeed);
+    this._vimpPed.stopAnim(dictionary, name, blendOutSpeed);
   }
 
   public setBlockingOfNonTemporaryEvents(blocking: boolean): void {
-    this._ccmpPed.setBlockingOfNonTemporaryEvents(blocking);
+    this._vimpPed.setBlockingOfNonTemporaryEvents(blocking);
   }
 }

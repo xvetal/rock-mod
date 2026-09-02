@@ -1,18 +1,18 @@
 import { type IPedCreateOptions, type IPedsManager } from "../../common/ped/IPedsManager";
-import type { PedExtras } from "@classic-mp/types/server";
-import { CCMPEntitiesManager } from "../entity/VIMPEntitiesManager";
-import { CCMPPed } from "./VIMPPed";
+import type { PedExtras } from "@vimp-mp/types/server";
+import { VIMPEntitiesManager } from "../entity/VIMPEntitiesManager";
+import { VIMPPed } from "./VIMPPed";
 
-export interface ICCMPPedCreateOptions extends IPedCreateOptions {}
+export interface IVIMPPedCreateOptions extends IPedCreateOptions {}
 
-export class CCMPPedsManager extends CCMPEntitiesManager<CCMPPed> implements IPedsManager {
+export class VIMPPedsManager extends VIMPEntitiesManager<VIMPPed> implements IPedsManager {
   public constructor() {
     super({
       baseObjectsType: "ped",
     });
   }
 
-  public create(options: ICCMPPedCreateOptions): CCMPPed {
+  public create(options: IVIMPPedCreateOptions): VIMPPed {
     const { model, frozen, invincible = false, placeOnGround, position, rotation, dimension } = options;
 
     const extras: PedExtras = {
@@ -24,13 +24,13 @@ export class CCMPPedsManager extends CCMPEntitiesManager<CCMPPed> implements IPe
       extras.placeOnGround = placeOnGround;
     }
 
-    const ccmpPed = ccmp.peds.create(ccmp.hash(model), position.x, position.y, position.z, rotation.z, extras);
-    if (!ccmpPed) {
-      throw new Error("CCMPPedsManager.create: ccmp.peds.create failed (server full?)");
+    const vimpPed = vimp.peds.create(vimp.hash(model), position.x, position.y, position.z, rotation.z, extras);
+    if (!vimpPed) {
+      throw new Error("VIMPPedsManager.create: vimp.peds.create failed (server full?)");
     }
 
-    const ped = new CCMPPed({
-      ccmpPed,
+    const ped = new VIMPPed({
+      vimpPed,
       onDestroy: (p): void => this.unregisterBaseObject(p),
     });
     this.registerBaseObject(ped);

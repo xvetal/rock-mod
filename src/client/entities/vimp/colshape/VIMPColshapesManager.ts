@@ -1,5 +1,5 @@
-import { type Colshape as CcmpColshape } from "@classic-mp/types/client";
-import { type CCMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
+import { type Colshape as VimpColshape } from "@vimp-mp/types/client";
+import { type VIMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
 import {
@@ -11,94 +11,94 @@ import {
   type ISphereColshapeCreateOptions,
 } from "../../common/colshape/IColshapesManager";
 import { type IWorldObjectsIterator } from "../../common/worldObject/IWorldObjectsIterator";
-import { CCMPColshape } from "./VIMPColshape";
+import { VIMPColshape } from "./VIMPColshape";
 
-export class CCMPColshapesManager implements IColshapesManager {
-  private readonly _colshapes = new Map<number, CCMPColshape>();
+export class VIMPColshapesManager implements IColshapesManager {
+  private readonly _colshapes = new Map<number, VIMPColshape>();
 
-  private readonly _colshapesByRemoteId = new Map<number, CCMPColshape>();
+  private readonly _colshapesByRemoteId = new Map<number, VIMPColshape>();
 
-  private readonly _iterator: IWorldObjectsIterator<CCMPColshape> = {
-    all: (): IterableIterator<CCMPColshape> => this._filter(() => true),
-    dimension: (value: number): IterableIterator<CCMPColshape> =>
+  private readonly _iterator: IWorldObjectsIterator<VIMPColshape> = {
+    all: (): IterableIterator<VIMPColshape> => this._filter(() => true),
+    dimension: (value: number): IterableIterator<VIMPColshape> =>
       this._filter((colshape) => colshape.dimension === value),
-    range2D: (center: Vector2D, range: number): IterableIterator<CCMPColshape> =>
+    range2D: (center: Vector2D, range: number): IterableIterator<VIMPColshape> =>
       this._filter((colshape) => {
         const position = colshape.position;
         const squaredDistance = (position.x - center.x) ** 2 + (position.y - center.y) ** 2;
         return squaredDistance <= range * range;
       }),
-    range3D: (center: Vector3D, range: number): IterableIterator<CCMPColshape> =>
+    range3D: (center: Vector3D, range: number): IterableIterator<VIMPColshape> =>
       this._filter((colshape) => colshape.position.isInRange(center, range)),
   };
 
-  public constructor(private readonly _events: CCMPEventsManager) {
+  public constructor(private readonly _events: VIMPEventsManager) {
     this._registerLifecycleEvents();
     this.syncWithMpPool();
   }
 
-  public createCircle(options: ICircleColshapeCreateOptions): CCMPColshape {
-    const ccmpColshape = ccmp.colshapes.createCircle(options.position, options.range, {
+  public createCircle(options: ICircleColshapeCreateOptions): VIMPColshape {
+    const vimpColshape = vimp.colshapes.createCircle(options.position, options.range, {
       dimension: options.dimension,
     });
-    return this._register(ccmpColshape);
+    return this._register(vimpColshape);
   }
 
-  public createCuboid(options: ICuboidColshapeCreateOptions): CCMPColshape {
-    const ccmpColshape = ccmp.colshapes.createCuboid(
+  public createCuboid(options: ICuboidColshapeCreateOptions): VIMPColshape {
+    const vimpColshape = vimp.colshapes.createCuboid(
       options.position,
       { x: options.width, y: options.depth, z: options.height },
       { dimension: options.dimension },
     );
-    return this._register(ccmpColshape);
+    return this._register(vimpColshape);
   }
 
-  public createCylinder(options: ICylinderColshapeCreateOptions): CCMPColshape {
-    const ccmpColshape = ccmp.colshapes.createCylinder(options.position, options.range, options.height, {
+  public createCylinder(options: ICylinderColshapeCreateOptions): VIMPColshape {
+    const vimpColshape = vimp.colshapes.createCylinder(options.position, options.range, options.height, {
       dimension: options.dimension,
     });
-    return this._register(ccmpColshape);
+    return this._register(vimpColshape);
   }
 
-  public createRectangle(options: IRectangleColshapeCreateOptions): CCMPColshape {
+  public createRectangle(options: IRectangleColshapeCreateOptions): VIMPColshape {
     void options;
-    throw new Error("CCMPColshapesManager.createRectangle: not supported by CCMP");
+    throw new Error("VIMPColshapesManager.createRectangle: not supported by VIMP");
   }
 
-  public createSphere(options: ISphereColshapeCreateOptions): CCMPColshape {
-    const ccmpColshape = ccmp.colshapes.createSphere(options.position, options.range, {
+  public createSphere(options: ISphereColshapeCreateOptions): VIMPColshape {
+    const vimpColshape = vimp.colshapes.createSphere(options.position, options.range, {
       dimension: options.dimension,
     });
-    return this._register(ccmpColshape);
+    return this._register(vimpColshape);
   }
 
   public syncWithMpPool(): void {
     this._pruneDestroyed();
 
-    for (const ccmpColshape of ccmp.colshapes.all) {
-      this._register(ccmpColshape);
+    for (const vimpColshape of vimp.colshapes.all) {
+      this._register(vimpColshape);
     }
   }
 
-  public registerById(id: number): CCMPColshape {
+  public registerById(id: number): VIMPColshape {
     const existingColshape = this.findByID(id);
     if (existingColshape) {
       return existingColshape;
     }
 
-    const ccmpColshape = ccmp.colshapes.getById(id);
-    if (!ccmpColshape) {
-      throw new Error(`CCMPColshapesManager.registerById(${id}): colshape not found.`);
+    const vimpColshape = vimp.colshapes.getById(id);
+    if (!vimpColshape) {
+      throw new Error(`VIMPColshapesManager.registerById(${id}): colshape not found.`);
     }
 
-    return this._register(ccmpColshape);
+    return this._register(vimpColshape);
   }
 
-  public unregisterById(id: number): CCMPColshape {
+  public unregisterById(id: number): VIMPColshape {
     return this.deleteById(id);
   }
 
-  public findByID(id: number): CCMPColshape | null {
+  public findByID(id: number): VIMPColshape | null {
     const colshape = this._colshapes.get(id) ?? null;
     if (colshape && !colshape.isExists) {
       this._unregister(colshape);
@@ -106,23 +106,23 @@ export class CCMPColshapesManager implements IColshapesManager {
       return colshape;
     }
 
-    const ccmpColshape = ccmp.colshapes.getById(id);
-    if (!ccmpColshape) {
+    const vimpColshape = vimp.colshapes.getById(id);
+    if (!vimpColshape) {
       return null;
     }
 
-    return this._register(ccmpColshape);
+    return this._register(vimpColshape);
   }
 
-  public getByID(id: number): CCMPColshape {
+  public getByID(id: number): VIMPColshape {
     const colshape = this.findByID(id);
     if (!colshape) {
-      throw new Error(`CCMPColshapesManager.getByID(${id}): colshape not found.`);
+      throw new Error(`VIMPColshapesManager.getByID(${id}): colshape not found.`);
     }
     return colshape;
   }
 
-  public findByRemoteID(remoteId: number): CCMPColshape | null {
+  public findByRemoteID(remoteId: number): VIMPColshape | null {
     const colshape = this._colshapesByRemoteId.get(remoteId) ?? null;
     if (colshape && !colshape.isExists) {
       this._unregister(colshape);
@@ -130,34 +130,34 @@ export class CCMPColshapesManager implements IColshapesManager {
       return colshape;
     }
 
-    const ccmpColshape = ccmp.colshapes.getByRemoteId(remoteId);
-    if (!ccmpColshape) {
+    const vimpColshape = vimp.colshapes.getByRemoteId(remoteId);
+    if (!vimpColshape) {
       return null;
     }
 
-    return this._register(ccmpColshape);
+    return this._register(vimpColshape);
   }
 
-  public getByRemoteID(remoteId: number): CCMPColshape {
+  public getByRemoteID(remoteId: number): VIMPColshape {
     const colshape = this.findByRemoteID(remoteId);
     if (!colshape) {
-      throw new Error(`CCMPColshapesManager.getByRemoteID(${remoteId}): colshape not found.`);
+      throw new Error(`VIMPColshapesManager.getByRemoteID(${remoteId}): colshape not found.`);
     }
     return colshape;
   }
 
-  public deleteById(id: number): CCMPColshape {
+  public deleteById(id: number): VIMPColshape {
     const colshape = this.getByID(id);
     colshape.destroy();
     return colshape;
   }
 
-  public get iterator(): IWorldObjectsIterator<CCMPColshape> {
+  public get iterator(): IWorldObjectsIterator<VIMPColshape> {
     return this._iterator;
   }
 
-  private _register(ccmpColshape: CcmpColshape): CCMPColshape {
-    const existingColshape = this._findRegistered(ccmpColshape);
+  private _register(vimpColshape: VimpColshape): VIMPColshape {
+    const existingColshape = this._findRegistered(vimpColshape);
     if (existingColshape && existingColshape.isExists) {
       return existingColshape;
     }
@@ -165,7 +165,7 @@ export class CCMPColshapesManager implements IColshapesManager {
       this._unregister(existingColshape);
     }
 
-    const colshape = new CCMPColshape(ccmpColshape, (destroyedColshape) => {
+    const colshape = new VIMPColshape(vimpColshape, (destroyedColshape) => {
       this._unregister(destroyedColshape);
     });
     this._colshapes.set(colshape.id, colshape);
@@ -175,49 +175,49 @@ export class CCMPColshapesManager implements IColshapesManager {
     return colshape;
   }
 
-  private _unregister(colshape: CCMPColshape): void {
+  private _unregister(colshape: VIMPColshape): void {
     this._colshapes.delete(colshape.id);
     if (colshape.remoteId !== null) {
       this._colshapesByRemoteId.delete(colshape.remoteId);
     }
   }
 
-  private _findRegistered(ccmpColshape: CcmpColshape): CCMPColshape | null {
+  private _findRegistered(vimpColshape: VimpColshape): VIMPColshape | null {
     return (
-      (ccmpColshape.remoteId === null ? null : (this._colshapesByRemoteId.get(ccmpColshape.remoteId) ?? null)) ??
-      this._colshapes.get(ccmpColshape.id) ??
+      (vimpColshape.remoteId === null ? null : (this._colshapesByRemoteId.get(vimpColshape.remoteId) ?? null)) ??
+      this._colshapes.get(vimpColshape.id) ??
       null
     );
   }
 
   private _registerLifecycleEvents(): void {
-    ccmp.on("colshapeCreated", (ccmpColshape: CcmpColshape | null) => {
-      if (!ccmpColshape) return;
-      const colshape = this._register(ccmpColshape);
+    vimp.on("colshapeCreated", (vimpColshape: VimpColshape | null) => {
+      if (!vimpColshape) return;
+      const colshape = this._register(vimpColshape);
       this._events.emitInternal(ClientInternalEventName.EntityCreated, colshape);
     });
 
-    ccmp.on("colshapeDestroyed", (ccmpColshape: CcmpColshape | null) => {
-      if (!ccmpColshape) return;
-      const colshape = this._findRegistered(ccmpColshape) ?? this._register(ccmpColshape);
+    vimp.on("colshapeDestroyed", (vimpColshape: VimpColshape | null) => {
+      if (!vimpColshape) return;
+      const colshape = this._findRegistered(vimpColshape) ?? this._register(vimpColshape);
       this._events.emitInternal(ClientInternalEventName.EntityDestroyed, colshape);
       this._unregister(colshape);
     });
 
-    ccmp.on("colshapeStreamIn", (ccmpColshape: CcmpColshape | null) => {
-      if (!ccmpColshape) return;
-      const colshape = this._register(ccmpColshape);
+    vimp.on("colshapeStreamIn", (vimpColshape: VimpColshape | null) => {
+      if (!vimpColshape) return;
+      const colshape = this._register(vimpColshape);
       this._events.emitInternal(ClientInternalEventName.EntityStreamIn, colshape);
     });
 
-    ccmp.on("colshapeStreamOut", (ccmpColshape: CcmpColshape | null) => {
-      if (!ccmpColshape) return;
-      const colshape = this._findRegistered(ccmpColshape) ?? this._register(ccmpColshape);
+    vimp.on("colshapeStreamOut", (vimpColshape: VimpColshape | null) => {
+      if (!vimpColshape) return;
+      const colshape = this._findRegistered(vimpColshape) ?? this._register(vimpColshape);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, colshape);
     });
   }
 
-  private *_filter(predicate: (colshape: CCMPColshape) => boolean): IterableIterator<CCMPColshape> {
+  private *_filter(predicate: (colshape: VIMPColshape) => boolean): IterableIterator<VIMPColshape> {
     for (const colshape of this._colshapes.values()) {
       if (!colshape.isExists) {
         this._unregister(colshape);

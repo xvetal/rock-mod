@@ -1,4 +1,4 @@
-/// <reference types="@classic-mp/types/client" />
+/// <reference types="@vimp-mp/types/client" />
 
 import {
   type IGraphicsManager,
@@ -9,11 +9,11 @@ import {
 import { type IVector2D, type IVector3D, Vector2D } from "@shared/common/utils";
 
 /**
- * Реализация `IGraphicsManager` под CCMP.
+ * Реализация `IGraphicsManager` под VIMP.
  *
  * RageMP даёт высокоуровневые обёртки `mp.game.graphics.drawText` /
- * `world3dToScreen2d` / etc. У CCMP таких помощников нет — есть только
- * сырые GTA V натив-биндинги в `ccmp.natives.{hud,graphics}.*`. Этот класс
+ * `world3dToScreen2d` / etc. У VIMP таких помощников нет — есть только
+ * сырые GTA V натив-биндинги в `vimp.natives.{hud,graphics}.*`. Этот класс
  * собирает их в эквивалент RageMP API.
  *
  * ### `drawText` — мульти-нативная цепочка
@@ -52,7 +52,7 @@ import { type IVector2D, type IVector3D, Vector2D } from "@shared/common/utils";
  * это и есть GTA V натив для screen effect'ов (по-старому называвшийся
  * `START_SCREEN_EFFECT`).
  */
-export class CCMPGraphicsManager implements IGraphicsManager {
+export class VIMPGraphicsManager implements IGraphicsManager {
   public drawText(text: string, position: IVector2D, options?: IScreenTextOptions): void {
     const font = options?.font ?? 0;
     const [scaleX, scaleY] = options?.scale ?? [0.3, 0.3];
@@ -63,7 +63,7 @@ export class CCMPGraphicsManager implements IGraphicsManager {
     const outline = options?.outline ?? true;
     const centre = options?.centre ?? false;
 
-    ccmp.graphics.drawText(text, position.x, position.y, {
+    vimp.graphics.drawText(text, position.x, position.y, {
       font,
       scale: [scaleX, scaleY],
       color: [r, g, b, a],
@@ -73,7 +73,7 @@ export class CCMPGraphicsManager implements IGraphicsManager {
   }
 
   public world3dToScreen2d(position: IVector3D): IVector2D | null {
-    const result = ccmp.natives.graphics.getScreenCoordFromWorldCoord(position.x, position.y, position.z);
+    const result = vimp.natives.graphics.getScreenCoordFromWorldCoord(position.x, position.y, position.z);
     if (!result.return) {
       // Точка вне frustum'а — RageMP в таком случае возвращает `null`.
       return null;
@@ -82,19 +82,19 @@ export class CCMPGraphicsManager implements IGraphicsManager {
   }
 
   public startScreenEffect(effectName: string, duration: number, looped: boolean): void {
-    ccmp.natives.graphics.animpostfxPlay(effectName, duration, looped);
+    vimp.natives.graphics.animpostfxPlay(effectName, duration, looped);
   }
 
   public stopScreenEffect(effectName: string): void {
-    ccmp.natives.graphics.animpostfxStop(effectName);
+    vimp.natives.graphics.animpostfxStop(effectName);
   }
 
   public setPtfxAssetNextCall(assetName: string): void {
-    ccmp.natives.graphics.useParticleFxAsset(assetName);
+    vimp.natives.graphics.useParticleFxAsset(assetName);
   }
 
   public startParticleFxNonLoopedAtCoord(options: IParticleFxAtCoordOptions): boolean {
-    return ccmp.natives.graphics.startParticleFxNonLoopedAtCoord(
+    return vimp.natives.graphics.startParticleFxNonLoopedAtCoord(
       options.effectName,
       options.position.x,
       options.position.y,
@@ -110,7 +110,7 @@ export class CCMPGraphicsManager implements IGraphicsManager {
   }
 
   public startParticleFxLoopedAtCoord(options: ILoopedParticleFxAtCoordOptions): number {
-    return ccmp.natives.graphics.startParticleFxLoopedAtCoord(
+    return vimp.natives.graphics.startParticleFxLoopedAtCoord(
       options.effectName,
       options.position.x,
       options.position.y,
@@ -127,18 +127,18 @@ export class CCMPGraphicsManager implements IGraphicsManager {
   }
 
   public stopParticleFxLooped(handle: number, p1: boolean): void {
-    ccmp.natives.graphics.stopParticleFxLooped(handle, p1);
+    vimp.natives.graphics.stopParticleFxLooped(handle, p1);
   }
 
   public getSafeZoneSize(): number {
-    return ccmp.natives.graphics.getSafeZoneSize();
+    return vimp.natives.graphics.getSafeZoneSize();
   }
 
   public getActiveScreenResolution(): IVector2D {
     // `getActualScreenResolution` (0x873C9F3104101DD3) === RageMP'шный
     // `getActiveScreenResolution` — это один и тот же native под разными
     // именами в разных биндингах.
-    const result = ccmp.natives.graphics.getActualScreenResolution();
+    const result = vimp.natives.graphics.getActualScreenResolution();
     return new Vector2D(result.x, result.y);
   }
 }

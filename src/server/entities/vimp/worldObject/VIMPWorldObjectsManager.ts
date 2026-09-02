@@ -1,22 +1,22 @@
 import { type IWorldObjectsManager } from "../../common/worldObject/IWorldObjectsManager";
-import { type ICCMPBaseObjectsManagerOptions, CCMPBaseObjectsManager } from "../baseObject/VIMPBaseObjectsManager";
-import { type CCMPWorldObject } from "./VIMPWorldObject";
-import { CCMPWorldObjectsIterator } from "./VIMPWorldObjectsIterator";
+import { type IVIMPBaseObjectsManagerOptions, VIMPBaseObjectsManager } from "../baseObject/VIMPBaseObjectsManager";
+import { type VIMPWorldObject } from "./VIMPWorldObject";
+import { VIMPWorldObjectsIterator } from "./VIMPWorldObjectsIterator";
 
-export interface ICCMPWorldObjectsManagerOptions extends ICCMPBaseObjectsManagerOptions {}
+export interface IVIMPWorldObjectsManagerOptions extends IVIMPBaseObjectsManagerOptions {}
 
-export abstract class CCMPWorldObjectsManager<T extends CCMPWorldObject>
-  extends CCMPBaseObjectsManager<T>
+export abstract class VIMPWorldObjectsManager<T extends VIMPWorldObject>
+  extends VIMPBaseObjectsManager<T>
   implements IWorldObjectsManager<T>
 {
-  protected override readonly _iterator: CCMPWorldObjectsIterator<T>;
+  protected override readonly _iterator: VIMPWorldObjectsIterator<T>;
 
-  public override get iterator(): CCMPWorldObjectsIterator<T> {
+  public override get iterator(): VIMPWorldObjectsIterator<T> {
     return this._iterator;
   }
 
-  protected constructor(options: ICCMPWorldObjectsManagerOptions) {
+  protected constructor(options: IVIMPWorldObjectsManagerOptions) {
     super(options);
-    this._iterator = new CCMPWorldObjectsIterator(this.baseObjects);
+    this._iterator = new VIMPWorldObjectsIterator(this.baseObjects);
   }
 }

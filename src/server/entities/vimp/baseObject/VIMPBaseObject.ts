@@ -5,20 +5,20 @@ const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
-export abstract class CCMPBaseObject implements IBaseObject {
+export abstract class VIMPBaseObject implements IBaseObject {
   public get id(): number {
-    return notImplemented("CCMPBaseObject.id");
+    return notImplemented("VIMPBaseObject.id");
   }
 
   public get type(): BaseObjectType {
-    return notImplemented("CCMPBaseObject.type");
+    return notImplemented("VIMPBaseObject.type");
   }
 
   public get isExists(): boolean {
-    return notImplemented("CCMPBaseObject.isExists");
+    return notImplemented("VIMPBaseObject.isExists");
   }
 
   public destroy(): void {
-    notImplemented("CCMPBaseObject.destroy");
+    notImplemented("VIMPBaseObject.destroy");
   }
 }

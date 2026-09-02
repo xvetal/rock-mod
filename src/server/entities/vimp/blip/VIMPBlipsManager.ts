@@ -1,17 +1,17 @@
 import { type IBlipCreateOptions, type IBlipsManager } from "../../common/blip/IBlipsManager";
-import { CCMPWorldObjectsManager } from "../worldObject/VIMPWorldObjectsManager";
-import { CCMPBlip } from "./VIMPBlip";
+import { VIMPWorldObjectsManager } from "../worldObject/VIMPWorldObjectsManager";
+import { VIMPBlip } from "./VIMPBlip";
 
-export interface ICCMPBlipCreateOptions extends IBlipCreateOptions {}
+export interface IVIMPBlipCreateOptions extends IBlipCreateOptions {}
 
-export class CCMPBlipsManager extends CCMPWorldObjectsManager<CCMPBlip> implements IBlipsManager {
+export class VIMPBlipsManager extends VIMPWorldObjectsManager<VIMPBlip> implements IBlipsManager {
   public constructor() {
     super({
       baseObjectsType: "blip",
     });
   }
 
-  public create(options: ICCMPBlipCreateOptions): CCMPBlip {
+  public create(options: IVIMPBlipCreateOptions): VIMPBlip {
     const {
       position,
       dimension,
@@ -46,13 +46,13 @@ export class CCMPBlipsManager extends CCMPWorldObjectsManager<CCMPBlip> implemen
       createOptions.rotation = options.rotation;
     }
 
-    const ccmpBlip = ccmp.blips.create(sprite, position.x, position.y, position.z, color, scale, createOptions);
-    if (!ccmpBlip) {
-      throw new Error("CCMPBlipsManager.create: ccmp.blips.create failed (server full?)");
+    const vimpBlip = vimp.blips.create(sprite, position.x, position.y, position.z, color, scale, createOptions);
+    if (!vimpBlip) {
+      throw new Error("VIMPBlipsManager.create: vimp.blips.create failed (server full?)");
     }
 
-    const blip = new CCMPBlip({
-      ccmpBlip,
+    const blip = new VIMPBlip({
+      vimpBlip,
       onDestroy: (b): void => this.unregisterBaseObject(b),
     });
     this.registerBaseObject(blip);
