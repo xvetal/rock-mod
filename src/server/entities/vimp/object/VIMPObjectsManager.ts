@@ -1,4 +1,5 @@
 import { type IObjectCreateOptions, type IObjectsManager } from "../../common/object/IObjectsManager";
+import type { ObjectCreateOptions } from "@vimp-mp/types/server";
 import { VIMPEntitiesManager } from "../entity/VIMPEntitiesManager";
 import { VIMPObject, type IVIMPObjectNative } from "./VIMPObject";
 
@@ -12,7 +13,13 @@ export class VIMPObjectsManager extends VIMPEntitiesManager<VIMPObject> implemen
   }
 
   public create(options: IVIMPObjectCreateOptions): VIMPObject {
-    const { model, position, dimension, rotation, alpha } = options;
+    const { model, position, dimension, rotation, alpha, placeOnGround } = options;
+
+    const extras: ObjectCreateOptions = { dimension, alpha };
+    if (placeOnGround !== undefined) {
+      extras.placeOnGround = placeOnGround;
+    }
+
     const vimpObject = vimp.objects.create(
       vimp.hash(model),
       position.x,
@@ -21,7 +28,7 @@ export class VIMPObjectsManager extends VIMPEntitiesManager<VIMPObject> implemen
       rotation.x,
       rotation.y,
       rotation.z,
-      { dimension, alpha },
+      extras,
     ) as IVIMPObjectNative | null;
 
     if (!vimpObject) {
