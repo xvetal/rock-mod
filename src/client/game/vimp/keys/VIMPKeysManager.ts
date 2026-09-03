@@ -12,11 +12,12 @@ interface KeyBinding {
 /**
  * Реализация `IKeysManager` поверх нативных VIMP-событий `keyDown`/`keyUp`.
  *
- * Контрактные тонкости (зеркало RageMP `mp.keys.bind`):
- *  - `keyHold = false` → handler срабатывает на **нажатие** (`keyDown`).
- *  - `keyHold = true`  → handler срабатывает на **отпускание** (`keyUp`).
- *    Несмотря на название параметра, это НЕ "только когда зажато",
- *    это "при отпускании после нажатия". См. RageMP wiki.
+ * Contract (mirrors RageMP `mp.keys.bind`, see `KeysMp.bind` in the RageMP typings):
+ *  - `keyHold = true`  → the handler fires on **press** (`keyDown`).
+ *  - `keyHold = false` → the handler fires on **release** (`keyUp`).
+ *    Consumers bind `true` for press and `false` for release; that is what
+ *    RAGE does, and VIMP has to answer the same way, otherwise every
+ *    hold-to-act interaction starts on release and can never be cancelled.
  *
  * Архитектура:
  *  - Делаем **одну** глобальную подписку на `vimp.on('keyDown')` и одну
@@ -68,7 +69,7 @@ export class VIMPKeysManager implements IKeysManager {
       binding = { down: new Set(), up: new Set() };
       this._bindings.set(key, binding);
     }
-    (keyHold ? binding.up : binding.down).add(handler);
+    (keyHold ? binding.down : binding.up).add(handler);
   }
 
   public unbind(key: number, keyHold: boolean, handler?: KeyHandler): void {
@@ -77,7 +78,7 @@ export class VIMPKeysManager implements IKeysManager {
       return;
     }
 
-    const set = keyHold ? binding.up : binding.down;
+    const set = keyHold ? binding.down : binding.up;
     if (handler === undefined) {
       // RageMP-семантика: без handler — удаляем все подписки на (key, keyHold).
       set.clear();
