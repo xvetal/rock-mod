@@ -1,6 +1,6 @@
 # Rock-Mod
 
-**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. It supports **RageMP**, **AltV**, and **Mock** multiplayer platforms, allowing you to build and manage mods seamlessly across these environments.
+**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported, allowing you to build and manage mods seamlessly across these environments.
 
 ### Installation
 
@@ -16,17 +16,18 @@ On the server-side, initialize Rock-Mod with the appropriate multiplayer type:
 
 ```typescript
 const rockMod = await RockMod.create({
-  multiplayer: "RageMP", // or "AltV", or "Mock"
+  multiplayer: "VIMP", // recommended; also supports "RageMP", "AltV", and "Mock"
 });
 ```
 
 ### Multiplayer Types
 
-Rock-Mod supports three multiplayer types:
+Rock-Mod supports four multiplayer types:
 
-1. **RageMP** - For developing mods for RageMP servers
-2. **AltV** - For developing mods for AltV servers
-3. **Mock** - For testing and development without multiplayer dependencies
+1. **VIMP** - Primary and recommended platform for developing mods for VIMP servers
+2. **RageMP** - For developing mods for RageMP servers
+3. **AltV** - For developing mods for AltV servers
+4. **Mock** - For testing and development without multiplayer dependencies
 
 ### Mock Mode
 
