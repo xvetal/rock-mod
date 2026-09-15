@@ -95,7 +95,7 @@
     "@types/node": "^20.10.4",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "@vimp-mp/types": "^2.0.0",
+    "@vimp-mp/types": "^2.0.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-config-prettier": "^9.1.0",
