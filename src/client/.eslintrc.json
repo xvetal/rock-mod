@@ -55,6 +55,14 @@
       }
     ]
   },
+  "overrides": [
+    {
+      "files": ["**/rock-sandbox/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+      }
+    }
+  ],
   "settings": {
     "import/resolver": {
       "typescript": {}
