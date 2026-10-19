@@ -12,7 +12,7 @@ import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
 import { type IWorldManager } from "./world";
 
-type MultiplayerType = "RageMP" | "AltV" | "Mock" | "VIMP";
+type MultiplayerType = "RageMP" | "AltV" | "Mock" | "VIMP" | "RockSandbox";
 
 export interface RockModOptions {
   multiplayer: MultiplayerType;
@@ -60,6 +60,10 @@ export class RockMod {
       case "VIMP": {
         const { VIMPManagersFactory } = await import("./factories/vimp/VIMPManagersFactory");
         return new VIMPManagersFactory();
+      }
+      case "RockSandbox": {
+        const { RockSandboxManagersFactory } = await import("./factories/rock-sandbox/RockSandboxManagersFactory");
+        return new RockSandboxManagersFactory();
       }
     }
   }

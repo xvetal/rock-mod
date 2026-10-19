@@ -1,6 +1,6 @@
 # Rock-Mod
 
-**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported, allowing you to build and manage mods seamlessly across these environments.
+**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** provides a client and server scaffold with throwing stubs for future integration with Rock Sandbox.
 
 ### Installation
 
@@ -22,12 +22,38 @@ const rockMod = await RockMod.create({
 
 ### Multiplayer Types
 
-Rock-Mod supports four multiplayer types:
+Rock-Mod recognizes five multiplayer types:
 
 1. **VIMP** - Primary and recommended platform for developing mods for VIMP servers
 2. **RageMP** - For developing mods for RageMP servers
 3. **AltV** - For developing mods for AltV servers
 4. **Mock** - For testing and development without multiplayer dependencies
+5. **RockSandbox** - Client and server scaffold; all game operations throw until implemented
+
+### RockSandbox scaffold
+
+Select `RockSandbox` on the server:
+
+```typescript
+import { RockMod } from "rock-mod";
+
+const rockMod = await RockMod.create({ multiplayer: "RockSandbox" });
+```
+
+On the client, import `RockMod` from `rock-mod/client` and use the same option.
+Initialization requires no game runtime and creates explicit stub classes for all managers.
+Structural components such as `net.events`, `net.rpc`, `net.dataHandler` (client only)
+and entity manager iterators are accessible. Every operation and game-state getter
+throws an `Error` identifying the platform, side, class and member:
+
+```typescript
+rockMod.world.setTimeHour(12);
+// Error: [RockSandbox:server] RockSandboxWorldManager.setTimeHour: not implemented
+```
+
+Methods returning `Promise` also throw synchronously when called. The scaffold does
+not simulate game state, subscribe to events or connect to Rock Sandbox. Replace
+individual stubs incrementally as runtime integration is implemented.
 
 ### Mock Mode
 
@@ -104,7 +130,8 @@ rockMod.simulatePlayerDisconnect(player);
 
 ### Documentation
 
-Please note that client-side implementation is not yet available in this version.
+Client-side implementations are available for RageMP and VIMP. RockSandbox has
+throwing client and server stubs; AltV and Mock remain server-only.
 
 Rock-Mod simplifies multiplayer mod development by providing unified tools for managing game entities, networking, and more across different platforms.
 
