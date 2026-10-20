@@ -66,7 +66,7 @@ On the server, `net.events.onInternal`, `offInternal` and `emitInternal` delegat
 to the native `rockSandbox.on`, `off` and `emit` API. Rock-mod has no separate
 event registry or fallback implementation. These methods require the embedded
 Rock Sandbox runtime; creation of RockMod itself still works without a host.
-If the event API is missing, rebuild the server bundle in rock-sandbox:
+After updating the native API, rebuild the server bundle in rock-sandbox:
 
 ```sh
 python3 scripts/nodejs.py build
@@ -103,8 +103,12 @@ throw their existing stub errors.
 
 Player queries require the server and addon rebuilt together with **ABI 2**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
-Missing or older native APIs produce rebuild instructions on the first query;
-creating RockMod and accessing the iterator never queries the host.
+The adapter uses one internal `getRockSandbox()` getter for player and event
+calls. It reads the current host without validation or caching. Missing hosts
+or called methods produce standard JavaScript errors; errors from native
+methods propagate unchanged. The gamemod bootstrap validates runtime
+compatibility before initialization. Creating RockMod and accessing the
+iterator never queries the host.
 
 Run `npm run test:rock-sandbox` for focused adapter checks using Node's built-in
 test runner. For the real-UDP embedded Node check, see the neighboring
