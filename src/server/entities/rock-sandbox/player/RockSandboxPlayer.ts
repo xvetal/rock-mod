@@ -59,6 +59,10 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.armour");
   }
 
+  public get autoRespawn(): boolean {
+    return this._nativePlayer.autoRespawn;
+  }
+
   public get isDead(): boolean {
     return this._nativePlayer.isDead;
   }
@@ -119,6 +123,10 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
 
   public setHeading(_value: number): void {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.setHeading");
+  }
+
+  public setAutoRespawn(enabled: boolean): void {
+    this._nativePlayer.setAutoRespawn(enabled);
   }
 
   public setHealth(value: number): void {

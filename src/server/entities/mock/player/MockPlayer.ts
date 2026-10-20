@@ -54,6 +54,10 @@ export class MockPlayer extends MockEntity implements IPlayer {
     return this._playerData.armour;
   }
 
+  public get autoRespawn(): boolean {
+    throw new Error("Not implemented: MockPlayer.autoRespawn");
+  }
+
   public get isDead(): boolean {
     return this.health <= 0;
   }
@@ -143,6 +147,10 @@ export class MockPlayer extends MockEntity implements IPlayer {
 
   public setHeading(value: number): void {
     this._playerData.heading = value;
+  }
+
+  public setAutoRespawn(_enabled: boolean): void {
+    throw new Error("Not implemented: MockPlayer.setAutoRespawn");
   }
 
   public setHealth(value: number): void {

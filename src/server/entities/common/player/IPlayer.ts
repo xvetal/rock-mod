@@ -30,6 +30,8 @@ export interface IPlayer extends IEntity {
   get health(): number;
   get armour(): number;
   get isDead(): boolean;
+  /** Published automatic respawn policy; unsupported platforms throw. */
+  get autoRespawn(): boolean;
   get ip(): string;
   get serial(): string;
   get vehicle(): IVehicle | null;
@@ -47,6 +49,8 @@ export interface IPlayer extends IEntity {
   setName(name: string): void;
   setHeading(value: number): void;
   setHealth(value: number): void;
+  /** Queue a policy change. Unsupported platforms throw synchronously. */
+  setAutoRespawn(enabled: boolean): void;
   setArmour(value: number): void;
   setWeaponAmmo(weapon: string, ammo: number): void;
   giveWeapon(weapon: string, ammo: number): void;

@@ -34,6 +34,10 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     return this.mpEntity.armour;
   }
 
+  public get autoRespawn(): boolean {
+    throw new Error("Not implemented: AltVPlayer.autoRespawn");
+  }
+
   public get isDead(): boolean {
     return this.mpEntity.isDead;
   }
@@ -111,6 +115,10 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
 
   public setHeading(value: number): void {
     this.mpEntity.rot = new Vector3(0, 0, value);
+  }
+
+  public setAutoRespawn(_enabled: boolean): void {
+    throw new Error("Not implemented: AltVPlayer.setAutoRespawn");
   }
 
   public setHealth(value: number): void {

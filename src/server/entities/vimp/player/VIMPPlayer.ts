@@ -70,6 +70,10 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     return this._vimpPlayer.armour;
   }
 
+  public get autoRespawn(): boolean {
+    throw new Error("Not implemented: VIMPPlayer.autoRespawn");
+  }
+
   public get isDead(): boolean {
     return this._vimpPlayer.health <= 0;
   }
@@ -162,6 +166,10 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
 
   public setHeading(value: number): void {
     this._vimpPlayer.heading = value;
+  }
+
+  public setAutoRespawn(_enabled: boolean): void {
+    throw new Error("Not implemented: VIMPPlayer.setAutoRespawn");
   }
 
   public setHealth(value: number): void {
