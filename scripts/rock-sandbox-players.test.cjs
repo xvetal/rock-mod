@@ -36,6 +36,12 @@ function host() {
           get name() {
             return state("name").name;
           },
+          get health() {
+            return state("health").health;
+          },
+          get isDead() {
+            return state("isDead").isDead;
+          },
           get position() {
             return Object.freeze({ ...state("position").position });
           },
@@ -193,7 +199,7 @@ test("unsupported gameplay operations retain diagnostic stubs", () => {
   host();
   const player = mod.players.getByID(1);
   for (const operation of [
-    () => player.health,
+    () => player.armour,
     () => player.dimension,
     () => player.destroy(),
     () => mod.players.getBySocialClub("value"),
@@ -328,4 +334,67 @@ test("setPosition rotates coordinates and delegates without host access or gamep
     (error) => error === failure,
   );
   assert.equal(calls.length, 2);
+});
+
+test("spawn rotates coordinates and delegates without host access or gameplay state", () => {
+  const calls = [];
+  const failure = new Error("native movement failed");
+  let failing = false;
+  const native = {
+    id: 43,
+    spawn(position) {
+      assert.equal(this, native);
+      calls.push(position);
+      if (failing) throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(43);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  const position = Object.freeze({ x: 12.5, y: -3, z: 7 });
+  assert.equal(player.spawn(position), undefined);
+  assert.deepEqual(calls, [{ x: 12.5, y: 7, z: 3 }]);
+  assert.notEqual(calls[0], position);
+  failing = true;
+  assert.throws(
+    () => player.spawn(position),
+    (error) => error === failure,
+  );
+  assert.equal(calls.length, 2);
+});
+
+test("health and isDead delegate to native getters without deriving or caching state", () => {
+  let health = 31;
+  let dead = true;
+  let failure;
+  const error = new Error("native getter failure");
+  const native = {
+    id: 44,
+    get health() {
+      if (failure) throw error;
+      return health;
+    },
+    get isDead() {
+      if (failure) throw error;
+      return dead;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(44);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.health, 31);
+  assert.equal(player.isDead, true);
+  health = 0;
+  dead = false;
+  assert.equal(player.health, 0);
+  assert.equal(player.isDead, false);
+  failure = true;
+  assert.throws(
+    () => player.health,
+    (caught) => caught === error,
+  );
+  assert.throws(
+    () => player.isDead,
+    (caught) => caught === error,
+  );
 });
