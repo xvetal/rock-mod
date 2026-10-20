@@ -195,7 +195,6 @@ test("unsupported gameplay operations retain diagnostic stubs", () => {
   for (const operation of [
     () => player.health,
     () => player.dimension,
-    () => player.setPosition(player.position),
     () => player.destroy(),
     () => mod.players.getBySocialClub("value"),
     () => mod.players.iterator.range3D(player.position, 10),
@@ -302,4 +301,31 @@ test("kick delegates once to its native handle, preserving the reason, receiver 
     (error) => error === failure,
   );
   assert.equal(calls.length, 4);
+});
+
+test("setPosition rotates coordinates and delegates without host access or gameplay state", () => {
+  const calls = [];
+  const failure = new Error("native movement failed");
+  let failing = false;
+  const native = {
+    id: 43,
+    setPosition(position) {
+      assert.equal(this, native);
+      calls.push(position);
+      if (failing) throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(43);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  const position = Object.freeze({ x: 12.5, y: -3, z: 7 });
+  assert.equal(player.setPosition(position), undefined);
+  assert.deepEqual(calls, [{ x: 12.5, y: 7, z: 3 }]);
+  assert.notEqual(calls[0], position);
+  failing = true;
+  assert.throws(
+    () => player.setPosition(position),
+    (error) => error === failure,
+  );
+  assert.equal(calls.length, 2);
 });
