@@ -204,3 +204,74 @@ test("unsupported gameplay operations retain diagnostic stubs", () => {
     assert.throws(operation, /\[RockSandbox:server\].*: not implemented/);
   }
 });
+
+test("lifecycle bridges are lazy, installed once per host, and retain native handler identity", () => {
+  records.set(1, { name: "One", position: { x: 1, y: 2, z: 3 } });
+  host();
+  const api = globalThis.rockSandbox;
+  const subscriptions = [];
+  const listeners = new Map();
+  Object.assign(api, {
+    on(event, handler) {
+      subscriptions.push([event, handler]);
+      const list = listeners.get(event) || [];
+      list.push(handler);
+      listeners.set(event, list);
+    },
+    off(event, handler) {
+      const list = listeners.get(event) || [];
+      const index = list.lastIndexOf(handler);
+      if (index >= 0) list.splice(index, 1);
+    },
+    emit(event, ...args) {
+      for (const handler of [...(listeners.get(event) || [])]) handler(...args);
+    },
+  });
+  const calls = [];
+  const connected = (player) => calls.push(["connected", player]);
+  const disconnected = (player) => calls.push(["disconnected", player]);
+  mod.net.events.onInternal({ "rm::entityCreated": () => {} });
+  assert.equal(subscriptions.length, 1);
+  const native = api.players.getById(1);
+  api.emit("playerConnected", native); // No replay for a late SDK subscription.
+  mod.net.events.onInternal({ "rm::playerConnected": connected });
+  mod.net.events.onInternal({ "rm::playerConnected": connected, "rm::playerDisconnected": disconnected });
+  assert.equal(subscriptions.filter(([name]) => name === "playerConnected").length, 1);
+  assert.equal(subscriptions.filter(([name]) => name === "playerDisconnected").length, 1);
+  assert.equal(subscriptions.find(([name]) => name === "rm::playerConnected")[1], connected);
+  assert.deepEqual(calls, []);
+  const wrapped = mod.players.getByID(1);
+  api.emit("playerConnected", native);
+  assert.deepEqual(calls.splice(0), [
+    ["connected", wrapped],
+    ["connected", wrapped],
+  ]);
+  mod.net.events.offInternal("rm::playerConnected", connected);
+  api.emit("playerConnected", native);
+  assert.deepEqual(calls.splice(0), [["connected", wrapped]]);
+  records.delete(1);
+  api.emit("playerDisconnected", native);
+  assert.deepEqual(calls.splice(0), [["disconnected", wrapped]]);
+  assert.equal(wrapped.isExists, false);
+  assert.equal(mod.players.findByID(1), null);
+  const failure = new Error("SDK lifecycle failure");
+  const fail = () => {
+    throw failure;
+  };
+  mod.net.events.onInternal({ "rm::playerDisconnected": fail });
+  assert.throws(
+    () => api.emit("playerDisconnected", native),
+    (error) => error === failure,
+  );
+  mod.net.events.offInternal("rm::playerDisconnected", fail);
+  api.emit("playerDisconnected", native);
+
+  const replacement = { on: api.on, off: api.off, emit: api.emit };
+  Reflect.set(globalThis, "rockSandbox", replacement);
+  mod.net.events.onInternal({ "rm::playerDisconnected": disconnected });
+  assert.equal(subscriptions.filter(([name]) => name === "playerConnected").length, 2);
+  assert.equal(subscriptions.filter(([name]) => name === "playerDisconnected").length, 2);
+  Reflect.set(globalThis, "rockSandbox", api);
+  mod.net.events.onInternal({ "rm::playerConnected": connected });
+  assert.equal(subscriptions.filter(([name]) => name === "playerConnected").length, 2);
+});
