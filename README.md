@@ -78,8 +78,8 @@ independent; removal affects the last matching registration. Handler changes
 during dispatch take effect on the next dispatch, including a nested one.
 An event without listeners is valid.
 
-The first SDK subscription to `rm::playerConnected` or `rm::playerDisconnected`
-installs two native bridges once for that host API object. Each bridge only
+The first SDK subscription to `rm::playerConnected`, `rm::playerDisconnected` or
+`rm::playerDeath` installs all three native bridges once for that host API object. Each bridge only
 applies the existing player wrapper and emits the corresponding SDK event in
 the native registry. User handlers keep their original identity for `offInternal`;
 there is no polling or additional handler registry.
@@ -94,6 +94,23 @@ may receive an already absent player: `isExists` is false and `name`/`position`
 throw. In `rm::playerDisconnected` lookup returns null while ID and type remain
 readable. Host-event handler exceptions stop the server with a diagnostic; local
 `emitInternal` exceptions propagate synchronously to the caller.
+
+`rm::playerDeath(player, reason, killer)` now forwards native deaths from
+`setHealth(0)` and combat. Reasons are RockSandbox native codes: **0** for scripted
+health zero, **1** pistol, **2** MP5, **3** shotgun. They are not GTA weapon hashes.
+The killer is null for scripted deaths and the actual wrapped shooter for combat,
+even if already disconnected when delivered. Both supplied handles preserve
+identity; the bridge never looks them up again or computes gameplay data.
+
+Native `playerDeath` additionally supplies a fresh frozen historical context with
+exact bigint `life` and `tick`. SDK keeps its existing three-argument signature.
+Getters read the latest published state: an old death may arrive after respawn or
+removal. Native FIFO preserves every actual death and its order before subsequent
+disconnects, including multiple deaths between publications. Repeated assignments
+to dead players, protected/nonlethal damage, spawns, moves and policy changes add
+no deaths. Late subscriptions do not replay delivered history. Host-handler errors
+stop the server, while local custom emit errors still propagate to the caller.
+There is no polling, filtering, extra handler registry or SDK game state.
 
 `playerQuit`, entity lifecycle events, and gamemod persistence remain a later
 stage. Offline `--ticks` produces no player events, and shutdown synthesizes no
@@ -197,7 +214,8 @@ preserves life, loadout and command numbering. A dead occupant keeps their seat
 and follows the car; both server and Rust prediction reject dead driver controls.
 The car and other occupants are untouched. Automatic respawn retains free-space
 checks, which can delay revival inside a car; manual spawn still unseats the
-player. No lifecycle/hit events are added; pending commands are discarded on stop.
+player. A transition to death emits `playerDeath`; no hit event is synthesized.
+Pending commands are discarded on stop.
 
 `player.autoRespawn` and `player.setAutoRespawn(enabled)` directly delegate to the
 native published getter and queued command, without SDK checks, timers or cached
@@ -220,10 +238,9 @@ controls, ladder/seat, combat state/loadout and death anchor/deadline, without n
 events. The native engine owns the policy outside the wire snapshot and client
 prediction. Protocol remains **13**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
-`playerDeath`, delay configuration and gamemod lifecycle integration remain later
-stages.
+Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 8**.
+Player queries require the server and addon rebuilt together with **ABI 9**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts

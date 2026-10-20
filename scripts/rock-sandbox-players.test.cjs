@@ -487,3 +487,68 @@ test("other platform adapters explicitly reject automatic respawn APIs", () => {
     Reflect.deleteProperty(globalThis, "AltVServer");
   }
 });
+
+test("death bridge subscribes once, preserves handles and raw reason, and forwards exactly three SDK arguments", () => {
+  records.set(47, { name: "Victim", position: { x: 1, y: 2, z: 3 } });
+  records.set(48, { name: "Killer", position: { x: 4, y: 5, z: 6 } });
+  host();
+  const api = globalThis.rockSandbox;
+  const listeners = new Map();
+  const subscriptions = [];
+  Object.assign(api, {
+    on(name, handler) {
+      subscriptions.push([name, handler]);
+      const list = listeners.get(name) || [];
+      list.push(handler);
+      listeners.set(name, list);
+    },
+    off(name, handler) {
+      const list = listeners.get(name) || [];
+      const index = list.lastIndexOf(handler);
+      if (index >= 0) list.splice(index, 1);
+    },
+    emit(name, ...args) {
+      for (const handler of [...(listeners.get(name) || [])]) handler(...args);
+    },
+  });
+  const nativeVictim = api.players.getById(47);
+  const nativeKiller = api.players.getById(48);
+  const victim = mod.players.getByID(47);
+  const killer = mod.players.getByID(48);
+  const context = Object.freeze({ life: 9007199254740993n, tick: 18446744073709551615n });
+  const calls = [];
+  const listener = (...args) => calls.push(args);
+  api.emit("playerDeath", nativeVictim, 1, nativeKiller, context);
+  mod.net.events.onInternal({ "rm::playerDeath": listener });
+  mod.net.events.onInternal({ "rm::playerDeath": listener, "rm::playerConnected": () => {} });
+  for (const name of ["playerConnected", "playerDisconnected", "playerDeath"])
+    assert.equal(subscriptions.filter(([event]) => event === name).length, 1);
+  assert.equal(subscriptions.find(([name]) => name === "rm::playerDeath")[1], listener);
+  assert.deepEqual(calls, []);
+  records.delete(48);
+  // Forwarding uses the supplied native handles, even after they leave the snapshot.
+  api.players.getById = () => {
+    throw new Error("unexpected lookup in bridge");
+  };
+  api.emit("playerDeath", nativeVictim, 3, nativeKiller, context);
+  assert.deepEqual(calls.splice(0), [
+    [victim, 3, killer],
+    [victim, 3, killer],
+  ]);
+  assert.equal(killer.isExists, false);
+  mod.net.events.offInternal("rm::playerDeath", listener);
+  api.emit("playerDeath", nativeVictim, 0, null, context);
+  assert.deepEqual(calls.splice(0), [[victim, 0, null]]);
+  const failure = new Error("SDK death failure");
+  const fail = () => {
+    throw failure;
+  };
+  mod.net.events.onInternal({ "rm::playerDeath": fail });
+  assert.throws(
+    () => api.emit("playerDeath", nativeVictim, 2, nativeKiller, context),
+    (error) => error === failure,
+  );
+  mod.net.events.offInternal("rm::playerDeath", fail);
+  mod.net.events.offInternal("rm::playerDeath", listener);
+  api.emit("playerDeath", nativeVictim, 0, null, context);
+});
