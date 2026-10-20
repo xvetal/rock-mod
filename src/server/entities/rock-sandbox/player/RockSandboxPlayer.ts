@@ -44,7 +44,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get socialClub(): string {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.socialClub");
+    return this._nativePlayer.profileId;
   }
 
   public get heading(): number {
