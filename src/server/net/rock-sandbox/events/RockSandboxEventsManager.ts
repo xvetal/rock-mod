@@ -13,13 +13,25 @@ function bridgePlayers(api: RockSandboxServer): void {
   if (bridgedHosts.has(api)) return;
   api.on("playerConnected", (player) => api.emit(ServerInternalEventName.PlayerConnected, wrapPlayer(player)));
   api.on("playerDisconnected", (player) => api.emit(ServerInternalEventName.PlayerDisconnected, wrapPlayer(player)));
+  api.on("playerDeath", (player, reason, killer) =>
+    api.emit(
+      ServerInternalEventName.PlayerDeath,
+      wrapPlayer(player),
+      reason,
+      killer === null ? null : wrapPlayer(killer),
+    ),
+  );
   bridgedHosts.add(api);
 }
 
 export class RockSandboxEventsManager implements IEventsManager {
   public onInternal(events: Partial<IServerInternalEvents>): void {
     const api = getRockSandbox();
-    if (ServerInternalEventName.PlayerConnected in events || ServerInternalEventName.PlayerDisconnected in events) {
+    if (
+      ServerInternalEventName.PlayerConnected in events ||
+      ServerInternalEventName.PlayerDisconnected in events ||
+      ServerInternalEventName.PlayerDeath in events
+    ) {
       bridgePlayers(api);
     }
     for (const [eventName, handler] of Object.entries(events)) {
