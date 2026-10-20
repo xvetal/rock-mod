@@ -149,7 +149,7 @@ death deadline, with automatic respawn anchored at the new point. No extra
 lifecycle events are emitted. Clients correct on the next regular simulation
 snapshot; simulation pauses delay correction until resumption. Later physics,
 terrain loading and world-bound recovery still apply. Other entity types retain
-their existing `setPosition()` stubs. `setHealth()` and other unsupported mutations remain stubs.
+their existing `setPosition()` stubs. Other unsupported mutations remain stubs.
 
 `player.health` and `player.isDead` directly read the native published state.
 There is no SDK calculation or cached life state. Both throw after removal or
@@ -170,11 +170,35 @@ IDs and handle/wrapper identities remain stable. Old inputs/actions are excluded
 by life/generation; there are no additional lifecycle events. Clients correct on
 the next regular simulation snapshot. Automatic respawn stays at three seconds
 with its existing default loadout/ammunition reset; configuration is future work.
-`setHealth()` remains a stub, so this stage does not complete gamemod's revival
-flow. Other entities and existing platforms keep their behavior. Protocol stays
-**13** and the native bundle requires **ABI 6**.
+Gamemod lifecycle integration remains a separate stage. Other entities and
+existing platforms keep their behavior. Protocol stays **13**.
 
-Player queries require the server and addon rebuilt together with **ABI 6**.
+`player.setHealth(value)` delegates directly to the native handle, with no SDK
+validation, clamping, queue or cached state. Native accepts only integer numbers
+**0..100** without coercion, throwing synchronously for invalid arguments, a full
+queue or a closed runtime. Arguments are validated even for absent players;
+valid absent-player calls are ignored. It returns `undefined` and uses the shared
+1024-command FIFO without coalescing. Reads retain the previous published state
+until a successful host pass, including zero-tick passes; clients update on the
+next regular snapshot with the existing equal-tick and pause rules.
+
+Life is checked at execution: dead-player assignments never revive or extend the
+death wait. `spawn(point); setHealth(50)` works even when the published player is
+dead; `setHealth(0); setHealth(50)` leaves a live player dead. Positive health
+preserves movement/velocity, controls, ladder, seat, life/generation, weapon/ammo
+and combat timers. Assignments bypass protection while preserving its deadline;
+regular damage still respects it.
+
+The first zero starts death with disabled physics, zero movement/velocity and
+cleared controls, aim and ladder. RockSandbox records the death anchor and
+three-second simulation-tick respawn deadline, increments generation once and
+preserves life, loadout and command numbering. A dead occupant keeps their seat
+and follows the car; both server and Rust prediction reject dead driver controls.
+The car and other occupants are untouched. Automatic respawn retains free-space
+checks, which can delay revival inside a car; manual spawn still unseats the
+player. No lifecycle/hit events are added; pending commands are discarded on stop.
+
+Player queries require the server and addon rebuilt together with **ABI 7**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts

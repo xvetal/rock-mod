@@ -121,8 +121,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.setHeading");
   }
 
-  public setHealth(_value: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.setHealth");
+  public setHealth(value: number): void {
+    this._nativePlayer.setHealth(value);
   }
 
   public setArmour(_value: number): void {
