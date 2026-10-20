@@ -169,7 +169,8 @@ velocity and other occupants, and stops former driver commands.
 IDs and handle/wrapper identities remain stable. Old inputs/actions are excluded
 by life/generation; there are no additional lifecycle events. Clients correct on
 the next regular simulation snapshot. Automatic respawn stays at three seconds
-with its existing default loadout/ammunition reset; configuration is future work.
+with its existing default loadout/ammunition reset when enabled; delay
+configuration is future work.
 Gamemod lifecycle integration remains a separate stage. Other entities and
 existing platforms keep their behavior. Protocol stays **13**.
 
@@ -198,7 +199,31 @@ The car and other occupants are untouched. Automatic respawn retains free-space
 checks, which can delay revival inside a car; manual spawn still unseats the
 player. No lifecycle/hit events are added; pending commands are discarded on stop.
 
-Player queries require the server and addon rebuilt together with **ABI 7**.
+`player.autoRespawn` and `player.setAutoRespawn(enabled)` directly delegate to the
+native published getter and queued command, without SDK checks, timers or cached
+state. Native accepts only primitive booleans, defaults each connection to **true**,
+and validates even for absent players. Invalid/missing arguments, a full queue or
+a closed runtime throw synchronously; valid absent-player calls do nothing. The
+command returns `undefined` and uses the shared 1024-command FIFO without merging
+repeated changes. Reads retain the previous mode until successful publication,
+including zero-tick passes, and throw after removal or runtime shutdown.
+
+Turning automatic respawn off leaves dead players waiting for manual `spawn()` or
+re-enabling. Enabling preserves the original death anchor and three-second
+simulation-tick deadline; if overdue, the engine retries on the next physics tick
+using existing free-space checks. A zero-tick pass does not start a life. Manual
+spawn works in either mode; policy persists through deaths and manual/automatic
+lives. Other admissions do not reset it; a reconnect gets `true`.
+
+Changing policy alone preserves health, life/generation, physics/movement,
+controls, ladder/seat, combat state/loadout and death anchor/deadline, without new
+events. The native engine owns the policy outside the wire snapshot and client
+prediction. Protocol remains **13**. The server `IPlayer` interface exposes both
+members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
+`playerDeath`, delay configuration and gamemod lifecycle integration remain later
+stages.
+
+Player queries require the server and addon rebuilt together with **ABI 8**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts

@@ -29,6 +29,10 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     return this.mpEntity.armour;
   }
 
+  public get autoRespawn(): boolean {
+    throw new Error("Not implemented: RagePlayer.autoRespawn");
+  }
+
   public get isDead(): boolean {
     return this.mpEntity.health <= 0;
   }
@@ -104,6 +108,10 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
 
   public setHeading(value: number): void {
     this.mpEntity.heading = value;
+  }
+
+  public setAutoRespawn(_enabled: boolean): void {
+    throw new Error("Not implemented: RagePlayer.setAutoRespawn");
   }
 
   public setHealth(value: number): void {

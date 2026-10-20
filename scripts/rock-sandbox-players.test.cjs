@@ -424,3 +424,66 @@ test("setHealth delegates values without validation or clamping and preserves na
   );
   assert.equal(calls.length, values.length + 1);
 });
+
+test("autoRespawn reads native publication and delegates policy commands without validation or caching", () => {
+  const calls = [];
+  const failure = new Error("native policy failed");
+  let published = true;
+  let failing = false;
+  const native = {
+    id: 46,
+    get autoRespawn() {
+      if (failing) throw failure;
+      return published;
+    },
+    setAutoRespawn(value) {
+      assert.equal(this, native);
+      if (failing) throw failure;
+      calls.push(value);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(46);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.autoRespawn, true);
+  const values = [false, true, true, false, 1, "false", undefined, null];
+  for (const value of values) assert.equal(player.setAutoRespawn(value), undefined);
+  assert.deepEqual(calls, values);
+  assert.equal(player.autoRespawn, true);
+  published = false;
+  assert.equal(player.autoRespawn, false);
+  failing = true;
+  assert.throws(
+    () => player.autoRespawn,
+    (error) => error === failure,
+  );
+  assert.throws(
+    () => player.setAutoRespawn(true),
+    (error) => error === failure,
+  );
+});
+
+test("other platform adapters explicitly reject automatic respawn APIs", () => {
+  // Loading AltV's existing module requires its global aliases; no game objects run.
+  Reflect.set(globalThis, "AltVShared", { Vector3: class {}, hash() {} });
+  Reflect.set(globalThis, "AltVServer", {});
+  try {
+    for (const [platform, name] of [
+      ["ragemp", "Rage"],
+      ["vimp", "VIMP"],
+      ["altv", "AltV"],
+      ["mock", "Mock"],
+    ]) {
+      const Class = require(`../dist/server/entities/${platform}/player/${name}Player`)[`${name}Player`];
+      const getter = Object.getOwnPropertyDescriptor(Class.prototype, "autoRespawn").get;
+      assert.throws(() => getter.call(undefined), new RegExp(`${name}Player.autoRespawn`));
+      assert.throws(
+        () => Class.prototype.setAutoRespawn.call(undefined, false),
+        new RegExp(`${name}Player.setAutoRespawn`),
+      );
+    }
+  } finally {
+    Reflect.deleteProperty(globalThis, "AltVShared");
+    Reflect.deleteProperty(globalThis, "AltVServer");
+  }
+});
