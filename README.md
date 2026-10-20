@@ -127,6 +127,15 @@ identical names), and `iterator.all()`. Lookups and iteration return the same
 wrapper for each connected native player. `find*` returns `null` when absent;
 `get*` throws. Iterator membership is captured when `all()` is called.
 
+`player.socialClub` directly returns native `player.profileId`, formatted as
+`rock-sandbox:profile:<UUID v4>`. This temporary **unverified local profile ID**
+survives reconnects/restarts while the native client's `profile-id` file is kept.
+Deleting or copying that file changes or shares the identity. It provides no
+proof of account ownership and must not enable production remembered-session
+authorization. Validation, file persistence and admission belong to RockSandbox;
+the SDK only forwards the getter and its errors. Social Club search remains a
+stub. Rebuild the server/addon with **ABI 10** and clients with **game protocol 14**.
+
 Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
 `id` and `type` remain available, `isExists` is `false`, and `name`/`position`
 throw the native disconnected-player error. Position is a fresh `Vector3D` in
@@ -147,7 +156,7 @@ queue or an unavailable runtime can throw synchronously. Validation also runs
 for absent players. Catching a queue-full error lets the server continue.
 Pending commands are discarded during shutdown. Reasons use the reliable
 control channel with a one-second delivery interval; a lost connection can
-prevent delivery. Server and clients must use **game protocol 13**.
+prevent delivery. Server and clients must use **game protocol 14**.
 
 `player.setPosition(position)` rotates SDK Z-up `(x, y, z)` into engine
 `(x, z, -y)` and delegates to the native handle. Native validation and errors
@@ -189,7 +198,7 @@ the next regular simulation snapshot. Automatic respawn stays at three seconds
 with its existing default loadout/ammunition reset when enabled; delay
 configuration is future work.
 Gamemod lifecycle integration remains a separate stage. Other entities and
-existing platforms keep their behavior. Protocol stays **13**.
+existing platforms keep their behavior. Protocol stays **14**.
 
 `player.setHealth(value)` delegates directly to the native handle, with no SDK
 validation, clamping, queue or cached state. Native accepts only integer numbers
@@ -236,11 +245,11 @@ lives. Other admissions do not reset it; a reconnect gets `true`.
 Changing policy alone preserves health, life/generation, physics/movement,
 controls, ladder/seat, combat state/loadout and death anchor/deadline, without new
 events. The native engine owns the policy outside the wire snapshot and client
-prediction. Protocol remains **13**. The server `IPlayer` interface exposes both
+prediction. Protocol remains **14**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
 Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 9**.
+Player queries require the server and addon rebuilt together with **ABI 10**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts
