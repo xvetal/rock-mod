@@ -1,6 +1,6 @@
 # Rock-Mod
 
-**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server internal events and read-only network players; its other game APIs and client remain throwing stubs.
+**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server internal events, read-only player state and queued kick; its other game APIs and client remain throwing stubs.
 
 ### Installation
 
@@ -45,7 +45,7 @@ Rock-Mod recognizes five multiplayer types:
 2. **RageMP** - For developing mods for RageMP servers
 3. **AltV** - For developing mods for AltV servers
 4. **Mock** - For testing and development without multiplayer dependencies
-5. **RockSandbox** - Native server internal events and read-only network players; other game operations remain stubs
+5. **RockSandbox** - Native server internal events, read-only player state and queued kick; other game operations remain stubs
 
 ### RockSandbox scaffold
 
@@ -115,10 +115,24 @@ Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnec
 throw the native disconnected-player error. Position is a fresh `Vector3D` in
 **Z-up** coordinates: engine `(x, y, z)` becomes `(x, -z, y)`. This is a rotation,
 not a reflection. Positions already returned remain unchanged. Health,
-mutations, Social Club lookup, dimension/range filters and other managers still
+other mutations, Social Club lookup, dimension/range filters and other managers still
 throw their existing stub errors.
 
-Player queries require the server and addon rebuilt together with **ABI 3**.
+`player.kick(reason?)` delegates directly to the native player. It queues removal
+on the server thread and returns `undefined`; state changes appear on the next
+published snapshot, followed by `rm::playerDisconnected`. Repeated requests keep
+the first reason, and absent players are ignored. No SDK queue or gameplay state
+is added.
+
+Omitted, undefined or empty reasons use `Kicked by server`; other text is
+preserved exactly, up to 1024 UTF-8 bytes. Native validation, a full command
+queue or an unavailable runtime can throw synchronously. Validation also runs
+for absent players. Catching a queue-full error lets the server continue.
+Pending commands are discarded during shutdown. Reasons use the reliable
+control channel with a one-second delivery interval; a lost connection can
+prevent delivery. Server and clients must use **game protocol 13**.
+
+Player queries require the server and addon rebuilt together with **ABI 4**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts
@@ -211,7 +225,7 @@ rockMod.simulatePlayerDisconnect(player);
 ### Documentation
 
 Client-side implementations are available for RageMP and VIMP. RockSandbox has
-native server internal events and read-only network players, with remaining
+native server internal events, read-only player state and queued kick, with remaining
 client/server APIs implemented as throwing stubs; AltV
 and Mock remain server-only.
 

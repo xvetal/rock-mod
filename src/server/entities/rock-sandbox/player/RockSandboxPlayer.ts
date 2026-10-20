@@ -183,8 +183,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.setHairColor");
   }
 
-  public kick(_reason?: string): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.kick");
+  public kick(reason?: string): void {
+    this._nativePlayer.kick(reason);
   }
 
   public playAnimation(_dictionary: string, _name: string, _speed: number, _flag: number): void {
