@@ -36,6 +36,9 @@ function host() {
           get name() {
             return state("name").name;
           },
+          get profileId() {
+            return state("profileId").profileId;
+          },
           get health() {
             return state("health").health;
           },
@@ -192,6 +195,30 @@ test("iterator membership is captured on call and disconnected wrappers keep the
   records.set(2, { name: "One", position: { x: 1, y: 2, z: 3 } });
   assert.notEqual(mod.players.getByID(2), player);
   assert.equal(player.isExists, false);
+});
+
+test("socialClub delegates the native profile ID and propagates errors unchanged", () => {
+  const profileId = "rock-sandbox:profile:3974b6a0-894b-4dfa-9448-98748253be40";
+  records.set(1, { profileId });
+  host();
+  const player = mod.players.getByID(1);
+  assert.equal(player.socialClub, profileId);
+  const failure = new Error("native profile unavailable");
+  Reflect.set(globalThis, "rockSandbox", {
+    players: {
+      getById: () => ({
+        get profileId() {
+          throw failure;
+        },
+      }),
+    },
+  });
+  assert.throws(
+    () => mod.players.getByID(2).socialClub,
+    (error) => error === failure,
+  );
+  records.delete(1);
+  assert.throws(() => player.socialClub, /RockSandboxPlayer.profileId.*1.*disconnected/);
 });
 
 test("unsupported gameplay operations retain diagnostic stubs", () => {
