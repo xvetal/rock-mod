@@ -4,20 +4,49 @@ import { type IServerInternalEvents } from "../../common/events/types";
 import { type IPlayer } from "../../../entities";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 
+type InternalListener = IServerInternalEvents[keyof IServerInternalEvents];
+
+interface IRockSandboxEventsAPI {
+  on(eventName: string, listener: InternalListener): void;
+  off(eventName: string, listener: InternalListener): void;
+  emit(eventName: string, ...args: unknown[]): void;
+}
+
+function nativeEvents(member: string): IRockSandboxEventsAPI {
+  const candidate: unknown = Reflect.get(globalThis, "rockSandbox");
+  const api = candidate as Partial<IRockSandboxEventsAPI> | null | undefined;
+  if (
+    typeof api !== "object" ||
+    api === null ||
+    typeof api.on !== "function" ||
+    typeof api.off !== "function" ||
+    typeof api.emit !== "function"
+  ) {
+    throw new Error(
+      `[RockSandbox:server] RockSandboxEventsManager.${member}: native event API is unavailable. ` +
+        "Run inside Rock Sandbox with nodejs and rebuild the runtime with python3 scripts/nodejs.py build.",
+    );
+  }
+  return api as IRockSandboxEventsAPI;
+}
+
 export class RockSandboxEventsManager implements IEventsManager {
-  public onInternal(_events: Partial<IServerInternalEvents>): void {
-    return rockSandboxNotImplemented("server", "RockSandboxEventsManager.onInternal");
+  public onInternal(events: Partial<IServerInternalEvents>): void {
+    const api = nativeEvents("onInternal");
+    for (const [eventName, handler] of Object.entries(events)) {
+      api.on(eventName, handler);
+    }
   }
 
-  public offInternal<K extends keyof IServerInternalEvents>(_eventName: K, _listener: IServerInternalEvents[K]): void {
-    return rockSandboxNotImplemented("server", "RockSandboxEventsManager.offInternal");
+  public offInternal<K extends keyof IServerInternalEvents>(eventName: K, listener: IServerInternalEvents[K]): void {
+    nativeEvents("offInternal").off(eventName, listener);
   }
 
   public emitInternal<K extends keyof IServerInternalEvents>(
-    _eventName: K,
-    ..._args: Parameters<IServerInternalEvents[K]>
+    eventName: K,
+    ...args: Parameters<IServerInternalEvents[K]>
   ): void {
-    return rockSandboxNotImplemented("server", "RockSandboxEventsManager.emitInternal");
+    nativeEvents("emitInternal").emit(eventName, ...args);
   }
 
   public onClient(_events: Partial<IClientToServerEvents>): void {
