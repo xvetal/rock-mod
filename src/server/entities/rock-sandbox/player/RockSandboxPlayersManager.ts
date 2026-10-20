@@ -4,7 +4,7 @@ import { RockSandboxEntitiesManager } from "../entity/RockSandboxEntitiesManager
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { type RockSandboxPlayer, wrapPlayer } from "./RockSandboxPlayer";
 import { RockSandboxPlayersIterator } from "./RockSandboxPlayersIterator";
-import { nativePlayers } from "./nativePlayers";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxPlayersManager
   extends RockSandboxEntitiesManager<RockSandboxPlayer>
@@ -17,7 +17,7 @@ export class RockSandboxPlayersManager
   }
 
   public override findByID(id: number): RockSandboxPlayer | null {
-    const player = nativePlayers("findByID").getById(id);
+    const player = getRockSandbox().players.getById(id);
     return player === null ? null : wrapPlayer(player);
   }
 
@@ -38,8 +38,8 @@ export class RockSandboxPlayersManager
   }
 
   public findByName(name: string): RockSandboxPlayer | null {
-    const player = nativePlayers("findByName")
-      .all()
+    const player = getRockSandbox()
+      .players.all()
       .find((candidate) => candidate.name === name);
     return player === undefined ? null : wrapPlayer(player);
   }

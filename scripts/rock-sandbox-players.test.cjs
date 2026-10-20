@@ -52,14 +52,96 @@ function host() {
   });
 }
 
-test("creation and iterator access need no host; operations diagnose missing APIs", () => {
+test("creation and iterator access need no host; missing APIs fail at the native call", () => {
   assert.equal(typeof mod.players.iterator.all, "function");
   for (const candidate of [undefined, null, {}, { players: {} }, { players: { all() {} } }]) {
     Reflect.set(globalThis, "rockSandbox", candidate);
-    assert.throws(() => mod.players.findByID(1), /native player API is unavailable/);
-    assert.throws(() => mod.players.iterator.all(), /python3 scripts\/nodejs.py build/);
-    assert.throws(() => mod.players.findByName("name"), /RockSandbox:server/);
+    assert.throws(() => mod.players.findByID(1), TypeError);
+    assert.throws(() => mod.players.iterator.all(), TypeError);
+    assert.throws(() => mod.players.findByName("name"), TypeError);
   }
+});
+
+test("player queries use the current host without checking unrelated APIs or wrapping errors", () => {
+  const calls = [];
+  Reflect.set(globalThis, "rockSandbox", {
+    players: {
+      getById(id) {
+        calls.push(id);
+        return null;
+      },
+    },
+  });
+  assert.equal(mod.players.findByID(17), null);
+  assert.deepEqual(calls, [17]);
+
+  const failure = new Error("native player failure");
+  Reflect.set(globalThis, "rockSandbox", {
+    players: {
+      getById() {
+        throw failure;
+      },
+      all() {
+        throw failure;
+      },
+    },
+  });
+  for (const operation of [
+    () => mod.players.findByID(17),
+    () => mod.players.iterator.all(),
+    () => mod.players.findByName("name"),
+  ]) {
+    assert.throws(operation, (error) => error === failure);
+  }
+});
+
+test("events delegate to the current host with original handlers, arguments and errors", () => {
+  const calls = [];
+  const listener = () => {};
+  const value = {};
+  const event = "rm::entityCreated";
+  const api = {
+    on(...args) {
+      calls.push(["on", ...args]);
+    },
+    off(...args) {
+      calls.push(["off", ...args]);
+    },
+    emit(...args) {
+      calls.push(["emit", ...args]);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", api);
+  mod.net.events.onInternal({ [event]: listener });
+  mod.net.events.offInternal(event, listener);
+  mod.net.events.emitInternal(event, value);
+  assert.deepEqual(calls, [
+    ["on", event, listener],
+    ["off", event, listener],
+    ["emit", event, value],
+  ]);
+  assert.equal(calls[0][2], listener);
+  assert.equal(calls[1][2], listener);
+  assert.equal(calls[2][2], value);
+
+  const failure = new Error("native event failure");
+  const fail = () => {
+    throw failure;
+  };
+  Reflect.set(globalThis, "rockSandbox", { on: fail, off: fail, emit: fail });
+  const operations = [
+    () => mod.net.events.onInternal({ [event]: listener }),
+    () => mod.net.events.offInternal(event, listener),
+    () => mod.net.events.emitInternal(event, value),
+  ];
+  for (const operation of operations) assert.throws(operation, (error) => error === failure);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  for (const operation of operations) assert.throws(operation, TypeError);
+
+  // Calling an available method does not require the rest of the host API.
+  Reflect.set(globalThis, "rockSandbox", { on: api.on });
+  mod.net.events.onInternal({ [event]: listener });
+  assert.deepEqual(calls[3], ["on", event, listener]);
 });
 
 test("native lookups preserve wrapper identity, exact name search and coordinate conversion", () => {
