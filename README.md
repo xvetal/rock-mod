@@ -78,9 +78,26 @@ independent; removal affects the last matching registration. Handler changes
 during dispatch take effect on the next dispatch, including a nested one.
 An event without listeners is valid.
 
-This does not generate player or entity lifecycle events: their platform
-integration is a later stage. Client events, RPC and unsupported game operations still
-throw an `Error` identifying the platform, side, class and member:
+The first SDK subscription to `rm::playerConnected` or `rm::playerDisconnected`
+installs two native bridges once for that host API object. Each bridge only
+applies the existing player wrapper and emits the corresponding SDK event in
+the native registry. User handlers keep their original identity for `offInternal`;
+there is no polling or additional handler registry.
+
+The host records admission and removal in processing order, including both
+transitions between snapshot publications. Queries, native events, and SDK events
+share the same player identity through the wrapper. Late subscriptions receive
+future transitions; use `players.iterator.all()` for existing players.
+
+Event properties read the latest published state. Even `rm::playerConnected`
+may receive an already absent player: `isExists` is false and `name`/`position`
+throw. In `rm::playerDisconnected` lookup returns null while ID and type remain
+readable. Host-event handler exceptions stop the server with a diagnostic; local
+`emitInternal` exceptions propagate synchronously to the caller.
+
+`playerQuit`, entity lifecycle events, and gamemod persistence remain a later
+stage. Offline `--ticks` produces no player events, and shutdown synthesizes no
+disconnects. Client events, RPC and unsupported game operations still throw an `Error` identifying the platform, side, class and member:
 
 ```typescript
 rockMod.world.setTimeHour(12);
@@ -101,7 +118,7 @@ not a reflection. Positions already returned remain unchanged. Health,
 mutations, Social Club lookup, dimension/range filters and other managers still
 throw their existing stub errors.
 
-Player queries require the server and addon rebuilt together with **ABI 2**.
+Player queries require the server and addon rebuilt together with **ABI 3**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts
