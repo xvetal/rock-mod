@@ -52,7 +52,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get health(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.health");
+    return this._nativePlayer.health;
   }
 
   public get armour(): number {
@@ -60,7 +60,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get isDead(): boolean {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.isDead");
+    return this._nativePlayer.isDead;
   }
 
   public get ip(): string {
@@ -109,8 +109,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.emitRPC");
   }
 
-  public spawn(_position: IVector3D): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.spawn");
+  public spawn(position: IVector3D): void {
+    this._nativePlayer.spawn({ x: position.x, y: position.z, z: -position.y });
   }
 
   public setName(_name: string): void {
