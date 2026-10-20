@@ -5,10 +5,38 @@ import { type IServerToClientEvents } from "../../../../shared";
 import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { type RockSandboxPlayer as NativePlayer } from "@rock-sandbox/types/server";
+import { BaseObjectType } from "../../../../shared";
+import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
+  private readonly _nativePlayer: NativePlayer;
+
+  public constructor(player: NativePlayer) {
+    super();
+    this._nativePlayer = player;
+  }
+
+  public override get id(): number {
+    return this._nativePlayer.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Player;
+  }
+
+  public override get isExists(): boolean {
+    return this._nativePlayer.isExists;
+  }
+
+  public override get position(): IVector3D {
+    const { x, y, z } = this._nativePlayer.position;
+    // Rotate the engine's Y-up coordinates into rock-mod's Z-up coordinates.
+    return new Vector3D(x, -z, y);
+  }
+
   public get name(): string {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.name");
+    return this._nativePlayer.name;
   }
 
   public get socialClub(): string {
@@ -170,4 +198,14 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   public removeFromVehicle(): void {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.removeFromVehicle");
   }
+}
+
+const wrappers = new WeakMap<NativePlayer, RockSandboxPlayer>();
+
+export function wrapPlayer(player: NativePlayer): RockSandboxPlayer {
+  const existing = wrappers.get(player);
+  if (existing) return existing;
+  const wrapper = new RockSandboxPlayer(player);
+  wrappers.set(player, wrapper);
+  return wrapper;
 }

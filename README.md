@@ -1,6 +1,6 @@
 # Rock-Mod
 
-**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server internal events; its other game APIs and client remain throwing stubs.
+**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server internal events and read-only network players; its other game APIs and client remain throwing stubs.
 
 ### Installation
 
@@ -19,11 +19,12 @@ npm ci
 npm run build
 ```
 
-The unpublished `@rock-sandbox/types` package is a development dependency through
+The unpublished `@rock-sandbox/types` package is a dependency through
 `file:../rock-sandbox-types`. Its declarations are consumed directly; there is
 no separate types build. The SDK imports named types from `/server` without
-installing global RockSandbox declarations. The built SDK's public declarations
-and JavaScript do not require this development package. Existing CI and release
+installing global RockSandbox declarations. Platform wrapper declarations refer
+to these types, so consumers need the package installed; compiled JavaScript
+does not load it. Existing CI and release
 automation need a follow-up change to provide the neighboring checkout.
 
 ### Usage
@@ -44,7 +45,7 @@ Rock-Mod recognizes five multiplayer types:
 2. **RageMP** - For developing mods for RageMP servers
 3. **AltV** - For developing mods for AltV servers
 4. **Mock** - For testing and development without multiplayer dependencies
-5. **RockSandbox** - Native server internal events; other game operations remain stubs
+5. **RockSandbox** - Native server internal events and read-only network players; other game operations remain stubs
 
 ### RockSandbox scaffold
 
@@ -57,7 +58,7 @@ const rockMod = await RockMod.create({ multiplayer: "RockSandbox" });
 ```
 
 On the client, import `RockMod` from `rock-mod/client` and use the same option.
-Initialization requires no game runtime and creates explicit stub classes for all managers.
+Initialization requires no game runtime and creates explicit platform managers.
 Structural components such as `net.events`, `net.rpc`, `net.dataHandler` (client only)
 and entity manager iterators are accessible.
 
@@ -78,13 +79,36 @@ during dispatch take effect on the next dispatch, including a nested one.
 An event without listeners is valid.
 
 This does not generate player or entity lifecycle events: their platform
-integration is a later stage. Client events, RPC and game-state operations still
+integration is a later stage. Client events, RPC and unsupported game operations still
 throw an `Error` identifying the platform, side, class and member:
 
 ```typescript
 rockMod.world.setTimeHour(12);
 // Error: [RockSandbox:server] RockSandboxWorldManager.setTimeHour: not implemented
 ```
+
+The server player manager delegates to native `rockSandbox.players`. It supports
+`findByID`/`getByID`, exact `findByName`/`getByName` (the smallest ID wins for
+identical names), and `iterator.all()`. Lookups and iteration return the same
+wrapper for each connected native player. `find*` returns `null` when absent;
+`get*` throws. Iterator membership is captured when `all()` is called.
+
+Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
+`id` and `type` remain available, `isExists` is `false`, and `name`/`position`
+throw the native disconnected-player error. Position is a fresh `Vector3D` in
+**Z-up** coordinates: engine `(x, y, z)` becomes `(x, -z, y)`. This is a rotation,
+not a reflection. Positions already returned remain unchanged. Health,
+mutations, Social Club lookup, dimension/range filters and other managers still
+throw their existing stub errors.
+
+Player queries require the server and addon rebuilt together with **ABI 2**.
+Before networking starts and in offline `--ticks` mode the player list is empty.
+Missing or older native APIs produce rebuild instructions on the first query;
+creating RockMod and accessing the iterator never queries the host.
+
+Run `npm run test:rock-sandbox` for focused adapter checks using Node's built-in
+test runner. For the real-UDP embedded Node check, see the neighboring
+`rock-sandbox/docs/nodejs-server.md` and its `ROCK_PLAYERS_TEST_SDK` option.
 
 Unimplemented methods returning `Promise` also throw synchronously when called.
 The scaffold does not simulate game state or automatically subscribe to host
@@ -166,7 +190,8 @@ rockMod.simulatePlayerDisconnect(player);
 ### Documentation
 
 Client-side implementations are available for RageMP and VIMP. RockSandbox has
-native server internal events and otherwise throwing client/server stubs; AltV
+native server internal events and read-only network players, with remaining
+client/server APIs implemented as throwing stubs; AltV
 and Mock remain server-only.
 
 Rock-Mod simplifies multiplayer mod development by providing unified tools for managing game entities, networking, and more across different platforms.
