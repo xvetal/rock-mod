@@ -275,3 +275,31 @@ test("lifecycle bridges are lazy, installed once per host, and retain native han
   mod.net.events.onInternal({ "rm::playerConnected": connected });
   assert.equal(subscriptions.filter(([name]) => name === "playerConnected").length, 2);
 });
+
+test("kick delegates once to its native handle, preserving the reason, receiver and exception", () => {
+  const calls = [];
+  const failure = new Error("native kick failed");
+  let failing = false;
+  const native = {
+    id: 42,
+    kick(reason) {
+      assert.equal(this, native);
+      calls.push(reason);
+      if (failing) throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(42);
+  // Existing wrappers continue delegating without reading or validating a host.
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  for (const reason of [undefined, "", "  Причина выхода 🚪  "]) {
+    assert.equal(player.kick(reason), undefined);
+  }
+  assert.deepEqual(calls, [undefined, "", "  Причина выхода 🚪  "]);
+  failing = true;
+  assert.throws(
+    () => player.kick("failure"),
+    (error) => error === failure,
+  );
+  assert.equal(calls.length, 4);
+});
