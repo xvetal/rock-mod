@@ -1,20 +1,15 @@
+import { type RockSandboxServer } from "@rock-sandbox/types/server";
 import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
 import { type IServerInternalEvents } from "../../common/events/types";
 import { type IPlayer } from "../../../entities";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 
-type InternalListener = IServerInternalEvents[keyof IServerInternalEvents];
+type NativeEvents = Pick<RockSandboxServer, "on" | "off" | "emit">;
 
-interface IRockSandboxEventsAPI {
-  on(eventName: string, listener: InternalListener): void;
-  off(eventName: string, listener: InternalListener): void;
-  emit(eventName: string, ...args: unknown[]): void;
-}
-
-function nativeEvents(member: string): IRockSandboxEventsAPI {
+function nativeEvents(member: string): NativeEvents {
   const candidate: unknown = Reflect.get(globalThis, "rockSandbox");
-  const api = candidate as Partial<IRockSandboxEventsAPI> | null | undefined;
+  const api = candidate as Partial<NativeEvents> | null | undefined;
   if (
     typeof api !== "object" ||
     api === null ||
@@ -27,26 +22,28 @@ function nativeEvents(member: string): IRockSandboxEventsAPI {
         "Run inside Rock Sandbox with nodejs and rebuild the runtime with python3 scripts/nodejs.py build.",
     );
   }
-  return api as IRockSandboxEventsAPI;
+  return api as NativeEvents;
 }
 
 export class RockSandboxEventsManager implements IEventsManager {
   public onInternal(events: Partial<IServerInternalEvents>): void {
     const api = nativeEvents("onInternal");
     for (const [eventName, handler] of Object.entries(events)) {
-      api.on(eventName, handler);
+      // The public event map checks each tuple; forward heterogeneous handlers
+      // without wrapping them so native off() can match their original identity.
+      api.on<string, never[]>(eventName, handler);
     }
   }
 
   public offInternal<K extends keyof IServerInternalEvents>(eventName: K, listener: IServerInternalEvents[K]): void {
-    nativeEvents("offInternal").off(eventName, listener);
+    nativeEvents("offInternal").off<string, never[]>(eventName, listener);
   }
 
   public emitInternal<K extends keyof IServerInternalEvents>(
     eventName: K,
     ...args: Parameters<IServerInternalEvents[K]>
   ): void {
-    nativeEvents("emitInternal").emit(eventName, ...args);
+    nativeEvents("emitInternal").emit<string>(eventName, ...args);
   }
 
   public onClient(_events: Partial<IClientToServerEvents>): void {
