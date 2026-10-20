@@ -1,6 +1,6 @@
 # Rock-Mod
 
-**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** provides a client and server scaffold with throwing stubs for future integration with Rock Sandbox.
+**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server internal events; its other game APIs and client remain throwing stubs.
 
 ### Installation
 
@@ -28,7 +28,7 @@ Rock-Mod recognizes five multiplayer types:
 2. **RageMP** - For developing mods for RageMP servers
 3. **AltV** - For developing mods for AltV servers
 4. **Mock** - For testing and development without multiplayer dependencies
-5. **RockSandbox** - Client and server scaffold; all game operations throw until implemented
+5. **RockSandbox** - Native server internal events; other game operations remain stubs
 
 ### RockSandbox scaffold
 
@@ -43,17 +43,36 @@ const rockMod = await RockMod.create({ multiplayer: "RockSandbox" });
 On the client, import `RockMod` from `rock-mod/client` and use the same option.
 Initialization requires no game runtime and creates explicit stub classes for all managers.
 Structural components such as `net.events`, `net.rpc`, `net.dataHandler` (client only)
-and entity manager iterators are accessible. Every operation and game-state getter
-throws an `Error` identifying the platform, side, class and member:
+and entity manager iterators are accessible.
+
+On the server, `net.events.onInternal`, `offInternal` and `emitInternal` delegate
+to the native `rockSandbox.on`, `off` and `emit` API. Rock-mod has no separate
+event registry or fallback implementation. These methods require the embedded
+Rock Sandbox runtime; creation of RockMod itself still works without a host.
+If the event API is missing, rebuild the server bundle in rock-sandbox:
+
+```sh
+python3 scripts/nodejs.py build
+```
+
+Delivery is synchronous, preserves argument references and registration order,
+and propagates synchronous handler exceptions. Duplicate subscriptions are
+independent; removal affects the last matching registration. Handler changes
+during dispatch take effect on the next dispatch, including a nested one.
+An event without listeners is valid.
+
+This does not generate player or entity lifecycle events: their platform
+integration is a later stage. Client events, RPC and game-state operations still
+throw an `Error` identifying the platform, side, class and member:
 
 ```typescript
 rockMod.world.setTimeHour(12);
 // Error: [RockSandbox:server] RockSandboxWorldManager.setTimeHour: not implemented
 ```
 
-Methods returning `Promise` also throw synchronously when called. The scaffold does
-not simulate game state, subscribe to events or connect to Rock Sandbox. Replace
-individual stubs incrementally as runtime integration is implemented.
+Unimplemented methods returning `Promise` also throw synchronously when called.
+The scaffold does not simulate game state or automatically subscribe to host
+events during construction.
 
 ### Mock Mode
 
@@ -131,7 +150,8 @@ rockMod.simulatePlayerDisconnect(player);
 ### Documentation
 
 Client-side implementations are available for RageMP and VIMP. RockSandbox has
-throwing client and server stubs; AltV and Mock remain server-only.
+native server internal events and otherwise throwing client/server stubs; AltV
+and Mock remain server-only.
 
 Rock-Mod simplifies multiplayer mod development by providing unified tools for managing game entities, networking, and more across different platforms.
 
