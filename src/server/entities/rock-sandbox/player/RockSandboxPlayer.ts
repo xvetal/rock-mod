@@ -35,6 +35,10 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return new Vector3D(x, -z, y);
   }
 
+  public override setPosition(value: IVector3D): void {
+    this._nativePlayer.setPosition({ x: value.x, y: value.z, z: -value.y });
+  }
+
   public get name(): string {
     return this._nativePlayer.name;
   }

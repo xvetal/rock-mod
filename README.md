@@ -1,6 +1,6 @@
 # Rock-Mod
 
-**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server internal events, read-only player state and queued kick; its other game APIs and client remain throwing stubs.
+**Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server internal events, player state and queued kick/movement; its other game APIs and client remain throwing stubs.
 
 ### Installation
 
@@ -45,7 +45,7 @@ Rock-Mod recognizes five multiplayer types:
 2. **RageMP** - For developing mods for RageMP servers
 3. **AltV** - For developing mods for AltV servers
 4. **Mock** - For testing and development without multiplayer dependencies
-5. **RockSandbox** - Native server internal events, read-only player state and queued kick; other game operations remain stubs
+5. **RockSandbox** - Native server internal events, player state and queued kick/movement; other game operations remain stubs
 
 ### RockSandbox scaffold
 
@@ -132,7 +132,26 @@ Pending commands are discarded during shutdown. Reasons use the reliable
 control channel with a one-second delivery interval; a lost connection can
 prevent delivery. Server and clients must use **game protocol 13**.
 
-Player queries require the server and addon rebuilt together with **ABI 4**.
+`player.setPosition(position)` rotates SDK Z-up `(x, y, z)` into engine
+`(x, z, -y)` and delegates to the native handle. Native validation and errors
+propagate unchanged. It copies coordinates into the same bounded FIFO as kick;
+repeated moves remain separate commands. Reads change after the next successful
+host publication, including passes without a physics tick. Numeric coordinates
+must remain finite and strictly below 1,000,000 in magnitude after `f32`
+conversion. Invalid arguments, a full queue or a closed runtime throw
+synchronously; a valid request for an absent player is ignored.
+
+The native operation clears velocity, movement, ladder state and old controls,
+preserving ID, wrapper identity, health, weapon, ammunition and life. A seated
+player is detached without moving the car or other occupants; a driver stops
+applying previous car commands. Dead players keep disabled physics and their
+death deadline, with automatic respawn anchored at the new point. No extra
+lifecycle events are emitted. Clients correct on the next regular simulation
+snapshot; simulation pauses delay correction until resumption. Later physics,
+terrain loading and world-bound recovery still apply. Other entity types retain
+their existing `setPosition()` stubs. `spawn()` and health mutation remain stubs.
+
+Player queries require the server and addon rebuilt together with **ABI 5**.
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts
@@ -225,7 +244,7 @@ rockMod.simulatePlayerDisconnect(player);
 ### Documentation
 
 Client-side implementations are available for RageMP and VIMP. RockSandbox has
-native server internal events, read-only player state and queued kick, with remaining
+native server internal events, player state and queued kick/movement, with remaining
 client/server APIs implemented as throwing stubs; AltV
 and Mock remain server-only.
 
