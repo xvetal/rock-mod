@@ -134,7 +134,7 @@ Deleting or copying that file changes or shares the identity. It provides no
 proof of account ownership and must not enable production remembered-session
 authorization. Validation, file persistence and admission belong to RockSandbox;
 the SDK only forwards the getter and its errors. Social Club search remains a
-stub. Rebuild the server/addon with **ABI 10** and clients with **game protocol 14**.
+stub. Rebuild the server/addon with **ABI 11** and clients with **game protocol 14**.
 
 Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
 `id` and `type` remain available, `isExists` is `false`, and `name`/`position`
@@ -249,7 +249,12 @@ prediction. Protocol remains **14**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
 Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 10**.
+Player queries require the server and addon rebuilt together with **ABI 11**.
+ABI 11 also requires the Node-thread interrupt shutdown and actual V8 termination
+guard; rebuild the complete Sandbox bundle. The public
+SDK/native API and game protocol **14** are unchanged. Closed-host errors and
+local exception identity are preserved.
+
 Before networking starts and in offline `--ticks` mode the player list is empty.
 The adapter uses one internal `getRockSandbox()` getter for player and event
 calls. It reads the current host without validation or caching. Missing hosts
