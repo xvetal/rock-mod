@@ -398,3 +398,29 @@ test("health and isDead delegate to native getters without deriving or caching s
     (caught) => caught === error,
   );
 });
+
+test("setHealth delegates values without validation or clamping and preserves native errors", () => {
+  const calls = [];
+  const failure = new Error("native health failed");
+  let failing = false;
+  const native = {
+    id: 45,
+    setHealth(value) {
+      assert.equal(this, native);
+      calls.push(value);
+      if (failing) throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(45);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  const values = [0, 100, 50, -1, 101, 1.5, undefined];
+  for (const value of values) assert.equal(player.setHealth(value), undefined);
+  assert.deepEqual(calls, values);
+  failing = true;
+  assert.throws(
+    () => player.setHealth(50),
+    (error) => error === failure,
+  );
+  assert.equal(calls.length, values.length + 1);
+});
