@@ -962,3 +962,97 @@ test("blips delegate mutations, preserve handle identity and translate current g
     (e) => e === error,
   );
 });
+
+test("all 16 marker presets delegate to native handles with independent IDs and coordinate bases", () => {
+  const presets = require("./fixtures/rock-sandbox-marker-presets.json");
+  assert.equal(presets.length, 16);
+  const calls = [],
+    items = new Map();
+  const types = { 0: "cone", 1: "cylinder", 27: "ringArrows" };
+  const api = {
+    create(options) {
+      calls.push(["create", options]);
+      const native = { id: items.size + 1, isExists: true, visible: true, ...options };
+      for (const method of [
+        "setPosition",
+        "setRotation",
+        "setDimension",
+        "setScale",
+        "setColor",
+        "setVisible",
+        "destroy",
+      ]) {
+        native[method] = function (...args) {
+          assert.equal(this, native);
+          calls.push([method, ...args]);
+        };
+      }
+      items.set(native.id, native);
+      return native;
+    },
+    all: () => [...items.values()],
+    getById: (id) => items.get(id) ?? null,
+  };
+  Reflect.set(globalThis, "rockSandbox", { markers: api });
+  for (const p of presets) {
+    const m = mod.markers.create({
+      ...p,
+      position: { x: 1, y: 2, z: 3 },
+      rotation: { x: 10, y: 20, z: 30 },
+      dimension: 7,
+    });
+    assert.equal(calls.at(-1)[1].type, types[p.type]);
+    assert.deepEqual(calls.at(-1)[1].position, { x: 1, y: 3, z: -2 });
+    assert.deepEqual(calls.at(-1)[1].rotation, { x: 10, y: 30, z: -20 });
+    assert.equal(m.type, RockModBaseObjectType.Marker);
+    assert.equal(m.markerType, p.type);
+    assert.equal(m.isExists, true);
+    assert.equal(m.dimension, 7);
+    assert.equal(m.scale, p.scale);
+    assert.equal(m.visible, true);
+    assert.deepEqual([m.position.x, m.position.y, m.position.z], [1, 2, 3]);
+    assert.deepEqual([m.rotation.x, m.rotation.y, m.rotation.z], [10, 20, 30]);
+    assert.deepEqual([m.color.r, m.color.g, m.color.b, m.color.a], [p.color.r, p.color.g, p.color.b, p.color.a]);
+    assert.equal(mod.markers.getByID(m.id), m);
+    assert.equal(mod.markers.findByID(m.id), m);
+    assert.equal([...mod.markers.iterator.all()].at(-1), m);
+  }
+  const m = mod.markers.getByID(1),
+    native = items.get(1);
+  calls.length = 0;
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  m.setPosition({ x: 4, y: 5, z: 6 });
+  m.setRotation({ x: 40, y: 50, z: 60 });
+  m.setDimension(4294967295);
+  m.setScale(0.7);
+  m.setColor({ r: 4, g: 5, b: 6 });
+  m.setVisible(false);
+  m.destroy();
+  assert.deepEqual(calls, [
+    ["setPosition", { x: 4, y: 6, z: -5 }],
+    ["setRotation", { x: 40, y: 60, z: -50 }],
+    ["setDimension", 4294967295],
+    ["setScale", 0.7],
+    ["setColor", { r: 4, g: 5, b: 6, a: undefined }],
+    ["setVisible", false],
+    ["destroy"],
+  ]);
+  const error = new Error("native-marker-failure");
+  native.setScale = () => {
+    throw error;
+  };
+  assert.throws(
+    () => m.setScale(NaN),
+    (e) => e === error,
+  );
+  native.scale = 9;
+  assert.equal(m.scale, 9);
+  Reflect.set(globalThis, "rockSandbox", { markers: api });
+  assert.throws(
+    () =>
+      mod.markers.create({ ...presets[0], type: 999, position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 } }),
+    /unsupported GTA marker type/,
+  );
+  assert.equal(mod.markers.findByID(999), null);
+  assert.throws(() => mod.markers.getByID(999), /not found/);
+});
