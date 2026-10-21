@@ -758,3 +758,114 @@ test("world weather only translates supported names and delegates native validat
     (error) => error === failure,
   );
 });
+
+test("cylinder wrapper delegates geometry and participants and installs all lifecycle bridges once", () => {
+  host();
+  const api = globalThis.rockSandbox;
+  const calls = [];
+  const nativePlayer = {};
+  const native = {
+    id: 700,
+    isExists: true,
+    key: "native key",
+    position: { x: 1, y: 3, z: -2 },
+    dimension: 9,
+    playersInside: [nativePlayer],
+    setPosition(value) {
+      assert.equal(this, native);
+      calls.push(["position", value]);
+    },
+    setDimension(value) {
+      assert.equal(this, native);
+      calls.push(["dimension", value]);
+    },
+    destroy() {
+      assert.equal(this, native);
+      calls.push(["destroy"]);
+    },
+  };
+  const listeners = new Map();
+  const subscriptions = [];
+  Object.assign(api, {
+    colshapes: {
+      createCylinder(options) {
+        calls.push(["create", options]);
+        return native;
+      },
+      all: () => [native],
+      getById: (id) => (id === native.id ? native : null),
+    },
+    on(name, handler) {
+      subscriptions.push([name, handler]);
+      const list = listeners.get(name) || [];
+      list.push(handler);
+      listeners.set(name, list);
+    },
+    off(name, handler) {
+      const list = listeners.get(name) || [];
+      const i = list.lastIndexOf(handler);
+      if (i >= 0) list.splice(i, 1);
+    },
+    emit(name, ...args) {
+      for (const fn of [...(listeners.get(name) || [])]) fn(...args);
+    },
+  });
+  const shape = mod.colshapes.createCylinder({
+    position: { x: 1, y: 2, z: 3 },
+    range: 5,
+    height: 8,
+    dimension: 9,
+    key: "zone",
+  });
+  assert.deepEqual(calls.shift(), [
+    "create",
+    { position: { x: 1, y: 3, z: -2 }, radius: 5, height: 8, dimension: 9, key: "zone" },
+  ]);
+  assert.equal(shape.id, native.id);
+  assert.equal(shape.type, RockModBaseObjectType.Colshape);
+  assert.equal(shape.key, "native key");
+  assert.equal(shape.dimension, 9);
+  assert.equal(shape.isExists, true);
+  assert.deepEqual([shape.position.x, shape.position.y, shape.position.z], [1, 2, 3]);
+  assert.equal(mod.colshapes.findByID(native.id), shape);
+  assert.equal(mod.colshapes.getByID(native.id), shape);
+  assert.equal([...mod.colshapes.iterator.all()][0], shape);
+  assert.equal(mod.colshapes.findByID(1), null);
+  assert.throws(() => mod.colshapes.getByID(1), /colshape 1 not found/);
+  shape.setPosition({ x: 4, y: 5, z: 6 });
+  shape.setDimension(4294967295);
+  shape.destroy();
+  assert.deepEqual(calls.splice(0), [["position", { x: 4, y: 6, z: -5 }], ["dimension", 4294967295], ["destroy"]]);
+  const received = [];
+  const handler = (p, c) => received.push([p, c]);
+  mod.net.events.onInternal({ "rm::playerEnteredColshape": handler });
+  mod.net.events.onInternal({ "rm::playerEnteredColshape": handler, "rm::playerLeftColshape": handler });
+  for (const name of [
+    "playerConnected",
+    "playerDisconnected",
+    "playerDeath",
+    "playerEnteredColshape",
+    "playerLeftColshape",
+  ])
+    assert.equal(subscriptions.filter(([event]) => event === name).length, 1);
+  assert.equal(subscriptions.find(([name]) => name === "rm::playerEnteredColshape")[1], handler);
+  api.emit("playerEnteredColshape", nativePlayer, native);
+  const [wrapped] = mod.colshapes.getParticipants(shape);
+  assert.deepEqual(received.splice(0), [
+    [wrapped, shape],
+    [wrapped, shape],
+  ]);
+  mod.net.events.offInternal("rm::playerEnteredColshape", handler);
+  api.emit("playerEnteredColshape", nativePlayer, native);
+  assert.deepEqual(received.splice(0), [[wrapped, shape]]);
+  const error = new Error("native colshape setter error");
+  native.setDimension = () => {
+    throw error;
+  };
+  assert.throws(
+    () => shape.setDimension(-1),
+    (e) => e === error,
+  );
+  assert.throws(() => shape.getNetData("x"), /not implemented/);
+  assert.throws(() => mod.colshapes.createSphere({}), /not implemented/);
+});
