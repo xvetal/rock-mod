@@ -136,7 +136,7 @@ Deleting or copying that file changes or shares the identity. It provides no
 proof of account ownership and must not enable production remembered-session
 authorization. Validation, file persistence and admission belong to RockSandbox;
 the SDK only forwards the getter and its errors. Social Club search remains a
-stub. Rebuild the server/addon with **ABI 16** and clients with **game protocol 19**.
+stub. Rebuild the server/addon with **ABI 17** and clients with **game protocol 19**.
 
 Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
 `id` and `type` remain available, `isExists` is `false`, and `name`/`position`
@@ -250,8 +250,8 @@ prediction. Protocol is **19**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
 Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 16**.
-ABI 16 also requires the Node-thread interrupt shutdown and actual V8 termination
+Player queries require the server and addon rebuilt together with **ABI 17**.
+ABI 17 also requires the Node-thread interrupt shutdown and actual V8 termination
 guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **19**. Closed-host errors and
 local exception identity are preserved.
 
@@ -399,7 +399,7 @@ instances; their authored descriptions are retained for re-entry. Other scene
 dynamics keep the existing dimension-based hiding behavior. The authoritative
 world retains one instance of each entity.
 
-Rebuild **server, addon and clients together**: this requires native **ABI 16**
+Rebuild **server, addon and clients together**: this requires native **ABI 17**
 and **game protocol 19** (protocol 18 clients are rejected). ABI 11's safe Node
 shutdown and N-API termination handling are retained. Vehicle/object dimension
 setters, new host events, client JavaScript and gamemod lifecycle adaptation are
@@ -413,7 +413,7 @@ rockSandbox.on("playerConnected", (player) => {
 });
 ```
 
-Server/client streaming uses **game protocol 19** and server/addon **ABI 16**
+Server/client streaming uses **game protocol 19** and server/addon **ABI 17**
 (the global native player snapshot now holds up to 128 players). Rebuild all
 three binaries together. The public scripting API is unchanged: player lookup
 and connection/death events remain global, independent of a client's cell-based
@@ -438,7 +438,7 @@ not delivery-confirmed; broadcasts capture current recipients. Synchronous
 incoming-handler failures log event/player, stop that event and allow later
 messages. Lifecycle errors remain fatal; local emit keeps exception identity.
 
-Rebuild the native server/addon for **ABI 16** and Rust clients for **protocol
+Rebuild the native server/addon for **ABI 17** and Rust clients for **protocol
 19**. Gamemod's existing event-based RPC adapters use this transport; SDK native
 RPC helpers and client JavaScript remain unsupported. See the native
 [API and queue limits](../rock-sandbox/docs/nodejs-server.md#custom-client-events).
@@ -455,7 +455,7 @@ Select `rockSandbox.world.setTimeMode("external")` when a mod supplies its own
 time; returning to `"automatic"` resumes the authored simulation rate without
 a jump. Gamemod makes this selection before bootstrap and retains WorldService's
 timer. Other platforms/common interfaces stay unchanged; three native weather presets are now supported.
-Requires server/addon **ABI 16** and clients **protocol 19**, rebuilt together.
+Requires server/addon **ABI 17** and clients **protocol 19**, rebuilt together.
 See [native world time](../rock-sandbox/docs/world-clock.md).
 
 ### RockSandbox world weather
@@ -472,5 +472,29 @@ the previous snapshot until then. During an automatic transition the getter
 reports the target preset. Native `setWeatherMode("external")` holds the mixture;
 `setWeatherMode("automatic")` returns to the current simulation forecast phase.
 Common SDK interfaces and other platform adapters retain their behavior.
-Rebuild server/addon (**ABI 16**) and clients (**protocol 19**) together. See the
+Rebuild server/addon (**ABI 17**) and clients (**protocol 19**) together. See the
 [native contract and checks](../rock-sandbox/docs/world-weather.md).
+
+### RockSandbox cylinder colshapes
+
+`colshapes.createCylinder({ position, range, height, dimension, key? })`, ID lookup,
+`iterator.all()`, `getParticipants()`, and cylinder ID/type/existence/key/position/
+dimension/mutation/destruction delegate to native RockSandbox. The wrapper rotates
+SDK `(x,y,z)` to engine `(x,z,-y)` and maps `range` to native `radius`. Handles are
+cached by native identity; geometry, membership and queues belong to Sandbox.
+
+Creation returns a searchable handle with initial properties immediately. Later
+writes use the shared FIFO and read back after publication. Zones are centered,
+test the player's point (including dead/seated players) in the exact dimension,
+and create no physics bodies. A native dimension-scoped multilevel cell index
+selects candidates before exact geometry checks.
+
+On the first subscription to any player/colshape lifecycle event, all five native
+bridges are installed once for that host API. `playerEnteredColshape` and
+`playerLeftColshape` only wrap native handles and emit the matching `rm::` event;
+original SDK handlers remain registered in the native registry. Destruction emits
+exits before retirement; getters read the latest state and can already report
+absence. Native events retain intermediate transitions and object identity.
+
+Other shapes, iterator filters and `getNetData`/`setNetData` remain explicit stubs.
+This requires the rebuilt native server/addon **ABI 17**; game protocol stays 19.
