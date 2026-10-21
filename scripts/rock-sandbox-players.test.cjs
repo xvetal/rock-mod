@@ -869,3 +869,96 @@ test("cylinder wrapper delegates geometry and participants and installs all life
   assert.throws(() => shape.getNetData("x"), /not implemented/);
   assert.throws(() => mod.colshapes.createSphere({}), /not implemented/);
 });
+
+test("blips delegate mutations, preserve handle identity and translate current gamemod presets", () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const presets = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures/rock-sandbox-blip-presets.json"), "utf8"));
+  assert.equal(presets.length, 25);
+  const calls = [];
+  let next = 1;
+  const items = new Map();
+  Reflect.set(globalThis, "rockSandbox", {
+    blips: {
+      create: (options) => {
+        calls.push(["create", options]);
+        const item = {
+          id: next++,
+          isExists: true,
+          ...options,
+          color: { ...options.color, a: options.color.a ?? 255 },
+          setPosition: (v) => calls.push(["position", v]),
+          setDimension: (v) => calls.push(["dimension", v]),
+          setName: (v) => calls.push(["name", v]),
+          setIcon: (v) => calls.push(["icon", v]),
+          setColor: (v) => calls.push(["color", v]),
+          setAlpha: (v) => calls.push(["alpha", v]),
+          destroy: () => calls.push(["destroy"]),
+        };
+        items.set(item.id, item);
+        return item;
+      },
+      all: () => [...items.values()],
+      getById: (id) => items.get(id) ?? null,
+    },
+  });
+  for (const preset of presets) {
+    const b = mod.blips.create({
+      ...preset,
+      shortRange: preset.shortRange ?? false,
+      position: { x: 1, y: 2, z: 3 },
+      dimension: 7,
+    });
+    assert.equal(b.sprite, preset.sprite);
+    assert.equal(b.color, preset.color);
+    assert.equal(b.alpha, 255);
+    assert.equal(b.id, next - 1);
+    assert.equal(b.type, RockModBaseObjectType.Blip);
+    assert.equal(b.isExists, true);
+    assert.equal(b.dimension, 7);
+    assert.deepEqual([b.position.x, b.position.y, b.position.z], [1, 2, 3]);
+    assert.equal(b.name, preset.name);
+    assert.equal(b.scale, preset.scale);
+    assert.equal(b.shortRange, preset.shortRange ?? false);
+    assert.equal(mod.blips.findByID(b.id), b);
+    assert.equal(mod.blips.getByID(b.id), b);
+    assert.equal([...mod.blips.iterator.all()].at(-1), b);
+  }
+  const b = mod.blips.getByID(1);
+  calls.length = 0;
+  b.setPosition({ x: 4, y: 5, z: 6 });
+  b.setDimension(4294967295);
+  b.setName("Дом");
+  b.setSprite(921);
+  b.setColor(83);
+  b.setAlpha(17);
+  b.destroy();
+  assert.deepEqual(calls, [
+    ["position", { x: 4, y: 6, z: -5 }],
+    ["dimension", 4294967295],
+    ["name", "Дом"],
+    ["icon", "pistol"],
+    ["color", { r: 155, g: 90, b: 220 }],
+    ["alpha", 17],
+    ["destroy"],
+  ]);
+  assert.throws(() => b.setSprite(999999), /unsupported GTA sprite/);
+  assert.throws(() => b.setColor(999999), /unsupported GTA palette/);
+  assert.throws(
+    () => mod.blips.create({ position: { x: 0, y: 0, z: 0 }, dimension: 0, sprite: 999999 }),
+    /unsupported GTA sprite/,
+  );
+  assert.equal(mod.blips.findByID(99999), null);
+  assert.throws(() => mod.blips.getByID(99999), /not found/);
+  const native = items.get(1);
+  native.color = { r: 4, g: 5, b: 6, a: 255 };
+  assert.throws(() => b.color, /no SDK palette entry/);
+  const error = new Error("native-blip-failure");
+  native.setAlpha = () => {
+    throw error;
+  };
+  assert.throws(
+    () => b.setAlpha(1),
+    (e) => e === error,
+  );
+});
