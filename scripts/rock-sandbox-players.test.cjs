@@ -657,3 +657,59 @@ test("dimension delegates to the native handle without validation, caching or co
     (error) => error === failure,
   );
 });
+
+test("world time delegates native snapshots, values, receiver and errors without clock logic", () => {
+  const calls = [];
+  const snapshot = Object.freeze({ hour: 7, minute: 8, second: 9 });
+  const native = {
+    get time() {
+      calls.push([this, "time"]);
+      return snapshot;
+    },
+    setTimeHour(value) {
+      calls.push([this, "hour", value]);
+    },
+    setTimeMinute(value) {
+      calls.push([this, "minute", value]);
+    },
+    setTimeSecond(value) {
+      calls.push([this, "second", value]);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { world: native });
+  assert.equal(mod.world.time, snapshot);
+  for (const value of [0, 23, 59, -1, "7", undefined, NaN]) {
+    mod.world.setTimeHour(value);
+    mod.world.setTimeMinute(value);
+    mod.world.setTimeSecond(value);
+    assert.deepEqual(calls.slice(-3), [
+      [native, "hour", value],
+      [native, "minute", value],
+      [native, "second", value],
+    ]);
+  }
+  const failure = new Error("native-clock-error");
+  const fail = () => {
+    throw failure;
+  };
+  Reflect.set(globalThis, "rockSandbox", {
+    world: {
+      get time() {
+        throw failure;
+      },
+      setTimeHour: fail,
+      setTimeMinute: fail,
+      setTimeSecond: fail,
+    },
+  });
+  for (const operation of [
+    () => mod.world.time,
+    () => mod.world.setTimeHour(1),
+    () => mod.world.setTimeMinute(2),
+    () => mod.world.setTimeSecond(3),
+  ]) {
+    assert.throws(operation, (error) => error === failure);
+  }
+  assert.throws(() => mod.world.weather, /RockSandboxWorldManager.weather: not implemented/);
+  assert.throws(() => mod.world.setWeather("CLEAR"), /RockSandboxWorldManager.setWeather: not implemented/);
+});
