@@ -1,0 +1,177 @@
+[
+  {
+    "sprite": 40,
+    "color": 2,
+    "scale": 0.7,
+    "shortRange": null,
+    "name": "house.bought"
+  },
+  {
+    "sprite": 350,
+    "color": 17,
+    "scale": 0.7,
+    "shortRange": null,
+    "name": "house.sold"
+  },
+  {
+    "sprite": 52,
+    "color": 2,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "market.default"
+  },
+  {
+    "sprite": 446,
+    "color": 29,
+    "scale": 1,
+    "shortRange": true,
+    "name": "craft-station.default"
+  },
+  {
+    "sprite": 52,
+    "color": 2,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.shop"
+  },
+  {
+    "sprite": 93,
+    "color": 27,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.bar"
+  },
+  {
+    "sprite": 59,
+    "color": 1,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.restaurant"
+  },
+  {
+    "sprite": 361,
+    "color": 5,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.gas_station"
+  },
+  {
+    "sprite": 326,
+    "color": 3,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.car_dealership"
+  },
+  {
+    "sprite": 73,
+    "color": 4,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.clothing_store"
+  },
+  {
+    "sprite": 71,
+    "color": 51,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.barbershop"
+  },
+  {
+    "sprite": 75,
+    "color": 1,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.tattoo_parlor"
+  },
+  {
+    "sprite": 326,
+    "color": 5,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.vehicle_rental"
+  },
+  {
+    "sprite": 921,
+    "color": 5,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.weapon_shop"
+  },
+  {
+    "sprite": 225,
+    "color": 3,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.vehicle_context_spawn"
+  },
+  {
+    "sprite": 72,
+    "color": 5,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.tuning_shop"
+  },
+  {
+    "sprite": 446,
+    "color": 1,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "business.auto_repair_shop"
+  },
+  {
+    "sprite": 437,
+    "color": 83,
+    "scale": 1,
+    "shortRange": null,
+    "name": "organization.default"
+  },
+  {
+    "sprite": 52,
+    "color": 2,
+    "scale": 0.8,
+    "shortRange": true,
+    "name": "fishing.dealer"
+  },
+  {
+    "sprite": 1,
+    "color": 5,
+    "scale": 0.9,
+    "shortRange": false,
+    "name": "quest.task_target"
+  },
+  {
+    "sprite": 437,
+    "color": 1,
+    "scale": 0.9,
+    "shortRange": false,
+    "name": "capture.attacker_entry"
+  },
+  {
+    "sprite": 437,
+    "color": 2,
+    "scale": 0.9,
+    "shortRange": false,
+    "name": "capture.defender_entry"
+  },
+  {
+    "sprite": 1,
+    "color": 5,
+    "scale": 1,
+    "shortRange": false,
+    "name": "taxi.passenger"
+  },
+  {
+    "sprite": 1,
+    "color": 5,
+    "scale": 1,
+    "shortRange": false,
+    "name": "taxi.destination"
+  },
+  {
+    "sprite": 73,
+    "color": 4,
+    "scale": 1,
+    "shortRange": true,
+    "name": "organization.wardrobe"
+  }
+]
