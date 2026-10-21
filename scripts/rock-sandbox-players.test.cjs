@@ -710,6 +710,51 @@ test("world time delegates native snapshots, values, receiver and errors without
   ]) {
     assert.throws(operation, (error) => error === failure);
   }
-  assert.throws(() => mod.world.weather, /RockSandboxWorldManager.weather: not implemented/);
-  assert.throws(() => mod.world.setWeather("CLEAR"), /RockSandboxWorldManager.setWeather: not implemented/);
+});
+
+test("world weather only translates supported names and delegates native validation and errors", () => {
+  const calls = [];
+  let preset = "clear";
+  const failure = new Error("native weather failure");
+  const native = {
+    get weather() {
+      calls.push([this, "get"]);
+      return preset;
+    },
+    setWeather(value) {
+      calls.push([this, value]);
+      if (value === "RAIN") throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { world: native });
+  for (const [sdk, engine] of [
+    ["CLEAR", "clear"],
+    ["CLOUDS", "cloudy"],
+    ["OVERCAST", "overcast"],
+  ]) {
+    preset = engine;
+    assert.equal(mod.world.weather, sdk);
+    assert.deepEqual(calls.at(-1), [native, "get"]);
+    assert.equal(mod.world.setWeather(sdk), undefined);
+    assert.deepEqual(calls.at(-1), [native, engine]);
+  }
+  for (const value of [null, undefined, 7, {}, new String("CLEAR"), "SNOW", "unknown"]) {
+    mod.world.setWeather(value);
+    assert.deepEqual(calls.at(-1), [native, value]);
+  }
+  assert.throws(
+    () => mod.world.setWeather("RAIN"),
+    (error) => error === failure,
+  );
+  Reflect.set(globalThis, "rockSandbox", {
+    world: {
+      get weather() {
+        throw failure;
+      },
+    },
+  });
+  assert.throws(
+    () => mod.world.weather,
+    (error) => error === failure,
+  );
 });
