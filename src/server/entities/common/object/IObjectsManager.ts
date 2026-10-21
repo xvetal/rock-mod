@@ -3,6 +3,7 @@ import { type IObject } from "./IObject";
 
 export interface IObjectCreateOptions extends IEntityCreateOptions {
   alpha: number;
+  collidable?: boolean;
   placeOnGround?: boolean;
 }
 

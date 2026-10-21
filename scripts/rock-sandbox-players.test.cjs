@@ -274,7 +274,7 @@ test("unsupported gameplay operations retain diagnostic stubs", () => {
     () => player.destroy(),
     () => mod.players.getBySocialClub("value"),
     () => mod.players.iterator.range3D(player.position, 10),
-    () => mod.objects.findByID(1),
+    () => mod.objects.iterator.dimension(1),
   ]) {
     assert.throws(operation, /\[RockSandbox:server\].*: not implemented/);
   }
@@ -1055,4 +1055,89 @@ test("all 16 marker presets delegate to native handles with independent IDs and 
   );
   assert.equal(mod.markers.findByID(999), null);
   assert.throws(() => mod.markers.getByID(999), /not found/);
+});
+
+test("static objects delegate native state, retain identity and keep colliders explicit", () => {
+  const calls = [],
+    items = new Map();
+  const options = {
+    model: "prop_rock_4_b",
+    position: { x: 1, y: 2, z: 3 },
+    rotation: { x: 10, y: 20, z: 30 },
+    dimension: 7,
+    alpha: 123,
+    collidable: true,
+  };
+  const api = {
+    create(value) {
+      calls.push(["create", value]);
+      const native = { ...value, id: items.size + 1, isExists: true, modelHash: 4294967295 };
+      for (const member of [
+        "setPosition",
+        "setRotation",
+        "setDimension",
+        "setAlpha",
+        "setNetData",
+        "getNetData",
+        "destroy",
+      ]) {
+        native[member] = function (...args) {
+          assert.equal(this, native);
+          calls.push([member, ...args]);
+          return member === "getNetData" ? options : undefined;
+        };
+      }
+      items.set(native.id, native);
+      return native;
+    },
+    all: () => [...items.values()],
+    getById: (id) => items.get(id) ?? null,
+  };
+  Reflect.set(globalThis, "rockSandbox", { objects: api });
+  const object = mod.objects.create(options);
+  assert.deepEqual(calls[0], [
+    "create",
+    { ...options, position: { x: 1, y: 3, z: -2 }, rotation: { x: 10, y: 30, z: -20 } },
+  ]);
+  assert.equal(object.type, RockModBaseObjectType.Object);
+  assert.equal(object.model, 4294967295);
+  assert.equal(object.alpha, 123);
+  assert.equal(object.dimension, 7);
+  assert.equal(object.isExists, true);
+  assert.deepEqual([object.position.x, object.position.y, object.position.z], [1, 2, 3]);
+  assert.deepEqual([object.rotation.x, object.rotation.y, object.rotation.z], [10, 20, 30]);
+  assert.equal(mod.objects.getByID(1), object);
+  assert.equal(mod.objects.findByID(1), object);
+  assert.deepEqual([...mod.objects.iterator.all()], [object]);
+  assert.equal(mod.objects.findByID(99), null);
+  assert.throws(() => mod.objects.getByID(99), /object 99 not found/);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  calls.length = 0;
+  object.setPosition({ x: 4, y: 5, z: 6 });
+  object.setRotation({ x: 40, y: 50, z: 60 });
+  object.setDimension(8);
+  object.setAlpha(0);
+  object.setNetData("gameObject:collidable", true);
+  assert.equal(object.getNetData("sample"), options);
+  object.destroy();
+  assert.deepEqual(calls, [
+    ["setPosition", { x: 4, y: 6, z: -5 }],
+    ["setRotation", { x: 40, y: 60, z: -50 }],
+    ["setDimension", 8],
+    ["setAlpha", 0],
+    ["setNetData", "gameObject:collidable", true],
+    ["getNetData", "sample"],
+    ["destroy"],
+  ]);
+  const error = new Error("object native error");
+  items.get(1).setAlpha = () => {
+    throw error;
+  };
+  assert.throws(
+    () => object.setAlpha(999),
+    (e) => e === error,
+  );
+  assert.throws(() => object.setModel("other"), /not implemented/);
+  assert.throws(() => mod.objects.create({ ...options, placeOnGround: true }), /placeOnGround is not supported/);
+  assert.throws(() => mod.objects.iterator.dimension(1), /not implemented/);
 });
