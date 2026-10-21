@@ -3,7 +3,6 @@ import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
 import { ServerInternalEventName, type IServerInternalEvents } from "../../common/events/types";
 import { type IPlayer } from "../../../entities";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 import { wrapPlayer } from "../../../entities/rock-sandbox/player/RockSandboxPlayer";
 
@@ -22,6 +21,16 @@ function bridgePlayers(api: RockSandboxServer): void {
     ),
   );
   bridgedHosts.add(api);
+}
+
+const clientBridgedHosts = new WeakSet<RockSandboxServer>();
+
+function bridgeClients(api: RockSandboxServer): void {
+  if (clientBridgedHosts.has(api)) return;
+  api.on("clientEvent", (player, eventName, args) =>
+    api.emit<string>(`rm::client:${eventName}`, wrapPlayer(player), ...args),
+  );
+  clientBridgedHosts.add(api);
 }
 
 export class RockSandboxEventsManager implements IEventsManager {
@@ -52,26 +61,30 @@ export class RockSandboxEventsManager implements IEventsManager {
     getRockSandbox().emit<string>(eventName, ...args);
   }
 
-  public onClient(_events: Partial<IClientToServerEvents>): void {
-    return rockSandboxNotImplemented("server", "RockSandboxEventsManager.onClient");
+  public onClient(events: Partial<IClientToServerEvents>): void {
+    const api = getRockSandbox();
+    bridgeClients(api);
+    for (const [eventName, handler] of Object.entries(events)) {
+      api.on<string, never[]>(`rm::client:${eventName}`, handler);
+    }
   }
 
-  public offClient<K extends keyof IClientToServerEvents>(_eventName: K, _listener: IClientToServerEvents[K]): void {
-    return rockSandboxNotImplemented("server", "RockSandboxEventsManager.offClient");
+  public offClient<K extends keyof IClientToServerEvents>(eventName: K, listener: IClientToServerEvents[K]): void {
+    getRockSandbox().off<string, never[]>(`rm::client:${String(eventName)}`, listener);
   }
 
   public emitClient<K extends keyof IServerToClientEvents>(
-    _player: IPlayer,
-    _eventName: K,
-    ..._args: Parameters<IServerToClientEvents[K]>
+    player: IPlayer,
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
   ): void {
-    return rockSandboxNotImplemented("server", "RockSandboxEventsManager.emitClient");
+    player.emitEvent(eventName, ...args);
   }
 
   public emitAllClients<K extends keyof IServerToClientEvents>(
-    _eventName: K,
-    ..._args: Parameters<IServerToClientEvents[K]>
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
   ): void {
-    return rockSandboxNotImplemented("server", "RockSandboxEventsManager.emitAllClients");
+    getRockSandbox().emitAllClients<string>(eventName, ...args);
   }
 }
