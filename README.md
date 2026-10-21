@@ -117,8 +117,8 @@ stage. Offline `--ticks` produces no player events, and shutdown synthesizes no
 disconnects. Client events now delegate to the native transport (see below). Native SDK RPC helpers and unsupported game operations still throw an `Error` identifying the platform, side, class and member:
 
 ```typescript
-rockMod.world.setTimeHour(12);
-// Error: [RockSandbox:server] RockSandboxWorldManager.setTimeHour: not implemented
+rockMod.world.weather;
+// Error: [RockSandbox:server] RockSandboxWorldManager.weather: not implemented
 ```
 
 The server player manager delegates to native `rockSandbox.players`. It supports
@@ -134,7 +134,7 @@ Deleting or copying that file changes or shares the identity. It provides no
 proof of account ownership and must not enable production remembered-session
 authorization. Validation, file persistence and admission belong to RockSandbox;
 the SDK only forwards the getter and its errors. Social Club search remains a
-stub. Rebuild the server/addon with **ABI 14** and clients with **game protocol 17**.
+stub. Rebuild the server/addon with **ABI 15** and clients with **game protocol 18**.
 
 Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
 `id` and `type` remain available, `isExists` is `false`, and `name`/`position`
@@ -155,7 +155,7 @@ queue or an unavailable runtime can throw synchronously. Validation also runs
 for absent players. Catching a queue-full error lets the server continue.
 Pending commands are discarded during shutdown. Reasons use the reliable
 control channel with a one-second delivery interval; a lost connection can
-prevent delivery. Server and clients must use **game protocol 17**.
+prevent delivery. Server and clients must use **game protocol 18**.
 
 `player.setPosition(position)` rotates SDK Z-up `(x, y, z)` into engine
 `(x, z, -y)` and delegates to the native handle. Native validation and errors
@@ -197,7 +197,7 @@ the next regular simulation snapshot. Automatic respawn stays at three seconds
 with its existing default loadout/ammunition reset when enabled; delay
 configuration is future work.
 Gamemod lifecycle integration remains a separate stage. Other entities and
-existing platforms keep their behavior. Protocol stays **17**.
+existing platforms keep their behavior. Protocol is **18**.
 
 `player.setHealth(value)` delegates directly to the native handle, with no SDK
 validation, clamping, queue or cached state. Native accepts only integer numbers
@@ -244,13 +244,13 @@ lives. Other admissions do not reset it; a reconnect gets `true`.
 Changing policy alone preserves health, life/generation, physics/movement,
 controls, ladder/seat, combat state/loadout and death anchor/deadline, without new
 events. The native engine owns the policy outside the wire snapshot and client
-prediction. Protocol remains **17**. The server `IPlayer` interface exposes both
+prediction. Protocol is **18**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
 Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 14**.
-ABI 14 also requires the Node-thread interrupt shutdown and actual V8 termination
-guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **17**. Closed-host errors and
+Player queries require the server and addon rebuilt together with **ABI 15**.
+ABI 15 also requires the Node-thread interrupt shutdown and actual V8 termination
+guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **18**. Closed-host errors and
 local exception identity are preserved.
 
 Before networking starts and in offline `--ticks` mode the player list is empty.
@@ -397,8 +397,8 @@ instances; their authored descriptions are retained for re-entry. Other scene
 dynamics keep the existing dimension-based hiding behavior. The authoritative
 world retains one instance of each entity.
 
-Rebuild **server, addon and clients together**: this requires native **ABI 14**
-and **game protocol 17** (protocol 16 clients are rejected). ABI 11's safe Node
+Rebuild **server, addon and clients together**: this requires native **ABI 15**
+and **game protocol 18** (protocol 17 clients are rejected). ABI 11's safe Node
 shutdown and N-API termination handling are retained. Vehicle/object dimension
 setters, new host events, client JavaScript and gamemod lifecycle adaptation are
 separate stages.
@@ -411,7 +411,7 @@ rockSandbox.on("playerConnected", (player) => {
 });
 ```
 
-Server/client streaming uses **game protocol 17** and server/addon **ABI 14**
+Server/client streaming uses **game protocol 18** and server/addon **ABI 15**
 (the global native player snapshot now holds up to 128 players). Rebuild all
 three binaries together. The public scripting API is unchanged: player lookup
 and connection/death events remain global, independent of a client's cell-based
@@ -436,7 +436,22 @@ not delivery-confirmed; broadcasts capture current recipients. Synchronous
 incoming-handler failures log event/player, stop that event and allow later
 messages. Lifecycle errors remain fatal; local emit keeps exception identity.
 
-Rebuild the native server/addon for **ABI 14** and Rust clients for **protocol
-17**. Gamemod's existing event-based RPC adapters use this transport; SDK native
+Rebuild the native server/addon for **ABI 15** and Rust clients for **protocol
+18**. Gamemod's existing event-based RPC adapters use this transport; SDK native
 RPC helpers and client JavaScript remain unsupported. See the native
 [API and queue limits](../rock-sandbox/docs/nodejs-server.md#custom-client-events).
+
+### RockSandbox world time
+
+`rockMod.world.time` and `setTimeHour`, `setTimeMinute`, `setTimeSecond` directly
+delegate to native `rockSandbox.world`; the SDK keeps no clock, timer, validation
+or fallback state. Native time snapshots are frozen. Strict integer component
+ranges are 0..23 / 0..59; writes enter the shared FIFO and getters update after
+publication, including passes without a physical tick. Component setters keep
+the other fields at execution time and leave the native time mode unchanged.
+Select `rockSandbox.world.setTimeMode("external")` when a mod supplies its own
+time; returning to `"automatic"` resumes the authored simulation rate without
+a jump. Gamemod makes this selection before bootstrap and retains WorldService's
+timer. Other platforms/common interfaces stay unchanged; weather is still a stub.
+Requires server/addon **ABI 15** and clients **protocol 18**, rebuilt together.
+See [native world time](../rock-sandbox/docs/world-clock.md).
