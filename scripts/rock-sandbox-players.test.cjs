@@ -61,6 +61,50 @@ function host() {
   });
 }
 
+test("client events install one native bridge and delegate handlers and sends unchanged", () => {
+  const calls = [];
+  const subscriptions = [];
+  const native = { id: 73, emitEvent: (...args) => calls.push(["player", ...args]) };
+  const api = {
+    players: { getById: () => native },
+    on: (name, handler) => subscriptions.push([name, handler]),
+    off: (...args) => calls.push(["off", ...args]),
+    emit: (...args) => calls.push(["emit", ...args]),
+    emitAllClients: (...args) => calls.push(["all", ...args]),
+  };
+  Reflect.set(globalThis, "rockSandbox", api);
+  const listener = () => {};
+  mod.net.events.onClient({ request: listener });
+  mod.net.events.onClient({ request: listener });
+  assert.equal(subscriptions.filter(([name]) => name === "clientEvent").length, 1);
+  assert.deepEqual(subscriptions.slice(1), [
+    ["rm::client:request", listener],
+    ["rm::client:request", listener],
+  ]);
+  const player = mod.players.getByID(73);
+  const value = { nested: [1, 2] };
+  subscriptions[0][1](native, "request", [value]);
+  mod.net.events.offClient("request", listener);
+  mod.net.events.emitClient(player, "response", value);
+  player.emitEvent("direct", value);
+  mod.net.events.emitAllClients("broadcast", value);
+  assert.deepEqual(calls, [
+    ["emit", "rm::client:request", player, value],
+    ["off", "rm::client:request", listener],
+    ["player", "response", value],
+    ["player", "direct", value],
+    ["all", "broadcast", value],
+  ]);
+  const error = new Error("native-send-failure");
+  native.emitEvent = () => {
+    throw error;
+  };
+  assert.throws(
+    () => player.emitEvent("response"),
+    (failure) => failure === error,
+  );
+});
+
 test("creation and iterator access need no host; missing APIs fail at the native call", () => {
   assert.equal(typeof mod.players.iterator.all, "function");
   for (const candidate of [undefined, null, {}, { players: {} }, { players: { all() {} } }]) {

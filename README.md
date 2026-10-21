@@ -114,7 +114,7 @@ There is no polling, filtering, extra handler registry or SDK game state.
 
 `playerQuit`, entity lifecycle events, and gamemod persistence remain a later
 stage. Offline `--ticks` produces no player events, and shutdown synthesizes no
-disconnects. Client events, RPC and unsupported game operations still throw an `Error` identifying the platform, side, class and member:
+disconnects. Client events now delegate to the native transport (see below). Native SDK RPC helpers and unsupported game operations still throw an `Error` identifying the platform, side, class and member:
 
 ```typescript
 rockMod.world.setTimeHour(12);
@@ -134,14 +134,13 @@ Deleting or copying that file changes or shares the identity. It provides no
 proof of account ownership and must not enable production remembered-session
 authorization. Validation, file persistence and admission belong to RockSandbox;
 the SDK only forwards the getter and its errors. Social Club search remains a
-stub. Rebuild the server/addon with **ABI 13** and clients with **game protocol 16**.
+stub. Rebuild the server/addon with **ABI 14** and clients with **game protocol 17**.
 
 Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
 `id` and `type` remain available, `isExists` is `false`, and `name`/`position`
 throw the native disconnected-player error. Position is a fresh `Vector3D` in
 **Z-up** coordinates: engine `(x, y, z)` becomes `(x, -z, y)`. This is a rotation,
-not a reflection. Positions already returned remain unchanged. Health,
-other mutations, Social Club lookup, dimension/range filters and other managers still
+not a reflection. Positions already returned remain unchanged. Unsupported mutations, Social Club lookup, dimension/range iterator filters and other managers still
 throw their existing stub errors.
 
 `player.kick(reason?)` delegates directly to the native player. It queues removal
@@ -156,7 +155,7 @@ queue or an unavailable runtime can throw synchronously. Validation also runs
 for absent players. Catching a queue-full error lets the server continue.
 Pending commands are discarded during shutdown. Reasons use the reliable
 control channel with a one-second delivery interval; a lost connection can
-prevent delivery. Server and clients must use **game protocol 16**.
+prevent delivery. Server and clients must use **game protocol 17**.
 
 `player.setPosition(position)` rotates SDK Z-up `(x, y, z)` into engine
 `(x, z, -y)` and delegates to the native handle. Native validation and errors
@@ -198,7 +197,7 @@ the next regular simulation snapshot. Automatic respawn stays at three seconds
 with its existing default loadout/ammunition reset when enabled; delay
 configuration is future work.
 Gamemod lifecycle integration remains a separate stage. Other entities and
-existing platforms keep their behavior. Protocol stays **16**.
+existing platforms keep their behavior. Protocol stays **17**.
 
 `player.setHealth(value)` delegates directly to the native handle, with no SDK
 validation, clamping, queue or cached state. Native accepts only integer numbers
@@ -245,13 +244,13 @@ lives. Other admissions do not reset it; a reconnect gets `true`.
 Changing policy alone preserves health, life/generation, physics/movement,
 controls, ladder/seat, combat state/loadout and death anchor/deadline, without new
 events. The native engine owns the policy outside the wire snapshot and client
-prediction. Protocol remains **16**. The server `IPlayer` interface exposes both
+prediction. Protocol remains **17**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
 Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 13**.
-ABI 13 also requires the Node-thread interrupt shutdown and actual V8 termination
-guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **16**. Closed-host errors and
+Player queries require the server and addon rebuilt together with **ABI 14**.
+ABI 14 also requires the Node-thread interrupt shutdown and actual V8 termination
+guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **17**. Closed-host errors and
 local exception identity are preserved.
 
 Before networking starts and in offline `--ticks` mode the player list is empty.
@@ -398,8 +397,8 @@ instances; their authored descriptions are retained for re-entry. Other scene
 dynamics keep the existing dimension-based hiding behavior. The authoritative
 world retains one instance of each entity.
 
-Rebuild **server, addon and clients together**: this requires native **ABI 13**
-and **game protocol 16** (protocol 15 clients are rejected). ABI 11's safe Node
+Rebuild **server, addon and clients together**: this requires native **ABI 14**
+and **game protocol 17** (protocol 16 clients are rejected). ABI 11's safe Node
 shutdown and N-API termination handling are retained. Vehicle/object dimension
 setters, new host events, client JavaScript and gamemod lifecycle adaptation are
 separate stages.
@@ -412,9 +411,32 @@ rockSandbox.on("playerConnected", (player) => {
 });
 ```
 
-Server/client streaming uses **game protocol 16** and server/addon **ABI 13**
+Server/client streaming uses **game protocol 17** and server/addon **ABI 14**
 (the global native player snapshot now holds up to 128 players). Rebuild all
 three binaries together. The public scripting API is unchanged: player lookup
 and connection/death events remain global, independent of a client's cell-based
 interest area. Moving out of view removes client instances, not authoritative
 entities or native/SDK handles. Safe Node termination from ABI 11 is retained.
+
+## RockSandbox client events
+
+`net.events.onClient/offClient`, `emitClient/emitAllClients` and
+`player.emitEvent` now delegate to RockSandbox's native JSON transport. The SDK
+installs one lazy `clientEvent` bridge per host, wraps the sender, then emits
+`rm::client:<name>` in the native local registry. User callbacks keep their
+original identity, including duplicates and `off`. The SDK adds no serializers,
+queues, handler registry, validation, polling or game state.
+
+Messages are connection-scoped and independent of cell streaming/dimensions.
+Arguments use standard JSON array serialization: undefined/function/symbol
+array entries and nonfinite numbers become null, undefined object fields are
+omitted, `toJSON` runs, and cycles/BigInt throw. Native limits are 128 UTF-8 bytes
+for names, 32 arguments, 64 KiB JSON and nesting 64. Emit success means queued,
+not delivery-confirmed; broadcasts capture current recipients. Synchronous
+incoming-handler failures log event/player, stop that event and allow later
+messages. Lifecycle errors remain fatal; local emit keeps exception identity.
+
+Rebuild the native server/addon for **ABI 14** and Rust clients for **protocol
+17**. Gamemod's existing event-based RPC adapters use this transport; SDK native
+RPC helpers and client JavaScript remain unsupported. See the native
+[API and queue limits](../rock-sandbox/docs/nodejs-server.md#custom-client-events).
