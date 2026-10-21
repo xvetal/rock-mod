@@ -1,7 +1,18 @@
 import { type IWorldManager, type IWorldTime } from "../common/IWorldManager";
-import { type WeatherTypeEnum } from "../../../shared/common/world";
-import { rockSandboxNotImplemented } from "../../../shared/internal/rockSandboxNotImplemented";
+import { WeatherTypeEnum } from "../../../shared/common/world";
+import { type RockSandboxWeatherPreset } from "@rock-sandbox/types/server";
 import { getRockSandbox } from "../../internal/getRockSandbox";
+
+const fromNative: Record<RockSandboxWeatherPreset, WeatherTypeEnum> = {
+  clear: WeatherTypeEnum.CLEAR,
+  cloudy: WeatherTypeEnum.CLOUDS,
+  overcast: WeatherTypeEnum.OVERCAST,
+};
+const toNative = new Map<WeatherTypeEnum, RockSandboxWeatherPreset>([
+  [WeatherTypeEnum.CLEAR, "clear"],
+  [WeatherTypeEnum.CLOUDS, "cloudy"],
+  [WeatherTypeEnum.OVERCAST, "overcast"],
+]);
 
 export class RockSandboxWorldManager implements IWorldManager {
   public get time(): IWorldTime {
@@ -9,7 +20,7 @@ export class RockSandboxWorldManager implements IWorldManager {
   }
 
   public get weather(): WeatherTypeEnum {
-    return rockSandboxNotImplemented("server", "RockSandboxWorldManager.weather");
+    return fromNative[getRockSandbox().world.weather];
   }
 
   public setTimeHour(value: number): void {
@@ -24,7 +35,7 @@ export class RockSandboxWorldManager implements IWorldManager {
     getRockSandbox().world.setTimeSecond(value);
   }
 
-  public setWeather(_value: WeatherTypeEnum): void {
-    return rockSandboxNotImplemented("server", "RockSandboxWorldManager.setWeather");
+  public setWeather(value: WeatherTypeEnum): void {
+    getRockSandbox().world.setWeather(toNative.get(value) ?? (value as unknown as RockSandboxWeatherPreset));
   }
 }
