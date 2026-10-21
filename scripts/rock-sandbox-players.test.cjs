@@ -227,7 +227,6 @@ test("unsupported gameplay operations retain diagnostic stubs", () => {
   const player = mod.players.getByID(1);
   for (const operation of [
     () => player.armour,
-    () => player.dimension,
     () => player.destroy(),
     () => mod.players.getBySocialClub("value"),
     () => mod.players.iterator.range3D(player.position, 10),
@@ -578,4 +577,39 @@ test("death bridge subscribes once, preserves handles and raw reason, and forwar
   mod.net.events.offInternal("rm::playerDeath", fail);
   mod.net.events.offInternal("rm::playerDeath", listener);
   api.emit("playerDeath", nativeVictim, 0, null, context);
+});
+
+test("dimension delegates to the native handle without validation, caching or coercion", () => {
+  let dimension = 4294967295;
+  const calls = [];
+  const failure = new Error("native dimension failure");
+  const native = {
+    id: 42,
+    get dimension() {
+      if (dimension === null) throw failure;
+      return dimension;
+    },
+    setDimension(value) {
+      calls.push([this, value]);
+      if (value === null) throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(42);
+  assert.equal(player.dimension, 4294967295);
+  dimension = 32;
+  assert.equal(player.dimension, 32);
+  for (const value of [0, 4294967295, -1, 1.5, "1", undefined]) {
+    assert.equal(player.setDimension(value), undefined);
+    assert.deepEqual(calls.at(-1), [native, value]);
+  }
+  assert.throws(
+    () => player.setDimension(null),
+    (error) => error === failure,
+  );
+  dimension = null;
+  assert.throws(
+    () => player.dimension,
+    (error) => error === failure,
+  );
 });
