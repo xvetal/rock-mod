@@ -134,7 +134,7 @@ Deleting or copying that file changes or shares the identity. It provides no
 proof of account ownership and must not enable production remembered-session
 authorization. Validation, file persistence and admission belong to RockSandbox;
 the SDK only forwards the getter and its errors. Social Club search remains a
-stub. Rebuild the server/addon with **ABI 11** and clients with **game protocol 14**.
+stub. Rebuild the server/addon with **ABI 12** and clients with **game protocol 15**.
 
 Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
 `id` and `type` remain available, `isExists` is `false`, and `name`/`position`
@@ -156,7 +156,7 @@ queue or an unavailable runtime can throw synchronously. Validation also runs
 for absent players. Catching a queue-full error lets the server continue.
 Pending commands are discarded during shutdown. Reasons use the reliable
 control channel with a one-second delivery interval; a lost connection can
-prevent delivery. Server and clients must use **game protocol 14**.
+prevent delivery. Server and clients must use **game protocol 15**.
 
 `player.setPosition(position)` rotates SDK Z-up `(x, y, z)` into engine
 `(x, z, -y)` and delegates to the native handle. Native validation and errors
@@ -198,7 +198,7 @@ the next regular simulation snapshot. Automatic respawn stays at three seconds
 with its existing default loadout/ammunition reset when enabled; delay
 configuration is future work.
 Gamemod lifecycle integration remains a separate stage. Other entities and
-existing platforms keep their behavior. Protocol stays **14**.
+existing platforms keep their behavior. Protocol stays **15**.
 
 `player.setHealth(value)` delegates directly to the native handle, with no SDK
 validation, clamping, queue or cached state. Native accepts only integer numbers
@@ -245,14 +245,13 @@ lives. Other admissions do not reset it; a reconnect gets `true`.
 Changing policy alone preserves health, life/generation, physics/movement,
 controls, ladder/seat, combat state/loadout and death anchor/deadline, without new
 events. The native engine owns the policy outside the wire snapshot and client
-prediction. Protocol remains **14**. The server `IPlayer` interface exposes both
+prediction. Protocol remains **15**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
 Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 11**.
-ABI 11 also requires the Node-thread interrupt shutdown and actual V8 termination
-guard; rebuild the complete Sandbox bundle. The public
-SDK/native API and game protocol **14** are unchanged. Closed-host errors and
+Player queries require the server and addon rebuilt together with **ABI 12**.
+ABI 12 also requires the Node-thread interrupt shutdown and actual V8 termination
+guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **15**. Closed-host errors and
 local exception identity are preserved.
 
 Before networking starts and in offline `--ticks` mode the player list is empty.
@@ -360,3 +359,53 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ### License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Player dimensions
+
+The SDK player getter and setter delegate directly to the native handle. Generic
+entity dimension methods and iterator dimension filters retain their stubs.
+
+`player.dimension` reads the latest published unsigned 32-bit world number;
+`player.setDimension(value)` queues a change in the native FIFO. Only primitive
+integers from `0` to `4294967295` are accepted. Invalid arguments, a full command
+queue or a closed host throw synchronously, including validation for disconnected
+handles. Valid commands for absent players are ignored. Reads change after the
+next successful host publication, including a pass without a physics tick.
+
+Dimensions follow VIMP's single-world model. Static map geometry and static
+ladders are shared; scene cars and other authored dynamics exist once in world
+`0`. Players see, collide with, shoot and use dynamics only in their own world.
+The public API changes only players. Native player lookup and the connection
+roster stay global; changing visibility emits no lifecycle event.
+
+A real change detaches only that occupant from a vehicle and retires old controls
+by advancing the state generation. It preserves identity, position, orientation,
+life, health, loadout, combat timers, automatic-respawn policy, walking momentum
+and a shared static ladder. The car and its other occupants keep their state.
+Setting the current dimension is a complete no-op. Death remains death, with the
+same respawn deadline and a new anchor at the current position; automatic respawn
+checks free space in the current dimension. Manual/automatic respawns and moves
+preserve the dimension; a new connection starts in `0`.
+
+Snapshots are filtered per recipient. A separate monotonically increasing view
+revision advances on every real change, even an away-and-back FIFO sequence
+between publications. A new view commits on a full snapshot with a new tick;
+older snapshots/events/replies are discarded and future replies wait in a bounded
+256-entry queue (overflow disconnects with a diagnostic). Existing same-tick and
+pause rules remain; client visibility changes on the next normal simulation
+snapshot. Hidden scene dynamics retain their entities and lose prediction,
+rendering, lights, particles and audio until visible again. There are no copies.
+
+Rebuild **server, addon and clients together**: this requires native **ABI 12**
+and **game protocol 15** (protocol 14 clients are rejected). ABI 11's safe Node
+shutdown and N-API termination handling are retained. Vehicle/object dimension
+setters, new host events, client JavaScript and gamemod lifecycle adaptation are
+separate stages.
+
+```js
+rockSandbox.on("playerConnected", (player) => {
+  player.setDimension(42);
+  // Still reads the preceding published snapshot here.
+  console.log(player.id, player.dimension);
+});
+```

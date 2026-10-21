@@ -39,6 +39,14 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     this._nativePlayer.setPosition({ x: value.x, y: value.z, z: -value.y });
   }
 
+  public override get dimension(): number {
+    return this._nativePlayer.dimension;
+  }
+
+  public override setDimension(value: number): void {
+    this._nativePlayer.setDimension(value);
+  }
+
   public get name(): string {
     return this._nativePlayer.name;
   }
