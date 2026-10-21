@@ -6,6 +6,8 @@ import { type IPlayer } from "../../../entities";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 import { wrapPlayer } from "../../../entities/rock-sandbox/player/RockSandboxPlayer";
 
+import { wrapColshape } from "../../../entities/rock-sandbox/colshape/RockSandboxCylinderColshape";
+
 const bridgedHosts = new WeakSet<RockSandboxServer>();
 
 function bridgePlayers(api: RockSandboxServer): void {
@@ -19,6 +21,12 @@ function bridgePlayers(api: RockSandboxServer): void {
       reason,
       killer === null ? null : wrapPlayer(killer),
     ),
+  );
+  api.on("playerEnteredColshape", (player, colshape) =>
+    api.emit(ServerInternalEventName.PlayerEnteredColshape, wrapPlayer(player), wrapColshape(colshape)),
+  );
+  api.on("playerLeftColshape", (player, colshape) =>
+    api.emit(ServerInternalEventName.PlayerLeftColshape, wrapPlayer(player), wrapColshape(colshape)),
   );
   bridgedHosts.add(api);
 }
@@ -39,7 +47,9 @@ export class RockSandboxEventsManager implements IEventsManager {
     if (
       ServerInternalEventName.PlayerConnected in events ||
       ServerInternalEventName.PlayerDisconnected in events ||
-      ServerInternalEventName.PlayerDeath in events
+      ServerInternalEventName.PlayerDeath in events ||
+      ServerInternalEventName.PlayerEnteredColshape in events ||
+      ServerInternalEventName.PlayerLeftColshape in events
     ) {
       bridgePlayers(api);
     }
