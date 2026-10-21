@@ -108,10 +108,10 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public emitEvent<K extends keyof IServerToClientEvents>(
-    _eventName: K,
-    ..._args: Parameters<IServerToClientEvents[K]>
+    eventName: K,
+    ...args: Parameters<IServerToClientEvents[K]>
   ): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.emitEvent");
+    this._nativePlayer.emitEvent<string>(eventName, ...args);
   }
 
   public emitRPC<K extends keyof IClientRPCList>(
