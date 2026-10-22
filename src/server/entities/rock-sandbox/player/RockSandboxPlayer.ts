@@ -125,8 +125,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     this._nativePlayer.spawn({ x: position.x, y: position.z, z: -position.y });
   }
 
-  public setName(_name: string): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.setName");
+  public setName(name: string): void {
+    this._nativePlayer.setName(name);
   }
 
   public setHeading(value: number): void {
