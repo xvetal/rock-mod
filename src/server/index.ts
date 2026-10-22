@@ -20,3 +20,4 @@ export {
   IWorldObject as IRockModWorldObject,
 } from "./entities";
 export * from "./testing";
+export { type IPlayerQuitSnapshot as IRockModPlayerQuitSnapshot } from "./net/common/events/types";
