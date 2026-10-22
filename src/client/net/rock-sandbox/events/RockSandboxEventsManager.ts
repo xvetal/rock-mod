@@ -1,52 +1,66 @@
 import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IServerToClientEvents, type IClientToServerEvents } from "../../../../shared/net/common/events/types";
 import { type IClientInternalEvents } from "../../common/events/types";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { type RockSandboxClient } from "@rock-sandbox/types/client";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
+
+const bridgedHosts = new WeakSet<RockSandboxClient>();
 
 export class RockSandboxEventsManager implements IEventsManager {
-  public onRaw(_events: Partial<IClientEvents>): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.onRaw");
+  public onRaw(events: Partial<IClientEvents>): void {
+    const api = getRockSandbox();
+    for (const [name, handler] of Object.entries(events)) api.on<string, never[]>(name, handler);
   }
 
-  public offRaw<K extends keyof IClientEvents>(_eventName: K, _listener?: IClientEvents[K]): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.offRaw");
+  public offRaw<K extends keyof IClientEvents>(eventName: K, listener?: IClientEvents[K]): void {
+    getRockSandbox().off<string, never[]>(String(eventName), listener);
   }
 
-  public onInternal(_events: Partial<IClientInternalEvents>): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.onInternal");
+  public onInternal(events: Partial<IClientInternalEvents>): void {
+    const api = getRockSandbox();
+    if ("rm::render" in events && !bridgedHosts.has(api)) {
+      api.on("render", () => api.emit<string>("rm::render"));
+      bridgedHosts.add(api);
+    }
+    for (const [name, handler] of Object.entries(events)) api.on<string, never[]>(name, handler);
   }
 
-  public offInternal<K extends keyof IClientInternalEvents>(_eventName: K, _listener?: IClientInternalEvents[K]): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.offInternal");
+  public offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener?: IClientInternalEvents[K]): void {
+    getRockSandbox().off<string, never[]>(eventName, listener);
   }
 
   public emitInternal<K extends keyof IClientInternalEvents>(
-    _eventName: K,
-    ..._args: Parameters<IClientInternalEvents[K]>
+    eventName: K,
+    ...args: Parameters<IClientInternalEvents[K]>
   ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.emitInternal");
+    getRockSandbox().emit<string>(eventName, ...args);
   }
 
-  public onServer(_events: Partial<IServerToClientEvents>): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.onServer");
+  public onServer(events: Partial<IServerToClientEvents>): void {
+    const api = getRockSandbox();
+    for (const [name, handler] of Object.entries(events)) api.onServer<string, never[]>(name, handler);
   }
 
-  public offServer<K extends keyof IServerToClientEvents>(_eventName: K, _listener?: IServerToClientEvents[K]): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.offServer");
+  public offServer<K extends keyof IServerToClientEvents>(eventName: K, listener?: IServerToClientEvents[K]): void {
+    getRockSandbox().offServer<string, never[]>(eventName, listener);
   }
 
   public emitServer<K extends keyof IClientToServerEvents>(
-    _eventName: K,
-    ..._args: Parameters<IClientToServerEvents[K]>
+    eventName: K,
+    ...args: Parameters<IClientToServerEvents[K]>
   ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.emitServer");
+    getRockSandbox().emitServer<string>(eventName, ...args);
   }
 
-  public register(_event: string, _listener: (...args: unknown[]) => void): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.register");
+  public register(event: string, listener: (...args: unknown[]) => void): void {
+    const api = getRockSandbox();
+    api.on<string, unknown[]>(event, listener);
+    api.onServer<string, unknown[]>(event, listener);
   }
 
-  public unregister(_event: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxEventsManager.unregister");
+  public unregister(event: string): void {
+    const api = getRockSandbox();
+    api.off<string, unknown[]>(event);
+    api.offServer<string, unknown[]>(event);
   }
 }
