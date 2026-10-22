@@ -56,7 +56,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get heading(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.heading");
+    return this._nativePlayer.heading;
   }
 
   public get health(): number {
@@ -129,8 +129,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.setName");
   }
 
-  public setHeading(_value: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.setHeading");
+  public setHeading(value: number): void {
+    this._nativePlayer.setHeading(value);
   }
 
   public setAutoRespawn(enabled: boolean): void {
