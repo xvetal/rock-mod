@@ -634,3 +634,20 @@ death/respawn/visibility changes preserve data until disconnect. Remote Rust
 clients receive data separately after physical stream admission. No clothing or
 passive-mode effects are implemented. Rebuild server/addon/clients together for
 ABI 24 / protocol 24; see [the native contract](../rock-sandbox/docs/player-data.md).
+
+### RockSandbox client events
+
+The optional native client Deno Core/V8 runtime now backs `net.events`. Raw and
+internal subscriptions delegate to native local events; server subscriptions use
+the separate native server registry. Generic registration subscribes the original
+function to both. Unsubscribe, serialization, FIFO, limits and error handling stay
+in RockSandbox. The SDK installs one lazy `render` → `rm::render` bridge per host.
+Creating RockMod without host globals still succeeds; unrelated client gameplay
+operations remain explicit stubs.
+
+Bundle `rock-mod/client` and dependencies into local ESM and pass it to a Linux
+x64/glibc client built with `client-js` using `--client-script` and `--connect`.
+The smoke bundle in gamemod checks `client:ready` and the genuine authorization
+UI envelope without providing a browser. ABI 24 / protocol 24 remain unchanged;
+rebuild server and clients for consistent content hashing. Native API declarations
+are available at `@rock-sandbox/types/client` and opt-in `/client/global`.

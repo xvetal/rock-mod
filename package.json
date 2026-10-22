@@ -59,7 +59,7 @@
     "type:client:check": "tsc --noEmit --project src/client/tsconfig.json",
     "type:check": "npm run type:server:check && npm run type:client:check",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:rock-sandbox": "npm run build && node --test scripts/rock-sandbox-players.test.cjs",
+    "test:rock-sandbox": "npm run build && node --test scripts/rock-sandbox-players.test.cjs scripts/rock-sandbox-client.test.mjs",
     "prepare": "husky"
   },
   "husky": {
