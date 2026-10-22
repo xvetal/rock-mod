@@ -136,7 +136,7 @@ Deleting or copying that file changes or shares the identity. It provides no
 proof of account ownership and must not enable production remembered-session
 authorization. Validation, file persistence and admission belong to RockSandbox;
 the SDK only forwards the getter and its errors. Social Club search remains a
-stub. Rebuild the server/addon with **ABI 20** and clients with **game protocol 22**.
+stub. Rebuild the server/addon with **ABI 21** and clients with **game protocol 23**.
 
 Players expose `id`, `type`, `isExists`, `name`, and `position`. After disconnect,
 `id` and `type` remain available, `isExists` is `false`, and `name`/`position`
@@ -157,7 +157,7 @@ queue or an unavailable runtime can throw synchronously. Validation also runs
 for absent players. Catching a queue-full error lets the server continue.
 Pending commands are discarded during shutdown. Reasons use the reliable
 control channel with a one-second delivery interval; a lost connection can
-prevent delivery. Server and clients must use **game protocol 22**.
+prevent delivery. Server and clients must use **game protocol 23**.
 
 `player.setPosition(position)` rotates SDK Z-up `(x, y, z)` into engine
 `(x, z, -y)` and delegates to the native handle. Native validation and errors
@@ -250,9 +250,9 @@ prediction. Protocol is **20**. The server `IPlayer` interface exposes both
 members; RageMP, VIMP, AltV and Mock explicitly throw for these new operations.
 Delay configuration and gamemod lifecycle integration remain later stages.
 
-Player queries require the server and addon rebuilt together with **ABI 20**.
-ABI 20 also requires the Node-thread interrupt shutdown and actual V8 termination
-guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **22**. Closed-host errors and
+Player queries require the server and addon rebuilt together with **ABI 21**.
+ABI 21 also requires the Node-thread interrupt shutdown and actual V8 termination
+guard; rebuild the complete Sandbox bundle. Dimensions add public getters/setters and extend game protocol **23**. Closed-host errors and
 local exception identity are preserved.
 
 Before networking starts and in offline `--ticks` mode the player list is empty.
@@ -399,8 +399,8 @@ instances; their authored descriptions are retained for re-entry. Other scene
 dynamics keep the existing dimension-based hiding behavior. The authoritative
 world retains one instance of each entity.
 
-Rebuild **server, addon and clients together**: this requires native **ABI 20**
-and **game protocol 22** (protocol 18 clients are rejected). ABI 11's safe Node
+Rebuild **server, addon and clients together**: this requires native **ABI 21**
+and **game protocol 23** (protocol 18 clients are rejected). ABI 11's safe Node
 shutdown and N-API termination handling are retained. Vehicle/object dimension
 setters, new host events, client JavaScript and gamemod lifecycle adaptation are
 separate stages.
@@ -413,7 +413,7 @@ rockSandbox.on("playerConnected", (player) => {
 });
 ```
 
-Server/client streaming uses **game protocol 22** and server/addon **ABI 20**
+Server/client streaming uses **game protocol 23** and server/addon **ABI 21**
 (the global native player snapshot now holds up to 128 players). Rebuild all
 three binaries together. The public scripting API is unchanged: player lookup
 and connection/death events remain global, independent of a client's cell-based
@@ -438,7 +438,7 @@ not delivery-confirmed; broadcasts capture current recipients. Synchronous
 incoming-handler failures log event/player, stop that event and allow later
 messages. Lifecycle errors remain fatal; local emit keeps exception identity.
 
-Rebuild the native server/addon for **ABI 20** and Rust clients for **protocol
+Rebuild the native server/addon for **ABI 21** and Rust clients for **protocol
 21**. Gamemod's existing event-based RPC adapters use this transport; SDK native
 RPC helpers and client JavaScript remain unsupported. See the native
 [API and queue limits](../rock-sandbox/docs/nodejs-server.md#custom-client-events).
@@ -455,7 +455,7 @@ Select `rockSandbox.world.setTimeMode("external")` when a mod supplies its own
 time; returning to `"automatic"` resumes the authored simulation rate without
 a jump. Gamemod makes this selection before bootstrap and retains WorldService's
 timer. Other platforms/common interfaces stay unchanged; three native weather presets are now supported.
-Requires server/addon **ABI 20** and clients **protocol 22**, rebuilt together.
+Requires server/addon **ABI 21** and clients **protocol 23**, rebuilt together.
 See [native world time](../rock-sandbox/docs/world-clock.md).
 
 ### RockSandbox world weather
@@ -472,7 +472,7 @@ the previous snapshot until then. During an automatic transition the getter
 reports the target preset. Native `setWeatherMode("external")` holds the mixture;
 `setWeatherMode("automatic")` returns to the current simulation forecast phase.
 Common SDK interfaces and other platform adapters retain their behavior.
-Rebuild server/addon (**ABI 20**) and clients (**protocol 22**) together. See the
+Rebuild server/addon (**ABI 21**) and clients (**protocol 23**) together. See the
 [native contract and checks](../rock-sandbox/docs/world-weather.md).
 
 ### RockSandbox cylinder colshapes
@@ -497,9 +497,9 @@ exits before retirement; getters read the latest state and can already report
 absence. Native events retain intermediate transitions and object identity.
 
 Other shapes, iterator filters and `getNetData`/`setNetData` remain explicit stubs.
-This requires the rebuilt native server/addon **ABI 20**; game protocol stays 22.
+This requires the rebuilt native server/addon **ABI 21**; game protocol stays 23.
 
-### RockSandbox blips (ABI 20 / protocol 22)
+### RockSandbox blips (ABI 21 / protocol 23)
 
 The server blip manager now delegates creation, lookup, iteration, state and its
 existing mutations to native blips. SDK `(x,y,z)` becomes engine `(x,z,-y)`;
@@ -519,7 +519,7 @@ a physics tick. Local blips stream by world cells; global bypasses distance but
 never dimension. The Rust radar renders named glyphs on a north-up 200m panel.
 Server, standalone addon and clients must be rebuilt together.
 
-### RockSandbox ground markers (ABI 20 / protocol 22)
+### RockSandbox ground markers (ABI 21 / protocol 23)
 
 `markers.create`, ID lookup and `iterator.all()` delegate to native markers and
 preserve wrapper identity via WeakMap. The 16 gamemod presets map SDK types
@@ -541,9 +541,9 @@ physics, automatic ground alignment, camera alignment or animation. Invisible
 markers remain in the native server pool. Cell AOI, dimensions and hysteresis
 share the existing annotation stream with blips: one atomic transaction/ACK and
 one combined 1/8 bandwidth reserve. Rebuild server/addon and clients for
-**ABI 20 / protocol 22**. See [native markers](../rock-sandbox/docs/markers.md).
+**ABI 21 / protocol 23**. See [native markers](../rock-sandbox/docs/markers.md).
 
-## Native static objects (ABI 20 / protocol 22)
+## Native static objects (ABI 21 / protocol 23)
 
 `rockSandbox.objects.create({ model: "prop_rock_4_b", position: {x: 4,y: 0,z: 4}, collidable: true })`
 creates a catalog-backed static object. Defaults: zero rotation, dimension 0,
@@ -573,6 +573,20 @@ and inverse `(x,y,z) -> (x,-z,y)`. `setModel`, iterator filters and automatic gr
 placement remain unsupported. The optional SDK collidable flag is passed by
 gamemod; other platform adapters retain their previous behavior.
 
-Rebuild server, addon and clients together for **ABI 20 / protocol 22**; ABI 19
+Rebuild server, addon and clients together for **ABI 21 / protocol 23**; ABI 19
 and protocol 21 are incompatible. See the neighboring rock-sandbox `docs/objects.md`
 for the full catalog, physics, transport and verification contract.
+
+## RockSandbox player heading (ABI 21 / protocol 23)
+
+`player.heading` and `player.setHeading(value)` directly delegate to RockSandbox.
+The scalar angle uses degrees: 0 faces engine -Z and 90 faces -X; the SDK adds no
+axis conversion, normalization, validation, queue or cached state.
+
+The native FIFO publishes the normalized angle after the next successful server
+pass, including a zero-tick pass. The body turns without moving the camera or
+resetting movement/combat. Bound seated/ladder poses and dead players ignore the
+setter; subsequent movement/aim can turn a free body naturally. Strict native
+argument, absent-player, closed-runtime and overflow rules remain in effect.
+See the [native heading contract](../rock-sandbox/docs/player-heading.md).
+Server, addon and clients must be rebuilt together for **ABI 21 / protocol 23**.

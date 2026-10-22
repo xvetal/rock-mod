@@ -1141,3 +1141,39 @@ test("static objects delegate native state, retain identity and keep colliders e
   assert.throws(() => mod.objects.create({ ...options, placeOnGround: true }), /placeOnGround is not supported/);
   assert.throws(() => mod.objects.iterator.dimension(1), /not implemented/);
 });
+
+test("heading delegates angles and native errors without normalizing or caching", () => {
+  const calls = [];
+  let heading = 270;
+  const failure = new Error("native heading failure");
+  const native = {
+    id: 86,
+    get heading() {
+      return heading;
+    },
+    setHeading(value) {
+      calls.push(value);
+      if (value === null) throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(86);
+  assert.equal(player.heading, 270);
+  heading = 45.5;
+  assert.equal(player.heading, 45.5);
+  for (const value of [-450, 720.25, NaN, Infinity, "90", undefined]) assert.equal(player.setHeading(value), undefined);
+  assert.deepEqual(calls, [-450, 720.25, NaN, Infinity, "90", undefined]);
+  assert.throws(
+    () => player.setHeading(null),
+    (error) => error === failure,
+  );
+  Object.defineProperty(native, "heading", {
+    get() {
+      throw failure;
+    },
+  });
+  assert.throws(
+    () => player.heading,
+    (error) => error === failure,
+  );
+});
