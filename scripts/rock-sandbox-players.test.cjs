@@ -1281,3 +1281,47 @@ test("quit-only subscriptions lazily install one bridge and preserve off and exc
     (error) => error === failure,
   );
 });
+
+test("player metadata delegates values, keys, results and native errors without caching", () => {
+  const calls = [];
+  const result = Object.freeze({ nested: Object.freeze([1]) });
+  const error = new Error("native metadata failure");
+  const native = {
+    id: 91,
+    getNetData(key) {
+      calls.push(["get", key]);
+      if (key === "failure") throw error;
+      return result;
+    },
+    setNetData(key, value) {
+      calls.push(["set", key, value]);
+      if (key === "failure") throw error;
+    },
+  };
+  globalThis.rockSandbox = { players: { getById: () => native } };
+  const player = mod.players.getByID(91);
+  const value = {
+    toJSON() {
+      throw new Error("wrapper must not serialize");
+    },
+  };
+  assert.equal(player.setNetData("sid", value), undefined);
+  assert.equal(player.setNetData("sid", undefined), undefined);
+  assert.equal(player.getNetData("sid"), result);
+  assert.equal(player.getNetData("sid"), result);
+  assert.throws(
+    () => player.getNetData("failure"),
+    (e) => e === error,
+  );
+  assert.throws(
+    () => player.setNetData("failure", value),
+    (e) => e === error,
+  );
+  assert.equal(player, mod.players.getByID(91));
+  assert.deepEqual(calls.slice(0, 4), [
+    ["set", "sid", value],
+    ["set", "sid", undefined],
+    ["get", "sid"],
+    ["get", "sid"],
+  ]);
+});
