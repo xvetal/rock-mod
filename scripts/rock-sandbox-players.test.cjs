@@ -325,8 +325,28 @@ test("lifecycle bridges are lazy, installed once per host, and retain native han
   api.emit("playerConnected", native);
   assert.deepEqual(calls.splice(0), [["connected", wrapped]]);
   records.delete(1);
-  api.emit("playerDisconnected", native);
+  const exit = Object.freeze({
+    exitType: "kicked",
+    reason: "Причина выхода 🚪",
+    snapshot: Object.freeze({
+      id: 1,
+      health: 37,
+      weaponAmmo: 7,
+      heading: 62.5,
+      dimension: 9,
+      position: Object.freeze({ x: 1, y: 2, z: 3 }),
+    }),
+  });
+  const quits = [];
+  const quit = (...args) => quits.push(args);
+  mod.net.events.onInternal({ "rm::playerQuit": quit });
+  assert.equal(subscriptions.find(([name]) => name === "rm::playerQuit")[1], quit);
+  api.emit("playerDisconnected", native, exit);
   assert.deepEqual(calls.splice(0), [["disconnected", wrapped]]);
+  assert.equal(quits[0][0], wrapped);
+  assert.deepEqual(quits[0].slice(1), ["kicked", exit.reason, { ...exit.snapshot, position: { x: 1, y: -3, z: 2 } }]);
+  assert.equal(Object.isFrozen(quits[0][3]), true);
+  assert.equal(Object.isFrozen(quits[0][3].position), true);
   assert.equal(wrapped.isExists, false);
   assert.equal(mod.players.findByID(1), null);
   const failure = new Error("SDK lifecycle failure");
@@ -335,11 +355,11 @@ test("lifecycle bridges are lazy, installed once per host, and retain native han
   };
   mod.net.events.onInternal({ "rm::playerDisconnected": fail });
   assert.throws(
-    () => api.emit("playerDisconnected", native),
+    () => api.emit("playerDisconnected", native, exit),
     (error) => error === failure,
   );
   mod.net.events.offInternal("rm::playerDisconnected", fail);
-  api.emit("playerDisconnected", native);
+  api.emit("playerDisconnected", native, exit);
 
   const replacement = { on: api.on, off: api.off, emit: api.emit };
   Reflect.set(globalThis, "rockSandbox", replacement);
@@ -1174,6 +1194,63 @@ test("heading delegates angles and native errors without normalizing or caching"
   });
   assert.throws(
     () => player.heading,
+    (error) => error === failure,
+  );
+});
+
+test("quit-only subscriptions lazily install one bridge and preserve off and exceptions", () => {
+  const listeners = new Map();
+  const subscriptions = [];
+  const api = {
+    on(name, handler) {
+      subscriptions.push([name, handler]);
+      const handlers = listeners.get(name) || [];
+      handlers.push(handler);
+      listeners.set(name, handlers);
+    },
+    off(name, handler) {
+      const handlers = listeners.get(name) || [];
+      const index = handlers.lastIndexOf(handler);
+      if (index >= 0) handlers.splice(index, 1);
+    },
+    emit(name, ...args) {
+      for (const handler of [...(listeners.get(name) || [])]) handler(...args);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", api);
+  const calls = [];
+  const handler = (...args) => calls.push(args);
+  mod.net.events.onInternal({ "rm::playerQuit": handler });
+  mod.net.events.onInternal({ "rm::playerQuit": handler });
+  assert.equal(subscriptions.filter(([name]) => name === "playerDisconnected").length, 1);
+  assert.equal(subscriptions.find(([name]) => name === "rm::playerQuit")[1], handler);
+  const native = { id: 100 };
+  const context = {
+    exitType: "disconnect",
+    reason: "timeout",
+    snapshot: {
+      id: 100,
+      health: 0,
+      weaponAmmo: 3,
+      position: { x: 1, y: 2, z: 3 },
+      heading: 270,
+      dimension: 4294967295,
+    },
+  };
+  api.emit("playerDisconnected", native, context);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0][0], calls[1][0]);
+  mod.net.events.offInternal("rm::playerQuit", handler);
+  api.emit("playerDisconnected", native, context);
+  assert.equal(calls.length, 3);
+  const failure = new Error("quit failure");
+  mod.net.events.onInternal({
+    "rm::playerQuit": () => {
+      throw failure;
+    },
+  });
+  assert.throws(
+    () => api.emit("playerDisconnected", native, context),
     (error) => error === failure,
   );
 });

@@ -1,7 +1,11 @@
 import { type RockSandboxServer } from "@rock-sandbox/types/server";
 import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
-import { ServerInternalEventName, type IServerInternalEvents } from "../../common/events/types";
+import {
+  ServerInternalEventName,
+  type IServerInternalEvents,
+  type IPlayerQuitSnapshot,
+} from "../../common/events/types";
 import { type IPlayer } from "../../../entities";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 import { wrapPlayer } from "../../../entities/rock-sandbox/player/RockSandboxPlayer";
@@ -13,7 +17,16 @@ const bridgedHosts = new WeakSet<RockSandboxServer>();
 function bridgePlayers(api: RockSandboxServer): void {
   if (bridgedHosts.has(api)) return;
   api.on("playerConnected", (player) => api.emit(ServerInternalEventName.PlayerConnected, wrapPlayer(player)));
-  api.on("playerDisconnected", (player) => api.emit(ServerInternalEventName.PlayerDisconnected, wrapPlayer(player)));
+  api.on("playerDisconnected", (player, context) => {
+    const wrapped = wrapPlayer(player);
+    const { x, y, z } = context.snapshot.position;
+    const snapshot: IPlayerQuitSnapshot = Object.freeze({
+      ...context.snapshot,
+      position: Object.freeze({ x, y: -z, z: y }),
+    });
+    api.emit(ServerInternalEventName.PlayerQuit, wrapped, context.exitType, context.reason, snapshot);
+    api.emit(ServerInternalEventName.PlayerDisconnected, wrapped);
+  });
   api.on("playerDeath", (player, reason, killer) =>
     api.emit(
       ServerInternalEventName.PlayerDeath,
@@ -47,6 +60,7 @@ export class RockSandboxEventsManager implements IEventsManager {
     if (
       ServerInternalEventName.PlayerConnected in events ||
       ServerInternalEventName.PlayerDisconnected in events ||
+      ServerInternalEventName.PlayerQuit in events ||
       ServerInternalEventName.PlayerDeath in events ||
       ServerInternalEventName.PlayerEnteredColshape in events ||
       ServerInternalEventName.PlayerLeftColshape in events
