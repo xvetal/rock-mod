@@ -1198,6 +1198,33 @@ test("heading delegates angles and native errors without normalizing or caching"
   );
 });
 
+test("name delegates unchanged values, published state and native errors", () => {
+  const calls = [];
+  let name = "Before";
+  const failure = new Error("native name failure");
+  const native = {
+    id: 87,
+    get name() {
+      return name;
+    },
+    setName(value) {
+      calls.push(value);
+      if (value === null) throw failure;
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(87);
+  for (const value of ["  Имя  ", "", "a".repeat(100), 42, undefined]) assert.equal(player.setName(value), undefined);
+  assert.deepEqual(calls, ["  Имя  ", "", "a".repeat(100), 42, undefined]);
+  assert.equal(player.name, "Before");
+  name = "After";
+  assert.equal(player.name, "After");
+  assert.throws(
+    () => player.setName(null),
+    (error) => error === failure,
+  );
+});
+
 test("quit-only subscriptions lazily install one bridge and preserve off and exceptions", () => {
   const listeners = new Map();
   const subscriptions = [];
