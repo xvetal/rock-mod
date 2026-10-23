@@ -1,20 +1,20 @@
 import { type IStorageManager } from "../../common/storage/IStorageManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxStorageManager implements IStorageManager {
-  public getData<T>(_key: string): T | null {
-    return rockSandboxNotImplemented("client", "RockSandboxStorageManager.getData");
+  public getData<T>(key: string): T | null {
+    return getRockSandbox().storage.getItem<T>(key);
   }
 
-  public setData<T>(_key: string, _value: T): void {
-    return rockSandboxNotImplemented("client", "RockSandboxStorageManager.setData");
+  public setData<T>(key: string, value: T): void {
+    getRockSandbox().storage.setItem(key, value);
   }
 
-  public removeData(_key: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxStorageManager.removeData");
+  public removeData(key: string): void {
+    getRockSandbox().storage.removeItem(key);
   }
 
-  public clearData(_prefix?: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxStorageManager.clearData");
+  public clearData(prefix?: string): void {
+    getRockSandbox().storage.clear(prefix);
   }
 }

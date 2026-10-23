@@ -676,3 +676,25 @@ loopback Vite origin. The page uses `rockSandboxUI.on/off/emitClient`, declared 
 game protocol 24 stay unchanged; helper/client must both use CEF IPC 2.
 Creating RockMod without a host still succeeds. Other client gameplay bindings,
 full gamemod UI and Android client JS remain later stages.
+
+### RockSandbox client storage
+
+`game.storage.getData<T>(key)`, `setData(key, value)`, `removeData(key)` and
+`clearData(prefix?)` directly delegate to native `storage.getItem/setItem/removeItem/clear`.
+Serialization, validation, quotas, state and persistence stay in RockSandbox.
+Reads return independent mutable JSON copies; absent/stored null return null.
+Changes are immediately readable. The native-only `await rockSandbox.storage.flush()`
+confirms disk persistence without changing the common SDK interface.
+
+Storage uses the existing client profile directory and a namespace derived from
+canonical project manifest path plus server IP/port. Reconnect preserves data;
+copying/moving a project or changing ports starts a different namespace. Recent
+unflushed writes can be lost on a crash. Normal shutdown flushes and joins the
+Rust worker with bounded failure reporting. Limits: 4096 keys, 1..1024 UTF-8 bytes
+per key, 64 MiB per JSON value, 256 MiB per snapshot, 256 pending flushes.
+Corrupt files and writer failures report errors without automatic reset.
+
+Creating RockMod without a host remains supported. Other platforms retain their
+existing storage implementations. Gamemod cache/auth integration is a later stage.
+Requires optional Linux `client-js`; ABI 24 / protocol 24 / CEF IPC 2 stay unchanged.
+See [the native contract and reproducible UDP check](../rock-sandbox/docs/client-storage.md).
