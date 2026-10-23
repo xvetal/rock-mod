@@ -1,20 +1,20 @@
 import { type IKeysManager } from "../../common/keys/IKeysManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxKeysManager implements IKeysManager {
-  public isDown(_key: number): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxKeysManager.isDown");
+  public isDown(key: number): boolean {
+    return getRockSandbox().keys.isDown(key);
   }
 
-  public isUp(_key: number): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxKeysManager.isUp");
+  public isUp(key: number): boolean {
+    return getRockSandbox().keys.isUp(key);
   }
 
-  public bind(_key: number, _keyHold: boolean, _handler: () => void): void {
-    return rockSandboxNotImplemented("client", "RockSandboxKeysManager.bind");
+  public bind(key: number, keyHold: boolean, handler: () => void): void {
+    getRockSandbox().keys.bind(key, keyHold, handler);
   }
 
-  public unbind(_key: number, _keyHold: boolean, _handler?: () => void): void {
-    return rockSandboxNotImplemented("client", "RockSandboxKeysManager.unbind");
+  public unbind(key: number, keyHold: boolean, handler?: () => void): void {
+    getRockSandbox().keys.unbind(key, keyHold, handler);
   }
 }
