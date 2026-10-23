@@ -1,20 +1,25 @@
 import { type IBrowserManager, type IBrowserHandle } from "../../common/browser/IBrowserManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
+import { wrapBrowser } from "./RockSandboxBrowserHandle";
 
 export class RockSandboxBrowserManager implements IBrowserManager {
-  public create(_url: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserManager.create");
+  private _browser: IBrowserHandle | null = null;
+
+  public create(url: string): void {
+    this.destroy();
+    this._browser = this.createInstance(url);
   }
 
-  public createInstance(_url: string): IBrowserHandle {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserManager.createInstance");
+  public createInstance(url: string): IBrowserHandle {
+    return wrapBrowser(getRockSandbox().browsers.create(url));
   }
 
   public destroy(): void {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserManager.destroy");
+    this._browser?.destroy();
+    this._browser = null;
   }
 
-  public execute(_code: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserManager.execute");
+  public execute(code: string): void {
+    this._browser?.execute(code);
   }
 }

@@ -651,3 +651,28 @@ The smoke bundle in gamemod checks `client:ready` and the genuine authorization
 UI envelope without providing a browser. ABI 24 / protocol 24 remain unchanged;
 rebuild server and clients for consistent content hashing. Native API declarations
 are available at `@rock-sandbox/types/client` and opt-in `/client/global`.
+
+### RockSandbox client browsers
+
+The Linux native browser bridge requires a client bundle built with
+`python3 scripts/client_ui.py build --client-js` in rock-sandbox (both
+`client-ui,client-js`). `game.browser.createInstance(url)` returns an independent
+thin native handle. `create/execute/destroy` retain one primary browser, matching
+the VIMP manager; independent pages survive primary replacement. Handles preserve
+identity through a WeakMap and delegate execution, liveness, order and destruction.
+SDK queues, property caches and readiness logic are absent.
+
+The first SDK subscription to `rm::browserDomReady` (or render) installs one bridge
+per native host; SDK readiness keeps its existing zero-argument signature.
+Native `browserDomReady(browser)` and `browserError(browser,error)` are available
+from `@rock-sandbox/types/client`. DOM-ready means the document/bridge is loaded,
+not that the application is mounted. Page failures retire the native handle;
+uncaught client JS errors retain their existing connection-fatal behavior.
+
+Use `package://ui/index.html` under the native `--ui-root` or an explicitly allowed
+loopback Vite origin. The page uses `rockSandboxUI.on/off/emitClient`, declared by
+`@rock-sandbox/types/ui` and `/ui/global`. See the
+[native API and lifecycle](../rock-sandbox/docs/client-ui.md). Server ABI 24 and
+game protocol 24 stay unchanged; helper/client must both use CEF IPC 2.
+Creating RockMod without a host still succeeds. Other client gameplay bindings,
+full gamemod UI and Android client JS remain later stages.

@@ -7,6 +7,14 @@ import { getRockSandbox } from "../../../internal/getRockSandbox";
 const bridgedHosts = new WeakSet<RockSandboxClient>();
 
 export class RockSandboxEventsManager implements IEventsManager {
+  private _installBridges(api: RockSandboxClient, names: string[]): void {
+    if (names.some((name) => name === "rm::render" || name === "rm::browserDomReady") && !bridgedHosts.has(api)) {
+      api.on("render", () => api.emit<string>("rm::render"));
+      api.on("browserDomReady", () => api.emit<string>("rm::browserDomReady"));
+      bridgedHosts.add(api);
+    }
+  }
+
   public onRaw(events: Partial<IClientEvents>): void {
     const api = getRockSandbox();
     for (const [name, handler] of Object.entries(events)) api.on<string, never[]>(name, handler);
@@ -18,10 +26,7 @@ export class RockSandboxEventsManager implements IEventsManager {
 
   public onInternal(events: Partial<IClientInternalEvents>): void {
     const api = getRockSandbox();
-    if ("rm::render" in events && !bridgedHosts.has(api)) {
-      api.on("render", () => api.emit<string>("rm::render"));
-      bridgedHosts.add(api);
-    }
+    this._installBridges(api, Object.keys(events));
     for (const [name, handler] of Object.entries(events)) api.on<string, never[]>(name, handler);
   }
 
@@ -54,6 +59,7 @@ export class RockSandboxEventsManager implements IEventsManager {
 
   public register(event: string, listener: (...args: unknown[]) => void): void {
     const api = getRockSandbox();
+    this._installBridges(api, [event]);
     api.on<string, unknown[]>(event, listener);
     api.onServer<string, unknown[]>(event, listener);
   }

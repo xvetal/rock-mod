@@ -1,20 +1,32 @@
 import { type IBrowserHandle } from "../../common/browser/IBrowserManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { type RockSandboxBrowser } from "@rock-sandbox/types/client";
 
 export class RockSandboxBrowserHandle implements IBrowserHandle {
+  public constructor(private readonly _nativeBrowser: RockSandboxBrowser) {}
+
   public get isAlive(): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserHandle.isAlive");
+    return this._nativeBrowser.isAlive;
   }
 
-  public execute(_code: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserHandle.execute");
+  public execute(code: string): void {
+    this._nativeBrowser.executeJavaScript(code);
   }
 
   public destroy(): void {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserHandle.destroy");
+    this._nativeBrowser.destroy();
   }
 
-  public setOrderId(_orderId: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxBrowserHandle.setOrderId");
+  public setOrderId(orderId: number): void {
+    this._nativeBrowser.setOrderId(orderId);
   }
+}
+
+const handles = new WeakMap<RockSandboxBrowser, RockSandboxBrowserHandle>();
+export function wrapBrowser(browser: RockSandboxBrowser): RockSandboxBrowserHandle {
+  let handle = handles.get(browser);
+  if (!handle) {
+    handle = new RockSandboxBrowserHandle(browser);
+    handles.set(browser, handle);
+  }
+  return handle;
 }
