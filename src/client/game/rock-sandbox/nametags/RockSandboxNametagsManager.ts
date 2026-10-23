@@ -1,8 +1,8 @@
 import { type INametagsManager } from "../../common/nametags/INametagsManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxNametagsManager implements INametagsManager {
-  public setEnabled(_enabled: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxNametagsManager.setEnabled");
+  public setEnabled(enabled: boolean): void {
+    getRockSandbox().nametags.setEnabled(enabled);
   }
 }
