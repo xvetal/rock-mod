@@ -3,8 +3,38 @@ import { type IVehicle } from "../../common/vehicle";
 import { type IVector3D } from "../../../../shared/common/utils";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { type RockSandboxPlayer as NativePlayer } from "@rock-sandbox/types/client";
+import { BaseObjectType } from "../../../../shared";
 
 export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
+  public constructor(private readonly _nativePlayer: NativePlayer) {
+    super();
+  }
+
+  public override get id(): number {
+    return this._nativePlayer.id;
+  }
+
+  public override get remoteId(): number {
+    return this._nativePlayer.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Player;
+  }
+
+  public override get isExists(): boolean {
+    return this._nativePlayer.isExists;
+  }
+
+  public override getVariable(name: string): unknown {
+    return this._nativePlayer.getNetData(name);
+  }
+
+  public override getSyncedMeta(key: string): unknown {
+    return this._nativePlayer.getNetData(key);
+  }
+
   public get name(): string {
     return rockSandboxNotImplemented("client", "RockSandboxPlayer.name");
   }
@@ -201,4 +231,13 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   public setNoCollision(_otherHandle: number, _thisFrameOnly: boolean): void {
     return rockSandboxNotImplemented("client", "RockSandboxPlayer.setNoCollision");
   }
+}
+
+const wrappers = new WeakMap<NativePlayer, RockSandboxPlayer>();
+export function wrapPlayer(player: NativePlayer): RockSandboxPlayer {
+  const old = wrappers.get(player);
+  if (old) return old;
+  const wrapper = new RockSandboxPlayer(player);
+  wrappers.set(player, wrapper);
+  return wrapper;
 }

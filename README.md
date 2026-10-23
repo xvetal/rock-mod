@@ -721,3 +721,14 @@ primitive strings only. Validation, hashing and errors belong to RockSandbox;
 the SDK adds no coercion, cache or name lookup. Server utilities retain their
 current unsupported status. See [native hashing](../rock-sandbox/docs/client-js.md#native-hashing).
 Requires Linux `client-js`; ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
+
+RockSandbox client player lookup by ID/remote ID, local-player lookup and
+`iterator.all()` now wrap native confirmed stream handles with WeakMap identity.
+IDs/remote IDs are server player IDs; `type` is player and `isExists` delegates.
+`getVariable/getSyncedMeta` delegate to native `getNetData`. JSON reads are
+detached/deeply frozen; undefined and null remain distinct. Data-handler
+registration delegates to the native keyed registry with only player wrapping.
+The SDK adds no metadata state, polling, queue or handler registry. Filters,
+gameplay fields and other entity types remain unsupported. See
+[native lifecycle, limits and checks](../rock-sandbox/docs/client-player-data.md).
+ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
