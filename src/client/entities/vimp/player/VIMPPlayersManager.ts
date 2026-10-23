@@ -129,13 +129,7 @@ export class VIMPPlayersManager implements IPlayersManager {
   // -- IPlayersManager ------------------------------------------------------
 
   public findLocalPlayer(): VIMPPlayer | null {
-    // Кэшированный _localPlayer проставлен из rm::playerReady-эмиссии
-    // (либо нашей собственной из конструктора, либо чьей-то ещё).
-    // Если кэш пуст, lazy-retry: возможно local op теперь валиден.
-    if (this._localPlayer) {
-      return this._localPlayer;
-    }
-    this._tryEmitLocalPlayerReady();
+    this.syncWithMpPool();
     return this._localPlayer;
   }
 
@@ -180,7 +174,8 @@ export class VIMPPlayersManager implements IPlayersManager {
 
   public syncWithMpPool(): void {
     this._syncRemotePlayersFromRuntime();
-    this._syncLocalPlayerFromRuntime();
+    // This also refreshes an existing local player. Keep first registration here
+    // so a late admission still emits its sticky playerReady event exactly once.
     this._tryEmitLocalPlayerReady();
   }
 
