@@ -698,3 +698,10 @@ Creating RockMod without a host remains supported. Other platforms retain their
 existing storage implementations. Gamemod cache/auth integration is a later stage.
 Requires optional Linux `client-js`; ABI 24 / protocol 24 / CEF IPC 2 stay unchanged.
 See [the native contract and reproducible UDP check](../rock-sandbox/docs/client-storage.md).
+
+RockSandbox client `game.keys.isDown/isUp/bind/unbind` directly delegate to
+`rockSandbox.keys`. The SDK has no key state, handler registry or repeat logic.
+The host uses physical VK codes, first press/release semantics and idempotent
+bindings; callbacks remain active while a browser has input, as in VIMP. Native
+errors retain their identity. See Sandbox `docs/client-keyboard.md` for focus
+cleanup, limits and smoke. ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
