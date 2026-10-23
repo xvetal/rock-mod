@@ -46,13 +46,15 @@ export class RagePlayersManager extends RageEntitiesManager<RagePlayer> implemen
   }
 
   public findLocalPlayer(): RagePlayer | null {
-    return this.findByID(mp.players.local.id);
+    this.syncWithMpPool();
+    const local = mp.players.local;
+    return local ? this.findByID(local.id) : null;
   }
 
   public getLocalPlayer(): IPlayer {
     const localPlayer = this.findLocalPlayer();
     if (!localPlayer) {
-      throw new Error(`Local player with id ${mp.players.local.id} not found`);
+      throw new Error(`Local player with id ${mp.players.local?.id ?? "unknown"} not found`);
     }
 
     return localPlayer;
