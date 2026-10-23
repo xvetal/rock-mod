@@ -85,3 +85,75 @@ test("native exceptions propagate and unrelated APIs remain unsupported", () => 
   );
   assert.throws(() => mod.players.getLocalPlayer(), /not implemented/);
 });
+
+test("browser handles delegate, retain identity, and primary ownership is independent", () => {
+  const calls = [];
+  const native = {
+    isAlive: true,
+    executeJavaScript: (...args) => calls.push(["execute", ...args]),
+    destroy: () => calls.push(["destroy"]),
+    setOrderId: (...args) => calls.push(["order", ...args]),
+  };
+  globalThis.rockSandbox = {
+    browsers: {
+      create: (url) => {
+        calls.push(["create", url]);
+        return native;
+      },
+    },
+  };
+  const one = mod.game.browser.createInstance("package://ui/one.html");
+  const two = mod.game.browser.createInstance("package://ui/two.html");
+  assert.equal(one, two);
+  assert.equal(one.isAlive, true);
+  native.isAlive = false;
+  assert.equal(one.isAlive, false);
+  one.execute("unchanged source");
+  one.setOrderId(-5);
+  mod.game.browser.execute("no primary");
+  mod.game.browser.destroy();
+  assert.deepEqual(calls, [
+    ["create", "package://ui/one.html"],
+    ["create", "package://ui/two.html"],
+    ["execute", "unchanged source"],
+    ["order", -5],
+  ]);
+  mod.game.browser.create("package://ui/main.html");
+  mod.game.browser.execute("main source");
+  mod.game.browser.create("package://ui/replacement.html");
+  mod.game.browser.destroy();
+  assert.deepEqual(calls.slice(4), [
+    ["create", "package://ui/main.html"],
+    ["execute", "main source"],
+    ["destroy"],
+    ["create", "package://ui/replacement.html"],
+    ["destroy"],
+  ]);
+  const original = Error("native browser failure");
+  native.executeJavaScript = () => {
+    throw original;
+  };
+  assert.throws(
+    () => one.execute("code"),
+    (e) => e === original,
+  );
+});
+
+test("browser readiness bridge preserves handler identity and emits no arguments", () => {
+  const calls = [];
+  globalThis.rockSandbox = {
+    on: (...args) => calls.push(["on", ...args]),
+    off: (...args) => calls.push(["off", ...args]),
+    onServer: (...args) => calls.push(["onServer", ...args]),
+    emit: (...args) => calls.push(["emit", ...args]),
+  };
+  const handler = () => {};
+  mod.net.events.register("rm::browserDomReady", handler);
+  mod.net.events.onInternal({ "rm::browserDomReady": handler });
+  const bridges = calls.filter(([method, name]) => method === "on" && name === "browserDomReady");
+  assert.equal(bridges.length, 1);
+  bridges[0][2]({ id: 42 });
+  assert.deepEqual(calls.at(-1), ["emit", "rm::browserDomReady"]);
+  mod.net.events.offInternal("rm::browserDomReady", handler);
+  assert.deepEqual(calls.at(-1), ["off", "rm::browserDomReady", handler]);
+});
