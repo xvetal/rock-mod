@@ -157,3 +157,41 @@ test("browser readiness bridge preserves handler identity and emits no arguments
   mod.net.events.offInternal("rm::browserDomReady", handler);
   assert.deepEqual(calls.at(-1), ["off", "rm::browserDomReady", handler]);
 });
+
+test("storage delegates keys, values and failures without SDK state", () => {
+  const calls = [],
+    value = { nested: [] },
+    result = { cached: true },
+    failure = Error("native storage failure");
+  globalThis.rockSandbox = {
+    storage: {
+      getItem: (key) => {
+        calls.push(["get", key]);
+        return result;
+      },
+      setItem: (key, value) => calls.push(["set", key, value]),
+      removeItem: (key) => calls.push(["remove", key]),
+      clear: (prefix) => calls.push(["clear", prefix]),
+    },
+  };
+  assert.equal(mod.game.storage.getData("cache"), result);
+  mod.game.storage.setData("cache", value);
+  mod.game.storage.removeData("cache");
+  mod.game.storage.clearData("cache:");
+  mod.game.storage.clearData();
+  assert.deepEqual(calls, [
+    ["get", "cache"],
+    ["set", "cache", value],
+    ["remove", "cache"],
+    ["clear", "cache:"],
+    ["clear", undefined],
+  ]);
+  assert.equal(calls[1][2], value);
+  globalThis.rockSandbox.storage.getItem = () => {
+    throw failure;
+  };
+  assert.throws(
+    () => mod.game.storage.getData("cache"),
+    (e) => e === failure,
+  );
+});
