@@ -83,7 +83,7 @@ test("native exceptions propagate and unrelated APIs remain unsupported", () => 
     () => mod.net.events.emitServer("request"),
     (e) => e === original,
   );
-  assert.throws(() => mod.players.getLocalPlayer(), /not implemented/);
+  assert.throws(() => mod.vehicles.findByID(1), /not implemented/);
 });
 
 test("browser handles delegate, retain identity, and primary ownership is independent", () => {
@@ -285,5 +285,69 @@ test("nametags delegate each original argument and native exception without SDK 
   assert.throws(
     () => mod.game.nametags.setEnabled(false),
     (error) => error === failure,
+  );
+});
+
+test("streamed player wrappers and data callbacks share identity and delegate metadata", () => {
+  const calls = [],
+    registrations = [],
+    value = Object.freeze({ a: 1 }),
+    oldValue = Object.freeze({ a: 0 });
+  const native = {
+    id: 4294967295,
+    isExists: true,
+    getNetData: (key) => {
+      calls.push(key);
+      return value;
+    },
+  };
+  globalThis.rockSandbox = {
+    players: { local: native, all: () => [native], getById: (id) => (id === native.id ? native : null) },
+    dataHandler: { addDataHandler: (...args) => registrations.push(args) },
+  };
+  const player = mod.players.getLocalPlayer();
+  assert.equal(player, mod.players.findLocalPlayer());
+  assert.equal(player, mod.players.getByRemoteId(native.id));
+  assert.equal(player, mod.players.getByID(native.id));
+  assert.equal(player, mod.players.findByRemoteID(native.id));
+  assert.equal(player, [...mod.players.iterator.all()][0]);
+  assert.equal(player.id, native.id);
+  assert.equal(player.remoteId, native.id);
+  assert.equal(player.type, "player");
+  assert.equal(player.getVariable("one"), value);
+  assert.equal(player.getSyncedMeta("two"), value);
+  assert.deepEqual(calls, ["one", "two"]);
+  const seen = [],
+    handler = (...args) => seen.push(args);
+  mod.net.dataHandler.addDataHandler("key", handler);
+  mod.net.dataHandler.addDataHandler("key", handler);
+  for (const [key, callback] of registrations) {
+    assert.equal(key, "key");
+    callback(native, value, oldValue);
+  }
+  assert.equal(seen.length, 2);
+  assert.equal(seen[0][0], player);
+  assert.equal(seen[0][1], value);
+  assert.equal(seen[0][2], oldValue);
+  native.isExists = false;
+  assert.equal(player.isExists, false);
+  assert.equal(mod.players.findByRemoteId(17), null);
+  assert.throws(() => mod.players.getByRemoteId(17), /not found/);
+  assert.throws(() => player.health, /not implemented/);
+  assert.throws(() => mod.players.iterator.dimension(0), /not implemented/);
+  const failure = Error("callback original");
+  mod.net.dataHandler.addDataHandler("throws", () => {
+    throw failure;
+  });
+  assert.throws(
+    () => registrations.at(-1)[1](native, 1, 0),
+    (e) => e === failure,
+  );
+  globalThis.rockSandbox.players.getById = () => {
+    throw failure;
+  };
+  assert.throws(
+    () => mod.players.findByRemoteId(17),
+    (e) => e === failure,
   );
 });
