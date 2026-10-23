@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createRequire } from "node:module";
@@ -13,14 +13,177 @@ after(() => {
   rmSync(directory, { recursive: true, force: true });
   Reflect.deleteProperty(globalThis, "rockSandbox");
 });
-const bundle = await rollup({ input: resolve("dist/client/index.js"), plugins: [nodeResolve(), commonjs()] });
+const entry = join(directory, "entry.mjs");
+writeFileSync(
+  entry,
+  [
+    `export * from ${JSON.stringify(resolve("dist/client/index.js"))};`,
+    `export { RagePlayersManager } from ${JSON.stringify(resolve("dist/client/entities/ragemp/player/RagePlayersManager.js"))};`,
+    `export { VIMPPlayersManager } from ${JSON.stringify(resolve("dist/client/entities/vimp/player/VIMPPlayersManager.js"))};`,
+  ].join("\n"),
+);
+const bundle = await rollup({ input: entry, plugins: [nodeResolve(), commonjs()] });
 const file = join(directory, "client.cjs");
 await bundle.write({ file, format: "cjs", inlineDynamicImports: true });
 await bundle.close();
-const { RockMod } = createRequire(import.meta.url)(file);
+const { RockMod, RagePlayersManager, VIMPPlayersManager } = createRequire(import.meta.url)(file);
 assert.equal("mp" in globalThis, false);
 assert.equal("vimp" in globalThis, false);
 const mod = await RockMod.create({ multiplayer: "RockSandbox" });
+
+// Explicit platform/event fixtures exercise the actual compiled player managers.
+// These are CPU contract tests; they do not launch RageMP or VIMP.
+function playerEvents() {
+  const listeners = new Map(),
+    sticky = new Map(),
+    emitted = [];
+  return {
+    emitted,
+    onInternal(events) {
+      for (const [name, callback] of Object.entries(events)) {
+        listeners.set(name, [...(listeners.get(name) ?? []), callback]);
+        if (sticky.has(name)) callback(...sticky.get(name));
+      }
+    },
+    emitInternal(name, ...args) {
+      emitted.push([name, ...args]);
+      for (const callback of [...(listeners.get(name) ?? [])]) callback(...args);
+    },
+    emitInternalSticky(name, ...args) {
+      sticky.set(name, args);
+      this.emitInternal(name, ...args);
+    },
+    clearInternalSticky(name) {
+      sticky.delete(name);
+    },
+  };
+}
+
+test("RageMP local lookup synchronizes its own native pool and preserves identity through reconnect", (t) => {
+  const descriptor = Object.getOwnPropertyDescriptor(RockMod, "instance");
+  const events = playerEvents(),
+    nativeEvents = new Map(),
+    pool = new Map();
+  let local = null,
+    failure;
+  Object.defineProperty(RockMod, "instance", { get: () => ({ net: { events } }), configurable: true });
+  globalThis.mp = {
+    events: { add: (name, callback) => nativeEvents.set(name, callback) },
+    players: {
+      get local() {
+        return local;
+      },
+      toArray() {
+        if (failure) throw failure;
+        return [...pool.values()];
+      },
+      at: (id) => pool.get(id),
+      exists: (player) => pool.get(player.id) === player,
+    },
+  };
+  t.after(() => {
+    Object.defineProperty(RockMod, "instance", descriptor);
+    Reflect.deleteProperty(globalThis, "mp");
+  });
+  const manager = new RagePlayersManager();
+  assert.equal(manager.findLocalPlayer(), null);
+  assert.throws(() => manager.getLocalPlayer(), /Local player/);
+  local = { id: 4, remoteId: 40, type: "player", name: "Local" };
+  pool.set(local.id, local);
+  pool.set(5, { id: 5, remoteId: 50, type: "player", name: "Remote" });
+  const player = manager.findLocalPlayer();
+  assert.equal(player.remoteId, 40);
+  assert.equal(manager.getLocalPlayer(), player);
+  assert.equal(manager.findByID(4), player);
+  assert.deepEqual(
+    [...manager.iterator.all()].map((value) => value.id),
+    [4, 5],
+  );
+  local.name = "Updated";
+  assert.equal(manager.findLocalPlayer().name, "Updated");
+  assert.equal(events.emitted.filter(([name]) => name === "rm::entityCreated").length, 2);
+  const old = local;
+  local = null;
+  pool.delete(old.id);
+  nativeEvents.get("entityDestroyed")(old);
+  assert.equal(manager.findLocalPlayer(), null);
+  assert.equal(player.isExists, false);
+  local = { id: 6, remoteId: 60, type: "player", name: "Reconnected" };
+  pool.set(local.id, local);
+  const fresh = manager.getLocalPlayer();
+  assert.notEqual(fresh, player);
+  assert.equal(fresh.remoteId, 60);
+  assert.equal(manager.findByID(4), null);
+  failure = Error("native pool failure");
+  assert.throws(
+    () => manager.findLocalPlayer(),
+    (error) => error === failure,
+  );
+});
+
+test("VIMP local lookup owns pool synchronization and emits sticky readiness once for late admission and reconnect", () => {
+  for (const firstRead of ["findLocalPlayer", "syncWithMpPool"]) {
+    const events = playerEvents(),
+      listeners = new Map();
+    let local = null,
+      remotes = [];
+    globalThis.vimp = {
+      players: {
+        get local() {
+          return local;
+        },
+        get all() {
+          return remotes;
+        },
+      },
+      on(name, callback) {
+        listeners.set(name, [...(listeners.get(name) ?? []), callback]);
+      },
+    };
+    try {
+      const manager = new VIMPPlayersManager(events);
+      assert.equal(manager.findLocalPlayer(), null);
+      assert.throws(() => manager.getLocalPlayer(), /local player/);
+      local = { id: 17, name: "Local" };
+      remotes = [{ id: 18, name: "Remote" }];
+      manager[firstRead]();
+      const player = manager.findLocalPlayer();
+      assert.equal(player.remoteId, 17);
+      assert.equal(manager.getLocalPlayer(), player);
+      assert.equal(manager.findByRemoteId(17), player);
+      assert.deepEqual(
+        [...manager.iterator.all()].map((value) => value.id),
+        [18, 17],
+      );
+      const ready = events.emitted.filter(([name]) => name === "rm::playerReady");
+      assert.equal(ready.length, 1);
+      assert.equal(ready[0][1], player);
+      const late = [];
+      events.onInternal({ "rm::playerReady": (value) => late.push(value) });
+      assert.equal(late[0], player);
+      local = { id: 17, name: "Updated" };
+      remotes.push({ id: 19, name: "Another remote" });
+      assert.equal(manager.findLocalPlayer(), player);
+      assert.equal(player.name, "Updated");
+      assert.equal(manager.findByRemoteId(19).name, "Another remote");
+      assert.equal(events.emitted.filter(([name]) => name === "rm::playerReady").length, 1);
+      local = null;
+      for (const callback of listeners.get("connectionStateChanged")) callback({ connected: false });
+      assert.equal(manager.findLocalPlayer(), null);
+      assert.equal(player.isExists, false);
+      assert.equal(manager.findByRemoteId(17), null);
+      local = { id: 20, name: "Reconnected" };
+      for (const callback of listeners.get("connectionStateChanged")) callback({ connected: true });
+      const fresh = manager.getLocalPlayer();
+      assert.notEqual(fresh, player);
+      assert.equal(fresh.remoteId, 20);
+      assert.equal(late[1], fresh);
+      assert.equal(events.emitted.filter(([name]) => name === "rm::playerReady").length, 2);
+    } finally {
+      Reflect.deleteProperty(globalThis, "vimp");
+    }
+  }
+});
 
 test("client delegates directly with original handler/argument identity", () => {
   const calls = [];
@@ -52,6 +215,46 @@ test("client delegates directly with original handler/argument identity", () => 
     ["off", "generic"],
     ["offServer", "generic"],
   ]);
+});
+
+test("RockSandbox local lookup reads native membership directly without a pool sync or scan", () => {
+  const original = Error("native local lookup failure");
+  let local = null;
+  const players = {
+    get local() {
+      return local;
+    },
+    all() {
+      throw Error("unexpected full pool scan");
+    },
+    getById: (id) => (local?.id === id ? local : null),
+  };
+  globalThis.rockSandbox = { players };
+  assert.equal(mod.players.findLocalPlayer(), null);
+  assert.throws(() => mod.players.getLocalPlayer(), /local player not found/);
+  local = { id: 23, isExists: true };
+  const player = mod.players.findLocalPlayer();
+  assert.equal(mod.players.getLocalPlayer(), player);
+  assert.equal(mod.players.findByID(23), player);
+  local.isExists = false;
+  local = null;
+  assert.equal(mod.players.findLocalPlayer(), null);
+  assert.equal(player.isExists, false);
+  local = { id: 24, isExists: true };
+  const fresh = mod.players.getLocalPlayer();
+  assert.notEqual(fresh, player);
+  assert.equal(fresh.remoteId, 24);
+  assert.equal(mod.players.findByID(23), null);
+  assert.throws(() => mod.players.syncWithMpPool(), /not implemented/);
+  Object.defineProperty(players, "local", {
+    get() {
+      throw original;
+    },
+  });
+  assert.throws(
+    () => mod.players.findLocalPlayer(),
+    (error) => error === original,
+  );
 });
 
 test("render bridge is installed once per host and delegates through native emit", () => {

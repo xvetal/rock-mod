@@ -732,3 +732,20 @@ The SDK adds no metadata state, polling, queue or handler registry. Filters,
 gameplay fields and other entity types remain unsupported. See
 [native lifecycle, limits and checks](../rock-sandbox/docs/client-player-data.md).
 ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
+
+Client `players.findLocalPlayer()` and `getLocalPlayer()` are self-sufficient:
+callers do not need a preceding `syncWithMpPool()`. RageMP and VIMP perform their
+existing pool refresh inside the lookup, retaining remote wrappers and identity.
+VIMP's first local admission, including late admission and reconnect, emits one
+sticky `rm::playerReady`; refreshing an existing local player does not repeat it.
+Before admission `findLocalPlayer()` returns null and `getLocalPlayer()` throws.
+RockSandbox keeps its direct native `players.local` lookup with WeakMap identity;
+no SDK pool, scan, polling or extra state is added. Its explicit legacy pool-sync
+method remains unsupported. Native read errors propagate unchanged.
+
+`npm run test:rock-sandbox` includes CPU contracts for the actual compiled player
+managers with explicit RageMP/VIMP/native-host fixtures: lookup without manual
+sync, remote refresh, identity, late readiness and reconnect. These fixtures do
+not qualify a running RageMP/VIMP client. The real RockSandbox/gamemod UDP probe
+reaches the next unsupported `RockSandboxPlayer.isLocalPlayer` getter. ABI 24 /
+protocol 24 / CEF IPC 2 remain unchanged.
