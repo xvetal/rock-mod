@@ -195,3 +195,46 @@ test("storage delegates keys, values and failures without SDK state", () => {
     (e) => e === failure,
   );
 });
+
+test("keyboard delegates original arguments, handler identity and native errors", () => {
+  const calls = [],
+    handler = () => {},
+    failure = Error("native key validation");
+  globalThis.rockSandbox = {
+    keys: {
+      isDown: (...args) => {
+        calls.push(["down", ...args]);
+        return true;
+      },
+      isUp: (...args) => {
+        calls.push(["up", ...args]);
+        return false;
+      },
+      bind: (...args) => {
+        calls.push(["bind", ...args]);
+      },
+      unbind: (...args) => {
+        calls.push(["unbind", ...args]);
+      },
+    },
+  };
+  assert.equal(mod.game.keys.isDown(65), true);
+  assert.equal(mod.game.keys.isUp(65), false);
+  mod.game.keys.bind(65, true, handler);
+  mod.game.keys.unbind(65, true, handler);
+  mod.game.keys.unbind(65, false);
+  assert.deepEqual(calls, [
+    ["down", 65],
+    ["up", 65],
+    ["bind", 65, true, handler],
+    ["unbind", 65, true, handler],
+    ["unbind", 65, false, undefined],
+  ]);
+  globalThis.rockSandbox.keys.bind = () => {
+    throw failure;
+  };
+  assert.throws(
+    () => mod.game.keys.bind(65, true, handler),
+    (error) => error === failure,
+  );
+});
