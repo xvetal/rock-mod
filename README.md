@@ -705,3 +705,19 @@ The host uses physical VK codes, first press/release semantics and idempotent
 bindings; callbacks remain active while a browser has input, as in VIMP. Native
 errors retain their identity. See Sandbox `docs/client-keyboard.md` for focus
 cleanup, limits and smoke. ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
+
+RockSandbox client `game.nametags.setEnabled(enabled)` directly delegates to
+`rockSandbox.nametags.setEnabled(enabled)`. The native flag controls the existing
+Rust player labels on the next UI pass, defaults to true per connection and is
+discarded on teardown. The SDK has no flag, queue or argument checks; native
+exceptions pass through unchanged. Custom UI overlays retain their own rendering.
+See [native semantics and checks](../rock-sandbox/docs/client-nametags.md).
+ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
+
+RockSandbox client `utils.hash(value)` directly delegates to
+`rockSandbox.utils.hash(value)`. The native method returns unsigned JOAAT32 over
+UTF-8 bytes with ASCII case folding (`weapon_unarmed` → `2725352035`), accepting
+primitive strings only. Validation, hashing and errors belong to RockSandbox;
+the SDK adds no coercion, cache or name lookup. Server utilities retain their
+current unsupported status. See [native hashing](../rock-sandbox/docs/client-js.md#native-hashing).
+Requires Linux `client-js`; ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.

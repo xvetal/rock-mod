@@ -238,3 +238,52 @@ test("keyboard delegates original arguments, handler identity and native errors"
     (error) => error === failure,
   );
 });
+
+test("hash delegates unchanged arguments and unsigned result without SDK coercion or caching", () => {
+  const calls = [],
+    value = {},
+    failure = Error("native hash validation");
+  globalThis.rockSandbox = {
+    utils: {
+      hash: (arg) => {
+        calls.push(arg);
+        return 2725352035;
+      },
+    },
+  };
+  assert.equal(mod.utils.hash("WEAPON_UNARMED"), 2725352035);
+  assert.equal(mod.utils.hash("WEAPON_UNARMED"), 2725352035);
+  assert.equal(mod.utils.hash(""), 2725352035);
+  assert.equal(mod.utils.hash(value), 2725352035);
+  assert.deepEqual(calls, ["WEAPON_UNARMED", "WEAPON_UNARMED", "", value]);
+  assert.equal(calls[3], value);
+  globalThis.rockSandbox.utils.hash = () => {
+    throw failure;
+  };
+  assert.throws(
+    () => mod.utils.hash("adder"),
+    (error) => error === failure,
+  );
+});
+
+test("nametags delegate each original argument and native exception without SDK state", () => {
+  const calls = [],
+    invalid = {},
+    failure = Error("native nametag validation");
+  globalThis.rockSandbox = {
+    nametags: { setEnabled: (...args) => calls.push(args) },
+  };
+  assert.equal(mod.game.nametags.setEnabled(false), undefined);
+  mod.game.nametags.setEnabled(false);
+  mod.game.nametags.setEnabled(true);
+  mod.game.nametags.setEnabled(invalid);
+  assert.deepEqual(calls, [[false], [false], [true], [invalid]]);
+  assert.equal(calls[3][0], invalid);
+  globalThis.rockSandbox.nametags.setEnabled = () => {
+    throw failure;
+  };
+  assert.throws(
+    () => mod.game.nametags.setEnabled(false),
+    (error) => error === failure,
+  );
+});
