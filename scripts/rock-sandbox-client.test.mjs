@@ -257,6 +257,163 @@ test("RockSandbox local lookup reads native membership directly without a pool s
   );
 });
 
+test("local-player flag delegates to the native handle without caching, scans or host lookup", () => {
+  const original = Error("native isLocalPlayer failure");
+  let owner = true,
+    failure;
+  const native = {
+    id: 7,
+    get isLocalPlayer() {
+      if (failure) throw failure;
+      return owner;
+    },
+  };
+  globalThis.rockSandbox = { players: { local: native } };
+  const player = mod.players.getLocalPlayer();
+  // Only the saved native handle participates in subsequent reads.
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.isLocalPlayer, true);
+  owner = false;
+  assert.equal(player.isLocalPlayer, false);
+  failure = original;
+  assert.throws(
+    () => player.isLocalPlayer,
+    (error) => error === original,
+  );
+});
+
+test("player positions delegate native state with axis conversion and no SDK cache", () => {
+  const original = Error("native position failure");
+  let position = Object.freeze({ x: 1.25, y: 2.5, z: -3.75 }),
+    failure;
+  const native = {
+    id: 30,
+    get position() {
+      if (failure) throw failure;
+      return position;
+    },
+  };
+  globalThis.rockSandbox = { players: { local: native } };
+  const player = mod.players.getLocalPlayer(),
+    first = player.position;
+  assert.deepEqual([first.x, first.y, first.z], [1.25, 3.75, 2.5]);
+  assert.equal(typeof first.distanceTo, "function");
+  assert.throws(() => {
+    first.x = 100;
+  }, TypeError);
+  assert.equal(player.position.x, 1.25);
+  position = Object.freeze({ x: -1, y: -2, z: -3 });
+  assert.deepEqual([player.position.x, player.position.y, player.position.z], [-1, 3, -2]);
+  failure = original;
+  assert.throws(
+    () => player.position,
+    (error) => error === original,
+  );
+  assert.throws(() => player.setPosition(first), /not implemented/);
+});
+
+test("weapon state and project magazine sizes delegate without SDK state or hashing", () => {
+  let weapon = 453432689,
+    reloading = false,
+    failure;
+  const calls = [],
+    original = Error("native weapon failure");
+  const native = {
+    id: 29,
+    get weapon() {
+      if (failure) throw failure;
+      return weapon;
+    },
+    get isReloading() {
+      if (failure) throw failure;
+      return reloading;
+    },
+    getAmmoInClip(hash) {
+      calls.push(["ammo", hash]);
+      if (failure) throw failure;
+      return 3;
+    },
+  };
+  globalThis.rockSandbox = {
+    players: { local: native },
+    weapons: {
+      getClipSize(hash) {
+        calls.push(["capacity", hash]);
+        if (failure) throw failure;
+        return 7;
+      },
+    },
+  };
+  const player = mod.players.getLocalPlayer();
+  assert.equal(player.weapon, weapon);
+  assert.equal(player.isReloading, false);
+  assert.equal(player.getAmmoInClip(weapon), 3);
+  assert.equal(mod.game.weapon.getWeaponClipSize(weapon), 7);
+  assert.deepEqual(calls, [
+    ["ammo", weapon],
+    ["capacity", weapon],
+  ]);
+  weapon = 324215364;
+  reloading = true;
+  assert.equal(player.weapon, weapon);
+  assert.equal(player.isReloading, true);
+  failure = original;
+  for (const run of [
+    () => player.weapon,
+    () => player.isReloading,
+    () => player.getAmmoInClip(weapon),
+    () => mod.game.weapon.getWeaponClipSize(weapon),
+  ])
+    assert.throws(run, (e) => e === original);
+  assert.throws(() => player.getWeaponAmmo(weapon), /not implemented/);
+});
+
+test("control restrictions delegate arguments and native failures without SDK state", () => {
+  const calls = [],
+    original = Error("native unsupported control");
+  globalThis.rockSandbox = {
+    controls: {
+      disableControlAction(...args) {
+        calls.push(args);
+        if (args[1] === 24) throw original;
+      },
+    },
+  };
+  mod.game.controls.disableControlAction(1, 159, true);
+  mod.game.controls.disableControlAction(0, 159, false);
+  assert.deepEqual(calls, [
+    [1, 159, true],
+    [0, 159, false],
+  ]);
+  assert.throws(
+    () => mod.game.controls.disableControlAction(0, 24, true),
+    (e) => e === original,
+  );
+  for (const method of [
+    "isDisabledControlPressed",
+    "isDisabledControlJustPressed",
+    "isControlPressed",
+    "isControlJustPressed",
+    "isControlJustReleased",
+    "getDisabledControlNormal",
+  ]) {
+    const value = method === "getDisabledControlNormal" ? 0.5 : true;
+    globalThis.rockSandbox.controls[method] = (...args) => {
+      calls.push([method, ...args]);
+      return value;
+    };
+    assert.equal(mod.game.controls[method](1, 45), value);
+    assert.deepEqual(calls.at(-1), [method, 1, 45]);
+    globalThis.rockSandbox.controls[method] = () => {
+      throw original;
+    };
+    assert.throws(
+      () => mod.game.controls[method](0, 45),
+      (error) => error === original,
+    );
+  }
+});
+
 test("render bridge is installed once per host and delegates through native emit", () => {
   for (let host = 0; host < 2; host++) {
     const calls = [];
@@ -553,4 +710,150 @@ test("streamed player wrappers and data callbacks share identity and delegate me
     () => mod.players.findByRemoteId(17),
     (e) => e === failure,
   );
+});
+
+test("authored NPC pool delegates identity, lookup, coordinates and failures to native", () => {
+  let state = { position: { x: 1, y: 2, z: 3 }, rotation: { x: 0, y: 45, z: 0 }, dimension: 4 },
+    exists = true;
+  const original = Error("native NPC failure"),
+    native = {
+      id: 4294967295,
+      get isExists() {
+        return exists;
+      },
+      get position() {
+        if (!exists) throw original;
+        return state.position;
+      },
+      get rotation() {
+        return state.rotation;
+      },
+      get dimension() {
+        return state.dimension;
+      },
+      modelHash: 123,
+      getBoneCoords() {
+        throw original;
+      },
+    };
+  globalThis.rockSandbox = {
+    peds: { all: () => (exists ? [native] : []), getById: (id) => (exists && id === native.id ? native : null) },
+  };
+  const ped = mod.peds.getByID(native.id);
+  assert.equal(mod.peds.getByRemoteID(native.id), ped);
+  assert.equal(mod.peds.iterator.all().next().value, ped);
+  assert.equal(ped.id, native.id);
+  assert.equal(ped.remoteId, native.id);
+  assert.equal(ped.model, 123);
+  assert.equal(ped.heading, 45);
+  assert.equal(ped.dimension, 4);
+  const first = ped.position;
+  assert.deepEqual([first.x, first.y, first.z], [1, -3, 2]);
+  assert.deepEqual([ped.rotation.x, ped.rotation.y, ped.rotation.z], [0, -0, 45]);
+  state = { ...state, position: { x: 10, y: 20, z: 30 }, dimension: 8 };
+  assert.equal(ped.position.x, 10);
+  assert.equal(first.x, 1);
+  assert.equal(ped.dimension, 8);
+  exists = false;
+  assert.equal(ped.isExists, false);
+  assert.equal(mod.peds.findByID(native.id), null);
+  assert.deepEqual([...mod.peds.iterator.all()], []);
+  assert.throws(
+    () => ped.position,
+    (e) => e === original,
+  );
+  assert.throws(() => mod.peds.getByID(native.id), /ped 4294967295 not found/);
+  assert.throws(() => mod.peds.create({}), /not implemented/);
+  assert.throws(() => ped.setPosition(first), /not implemented/);
+  assert.throws(
+    () => ped.getBoneCoords(0, 0, 0, 0),
+    (error) => error === original,
+  );
+});
+
+test("bone coordinates delegate native joint queries and transform both offset and result", () => {
+  const calls = [],
+    original = Error("native bone failure");
+  let failed = false;
+  const native = {
+    id: 19,
+    getBoneCoords(...args) {
+      if (failed) throw original;
+      calls.push(args);
+      return { x: 10, y: 20, z: 30 };
+    },
+  };
+  globalThis.rockSandbox = { players: { local: native }, peds: { getById: () => native } };
+  const player = mod.players.getLocalPlayer(),
+    ped = mod.peds.getByID(19);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  for (const actor of [player, ped]) {
+    const result = actor.getBoneCoords(12844, 1, 2, 3);
+    assert.deepEqual([result.x, result.y, result.z], [10, -30, 20]);
+  }
+  assert.deepEqual(calls, [
+    [12844, 1, 3, -2],
+    [12844, 1, 3, -2],
+  ]);
+  failed = true;
+  for (const actor of [player, ped])
+    assert.throws(
+      () => actor.getBoneCoords(0, 0, 0, 0),
+      (e) => e === original,
+    );
+});
+
+test("HUD hiding delegates each frame request and preserves native errors", () => {
+  const calls = [],
+    original = Error("native HUD failure");
+  globalThis.rockSandbox = {
+    hud: {
+      hideComponentThisFrame: (id) => {
+        calls.push(id);
+      },
+    },
+  };
+  const hud = mod.game.ui;
+  for (const id of [1, 2, 3, 4, 6, 7, 8, 9, 13]) assert.equal(hud.hideHudComponentThisFrame(id), undefined);
+  assert.deepEqual(calls, [1, 2, 3, 4, 6, 7, 8, 9, 13]);
+  globalThis.rockSandbox.hud.hideComponentThisFrame = () => {
+    throw original;
+  };
+  assert.throws(
+    () => hud.hideHudComponentThisFrame(0),
+    (error) => error === original,
+  );
+});
+
+test("radar display delegates every call and preserves native error identity", () => {
+  const calls = [],
+    original = Error("native radar validation");
+  globalThis.rockSandbox = {
+    hud: {
+      setRadarVisible(value) {
+        calls.push(value);
+      },
+    },
+  };
+  for (const value of [false, false, true, false]) assert.equal(mod.game.ui.displayRadar(value), undefined);
+  assert.deepEqual(calls, [false, false, true, false]);
+  // The SDK must leave validation to the host, even for invalid JS arguments.
+  globalThis.rockSandbox.hud.setRadarVisible = (value) => {
+    calls.push(value);
+    throw original;
+  };
+  assert.throws(
+    () => mod.game.ui.displayRadar(0),
+    (error) => error === original,
+  );
+  assert.equal(calls.at(-1), 0);
+  globalThis.rockSandbox = {
+    hud: {
+      setRadarVisible(value) {
+        calls.push(["fresh host", value]);
+      },
+    },
+  };
+  mod.game.ui.displayRadar(true);
+  assert.deepEqual(calls.at(-1), ["fresh host", true]);
 });

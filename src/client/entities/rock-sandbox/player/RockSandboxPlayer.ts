@@ -5,6 +5,7 @@ import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { type RockSandboxPlayer as NativePlayer } from "@rock-sandbox/types/client";
 import { BaseObjectType } from "../../../../shared";
+import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   public constructor(private readonly _nativePlayer: NativePlayer) {
@@ -25,6 +26,11 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
 
   public override get isExists(): boolean {
     return this._nativePlayer.isExists;
+  }
+
+  public override get position(): IVector3D {
+    const { x, y, z } = this._nativePlayer.position;
+    return new Vector3D(x, -z, y);
   }
 
   public override getVariable(name: string): unknown {
@@ -76,15 +82,15 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get isReloading(): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.isReloading");
+    return this._nativePlayer.isReloading;
   }
 
   public get weapon(): number {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.weapon");
+    return this._nativePlayer.weapon;
   }
 
-  public getAmmoInClip(_weapon: number): number {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.getAmmoInClip");
+  public getAmmoInClip(weapon: number): number {
+    return this._nativePlayer.getAmmoInClip(weapon);
   }
 
   public getWeaponAmmo(_weapon: number): number {
@@ -171,7 +177,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get isLocalPlayer(): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.isLocalPlayer");
+    return this._nativePlayer.isLocalPlayer;
   }
 
   public taskSwapWeapon(): void {
@@ -224,8 +230,9 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("client", "RockSandboxPlayer.resetMovementClipset");
   }
 
-  public getBoneCoords(_boneId: number, _offsetX: number, _offsetY: number, _offsetZ: number): IVector3D {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.getBoneCoords");
+  public getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D {
+    const { x, y, z } = this._nativePlayer.getBoneCoords(boneId, offsetX, offsetZ, -offsetY);
+    return new Vector3D(x, -z, y);
   }
 
   public setNoCollision(_otherHandle: number, _thisFrameOnly: boolean): void {
