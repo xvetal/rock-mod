@@ -33,6 +33,38 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     throw new Error("Not implemented: RagePlayer.autoRespawn");
   }
 
+  public get clientTransformEnabled(): boolean {
+    throw new Error("Not implemented: RagePlayer.clientTransformEnabled");
+  }
+
+  public setClientTransformEnabled(_enabled: boolean): void {
+    throw new Error("Not implemented: RagePlayer.setClientTransformEnabled");
+  }
+
+  public get collisionEnabled(): boolean {
+    throw new Error("Not implemented: RagePlayer.collisionEnabled");
+  }
+
+  public setCollision(_enabled: boolean, _keepPhysics: boolean): void {
+    throw new Error("Not implemented: RagePlayer.setCollision");
+  }
+
+  public get frozen(): boolean {
+    throw new Error("Not implemented: RagePlayer.frozen");
+  }
+
+  public freezePosition(_frozen: boolean): void {
+    throw new Error("Not implemented: RagePlayer.freezePosition");
+  }
+
+  public get invincible(): boolean {
+    throw new Error("Not implemented: RagePlayer.invincible");
+  }
+
+  public setInvincible(_enabled: boolean): void {
+    throw new Error("Not implemented: RagePlayer.setInvincible");
+  }
+
   public get collisionWithPlayers(): boolean {
     throw new Error("Not implemented: RagePlayer.collisionWithPlayers");
   }

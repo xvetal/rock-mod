@@ -38,6 +38,38 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     throw new Error("Not implemented: AltVPlayer.autoRespawn");
   }
 
+  public get clientTransformEnabled(): boolean {
+    throw new Error("Not implemented: AltVPlayer.clientTransformEnabled");
+  }
+
+  public setClientTransformEnabled(_enabled: boolean): void {
+    throw new Error("Not implemented: AltVPlayer.setClientTransformEnabled");
+  }
+
+  public get collisionEnabled(): boolean {
+    throw new Error("Not implemented: AltVPlayer.collisionEnabled");
+  }
+
+  public setCollision(_enabled: boolean, _keepPhysics: boolean): void {
+    throw new Error("Not implemented: AltVPlayer.setCollision");
+  }
+
+  public get frozen(): boolean {
+    throw new Error("Not implemented: AltVPlayer.frozen");
+  }
+
+  public freezePosition(_frozen: boolean): void {
+    throw new Error("Not implemented: AltVPlayer.freezePosition");
+  }
+
+  public get invincible(): boolean {
+    throw new Error("Not implemented: AltVPlayer.invincible");
+  }
+
+  public setInvincible(_enabled: boolean): void {
+    throw new Error("Not implemented: AltVPlayer.setInvincible");
+  }
+
   public get collisionWithPlayers(): boolean {
     throw new Error("Not implemented: AltVPlayer.collisionWithPlayers");
   }
