@@ -899,6 +899,10 @@ test("authored NPC pool delegates identity, lookup, coordinates and failures to 
   const original = Error("native NPC failure"),
     native = {
       id: 4294967295,
+      remoteId: 4294967295,
+      setPosition() {
+        throw original;
+      },
       get isExists() {
         return exists;
       },
@@ -918,7 +922,11 @@ test("authored NPC pool delegates identity, lookup, coordinates and failures to 
       },
     };
   globalThis.rockSandbox = {
-    peds: { all: () => (exists ? [native] : []), getById: (id) => (exists && id === native.id ? native : null) },
+    peds: {
+      all: () => (exists ? [native] : []),
+      getById: (id) => (exists && id === native.id ? native : null),
+      getByRemoteId: (id) => (exists && id === native.id ? native : null),
+    },
   };
   const ped = mod.peds.getByID(native.id);
   assert.equal(mod.peds.getByRemoteID(native.id), ped);
@@ -944,8 +952,11 @@ test("authored NPC pool delegates identity, lookup, coordinates and failures to 
     (e) => e === original,
   );
   assert.throws(() => mod.peds.getByID(native.id), /ped 4294967295 not found/);
-  assert.throws(() => mod.peds.create({}), /not implemented/);
-  assert.throws(() => ped.setPosition(first), /not implemented/);
+  assert.throws(() => mod.peds.create({}), TypeError);
+  assert.throws(
+    () => ped.setPosition(first),
+    (error) => error === original,
+  );
   assert.throws(
     () => ped.getBoneCoords(0, 0, 0, 0),
     (error) => error === original,
@@ -1543,4 +1554,85 @@ test("local player transform setters only convert axes and delegate native valid
     () => player.setHeading(0),
     (e) => e === failure,
   );
+});
+
+test("local preview peds delegate creation, mutation, lookup and deletion without SDK state", async () => {
+  const calls = [];
+  const failure = new Error("native ped error");
+  const native = {
+    id: 3,
+    remoteId: null,
+    handle: 123,
+    isExists: true,
+    modelHash: 456,
+    alpha: 128,
+    setPosition: (v) => calls.push(["position", v]),
+    setRotation: (v) => calls.push(["rotation", v]),
+    setModel: (v) => calls.push(["model", v]),
+    setHeading: (v) => calls.push(["heading", v]),
+    setDimension: (v) => calls.push(["dimension", v]),
+    setVisible: (v) => calls.push(["visible", v]),
+    setAlpha: (v) => calls.push(["alpha", v]),
+    destroy: () => calls.push(["destroy"]),
+  };
+  globalThis.rockSandbox = {
+    peds: {
+      create: (options) => {
+        calls.push(["create", options]);
+        return native;
+      },
+      getById: () => native,
+      getByRemoteId: () => null,
+      all: () => [native],
+    },
+  };
+  try {
+    const p = mod.peds.create({
+      model: "mp_f_freemode_01",
+      position: { x: 1, y: 2, z: 3 },
+      rotation: { x: 4, y: 5, z: 6 },
+      dimension: 7,
+    });
+    assert.equal(p, mod.peds.getByID(3));
+    assert.equal(p, [...mod.peds.iterator.all()][0]);
+    assert.equal(mod.peds.findByRemoteID(3), null);
+    assert.equal(p.remoteId, null);
+    assert.equal(p.handle, 123);
+    assert.equal(p.alpha, 128);
+    p.setModel("g_m_y_ballaeast_01");
+    p.setPosition({ x: 8, y: 9, z: 10 });
+    p.setRotation({ x: 11, y: 12, z: 13 });
+    p.setHeading(20);
+    p.setDimension(99);
+    p.setVisible(false);
+    p.setAlpha(0);
+    p.resetAlpha();
+    assert.deepEqual(calls, [
+      [
+        "create",
+        { model: "mp_f_freemode_01", position: { x: 1, y: 3, z: -2 }, rotation: { x: 4, y: 6, z: -5 }, dimension: 7 },
+      ],
+      ["model", "g_m_y_ballaeast_01"],
+      ["position", { x: 8, y: 10, z: -9 }],
+      ["rotation", { x: 11, y: 13, z: -12 }],
+      ["heading", 20],
+      ["dimension", 99],
+      ["visible", false],
+      ["alpha", 0],
+      ["alpha", 255],
+    ]);
+    assert.equal(mod.peds.deleteById(3), p);
+    assert.deepEqual(calls.at(-1), ["destroy"]);
+    native.setModel = () => {
+      throw failure;
+    };
+    assert.throws(
+      () => p.setModel("bad"),
+      (e) => e === failure,
+    );
+    assert.throws(() => p.setHeadBlendData(), /RockSandboxPed.setHeadBlendData/);
+    assert.throws(() => p.setCollision(true, true), /not implemented/);
+  } finally {
+    delete globalThis.rockSandbox;
+  }
 });

@@ -15,8 +15,8 @@ export class RockSandboxPed extends RockSandboxEntity implements IPed {
     return this._nativePed.id;
   }
 
-  public override get remoteId(): number {
-    return this._nativePed.id;
+  public override get remoteId(): number | null {
+    return this._nativePed.remoteId;
   }
 
   public override get type(): BaseObjectType {
@@ -47,6 +47,50 @@ export class RockSandboxPed extends RockSandboxEntity implements IPed {
   public override get rotation(): IVector3D {
     const { x, y, z } = this._nativePed.rotation;
     return new Vector3D(x, -z, y);
+  }
+
+  public override get handle(): number {
+    return this._nativePed.handle;
+  }
+
+  public override get alpha(): number {
+    return this._nativePed.alpha;
+  }
+
+  public override setModel(value: string): void {
+    this._nativePed.setModel(value);
+  }
+
+  public override setPosition(value: IVector3D): void {
+    this._nativePed.setPosition({ x: value.x, y: value.z, z: -value.y });
+  }
+
+  public override setRotation(value: IVector3D): void {
+    this._nativePed.setRotation({ x: value.x, y: value.z, z: -value.y });
+  }
+
+  public override setHeading(value: number): void {
+    this._nativePed.setHeading(value);
+  }
+
+  public override setDimension(value: number): void {
+    this._nativePed.setDimension(value);
+  }
+
+  public override setVisible(value: boolean): void {
+    this._nativePed.setVisible(value);
+  }
+
+  public override setAlpha(value: number): void {
+    this._nativePed.setAlpha(value);
+  }
+
+  public override resetAlpha(): void {
+    this._nativePed.setAlpha(255);
+  }
+
+  public override destroy(): void {
+    this._nativePed.destroy();
   }
 
   public setDecoration(_collection: string, _overlay: string): void {
