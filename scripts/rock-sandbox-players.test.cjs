@@ -590,6 +590,159 @@ test("collisionWithPlayers reads native publication and delegates policy command
     (error) => error === failure,
   );
 });
+test("invincible reads native publication and delegates policy commands without validation or caching", () => {
+  const calls = [];
+  const failure = new Error("native policy failed");
+  let published = true;
+  let failing = false;
+  const native = {
+    id: 507,
+    get invincible() {
+      if (failing) throw failure;
+      return published;
+    },
+    setInvincible(value) {
+      assert.equal(this, native);
+      if (failing) throw failure;
+      calls.push(value);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(507);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.invincible, true);
+  const values = [false, true, true, false, 1, "false", undefined, null];
+  for (const value of values) assert.equal(player.setInvincible(value), undefined);
+  assert.deepEqual(calls, values);
+  assert.equal(player.invincible, true);
+  published = false;
+  assert.equal(player.invincible, false);
+  failing = true;
+  assert.throws(
+    () => player.invincible,
+    (error) => error === failure,
+  );
+  assert.throws(
+    () => player.setInvincible(true),
+    (error) => error === failure,
+  );
+});
+test("frozen reads native publication and delegates policy commands without validation or caching", () => {
+  const calls = [];
+  const failure = new Error("native policy failed");
+  let published = true;
+  let failing = false;
+  const native = {
+    id: 508,
+    get frozen() {
+      if (failing) throw failure;
+      return published;
+    },
+    freezePosition(value) {
+      assert.equal(this, native);
+      if (failing) throw failure;
+      calls.push(value);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(508);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.frozen, true);
+  const values = [false, true, true, false, 1, "false", undefined, null];
+  for (const value of values) assert.equal(player.freezePosition(value), undefined);
+  assert.deepEqual(calls, values);
+  assert.equal(player.frozen, true);
+  published = false;
+  assert.equal(player.frozen, false);
+  failing = true;
+  assert.throws(
+    () => player.frozen,
+    (error) => error === failure,
+  );
+  assert.throws(
+    () => player.freezePosition(true),
+    (error) => error === failure,
+  );
+});
+
+test("clientTransformEnabled reads native publication and delegates policy commands without validation or caching", () => {
+  const calls = [];
+  const failure = new Error("native policy failed");
+  let published = true;
+  let failing = false;
+  const native = {
+    id: 508,
+    get clientTransformEnabled() {
+      if (failing) throw failure;
+      return published;
+    },
+    setClientTransformEnabled(value) {
+      assert.equal(this, native);
+      if (failing) throw failure;
+      calls.push(value);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(508);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.clientTransformEnabled, true);
+  const values = [false, true, true, false, 1, "false", undefined, null];
+  for (const value of values) assert.equal(player.setClientTransformEnabled(value), undefined);
+  assert.deepEqual(calls, values);
+  assert.equal(player.clientTransformEnabled, true);
+  published = false;
+  assert.equal(player.clientTransformEnabled, false);
+  failing = true;
+  assert.throws(
+    () => player.clientTransformEnabled,
+    (error) => error === failure,
+  );
+  assert.throws(
+    () => player.setClientTransformEnabled(true),
+    (error) => error === failure,
+  );
+});
+
+test("collisionEnabled reads native publication and delegates policy commands without validation or caching", () => {
+  const calls = [];
+  const failure = new Error("native policy failed");
+  let published = true;
+  let failing = false;
+  const native = {
+    id: 508,
+    get collisionEnabled() {
+      if (failing) throw failure;
+      return published;
+    },
+    setCollision(value, keepPhysics) {
+      assert.equal(this, native);
+      if (failing) throw failure;
+      calls.push([value, keepPhysics]);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(508);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.collisionEnabled, true);
+  const values = [false, true, true, false, 1, "false", undefined, null];
+  for (const value of values) assert.equal(player.setCollision(value, value), undefined);
+  assert.deepEqual(
+    calls,
+    values.map((value) => [value, value]),
+  );
+  assert.equal(player.collisionEnabled, true);
+  published = false;
+  assert.equal(player.collisionEnabled, false);
+  failing = true;
+  assert.throws(
+    () => player.collisionEnabled,
+    (error) => error === failure,
+  );
+  assert.throws(
+    () => player.setCollision(true, false),
+    (error) => error === failure,
+  );
+});
 
 test("other platform adapters explicitly reject automatic respawn APIs", () => {
   // Loading AltV's existing module requires its global aliases; no game objects run.
@@ -628,6 +781,12 @@ test("other platform adapters explicitly reject player collision APIs", () => {
       ["mock", "Mock"],
     ]) {
       const Class = require(`../dist/server/entities/${platform}/player/${name}Player`)[`${name}Player`];
+      const full = Object.getOwnPropertyDescriptor(Class.prototype, "collisionEnabled").get;
+      assert.throws(() => full.call(undefined), new RegExp(`${name}Player.collisionEnabled`));
+      assert.throws(
+        () => Class.prototype.setCollision.call(undefined, false, true),
+        new RegExp(`${name}Player.setCollision`),
+      );
       const getter = Object.getOwnPropertyDescriptor(Class.prototype, "collisionWithPlayers").get;
       assert.throws(() => getter.call(undefined), new RegExp(`${name}Player.collisionWithPlayers`));
       assert.throws(

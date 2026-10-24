@@ -79,6 +79,38 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return this._nativePlayer.autoRespawn;
   }
 
+  public get clientTransformEnabled(): boolean {
+    return this._nativePlayer.clientTransformEnabled;
+  }
+
+  public setClientTransformEnabled(enabled: boolean): void {
+    this._nativePlayer.setClientTransformEnabled(enabled);
+  }
+
+  public get collisionEnabled(): boolean {
+    return this._nativePlayer.collisionEnabled;
+  }
+
+  public setCollision(enabled: boolean, keepPhysics: boolean): void {
+    this._nativePlayer.setCollision(enabled, keepPhysics);
+  }
+
+  public get frozen(): boolean {
+    return this._nativePlayer.frozen;
+  }
+
+  public freezePosition(frozen: boolean): void {
+    this._nativePlayer.freezePosition(frozen);
+  }
+
+  public get invincible(): boolean {
+    return this._nativePlayer.invincible;
+  }
+
+  public setInvincible(enabled: boolean): void {
+    this._nativePlayer.setInvincible(enabled);
+  }
+
   public get collisionWithPlayers(): boolean {
     return this._nativePlayer.collisionWithPlayers;
   }

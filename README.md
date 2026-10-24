@@ -1,6 +1,6 @@
 # Rock-Mod
 
-Current RockSandbox compatibility: **ABI 25 / protocol 25 / CEF IPC 2**.
+Current RockSandbox compatibility: **ABI 29 / protocol 29 / CEF IPC 2**.
 Server `player.collisionWithPlayers` and `setCollisionWithPlayers(enabled)`
 delegate directly to native code. Other server adapters throw for these APIs.
 See [the native contract](../rock-sandbox/docs/player-collisions.md). Earlier
@@ -964,3 +964,50 @@ expiry and stream/connection cleanup. These are local prediction overrides;
 the separate server `setCollisionWithPlayers()` API controls authority. Damage
 rules remain unchanged. Existing gamemod passive-mode calls reach native physics. ABI 25 / protocol 25 /
 CEF IPC 2 remains unchanged; rebuild the server, addon and clients together.
+
+## Host-owned player invincibility
+
+Server `player.invincible` and `setInvincible(enabled)` delegate to native
+RockSandbox. The strict boolean command uses the existing FIFO; reads change
+after publication. New connections default to false, and the policy survives
+lives, relocation and dimension changes. Combat damage is blocked, while explicit
+`setHealth()` assignments retain their existing behavior. Clients expose only
+readonly `invincible`; they cannot grant themselves protection. Other server
+adapters explicitly reject these server APIs; existing client adapters are unchanged.
+See [the full contract and checks](../rock-sandbox/docs/player-invincibility.md).
+Rebuild the server, addon and clients for **ABI 26 / protocol 26**. CEF IPC stays 2.
+
+## Host-owned position freeze
+
+Server `player.frozen` and `freezePosition(boolean)` directly delegate to native
+RockSandbox; the client exposes only readonly `frozen`. The shared FIFO preserves
+repeated commands and deferred reads. A changed value stops velocity and retires
+old control generations, without changing health, collision policy or life.
+Seated players retain their seat and follow the car without controlling it.
+The policy survives respawns and transfers; explicit host relocation still works.
+Other server adapters reject the new operations while their existing client
+adapters retain native behavior. See [the contract and checks](../rock-sandbox/docs/player-freeze.md).
+Current compatibility is **ABI 29 / protocol 29 / CEF IPC 2**.
+
+## Server-owned full player collisions
+
+RockSandbox's server `player.collisionEnabled` and
+`player.setCollision(enabled, keepPhysics)` directly delegate to native state and
+commands. The SDK adds no queue, validation, movement rules or property cache.
+Other server adapters explicitly reject these new operations; their existing
+client APIs retain current behavior. `keepPhysics` retains gravity/free movement
+when collision is disabled. Freeze, invincibility and player-pair masks remain
+independent. Client writes are not an authoritative override in RockSandbox.
+See [native contract](../rock-sandbox/docs/player-body-collisions.md).
+Current compatibility is **ABI 29 / protocol 29 / CEF IPC 2**.
+
+## Server-authorized client transforms
+
+Client RockSandbox players now directly delegate `setPosition()` and `setHeading()`;
+position converts SDK `(x,y,z)` to engine `(x,z,-y)`. The server SDK directly
+exposes native `clientTransformEnabled` and `setClientTransformEnabled(boolean)`.
+Other server adapters reject the new permission APIs. No SDK queue, validation,
+permission state, polling or input reconciliation is added.
+See [native input contract](../rock-sandbox/docs/client-transforms.md), including
+ignored ungranted input and one-shot server teleports. Compatibility is
+**ABI 29 / protocol 29 / CEF IPC 2**.

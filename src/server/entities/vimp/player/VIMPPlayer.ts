@@ -74,6 +74,38 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     throw new Error("Not implemented: VIMPPlayer.autoRespawn");
   }
 
+  public get clientTransformEnabled(): boolean {
+    throw new Error("Not implemented: VIMPPlayer.clientTransformEnabled");
+  }
+
+  public setClientTransformEnabled(_enabled: boolean): void {
+    throw new Error("Not implemented: VIMPPlayer.setClientTransformEnabled");
+  }
+
+  public get collisionEnabled(): boolean {
+    throw new Error("Not implemented: VIMPPlayer.collisionEnabled");
+  }
+
+  public setCollision(_enabled: boolean, _keepPhysics: boolean): void {
+    throw new Error("Not implemented: VIMPPlayer.setCollision");
+  }
+
+  public get frozen(): boolean {
+    throw new Error("Not implemented: VIMPPlayer.frozen");
+  }
+
+  public freezePosition(_frozen: boolean): void {
+    throw new Error("Not implemented: VIMPPlayer.freezePosition");
+  }
+
+  public get invincible(): boolean {
+    throw new Error("Not implemented: VIMPPlayer.invincible");
+  }
+
+  public setInvincible(_enabled: boolean): void {
+    throw new Error("Not implemented: VIMPPlayer.setInvincible");
+  }
+
   public get collisionWithPlayers(): boolean {
     throw new Error("Not implemented: VIMPPlayer.collisionWithPlayers");
   }
