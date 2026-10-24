@@ -1,6 +1,7 @@
 import { type IStreamingManager } from "../../common/streaming/IStreamingManager";
 import { type IVector3D } from "../../../../shared/common/utils";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxStreamingManager implements IStreamingManager {
   public requestAnimationDictionary(_dictionary: string): void {
@@ -43,15 +44,18 @@ export class RockSandboxStreamingManager implements IStreamingManager {
     return rockSandboxNotImplemented("client", "RockSandboxStreamingManager.removeIpl");
   }
 
-  public setFocusArea(_position: IVector3D, _offset: IVector3D): void {
-    return rockSandboxNotImplemented("client", "RockSandboxStreamingManager.setFocusArea");
+  public setFocusArea(position: IVector3D, offset: IVector3D): void {
+    getRockSandbox().streaming.setFocusArea(
+      { x: position.x, y: position.z, z: -position.y },
+      { x: offset.x, y: offset.z, z: -offset.y },
+    );
   }
 
   public clearFocus(): void {
-    return rockSandboxNotImplemented("client", "RockSandboxStreamingManager.clearFocus");
+    getRockSandbox().streaming.clearFocus();
   }
 
-  public setFocusEntity(_entityHandle: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxStreamingManager.setFocusEntity");
+  public setFocusEntity(entityHandle: number): void {
+    getRockSandbox().streaming.setFocusEntity(entityHandle);
   }
 }

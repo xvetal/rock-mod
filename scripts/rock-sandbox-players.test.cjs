@@ -553,6 +553,44 @@ test("autoRespawn reads native publication and delegates policy commands without
   );
 });
 
+test("collisionWithPlayers reads native publication and delegates policy commands without validation or caching", () => {
+  const calls = [];
+  const failure = new Error("native policy failed");
+  let published = true;
+  let failing = false;
+  const native = {
+    id: 506,
+    get collisionWithPlayers() {
+      if (failing) throw failure;
+      return published;
+    },
+    setCollisionWithPlayers(value) {
+      assert.equal(this, native);
+      if (failing) throw failure;
+      calls.push(value);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const player = mod.players.getByID(506);
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  assert.equal(player.collisionWithPlayers, true);
+  const values = [false, true, true, false, 1, "false", undefined, null];
+  for (const value of values) assert.equal(player.setCollisionWithPlayers(value), undefined);
+  assert.deepEqual(calls, values);
+  assert.equal(player.collisionWithPlayers, true);
+  published = false;
+  assert.equal(player.collisionWithPlayers, false);
+  failing = true;
+  assert.throws(
+    () => player.collisionWithPlayers,
+    (error) => error === failure,
+  );
+  assert.throws(
+    () => player.setCollisionWithPlayers(true),
+    (error) => error === failure,
+  );
+});
+
 test("other platform adapters explicitly reject automatic respawn APIs", () => {
   // Loading AltV's existing module requires its global aliases; no game objects run.
   Reflect.set(globalThis, "AltVShared", { Vector3: class {}, hash() {} });
@@ -570,6 +608,31 @@ test("other platform adapters explicitly reject automatic respawn APIs", () => {
       assert.throws(
         () => Class.prototype.setAutoRespawn.call(undefined, false),
         new RegExp(`${name}Player.setAutoRespawn`),
+      );
+    }
+  } finally {
+    Reflect.deleteProperty(globalThis, "AltVShared");
+    Reflect.deleteProperty(globalThis, "AltVServer");
+  }
+});
+
+test("other platform adapters explicitly reject player collision APIs", () => {
+  // Loading AltV's existing module requires its global aliases; no game objects run.
+  Reflect.set(globalThis, "AltVShared", { Vector3: class {}, hash() {} });
+  Reflect.set(globalThis, "AltVServer", {});
+  try {
+    for (const [platform, name] of [
+      ["ragemp", "Rage"],
+      ["vimp", "VIMP"],
+      ["altv", "AltV"],
+      ["mock", "Mock"],
+    ]) {
+      const Class = require(`../dist/server/entities/${platform}/player/${name}Player`)[`${name}Player`];
+      const getter = Object.getOwnPropertyDescriptor(Class.prototype, "collisionWithPlayers").get;
+      assert.throws(() => getter.call(undefined), new RegExp(`${name}Player.collisionWithPlayers`));
+      assert.throws(
+        () => Class.prototype.setCollisionWithPlayers.call(undefined, false),
+        new RegExp(`${name}Player.setCollisionWithPlayers`),
       );
     }
   } finally {

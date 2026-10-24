@@ -20,6 +20,10 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return this._nativePlayer.id;
   }
 
+  public override get handle(): number {
+    return this._nativePlayer.handle;
+  }
+
   public override get type(): BaseObjectType {
     return BaseObjectType.Player;
   }
@@ -33,6 +37,29 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return new Vector3D(x, -z, y);
   }
 
+  public override getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
+    const { x, y, z } = this._nativePlayer.getOffsetFromInWorldCoords(offsetX, offsetZ, -offsetY);
+    return new Vector3D(x, -z, y);
+  }
+
+  public override get dimension(): number {
+    return this._nativePlayer.dimension;
+  }
+
+  public override get heading(): number {
+    return this._nativePlayer.heading;
+  }
+
+  public override get rotation(): IVector3D {
+    const { x, y, z } = this._nativePlayer.rotation;
+    return new Vector3D(x, -z, y);
+  }
+
+  public override get forwardVector(): IVector3D {
+    const { x, y, z } = this._nativePlayer.forwardVector;
+    return new Vector3D(x, -z, y);
+  }
+
   public override getVariable(name: string): unknown {
     return this._nativePlayer.getNetData(name);
   }
@@ -42,11 +69,31 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get name(): string {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.name");
+    return this._nativePlayer.name;
+  }
+
+  public override get model(): number {
+    return this._nativePlayer.modelHash;
   }
 
   public get health(): number {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.health");
+    return this._nativePlayer.health;
+  }
+
+  public override get alpha(): number {
+    return this._nativePlayer.alpha;
+  }
+
+  public override setAlpha(alpha: number): void {
+    this._nativePlayer.setAlpha(alpha);
+  }
+
+  public override resetAlpha(): void {
+    this._nativePlayer.resetAlpha();
+  }
+
+  public override setVisible(visible: boolean): void {
+    this._nativePlayer.setVisible(visible);
   }
 
   public get armour(): number {
@@ -54,7 +101,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get isDead(): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.isDead");
+    return this._nativePlayer.isDead;
   }
 
   public get vehicle(): IVehicle | null {
@@ -93,8 +140,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return this._nativePlayer.getAmmoInClip(weapon);
   }
 
-  public getWeaponAmmo(_weapon: number): number {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.getWeaponAmmo");
+  public getWeaponAmmo(weapon: number): number {
+    return this._nativePlayer.getWeaponAmmo(weapon);
   }
 
   public getBoneIndex(_boneId: number): number {
@@ -235,8 +282,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return new Vector3D(x, -z, y);
   }
 
-  public setNoCollision(_otherHandle: number, _thisFrameOnly: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setNoCollision");
+  public setNoCollision(otherHandle: number, thisFrameOnly: boolean): void {
+    this._nativePlayer.setNoCollision(otherHandle, thisFrameOnly);
   }
 }
 

@@ -58,6 +58,14 @@ export class MockPlayer extends MockEntity implements IPlayer {
     throw new Error("Not implemented: MockPlayer.autoRespawn");
   }
 
+  public get collisionWithPlayers(): boolean {
+    throw new Error("Not implemented: MockPlayer.collisionWithPlayers");
+  }
+
+  public setCollisionWithPlayers(_enabled: boolean): void {
+    throw new Error("Not implemented: MockPlayer.setCollisionWithPlayers");
+  }
+
   public get isDead(): boolean {
     return this.health <= 0;
   }

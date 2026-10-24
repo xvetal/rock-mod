@@ -33,6 +33,14 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     throw new Error("Not implemented: RagePlayer.autoRespawn");
   }
 
+  public get collisionWithPlayers(): boolean {
+    throw new Error("Not implemented: RagePlayer.collisionWithPlayers");
+  }
+
+  public setCollisionWithPlayers(_enabled: boolean): void {
+    throw new Error("Not implemented: RagePlayer.setCollisionWithPlayers");
+  }
+
   public get isDead(): boolean {
     return this.mpEntity.health <= 0;
   }

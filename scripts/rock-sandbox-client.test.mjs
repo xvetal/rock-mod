@@ -20,16 +20,70 @@ writeFileSync(
     `export * from ${JSON.stringify(resolve("dist/client/index.js"))};`,
     `export { RagePlayersManager } from ${JSON.stringify(resolve("dist/client/entities/ragemp/player/RagePlayersManager.js"))};`,
     `export { VIMPPlayersManager } from ${JSON.stringify(resolve("dist/client/entities/vimp/player/VIMPPlayersManager.js"))};`,
+    `export { RageUiManager } from ${JSON.stringify(resolve("dist/client/game/ragemp/ui/RageUiManager.js"))};`,
+    `export { VIMPUiManager } from ${JSON.stringify(resolve("dist/client/game/vimp/ui/VIMPUiManager.js"))};`,
   ].join("\n"),
 );
 const bundle = await rollup({ input: entry, plugins: [nodeResolve(), commonjs()] });
 const file = join(directory, "client.cjs");
 await bundle.write({ file, format: "cjs", inlineDynamicImports: true });
 await bundle.close();
-const { RockMod, RagePlayersManager, VIMPPlayersManager } = createRequire(import.meta.url)(file);
+const { RockMod, RagePlayersManager, VIMPPlayersManager, RageUiManager, VIMPUiManager } = createRequire(
+  import.meta.url,
+)(file);
 assert.equal("mp" in globalThis, false);
 assert.equal("vimp" in globalThis, false);
 const mod = await RockMod.create({ multiplayer: "RockSandbox" });
+
+test("radar bounds delegate the native snapshot, null and original errors without safezone calculations", () => {
+  let bounds = Object.freeze({ x: 32, y: 648, width: 416, height: 416 });
+  globalThis.rockSandbox = { hud: { getRadarScreenBounds: () => bounds } };
+  assert.equal(mod.game.ui.getRadarScreenBounds(), bounds);
+  bounds = null;
+  assert.equal(mod.game.ui.getRadarScreenBounds(), null);
+  const error = Error("[RockSandbox:client] native radar layout unavailable");
+  globalThis.rockSandbox.hud.getRadarScreenBounds = () => {
+    throw error;
+  };
+  assert.throws(
+    () => mod.game.ui.getRadarScreenBounds(),
+    (e) => e === error,
+  );
+});
+
+test("actual RageMP and VIMP adapters retain the former gamemod radar formula", (t) => {
+  t.after(() => {
+    Reflect.deleteProperty(globalThis, "mp");
+    Reflect.deleteProperty(globalThis, "vimp");
+  });
+  for (const [width, height, safezone] of [
+    [1920, 1080, 1],
+    [2560, 1080, 0.9],
+    [1080, 1920, 0.85],
+    [600, 800, 1],
+  ]) {
+    const calls = [];
+    const readSafezone = () => {
+      calls.push("safezone");
+      return safezone;
+    };
+    const readSize = () => {
+      calls.push("resolution");
+      return { x: width, y: height };
+    };
+    globalThis.mp = { game: { graphics: { getSafeZoneSize: readSafezone, getActiveScreenResolution: readSize } } };
+    globalThis.vimp = { natives: { graphics: { getSafeZoneSize: readSafezone, getActualScreenResolution: readSize } } };
+    const expected = {
+      x: width * (1 - safezone) * 0.5,
+      y: height - height * (1 - safezone) * 0.5 - height * 0.188,
+      width: height * (0.15 * (16 / 9)),
+      height: height * 0.188,
+    };
+    assert.deepEqual(new RageUiManager().getRadarScreenBounds(), expected);
+    assert.deepEqual(new VIMPUiManager().getRadarScreenBounds(), expected);
+    assert.deepEqual(calls, ["safezone", "resolution", "safezone", "resolution"]);
+  }
+});
 
 // Explicit platform/event fixtures exercise the actual compiled player managers.
 // These are CPU contract tests; they do not launch RageMP or VIMP.
@@ -328,6 +382,12 @@ test("weapon state and project magazine sizes delegate without SDK state or hash
       if (failure) throw failure;
       return reloading;
     },
+    getWeaponAmmo(hash) {
+      assert.equal(this, native);
+      calls.push(["total", hash]);
+      if (failure) throw failure;
+      return 29;
+    },
     getAmmoInClip(hash) {
       calls.push(["ammo", hash]);
       if (failure) throw failure;
@@ -348,9 +408,12 @@ test("weapon state and project magazine sizes delegate without SDK state or hash
   assert.equal(player.weapon, weapon);
   assert.equal(player.isReloading, false);
   assert.equal(player.getAmmoInClip(weapon), 3);
+  // Distinct fixture values prove the SDK never derives total ammo from the clip.
+  assert.equal(player.getWeaponAmmo(weapon), 29);
   assert.equal(mod.game.weapon.getWeaponClipSize(weapon), 7);
   assert.deepEqual(calls, [
     ["ammo", weapon],
+    ["total", weapon],
     ["capacity", weapon],
   ]);
   weapon = 324215364;
@@ -362,10 +425,10 @@ test("weapon state and project magazine sizes delegate without SDK state or hash
     () => player.weapon,
     () => player.isReloading,
     () => player.getAmmoInClip(weapon),
+    () => player.getWeaponAmmo(weapon),
     () => mod.game.weapon.getWeaponClipSize(weapon),
   ])
     assert.throws(run, (e) => e === original);
-  assert.throws(() => player.getWeaponAmmo(weapon), /not implemented/);
 });
 
 test("control restrictions delegate arguments and native failures without SDK state", () => {
@@ -444,6 +507,118 @@ test("native exceptions propagate and unrelated APIs remain unsupported", () => 
     (e) => e === original,
   );
   assert.throws(() => mod.vehicles.findByID(1), /not implemented/);
+});
+
+test("camera and focus wrappers delegate native state, identity, transforms and errors", () => {
+  const calls = [],
+    original = Error("native camera error");
+  let failure = false;
+  const operation = (name, ...args) => {
+    if (failure) throw original;
+    calls.push([name, ...args]);
+  };
+  const camera = {
+    id: 4,
+    handle: 101,
+    isAlive: true,
+    isActive: false,
+    position: { x: 1, y: 2, z: 3 },
+    rotation: { x: 10, y: 20, z: 30 },
+    direction: { x: 0, y: 0, z: -1 },
+    fov: 45,
+    setActive: (value) => operation("active", value),
+    setPosition: (value) => operation("position", value),
+    setRotation: (value) => operation("rotation", value),
+    pointAtCoord: (value) => operation("point", value),
+    setFov: (value) => operation("fov", value),
+    destroy: () => {
+      operation("destroy");
+      camera.isAlive = false;
+    },
+  };
+  const gameplay = { ...camera, id: 0, handle: 0 },
+    player = { id: 4, handle: 202, isExists: true };
+  globalThis.rockSandbox = {
+    cameras: {
+      create: (value) => {
+        operation("create", value);
+        return camera;
+      },
+      all: () => [camera],
+      getById: (id) => (id === 4 && camera.isAlive ? camera : null),
+      getGameplayCamera: () => gameplay,
+      renderScriptCams: (...args) => operation("render", ...args),
+    },
+    players: { local: player },
+    streaming: {
+      setFocusArea: (...args) => operation("area", ...args),
+      clearFocus: () => operation("clear"),
+      setFocusEntity: (value) => operation("entity", value),
+    },
+  };
+  const wrapper = mod.cameras.create({
+    name: "script",
+    position: { x: 1, y: 2, z: 3 },
+    rotation: { x: 10, y: 20, z: 30 },
+    fov: 45,
+  });
+  assert.deepEqual(calls[0], [
+    "create",
+    { name: "script", position: { x: 1, y: 3, z: -2 }, rotation: { x: 10, y: 30, z: -20 }, fov: 45 },
+  ]);
+  assert.equal(mod.cameras.findByID(4), wrapper);
+  assert.equal(mod.cameras.getByID(4), wrapper);
+  assert.equal([...mod.cameras.iterator.all()][0], wrapper);
+  assert.equal(mod.cameras.getGameplayCamera(), mod.cameras.getGameplayCamera());
+  assert.equal(wrapper.remoteId, null);
+  assert.equal(wrapper.id, 4);
+  assert.equal(wrapper.handle, 101);
+  const vector = (value) => [value.x, value.y, value.z];
+  assert.deepEqual(vector(wrapper.position), [1, -3, 2]);
+  assert.deepEqual(vector(wrapper.rotation), [10, -30, 20]);
+  assert.deepEqual(vector(wrapper.direction), [0, 1, 0]);
+  assert.equal(wrapper.fov, 45);
+  assert.equal(wrapper.isActive, false);
+  camera.isActive = true;
+  assert.equal(wrapper.isActive, true);
+  wrapper.setIsActive(true);
+  wrapper.setPosition({ x: 4, y: 5, z: 6 });
+  wrapper.setRotation({ x: 7, y: 8, z: 9 });
+  wrapper.pointAtCoord({ x: 10, y: 11, z: 12 });
+  wrapper.setFov(70);
+  mod.cameras.renderScriptCams(true, true, 500, false);
+  mod.game.streaming.setFocusArea({ x: 1, y: 2, z: 3 }, { x: 4, y: 5, z: 6 });
+  mod.game.streaming.setFocusEntity(mod.players.getLocalPlayer().handle);
+  mod.game.streaming.clearFocus();
+  assert.deepEqual(calls.slice(1), [
+    ["active", true],
+    ["position", { x: 4, y: 6, z: -5 }],
+    ["rotation", { x: 7, y: 9, z: -8 }],
+    ["point", { x: 10, y: 12, z: -11 }],
+    ["fov", 70],
+    ["render", true, true, 500, false],
+    ["area", { x: 1, y: 3, z: -2 }, { x: 4, y: 6, z: -5 }],
+    ["entity", 202],
+    ["clear"],
+  ]);
+  failure = true;
+  assert.throws(
+    () => wrapper.setFov("invalid"),
+    (error) => error === original,
+  );
+  assert.throws(
+    () => mod.game.streaming.setFocusEntity(-1),
+    (error) => error === original,
+  );
+  assert.throws(
+    () => mod.cameras.renderScriptCams(true, false, 0, true),
+    (error) => error === original,
+  );
+  failure = false;
+  assert.equal(mod.cameras.deleteById(4), wrapper);
+  assert.equal(wrapper.isExists, false);
+  assert.equal(mod.cameras.findByID(4), null);
+  assert.equal(mod.cameras.findByRemoteID(4), null);
 });
 
 test("browser handles delegate, retain identity, and primary ownership is independent", () => {
@@ -693,7 +868,7 @@ test("streamed player wrappers and data callbacks share identity and delegate me
   assert.equal(player.isExists, false);
   assert.equal(mod.players.findByRemoteId(17), null);
   assert.throws(() => mod.players.getByRemoteId(17), /not found/);
-  assert.throws(() => player.health, /not implemented/);
+  assert.throws(() => player.armour, /not implemented/);
   assert.throws(() => mod.players.iterator.dimension(0), /not implemented/);
   const failure = Error("callback original");
   mod.net.dataHandler.addDataHandler("throws", () => {
@@ -856,4 +1031,468 @@ test("radar display delegates every call and preserves native error identity", (
   };
   mod.game.ui.displayRadar(true);
   assert.deepEqual(calls.at(-1), ["fresh host", true]);
+});
+
+test("player collision exclusions delegate original handles, lifetime and failures without SDK state", () => {
+  const calls = [],
+    failure = Error("native collision failure");
+  let fail = false;
+  const native = {
+    id: 719,
+    setNoCollision(...args) {
+      assert.equal(this, native);
+      calls.push(args);
+      if (fail) throw failure;
+    },
+  };
+  globalThis.rockSandbox = { players: { getById: () => native } };
+  const player = mod.players.findByRemoteId(native.id);
+  for (const frame of [true, true, false]) assert.equal(player.setNoCollision(987, frame), undefined);
+  const invalid = {};
+  player.setNoCollision(invalid, invalid);
+  assert.deepEqual(calls, [
+    [987, true],
+    [987, true],
+    [987, false],
+    [invalid, invalid],
+  ]);
+  fail = true;
+  assert.throws(
+    () => player.setNoCollision(987, true),
+    (e) => e === failure,
+  );
+});
+
+test("client player presentation delegates values, receiver and errors without SDK state", () => {
+  const calls = [];
+  let alpha = 255,
+    failure;
+  const native = {
+    id: 716,
+    isExists: true,
+    get alpha() {
+      if (failure) throw failure;
+      return alpha;
+    },
+  };
+  for (const method of ["setAlpha", "setVisible", "resetAlpha"])
+    native[method] = function (...args) {
+      assert.equal(this, native);
+      calls.push([method, ...args]);
+      if (failure) throw failure;
+    };
+  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  const player = mod.players.findByRemoteId(native.id);
+  assert.equal(player.alpha, 255);
+  assert.equal(player.setAlpha(128), undefined);
+  assert.equal(player.setVisible(false), undefined);
+  assert.equal(player.resetAlpha(), undefined);
+  // The SDK reads accepted native state; setters above deliberately do not change the fixture.
+  assert.equal(player.alpha, 255);
+  alpha = 37;
+  assert.equal(player.alpha, 37);
+  const invalid = {};
+  player.setAlpha(invalid);
+  player.setVisible(invalid);
+  assert.deepEqual(calls, [
+    ["setAlpha", 128],
+    ["setVisible", false],
+    ["resetAlpha"],
+    ["setAlpha", invalid],
+    ["setVisible", invalid],
+  ]);
+  failure = Error("original native player presentation failure");
+  for (const operation of [
+    () => player.alpha,
+    () => player.setAlpha(0),
+    () => player.setVisible(true),
+    () => player.resetAlpha(),
+  ])
+    assert.throws(operation, (error) => error === failure);
+});
+
+test("client player world offsets delegate both axis conversions without calculating a transform", () => {
+  const calls = [];
+  let result = Object.freeze({ x: 10, y: 20, z: -30 }),
+    failure;
+  const native = {
+    id: 715,
+    isExists: true,
+    get position() {
+      throw Error("SDK must not calculate position");
+    },
+    get heading() {
+      throw Error("SDK must not calculate orientation");
+    },
+    getOffsetFromInWorldCoords(...args) {
+      assert.equal(this, native);
+      calls.push(args);
+      if (failure) throw failure;
+      return result;
+    },
+  };
+  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  const player = mod.players.findByRemoteId(715);
+  const first = player.getOffsetFromInWorldCoords(1, 2, 3);
+  assert.deepEqual(calls, [[1, 3, -2]]);
+  assert.deepEqual({ x: first.x, y: first.y, z: first.z }, { x: 10, y: 30, z: 20 });
+  result = Object.freeze({ x: -40, y: 50, z: 60 });
+  const next = player.getOffsetFromInWorldCoords(-4, -5, -6);
+  assert.deepEqual(calls.at(-1), [-4, -6, 5]);
+  assert.deepEqual({ x: next.x, y: next.y, z: next.z }, { x: -40, y: -60, z: 50 });
+  assert.deepEqual({ x: first.x, y: first.y, z: first.z }, { x: 10, y: 30, z: 20 });
+  failure = Error("original native world-offset failure");
+  assert.throws(
+    () => player.getOffsetFromInWorldCoords(0, 0, 0),
+    (e) => e === failure,
+  );
+});
+
+test("client player model delegates its unsigned native hash without lookup or caching", () => {
+  let modelHash = 4294967295,
+    failure;
+  const native = {
+    id: 714,
+    isExists: true,
+    get modelHash() {
+      if (failure) throw failure;
+      return modelHash;
+    },
+    get model() {
+      throw Error("SDK must read modelHash directly");
+    },
+  };
+  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  const player = mod.players.findByRemoteId(714);
+  assert.equal(player.model, 4294967295);
+  modelHash = 123;
+  assert.equal(player.model, 123);
+  assert.equal(player, mod.players.findByRemoteId(714));
+  failure = Error("[RockSandbox:client] RockSandboxPlayer#714.modelHash: player is not streamed");
+  assert.throws(
+    () => player.model,
+    (e) => e === failure,
+  );
+});
+
+test("client name directly follows native rename and preserves original errors", () => {
+  let name = "Игрок Alex",
+    failure;
+  const native = {
+    id: 713,
+    isExists: true,
+    get name() {
+      if (failure) throw failure;
+      return name;
+    },
+  };
+  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  const player = mod.players.findByRemoteId(713);
+  assert.equal(player.name, "Игрок Alex");
+  name = "Новое имя Σ🙂";
+  assert.equal(player.name, name);
+  assert.equal(player, mod.players.findByRemoteId(713));
+  failure = Error("[RockSandbox:client] RockSandboxPlayer#713.name: player is not streamed");
+  assert.throws(
+    () => player.name,
+    (e) => e === failure,
+  );
+});
+
+test("client health and isDead delegate separately without deriving state or caching native errors", () => {
+  let health = 37,
+    dead = true,
+    failure;
+  const native = {
+    id: 712,
+    isExists: true,
+    get health() {
+      if (failure) throw failure;
+      return health;
+    },
+    get isDead() {
+      if (failure) throw failure;
+      return dead;
+    },
+  };
+  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  const player = mod.players.findByRemoteId(712);
+  assert.equal(player.health, 37);
+  assert.equal(player.isDead, true);
+  // Deliberately independent fixture values prove that the SDK derives neither getter.
+  health = 0;
+  dead = false;
+  assert.equal(player.health, 0);
+  assert.equal(player.isDead, false);
+  failure = Error("original native life state failure");
+  assert.throws(
+    () => player.health,
+    (e) => e === failure,
+  );
+  assert.throws(
+    () => player.isDead,
+    (e) => e === failure,
+  );
+});
+
+test("player dimension and orientation read native snapshots without SDK state", () => {
+  let state = {
+    dimension: 4294967295,
+    heading: 90,
+    position: { x: 1, y: 3, z: -2 },
+    rotation: { x: 10, y: 20, z: 30 },
+    forwardVector: { x: 1, y: 2, z: 3 },
+  };
+  const native = { id: 4294967295, isExists: true };
+  for (const key of ["dimension", "heading", "position", "rotation", "forwardVector"])
+    Object.defineProperty(native, key, { configurable: true, get: () => state[key] });
+  globalThis.rockSandbox = { players: { getById: () => native, all: () => [native], local: native } };
+  const player = mod.players.getByID(native.id);
+  assert.equal(mod.players.getByID(native.id), player);
+  assert.equal(mod.players.getLocalPlayer(), player);
+  assert.equal(player.dimension, 4294967295);
+  assert.equal(player.heading, 90);
+  assert.deepEqual([player.rotation.x, player.rotation.y, player.rotation.z], [10, -30, 20]);
+  assert.deepEqual([player.forwardVector.x, player.forwardVector.y, player.forwardVector.z], [1, -3, 2]);
+  const previous = player.rotation;
+  state = { ...state, dimension: 7, heading: 270, rotation: { x: 40, y: 50, z: 60 } };
+  assert.equal(player.dimension, 7);
+  assert.equal(player.heading, 270);
+  assert.deepEqual([previous.x, previous.y, previous.z], [10, -30, 20]);
+  assert.deepEqual([player.rotation.x, player.rotation.y, player.rotation.z], [40, -60, 50]);
+  const original = Error("native player state failure");
+  for (const key of ["dimension", "heading", "rotation", "forwardVector"]) {
+    Object.defineProperty(native, key, {
+      get: () => {
+        throw original;
+      },
+    });
+    assert.throws(
+      () => player[key],
+      (error) => error === original,
+    );
+  }
+  assert.throws(() => player.setDimension(0), /not implemented/);
+  assert.throws(() => player.setHeading(0), /not implemented/);
+});
+
+test("raycasting delegates flags and all ignored handles, converts vectors and preserves native errors", () => {
+  const calls = [];
+  let hit = { entityHandle: 123, position: { x: 1, y: 2, z: 3 }, surfaceNormal: { x: 0, y: 1, z: 0 }, distance: 10 };
+  globalThis.rockSandbox = {
+    raycasting: {
+      testPointToPoint: (...args) => {
+        calls.push(args);
+        return hit;
+      },
+    },
+  };
+  const query = mod.game.raycasting;
+  const result = query.testPointToPoint(
+    { x: 1, y: 2, z: 3 },
+    { x: 4, y: 5, z: 6 },
+    [{ handle: 40 }, { handle: 41 }],
+    [1, 16],
+  );
+  assert.deepEqual(calls[0], [{ x: 1, y: 3, z: -2 }, { x: 4, y: 6, z: -5 }, [40, 41], [1, 16]]);
+  assert.equal(result.entityHandle, 123);
+  assert.deepEqual({ x: result.position.x, y: result.position.y, z: result.position.z }, { x: 1, y: -3, z: 2 });
+  assert.deepEqual(
+    { x: result.surfaceNormal.x, y: result.surfaceNormal.y, z: result.surfaceNormal.z },
+    { x: 0, y: -0, z: 1 },
+  );
+  hit = null;
+  assert.equal(query.testPointToPoint({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { handle: 42 }, 17), null);
+  assert.equal(calls[1][2], 42);
+  query.testPointToPoint({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 });
+  assert.equal(calls[2][2], undefined);
+  assert.equal(calls[2][3], undefined);
+  const original = Error("native ray failure");
+  globalThis.rockSandbox.raycasting.testPointToPoint = () => {
+    throw original;
+  };
+  assert.throws(
+    () => query.testPointToPoint({ x: 1, y: 2, z: 3 }, { x: 4, y: 5, z: 6 }, null, 32),
+    (error) => error === original,
+  );
+});
+
+test("graphics delegates viewport and projection, converts axes and preserves native errors", () => {
+  const calls = [];
+  let size = { width: 1920, height: 1080 },
+    result = { x: 0.25, y: 0.75 };
+  globalThis.rockSandbox = {
+    screen: {
+      getResolution: () => size,
+      worldToScreen: (position) => {
+        calls.push(position);
+        return result;
+      },
+    },
+  };
+  const graphics = mod.game.graphics;
+  const first = graphics.getActiveScreenResolution();
+  assert.deepEqual({ x: first.x, y: first.y }, { x: 1920, y: 1080 });
+  size = { width: 600, height: 1200 };
+  assert.equal(graphics.getActiveScreenResolution().x, 600);
+  assert.equal(first.x, 1920);
+  const at = graphics.world3dToScreen2d({ x: 1, y: 2, z: 3 });
+  assert.deepEqual({ x: at.x, y: at.y }, result);
+  assert.deepEqual(calls, [{ x: 1, y: 3, z: -2 }]);
+  result = null;
+  assert.equal(graphics.world3dToScreen2d({ x: 0, y: 1, z: 0 }), null);
+  const original = Error("native viewport/projection unavailable");
+  globalThis.rockSandbox.screen = {
+    getResolution: () => {
+      throw original;
+    },
+    worldToScreen: () => {
+      throw original;
+    },
+  };
+  assert.throws(
+    () => graphics.getActiveScreenResolution(),
+    (error) => error === original,
+  );
+  assert.throws(
+    () => graphics.world3dToScreen2d({ x: 1, y: 2, z: 3 }),
+    (error) => error === original,
+  );
+});
+
+test("drawText forwards the original arguments without defaults or state and preserves native errors", () => {
+  const calls = [];
+  globalThis.rockSandbox = {
+    screen: {
+      drawText(...args) {
+        calls.push(args);
+      },
+    },
+  };
+  const position = { x: 0.5, y: 0.75 },
+    options = { font: 4, color: { r: 1, g: 2, b: 3 }, scale: [0.6, 0.3], centre: true, outline: false };
+  assert.equal(mod.game.graphics.drawText("~g~Дверь", position, options), undefined);
+  assert.deepEqual(calls[0], ["~g~Дверь", position, options]);
+  assert.equal(calls[0][1], position);
+  assert.equal(calls[0][2], options);
+  mod.game.graphics.drawText("defaults", position);
+  assert.equal(calls[1][2], undefined);
+  const error = new TypeError("native text failure");
+  globalThis.rockSandbox.screen.drawText = (...args) => {
+    assert.deepEqual(args, [123, position, options]);
+    throw error;
+  };
+  assert.throws(
+    () => mod.game.graphics.drawText(123, position, options),
+    (e) => e === error,
+  );
+});
+
+test("screen fading delegates duration and preserves native errors", () => {
+  const calls = [],
+    original = Error("native fade error");
+  globalThis.rockSandbox = {
+    screen: {
+      fadeIn: (duration) => calls.push(["in", duration]),
+      fadeOut: (duration) => calls.push(["out", duration]),
+    },
+  };
+  const screen = mod.game.camera;
+  for (const duration of [0, 500, 4294967295]) {
+    assert.equal(screen.screenFadeOut(duration), undefined);
+    assert.equal(screen.screenFadeIn(duration), undefined);
+  }
+  assert.deepEqual(calls, [
+    ["out", 0],
+    ["in", 0],
+    ["out", 500],
+    ["in", 500],
+    ["out", 4294967295],
+    ["in", 4294967295],
+  ]);
+  globalThis.rockSandbox = {
+    screen: {
+      fadeIn: (duration) => {
+        calls.push(duration);
+        throw original;
+      },
+      fadeOut: (duration) => {
+        calls.push(duration);
+        throw original;
+      },
+    },
+  };
+  assert.throws(
+    () => screen.screenFadeIn("invalid"),
+    (error) => error === original,
+  );
+  assert.equal(calls.at(-1), "invalid");
+  assert.throws(
+    () => screen.screenFadeOut(-1),
+    (error) => error === original,
+  );
+  assert.equal(calls.at(-1), -1);
+});
+
+test("cursor and pause menu delegate without SDK state and preserve errors", () => {
+  const calls = [],
+    original = Error("native input error");
+  globalThis.rockSandbox = {
+    cursor: {
+      setVisible: (...args) => calls.push(["cursor", ...args]),
+      getPosition: () => Object.freeze({ x: 123.5, y: 456.25 }),
+    },
+    ui: { setPauseMenuEnabled: (value) => calls.push(["menu", value]) },
+  };
+  for (const [freeze, visible] of [
+    [true, true],
+    [false, true],
+    [true, false],
+    [false, false],
+  ])
+    assert.equal(mod.game.cursor.show(freeze, visible), undefined);
+  const position = mod.game.cursor.getPosition();
+  assert.deepEqual([position.x, position.y], [123.5, 456.25]);
+  assert.notEqual(mod.game.cursor.getPosition(), position);
+  for (const enabled of [false, false, true]) assert.equal(mod.game.ui.setPauseMenuActive(enabled), undefined);
+  assert.deepEqual(calls, [
+    ["cursor", true, true],
+    ["cursor", true, false],
+    ["cursor", false, true],
+    ["cursor", false, false],
+    ["menu", false],
+    ["menu", false],
+    ["menu", true],
+  ]);
+  globalThis.rockSandbox = {
+    cursor: {
+      setVisible: (...args) => {
+        calls.push(args);
+        throw original;
+      },
+      getPosition: () => {
+        throw original;
+      },
+    },
+    ui: {
+      setPauseMenuEnabled: (value) => {
+        calls.push(value);
+        throw original;
+      },
+    },
+  };
+  assert.throws(
+    () => mod.game.cursor.show("invalid", null),
+    (e) => e === original,
+  );
+  assert.deepEqual(calls.at(-1), [null, "invalid"]);
+  assert.throws(
+    () => mod.game.cursor.getPosition(),
+    (e) => e === original,
+  );
+  assert.throws(
+    () => mod.game.ui.setPauseMenuActive(1),
+    (e) => e === original,
+  );
+  assert.equal(calls.at(-1), 1);
 });

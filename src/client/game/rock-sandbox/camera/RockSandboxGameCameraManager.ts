@@ -1,12 +1,12 @@
 import { type IGameCameraManager } from "../../common/camera/IGameCameraManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxGameCameraManager implements IGameCameraManager {
-  public screenFadeIn(_duration: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxGameCameraManager.screenFadeIn");
+  public screenFadeIn(duration: number): void {
+    getRockSandbox().screen.fadeIn(duration);
   }
 
-  public screenFadeOut(_duration: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxGameCameraManager.screenFadeOut");
+  public screenFadeOut(duration: number): void {
+    getRockSandbox().screen.fadeOut(duration);
   }
 }
