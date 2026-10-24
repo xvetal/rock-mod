@@ -79,6 +79,14 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return this._nativePlayer.autoRespawn;
   }
 
+  public get collisionWithPlayers(): boolean {
+    return this._nativePlayer.collisionWithPlayers;
+  }
+
+  public setCollisionWithPlayers(enabled: boolean): void {
+    this._nativePlayer.setCollisionWithPlayers(enabled);
+  }
+
   public get isDead(): boolean {
     return this._nativePlayer.isDead;
   }

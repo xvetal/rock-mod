@@ -74,6 +74,14 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     throw new Error("Not implemented: VIMPPlayer.autoRespawn");
   }
 
+  public get collisionWithPlayers(): boolean {
+    throw new Error("Not implemented: VIMPPlayer.collisionWithPlayers");
+  }
+
+  public setCollisionWithPlayers(_enabled: boolean): void {
+    throw new Error("Not implemented: VIMPPlayer.setCollisionWithPlayers");
+  }
+
   public get isDead(): boolean {
     return this._vimpPlayer.health <= 0;
   }

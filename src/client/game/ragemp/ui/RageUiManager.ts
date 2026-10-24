@@ -1,7 +1,15 @@
 import { type IUiManager } from "@RockMod/client/game";
+import { type IRadarScreenBounds } from "../../common/ui/IUiManager";
+import { gtaRadarScreenBounds } from "../../../internal/gtaRadarScreenBounds";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 export class RageUiManager implements IUiManager {
+  public getRadarScreenBounds(): IRadarScreenBounds {
+    const safezone = mp.game.graphics.getSafeZoneSize();
+    const { x, y } = mp.game.graphics.getActiveScreenResolution();
+    return gtaRadarScreenBounds(safezone, x, y);
+  }
+
   public getStreetNameFromHashKey(hash: number): string {
     return mp.game.ui.getStreetNameFromHashKey(hash);
   }
