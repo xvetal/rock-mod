@@ -1,32 +1,32 @@
 import { type IControlsManager } from "../../common/controls/IControlsManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxControlsManager implements IControlsManager {
-  public disableControlAction(_padIndex: number, _control: number, _disable: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxControlsManager.disableControlAction");
+  public disableControlAction(padIndex: number, control: number, disable: boolean): void {
+    getRockSandbox().controls.disableControlAction(padIndex, control, disable);
   }
 
-  public isDisabledControlPressed(_padIndex: number, _control: number): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxControlsManager.isDisabledControlPressed");
+  public isDisabledControlPressed(padIndex: number, control: number): boolean {
+    return getRockSandbox().controls.isDisabledControlPressed(padIndex, control);
   }
 
-  public isDisabledControlJustPressed(_padIndex: number, _control: number): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxControlsManager.isDisabledControlJustPressed");
+  public isDisabledControlJustPressed(padIndex: number, control: number): boolean {
+    return getRockSandbox().controls.isDisabledControlJustPressed(padIndex, control);
   }
 
-  public isControlPressed(_padIndex: number, _control: number): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxControlsManager.isControlPressed");
+  public isControlPressed(padIndex: number, control: number): boolean {
+    return getRockSandbox().controls.isControlPressed(padIndex, control);
   }
 
-  public isControlJustPressed(_padIndex: number, _control: number): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxControlsManager.isControlJustPressed");
+  public isControlJustPressed(padIndex: number, control: number): boolean {
+    return getRockSandbox().controls.isControlJustPressed(padIndex, control);
   }
 
-  public isControlJustReleased(_padIndex: number, _control: number): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxControlsManager.isControlJustReleased");
+  public isControlJustReleased(padIndex: number, control: number): boolean {
+    return getRockSandbox().controls.isControlJustReleased(padIndex, control);
   }
 
-  public getDisabledControlNormal(_padIndex: number, _control: number): number {
-    return rockSandboxNotImplemented("client", "RockSandboxControlsManager.getDisabledControlNormal");
+  public getDisabledControlNormal(padIndex: number, control: number): number {
+    return getRockSandbox().controls.getDisabledControlNormal(padIndex, control);
   }
 }

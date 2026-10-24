@@ -729,7 +729,7 @@ IDs/remote IDs are server player IDs; `type` is player and `isExists` delegates.
 detached/deeply frozen; undefined and null remain distinct. Data-handler
 registration delegates to the native keyed registry with only player wrapping.
 The SDK adds no metadata state, polling, queue or handler registry. Filters,
-gameplay fields and other entity types remain unsupported. See
+remaining gameplay fields and other entity types remain unsupported. See
 [native lifecycle, limits and checks](../rock-sandbox/docs/client-player-data.md).
 ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
 
@@ -746,6 +746,100 @@ method remains unsupported. Native read errors propagate unchanged.
 `npm run test:rock-sandbox` includes CPU contracts for the actual compiled player
 managers with explicit RageMP/VIMP/native-host fixtures: lookup without manual
 sync, remote refresh, identity, late readiness and reconnect. These fixtures do
-not qualify a running RageMP/VIMP client. The real RockSandbox/gamemod UDP probe
-reaches the next unsupported `RockSandboxPlayer.isLocalPlayer` getter. ABI 24 /
+not qualify a running RageMP/VIMP client.
+
+Client `player.isLocalPlayer` now delegates directly to the native handle. The
+runtime identifies its admitted owner; the SDK adds no ownership state or pool
+lookup. Streamed remotes return false; absent/closed handles throw the native
+error. CPU contracts verify direct reads and unchanged error identity. Native V8
+and real two-client UDP checks cover stream-out, dimension reentry and reconnect.
+The preceding real gamemod/MySQL report
+`../gamemod/rock-sandbox-server/diagnostics/connections/20261023-204227-eacc1b71/report.json`
+passes this getter and reaches `RockSandboxControlsManager.disableControlAction`
+in the first weapon render pass. No client readiness is fabricated. ABI 24 /
 protocol 24 / CEF IPC 2 remain unchanged.
+
+Client `game.controls.disableControlAction()` delegates to native controls.
+The current native implementation supports weapon category controls `157..165`, reload `45`
+and compatibility groups `0..2`, with frame-local last-call behavior. Keyboard
+and touch selection share the native filter; SDK validation, queues and state
+are not added. All seven control methods delegate; raw keyboard queries ignore
+restrictions, normal queries respect them, and digital normal values are 0/1.
+Other control IDs and analog axes throw natively.
+See [native semantics and checks](../rock-sandbox/docs/client-controls.md).
+
+The preceding real gamemod/MySQL report is
+`../gamemod/rock-sandbox-server/diagnostics/connections/20261023-205740-ujkzhin9/report.json`.
+Both connections initialize the application and pass weapon selection/reload
+restrictions; `RockSandboxPlayer.weapon` is the next first-frame blocker.
+`client:ready` is not announced; disconnect/logout/repository cleanup completes.
+ABI 24 / protocol 24 / CEF IPC 2 are unchanged. Native V8 and the common Rust
+combat-filter test run in bounded child processes; CPU/UDP checks do not validate
+CEF or device input.
+
+Client player `weapon`, `isReloading`, `getAmmoInClip()` and
+`game.weapon.getWeaponClipSize()` now delegate directly to native weapon state
+and the actual project catalog. The runtime owns compatibility hashes, phase,
+magazines, prediction/baseline publication and errors; the SDK adds no combat
+state or fallback values. Unknown hashes throw; `getWeaponAmmo()` remains
+unsupported because the simulation has no separate finite reserve. See
+[native semantics and checks](../rock-sandbox/docs/client-weapons.md).
+
+The preceding full-client report is
+`../gamemod/rock-sandbox-server/diagnostics/connections/20261023-211837-yz9rh291/report.json`.
+Both connections pass native weapon/magazine reads and reach the next fatal
+`RockSandboxWorldObject.position` getter in the nametag render pass. The headless
+driver now retains real early server events and starts JS after the gameplay
+baseline is ready. Original unavailable-browser and scripted-camera diagnostics
+remain; no readiness or UI response is fabricated. ABI 24 / protocol 24 / CEF
+IPC 2 stay unchanged.
+
+Client `player.position` now delegates to the native simulation snapshot and
+converts engine coordinates `(x, y, z)` to a new SDK `Vector3D(x, -z, y)`. No
+SDK position state, validation or setter is added; missing/removed/closed native
+errors propagate. Native coordinates are detached/frozen and use actual owner
+prediction or the latest accepted remote sample, independently of visual
+interpolation. See [native semantics and checks](../rock-sandbox/docs/client-player-position.md).
+
+The preceding full-client report is
+`../gamemod/rock-sandbox-server/diagnostics/connections/20261023-212903-onx44yit/report.json`.
+Both IDs pass the nametag origin position read and then reach the unsupported
+ped iterator in `PedRepository.getAll`. No empty collection is substituted.
+The real UDP probe retains the original diagnostics and completes disconnect,
+logout, repository and private DB/process cleanup. Neither announces readiness.
+ABI 24 / protocol 24 / CEF IPC 2 stay unchanged; GPU/device input is unverified.
+
+Client `peds.iterator.all()` and ID/remote-ID lookup now delegate to the native
+read-only authored NPC pool. Wrappers preserve WeakMap identity and directly
+read IDs, existence, model hash, dimension and heading. Position/rotation use
+`(x,y,z) -> (x,-z,y)`. The SDK has no pool, checks or property state. NPC creation,
+mutations and metadata remain unsupported. The native pool reads
+real project entities selected by cells/dimension; an unavailable registry
+throws. See [authored NPC scope and checks](../rock-sandbox/docs/client-peds.md).
+
+The preceding full-client report is
+`../gamemod/rock-sandbox-server/diagnostics/connections/20261023-215516-u_kfnucg/report.json`.
+Both IDs pass NPC enumeration and next fail at `RockSandboxPlayer.getBoneCoords`
+in the nametag renderer. No readiness or UI response is fabricated; disconnect,
+logout and repository/private DB/process cleanup pass. ABI 24 / protocol 24 /
+CEF IPC 2 stay unchanged. GPU rendering and Android device behavior remain unverified.
+
+Client player/NPC `getBoneCoords()` directly delegates to the native posed joint.
+Only offsets `(x,y,z) -> (x,z,-y)` and returned points `(x,y,z) -> (x,-z,y)` are
+converted. The SDK keeps no skeletal state or fallback offsets. See
+[the native contract and verified CPU/UDP scope](../rock-sandbox/docs/client-bones.md).
+
+Client `game.ui.hideHudComponentThisFrame(id)` directly delegates to
+`rockSandbox.hud.hideComponentThisFrame(id)`. The Rust runtime owns the reset and
+the actual HUD renderer consumes the accepted frame mask.
+`game.ui.displayRadar(display)` directly delegates to
+`rockSandbox.hud.setRadarVisible(display)`. The native per-connection flag persists
+between frames and resets at runtime close; it is separate from the HUD mask.
+The SDK has no radar state, queue or validation. Other UI methods stay unsupported.
+See [native HUD categories](../rock-sandbox/docs/client-hud.md) and
+[radar semantics and checks](../rock-sandbox/docs/client-radar.md).
+The latest full gamemod/MySQL report is
+`../gamemod/rock-sandbox-server/diagnostics/connections/20261023-233325-4u21rz7n/report.json`:
+both IDs pass HUD and radar calls and then require real CEF for application browser
+creation. Neither announces `client:ready`. Cleanup passes; GPU qualification
+is deferred. ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
