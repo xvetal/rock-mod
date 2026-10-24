@@ -1,6 +1,9 @@
 # Rock-Mod
 
-Current RockSandbox compatibility: **ABI 29 / protocol 29 / CEF IPC 2**.
+Current RockSandbox compatibility: **ABI 29 / protocol 30 / CEF IPC 2**.
+Protocol 30 combines the aircraft changes from `dev` with native scripting and
+streaming; rebuild clients and servers together. Later sections retain the
+compatibility values of their original validation runs.
 Server `player.collisionWithPlayers` and `setCollisionWithPlayers(enabled)`
 delegate directly to native code. Other server adapters throw for these APIs.
 See [the native contract](../rock-sandbox/docs/player-collisions.md). Earlier
@@ -816,10 +819,11 @@ logout, repository and private DB/process cleanup. Neither announces readiness.
 ABI 24 / protocol 24 / CEF IPC 2 stay unchanged; GPU/device input is unverified.
 
 Client `peds.iterator.all()` and ID/remote-ID lookup now delegate to the native
-read-only authored NPC pool. Wrappers preserve WeakMap identity and directly
+authored NPC and local visual preview pool. Wrappers preserve WeakMap identity and directly
 read IDs, existence, model hash, dimension and heading. Position/rotation use
-`(x,y,z) -> (x,-z,y)`. The SDK has no pool, checks or property state. NPC creation,
-mutations and metadata remain unsupported. The native pool reads
+`(x,y,z) -> (x,-z,y)`. The SDK has no pool, checks or property state. Local creation, model/transform/
+presentation setters and destruction now delegate directly to native API.
+Authored mutations, physics, AI, appearance and metadata remain unsupported. The native pool reads
 real project entities selected by cells/dimension; an unavailable registry
 throws. See [authored NPC scope and checks](../rock-sandbox/docs/client-peds.md).
 
@@ -1011,3 +1015,11 @@ permission state, polling or input reconciliation is added.
 See [native input contract](../rock-sandbox/docs/client-transforms.md), including
 ignored ungranted input and one-shot server teleports. Compatibility is
 **ABI 29 / protocol 29 / CEF IPC 2**.
+
+Client `peds.create()`, `deleteById()`, ID/remote-ID lookup and `iterator.all()`
+now support native local visual previews. Local `remoteId` is null; remote lookup
+excludes them. Handles and alpha delegate directly, as do setters; position and
+rotation use `(x,y,z) → (x,z,-y)`. Model identity/aliases, ownership, the 64-object
+limit, rendering and lifecycle remain native. Both freemode aliases temporarily
+use Streetwear. See [the contract and actual gamemod service check](../rock-sandbox/docs/client-local-peds.md).
+ABI 29 / protocol 29 / CEF IPC 2 stay unchanged; rebuild SDK/client bundles.
