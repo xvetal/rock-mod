@@ -342,6 +342,9 @@ test("player positions delegate native state with axis conversion and no SDK cac
     failure;
   const native = {
     id: 30,
+    setPosition() {
+      if (failure) throw failure;
+    },
     get position() {
       if (failure) throw failure;
       return position;
@@ -363,7 +366,10 @@ test("player positions delegate native state with axis conversion and no SDK cac
     () => player.position,
     (error) => error === original,
   );
-  assert.throws(() => player.setPosition(first), /not implemented/);
+  assert.throws(
+    () => player.setPosition(first),
+    (error) => error === original,
+  );
 });
 
 test("weapon state and project magazine sizes delegate without SDK state or hashing", () => {
@@ -1273,7 +1279,13 @@ test("player dimension and orientation read native snapshots without SDK state",
     );
   }
   assert.throws(() => player.setDimension(0), /not implemented/);
-  assert.throws(() => player.setHeading(0), /not implemented/);
+  native.setHeading = () => {
+    throw original;
+  };
+  assert.throws(
+    () => player.setHeading(0),
+    (error) => error === original,
+  );
 });
 
 test("raycasting delegates flags and all ignored handles, converts vectors and preserves native errors", () => {
@@ -1495,4 +1507,40 @@ test("cursor and pause menu delegate without SDK state and preserve errors", () 
     (e) => e === original,
   );
   assert.equal(calls.at(-1), 1);
+});
+
+test("local player transform setters only convert axes and delegate native validation/errors", () => {
+  const calls = [],
+    failure = Error("native transform error");
+  let fail = false;
+  const native = {
+    id: 901,
+    setPosition(position) {
+      assert.equal(this, native);
+      if (fail) throw failure;
+      calls.push(["position", position]);
+    },
+    setHeading(value) {
+      assert.equal(this, native);
+      if (fail) throw failure;
+      calls.push(["heading", value]);
+    },
+  };
+  globalThis.rockSandbox = { players: { local: native } };
+  const player = mod.players.getLocalPlayer();
+  assert.equal(player.setPosition({ x: 1, y: 2, z: 3 }), undefined);
+  for (const heading of [90, -450, NaN, "bad", undefined]) assert.equal(player.setHeading(heading), undefined);
+  assert.deepEqual(calls, [
+    ["position", { x: 1, y: 3, z: -2 }],
+    ...[90, -450, NaN, "bad", undefined].map((v) => ["heading", v]),
+  ]);
+  fail = true;
+  assert.throws(
+    () => player.setPosition({ x: 0, y: 0, z: 0 }),
+    (e) => e === failure,
+  );
+  assert.throws(
+    () => player.setHeading(0),
+    (e) => e === failure,
+  );
 });

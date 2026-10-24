@@ -58,6 +58,38 @@ export class MockPlayer extends MockEntity implements IPlayer {
     throw new Error("Not implemented: MockPlayer.autoRespawn");
   }
 
+  public get clientTransformEnabled(): boolean {
+    throw new Error("Not implemented: MockPlayer.clientTransformEnabled");
+  }
+
+  public setClientTransformEnabled(_enabled: boolean): void {
+    throw new Error("Not implemented: MockPlayer.setClientTransformEnabled");
+  }
+
+  public get collisionEnabled(): boolean {
+    throw new Error("Not implemented: MockPlayer.collisionEnabled");
+  }
+
+  public setCollision(_enabled: boolean, _keepPhysics: boolean): void {
+    throw new Error("Not implemented: MockPlayer.setCollision");
+  }
+
+  public get frozen(): boolean {
+    throw new Error("Not implemented: MockPlayer.frozen");
+  }
+
+  public freezePosition(_frozen: boolean): void {
+    throw new Error("Not implemented: MockPlayer.freezePosition");
+  }
+
+  public get invincible(): boolean {
+    throw new Error("Not implemented: MockPlayer.invincible");
+  }
+
+  public setInvincible(_enabled: boolean): void {
+    throw new Error("Not implemented: MockPlayer.setInvincible");
+  }
+
   public get collisionWithPlayers(): boolean {
     throw new Error("Not implemented: MockPlayer.collisionWithPlayers");
   }

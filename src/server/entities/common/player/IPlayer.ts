@@ -34,6 +34,14 @@ export interface IPlayer extends IEntity {
   get autoRespawn(): boolean;
   /** Published player-vs-player collision policy; unsupported platforms throw. */
   get collisionWithPlayers(): boolean;
+  /** Host-owned combat protection; unsupported platforms throw. */
+  get invincible(): boolean;
+  /** Published host locomotion lock; unsupported platforms throw. */
+  get clientTransformEnabled(): boolean;
+  setClientTransformEnabled(enabled: boolean): void;
+  get collisionEnabled(): boolean;
+  setCollision(enabled: boolean, keepPhysics: boolean): void;
+  get frozen(): boolean;
   get ip(): string;
   get serial(): string;
   get vehicle(): IVehicle | null;
@@ -55,6 +63,8 @@ export interface IPlayer extends IEntity {
   setAutoRespawn(enabled: boolean): void;
   /** Queue a player collision policy change. Unsupported platforms throw. */
   setCollisionWithPlayers(enabled: boolean): void;
+  setInvincible(enabled: boolean): void;
+  freezePosition(frozen: boolean): void;
   setArmour(value: number): void;
   setWeaponAmmo(weapon: string, ammo: number): void;
   giveWeapon(weapon: string, ammo: number): void;

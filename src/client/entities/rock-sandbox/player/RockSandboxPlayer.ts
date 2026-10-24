@@ -37,6 +37,14 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return new Vector3D(x, -z, y);
   }
 
+  public override setPosition(value: IVector3D): void {
+    this._nativePlayer.setPosition({ x: value.x, y: value.z, z: -value.y });
+  }
+
+  public override setHeading(heading: number): void {
+    this._nativePlayer.setHeading(heading);
+  }
+
   public override getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
     const { x, y, z } = this._nativePlayer.getOffsetFromInWorldCoords(offsetX, offsetZ, -offsetY);
     return new Vector3D(x, -z, y);
