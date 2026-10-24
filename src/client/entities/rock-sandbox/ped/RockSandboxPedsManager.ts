@@ -1,7 +1,6 @@
 import { type IPedsManager, type IPedCreateOptions } from "../../common/ped/IPedsManager";
 import { type IPed } from "../../common/ped/IPed";
 import { RockSandboxEntitiesManager } from "../entity/RockSandboxEntitiesManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { RockSandboxPedsIterator } from "./RockSandboxPedsIterator";
 import { type RockSandboxPed, wrapPed } from "./RockSandboxPed";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
@@ -25,14 +24,30 @@ export class RockSandboxPedsManager extends RockSandboxEntitiesManager<IPed> imp
   }
 
   public override findByRemoteID(id: number): RockSandboxPed | null {
-    return this.findByID(id);
+    const ped = getRockSandbox().peds.getByRemoteId(id);
+    return ped === null ? null : wrapPed(ped);
   }
 
   public override getByRemoteID(id: number): RockSandboxPed {
-    return this.getByID(id);
+    const ped = this.findByRemoteID(id);
+    if (ped === null) throw new Error(`[RockSandbox:client] RockSandboxPedsManager.getByRemoteID: ped ${id} not found`);
+    return ped;
   }
 
-  public create(_options: IPedCreateOptions): IPed {
-    return rockSandboxNotImplemented("client", "RockSandboxPedsManager.create");
+  public create(options: IPedCreateOptions): IPed {
+    return wrapPed(
+      getRockSandbox().peds.create({
+        model: options.model,
+        position: { x: options.position.x, y: options.position.z, z: -options.position.y },
+        rotation: { x: options.rotation.x, y: options.rotation.z, z: -options.rotation.y },
+        dimension: options.dimension,
+      }),
+    );
+  }
+
+  public override deleteById(id: number): RockSandboxPed {
+    const ped = this.getByID(id);
+    ped.destroy();
+    return ped;
   }
 }
