@@ -1,6 +1,7 @@
 import { type IUiManager } from "../../common/ui/IUiManager";
 import { type IVector3D } from "../../../../shared/common/utils";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxUiManager implements IUiManager {
   public getStreetNameFromHashKey(_hash: number): string {
@@ -11,12 +12,12 @@ export class RockSandboxUiManager implements IUiManager {
     return rockSandboxNotImplemented("client", "RockSandboxUiManager.getLabelText");
   }
 
-  public hideHudComponentThisFrame(_componentIndex: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxUiManager.hideHudComponentThisFrame");
+  public hideHudComponentThisFrame(componentIndex: number): void {
+    getRockSandbox().hud.hideComponentThisFrame(componentIndex);
   }
 
-  public displayRadar(_display: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxUiManager.displayRadar");
+  public displayRadar(display: boolean): void {
+    getRockSandbox().hud.setRadarVisible(display);
   }
 
   public setPauseMenuActive(_toggle: boolean): void {
