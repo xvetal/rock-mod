@@ -1,9 +1,13 @@
-import { type IUiManager } from "../../common/ui/IUiManager";
+import { type IUiManager, type IRadarScreenBounds } from "../../common/ui/IUiManager";
 import { type IVector3D } from "../../../../shared/common/utils";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 export class RockSandboxUiManager implements IUiManager {
+  public getRadarScreenBounds(): IRadarScreenBounds | null {
+    return getRockSandbox().hud.getRadarScreenBounds();
+  }
+
   public getStreetNameFromHashKey(_hash: number): string {
     return rockSandboxNotImplemented("client", "RockSandboxUiManager.getStreetNameFromHashKey");
   }
@@ -20,8 +24,8 @@ export class RockSandboxUiManager implements IUiManager {
     getRockSandbox().hud.setRadarVisible(display);
   }
 
-  public setPauseMenuActive(_toggle: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxUiManager.setPauseMenuActive");
+  public setPauseMenuActive(toggle: boolean): void {
+    getRockSandbox().ui.setPauseMenuEnabled(toggle);
   }
 
   public setWaypoint(_x: number, _y: number): void {

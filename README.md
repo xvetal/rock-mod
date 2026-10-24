@@ -1,5 +1,11 @@
 # Rock-Mod
 
+Current RockSandbox compatibility: **ABI 25 / protocol 25 / CEF IPC 2**.
+Server `player.collisionWithPlayers` and `setCollisionWithPlayers(enabled)`
+delegate directly to native code. Other server adapters throw for these APIs.
+See [the native contract](../rock-sandbox/docs/player-collisions.md). Earlier
+validation sections retain the versions of their original runs.
+
 **Rock-Mod** is a versatile and powerful framework designed for cross-platform mod development for Grand Theft Auto (GTA) servers. **VIMP** is the primary and recommended multiplayer platform; **RageMP**, **AltV**, and **Mock** are also supported. **RockSandbox** wraps native server events, player/world state, queued commands, cylinder colshapes, blips and ground markers; its other game APIs and client remain throwing stubs.
 
 ### Installation
@@ -835,11 +841,126 @@ the actual HUD renderer consumes the accepted frame mask.
 `game.ui.displayRadar(display)` directly delegates to
 `rockSandbox.hud.setRadarVisible(display)`. The native per-connection flag persists
 between frames and resets at runtime close; it is separate from the HUD mask.
-The SDK has no radar state, queue or validation. Other UI methods stay unsupported.
+The SDK has no radar state, queue or validation. Unsupported UI methods still throw.
 See [native HUD categories](../rock-sandbox/docs/client-hud.md) and
 [radar semantics and checks](../rock-sandbox/docs/client-radar.md).
 The latest full gamemod/MySQL report is
-`../gamemod/rock-sandbox-server/diagnostics/connections/20261023-233325-4u21rz7n/report.json`:
-both IDs pass HUD and radar calls and then require real CEF for application browser
+`../gamemod/rock-sandbox-server/diagnostics/connections/20261024-004750-3ilg6rse/report.json`:
+both IDs pass native camera, focus, HUD and radar calls and then require real CEF for application browser
 creation. Neither announces `client:ready`. Cleanup passes; GPU qualification
 is deferred. ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
+
+RockSandbox client cameras now delegate creation, native lookup/iteration,
+activation, destruction, transforms, FOV, world targeting and eased rendering to
+`rockSandbox.cameras`. Gameplay is a read-only singleton. Wrappers retain WeakMap
+identity; positions, directions, rotations and focus velocity convert SDK axes
+`(x,y,z) -> (x,z,-y)` and back `(x,y,z) -> (x,-z,y)`.
+`game.streaming.setFocusArea/clearFocus/setFocusEntity` delegate local map focus;
+`player.handle` and camera handles are opaque native tokens. No SDK camera state,
+validation, transitions, handle registry or streaming queues are added. Other
+streaming APIs remain unsupported.
+See [native camera semantics and checks](../rock-sandbox/docs/client-cameras.md).
+
+RockSandbox `game.cursor.show(freezeControls, state)` delegates to
+`rockSandbox.cursor.setVisible(state, freezeControls)`. `getPosition()` wraps an
+actual frozen native pixel snapshot in `Vector2D`; headless pointer reads throw.
+`game.ui.setPauseMenuActive(toggle)` delegates to native
+`ui.setPauseMenuEnabled(toggle)`, following gamemod's use as menu permission:
+false closes/blocks the Rust menu; true permits opening without opening it.
+No input policy or state is stored in the SDK. Other platforms keep their calls.
+See [native input semantics and checks](../rock-sandbox/docs/client-input.md).
+
+RockSandbox `game.camera.screenFadeIn/Out(duration)` directly calls native
+`screen.fadeIn/Out(duration)`. Required integer milliseconds, interpolation,
+interruptions, layer ordering, closed-host checks and reset are native. The SDK
+adds no opacity state, timers or validation. See
+[native screen fading](../rock-sandbox/docs/client-screen-fade.md).
+
+RockSandbox client players now delegate `dimension`, `heading`, `rotation` and
+`forwardVector` to their native handle. Heading/dimension pass through;
+rotation/direction convert engine axes `(x,y,z)` to SDK `(x,-z,y)`. No SDK
+orientation calculation, state cache, polling or setters are added. Logical
+facing, stream lifetime and frozen native snapshots are described in
+[the native contract](../rock-sandbox/docs/client-player-transform.md).
+
+RockSandbox `game.graphics.getActiveScreenResolution()` wraps native physical
+window dimensions in `Vector2D`. `world3dToScreen2d(position)` converts input axes
+`(x,y,z) -> (x,z,-y)` and wraps native normalized coordinates, preserving `null`
+and original errors. Projection, camera easing, clipping and viewport changes
+are native; the SDK adds no math or cache. See
+[native viewport/projection checks](../rock-sandbox/docs/client-projection.md).
+
+RockSandbox `game.raycasting.testPointToPoint` directly wraps native queries:
+endpoints convert SDK to engine axes, every ignored entity contributes its
+native handle, and flags pass through. Hit position/normal convert back; `null`
+and native errors are preserved. Physical/category/dimension filtering remains
+native. See [the native raycast contract](../rock-sandbox/docs/client-raycast.md),
+including supported flags and local engine build instructions.
+
+RockSandbox `game.graphics.drawText(text, position, options?)` directly delegates
+to native `screen.drawText`, preserving the original arguments and exceptions.
+Defaults, validation, frame limits, formatting and rendering stay native.
+Font IDs 0/4 use the shipped proportional font; text is submitted each render,
+above the world fade and below browsers. See [screen text](../rock-sandbox/docs/client-text.md)
+for scales, color tags, Unicode and limits. ABI 24 / protocol 24 / CEF IPC 2 are
+unchanged; GPU/Android device checks remain deferred.
+
+`game.ui.getRadarScreenBounds()` returns native RockSandbox physical UI bounds,
+`null` when the latest UI pass has no radar, or the original native error before
+layout is available. The adapter adds no geometry calculation or state.
+RageMP/VIMP preserve the established GTA calculation formerly in gamemod, using
+their own native screen dimensions and safe-zone settings. See
+[native radar bounds](../rock-sandbox/docs/client-radar-bounds.md) for publication
+timing, layout/visibility and verification. ABI 24 / protocol 24 / CEF IPC 2 stay
+unchanged.
+
+Client RockSandbox players now expose native `health` and `isDead` through
+direct getters. Latest samples, range, native life phase, stream-out errors and
+cleanup belong to RockSandbox; the SDK adds no health adjustment or death
+calculation. The existing gamemod player state adapter remains unchanged. See
+[client life state](../rock-sandbox/docs/client-player-life.md) for semantics and
+real UDP verification. ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
+
+Client `RockSandboxPlayer.name` directly reads the native accepted display name.
+The SDK adds no normalization, fallback name, roster, polling or state cache.
+RockSandbox owns Unicode rename delivery, stream lease lifetime and native
+errors. Existing gamemod player/repository code consumes the getter unchanged.
+See [client names and verification](../rock-sandbox/docs/client-player-name.md).
+ABI 24 / protocol 24 / CEF IPC 2 remain unchanged.
+
+Client player `model` now directly delegates to RockSandbox's native
+`modelHash`, the unsigned JOAAT32 of the accepted character asset name. The SDK
+adds no model lookup, default or cache. The existing gamemod state adapter stays
+unchanged. See [native player models](../rock-sandbox/docs/client-player-model.md)
+for publication/stream-lease semantics and validation. Model mutation remains
+unsupported; ABI 24 / protocol 24 / CEF IPC 2 are unchanged.
+
+Client player `getOffsetFromInWorldCoords(x,y,z)` now delegates to RockSandbox's
+native logical body transform. The SDK converts input/output axes and returns
+its usual mutable `Vector3D`; it stores no transform or game state. Other entity
+stubs and platforms are unchanged. See
+[native player offsets](../rock-sandbox/docs/client-player-offsets.md).
+ABI 24 / protocol 24 / CEF IPC 2 stay unchanged.
+
+Client player `getWeaponAmmo(hash)` now directly delegates to RockSandbox's
+native query. The current combat model stores magazines only, so total and clip
+counts currently match; the SDK does not derive either value or track reserves.
+See [native ammunition](../rock-sandbox/docs/client-weapon-ammo.md). The existing
+`WeaponService` gamemod path and other platforms stay unchanged. ABI 24 /
+protocol 24 / CEF IPC 2 stay unchanged.
+
+Client player `alpha`, `setAlpha`, `resetAlpha` and `setVisible` now directly
+use RockSandbox's local native presentation. Validation, state, hierarchy and
+material handling remain native. See
+[local player appearance](../rock-sandbox/docs/client-player-appearance.md).
+Shared entity stubs and other platforms stay unchanged. ABI 24 / protocol 24 /
+CEF IPC 2 remain unchanged.
+
+## RockSandbox client collision pairs
+
+Client `player.setNoCollision(otherHandle, thisFrameOnly)` directly delegates
+to RockSandbox. Native code owns token validation, the 1024-pair limit, frame
+expiry and stream/connection cleanup. These are local prediction overrides;
+the separate server `setCollisionWithPlayers()` API controls authority. Damage
+rules remain unchanged. Existing gamemod passive-mode calls reach native physics. ABI 25 / protocol 25 /
+CEF IPC 2 remains unchanged; rebuild the server, addon and clients together.

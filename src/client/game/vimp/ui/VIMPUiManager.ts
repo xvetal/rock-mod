@@ -1,9 +1,16 @@
 /// <reference types="@vimp-mp/types/client" />
 
-import { type IUiManager } from "../../common/ui/IUiManager";
+import { type IUiManager, type IRadarScreenBounds } from "../../common/ui/IUiManager";
+import { gtaRadarScreenBounds } from "../../../internal/gtaRadarScreenBounds";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 export class VIMPUiManager implements IUiManager {
+  public getRadarScreenBounds(): IRadarScreenBounds {
+    const safezone = vimp.natives.graphics.getSafeZoneSize();
+    const { x, y } = vimp.natives.graphics.getActualScreenResolution();
+    return gtaRadarScreenBounds(safezone, x, y);
+  }
+
   public getStreetNameFromHashKey(hash: number): string {
     return vimp.natives.hud.getStreetNameFromHashKey(hash);
   }

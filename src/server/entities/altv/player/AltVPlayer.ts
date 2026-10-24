@@ -38,6 +38,14 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     throw new Error("Not implemented: AltVPlayer.autoRespawn");
   }
 
+  public get collisionWithPlayers(): boolean {
+    throw new Error("Not implemented: AltVPlayer.collisionWithPlayers");
+  }
+
+  public setCollisionWithPlayers(_enabled: boolean): void {
+    throw new Error("Not implemented: AltVPlayer.setCollisionWithPlayers");
+  }
+
   public get isDead(): boolean {
     return this.mpEntity.isDead;
   }

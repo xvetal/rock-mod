@@ -5,15 +5,18 @@ import {
   type ILoopedParticleFxAtCoordOptions,
 } from "../../common/graphics/IGraphicsManager";
 import { type IVector2D, type IVector3D } from "../../../../shared/common/utils";
+import { Vector2D } from "../../../../shared/common/utils";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 
 export class RockSandboxGraphicsManager implements IGraphicsManager {
-  public drawText(_text: string, _position: IVector2D, _options?: IScreenTextOptions): void {
-    return rockSandboxNotImplemented("client", "RockSandboxGraphicsManager.drawText");
+  public drawText(text: string, position: IVector2D, options?: IScreenTextOptions): void {
+    getRockSandbox().screen.drawText(text, position, options);
   }
 
-  public world3dToScreen2d(_position: IVector3D): IVector2D | null {
-    return rockSandboxNotImplemented("client", "RockSandboxGraphicsManager.world3dToScreen2d");
+  public world3dToScreen2d(position: IVector3D): IVector2D | null {
+    const result = getRockSandbox().screen.worldToScreen({ x: position.x, y: position.z, z: -position.y });
+    return result === null ? null : new Vector2D(result.x, result.y);
   }
 
   public startScreenEffect(_effectName: string, _duration: number, _looped: boolean): void {
@@ -45,6 +48,7 @@ export class RockSandboxGraphicsManager implements IGraphicsManager {
   }
 
   public getActiveScreenResolution(): IVector2D {
-    return rockSandboxNotImplemented("client", "RockSandboxGraphicsManager.getActiveScreenResolution");
+    const { width, height } = getRockSandbox().screen.getResolution();
+    return new Vector2D(width, height);
   }
 }
