@@ -1595,3 +1595,100 @@ test("player metadata delegates values, keys, results and native errors without 
     ["get", "sid"],
   ]);
 });
+
+test("inventory weapon operations delegate issuance tokens and immutable native state", () => {
+  const calls = [],
+    failure = Error("native inventory error");
+  let fail = false;
+  const state = Object.freeze({
+    weapon: 453432689,
+    ammoInClip: 2,
+    ammo: 2,
+    capacity: 15,
+    owned: true,
+    revision: 18446744073709551615n,
+  });
+  const native = { id: 75 };
+  for (const name of ["equipWeapon", "addWeaponAmmo", "getWeaponState"])
+    native[name] = (...args) => {
+      if (fail) throw failure;
+      calls.push([name, ...args]);
+      return name === "equipWeapon" ? state.revision : name === "getWeaponState" ? state : undefined;
+    };
+  globalThis.rockSandbox = { players: { getById: () => native } };
+  const p = mod.players.getByID(75);
+  assert.equal(p.equipWeapon("pistol", 2), state.revision);
+  assert.equal(p.addWeaponAmmo("pistol", 1, state.revision), undefined);
+  assert.equal(p.getWeaponState("pistol"), state);
+  assert.deepEqual(calls, [
+    ["equipWeapon", "pistol", 2],
+    ["addWeaponAmmo", "pistol", 1, state.revision],
+    ["getWeaponState", "pistol"],
+  ]);
+  fail = true;
+  for (const call of [
+    () => p.equipWeapon("pistol", 1),
+    () => p.addWeaponAmmo("pistol", 1, 1n),
+    () => p.getWeaponState("pistol"),
+  ])
+    assert.throws(call, (e) => e === failure);
+});
+
+test("server accepted shot bridge preserves historical context and listener identity", () => {
+  const listeners = new Map(),
+    subscriptions = [];
+  globalThis.rockSandbox = {
+    on(name, handler) {
+      subscriptions.push([name, handler]);
+      const list = listeners.get(name) || [];
+      list.push(handler);
+      listeners.set(name, list);
+    },
+    off(name, handler) {
+      const list = listeners.get(name) || [];
+      const i = list.lastIndexOf(handler);
+      if (i >= 0) list.splice(i, 1);
+    },
+    emit(name, ...args) {
+      for (const handler of [...(listeners.get(name) || [])]) handler(...args);
+    },
+  };
+  const native = { id: 76 },
+    context = Object.freeze({ revision: 9007199254740993n, request: 18446744073709551615n }),
+    calls = [];
+  const handler = (...args) => calls.push(args);
+  mod.net.events.onInternal({ "rm::playerWeaponShot": handler });
+  mod.net.events.onInternal({ "rm::playerWeaponShot": handler });
+  assert.equal(subscriptions.filter(([name]) => name === "playerWeaponShot").length, 1);
+  assert.equal(subscriptions.find(([name]) => name === "rm::playerWeaponShot")[1], handler);
+  globalThis.rockSandbox.emit("playerWeaponShot", native, context);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0][1], context);
+  assert.equal(calls[0][0], calls[1][0]);
+  mod.net.events.offInternal("rm::playerWeaponShot", handler);
+  globalThis.rockSandbox.emit("playerWeaponShot", native, context);
+  assert.equal(calls.length, 3);
+});
+
+test("legacy server adapters explicitly reject authoritative inventory operations", () => {
+  globalThis.AltVShared = { Vector3: class {}, hash() {} };
+  globalThis.AltVServer = {};
+  try {
+    for (const [platform, name] of [
+      ["ragemp", "Rage"],
+      ["vimp", "VIMP"],
+      ["altv", "AltV"],
+      ["mock", "Mock"],
+    ]) {
+      const Class = require(`../dist/server/entities/${platform}/player/${name}Player`)[`${name}Player`];
+      for (const member of ["equipWeapon", "addWeaponAmmo", "getWeaponState"])
+        assert.throws(
+          () => Class.prototype[member].call(undefined, "pistol", 1, 1n),
+          new RegExp(`${name}Player.${member}: unsupported operation`),
+        );
+    }
+  } finally {
+    delete globalThis.AltVShared;
+    delete globalThis.AltVServer;
+  }
+});

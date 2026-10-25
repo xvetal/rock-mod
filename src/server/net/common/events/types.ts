@@ -11,7 +11,18 @@ export interface IPlayerQuitSnapshot {
   readonly dimension: number;
 }
 
+export interface IPlayerWeaponShot {
+  readonly weapon: number;
+  readonly ammoInClip: number;
+  readonly ammo: number;
+  readonly revision: bigint;
+  readonly request: bigint;
+  readonly life: bigint;
+  readonly tick: bigint;
+}
+
 export enum ServerInternalEventName {
+  PlayerWeaponShot = "rm::playerWeaponShot",
   PlayerConnected = "rm::playerConnected",
   PlayerDisconnected = "rm::playerDisconnected",
   PlayerQuit = "rm::playerQuit",
@@ -27,6 +38,7 @@ export enum ServerInternalEventName {
 }
 
 export interface IServerInternalEvents {
+  [ServerInternalEventName.PlayerWeaponShot]: (player: IPlayer, context: IPlayerWeaponShot) => void;
   [ServerInternalEventName.PlayerConnected]: (player: IPlayer) => void;
   [ServerInternalEventName.PlayerDisconnected]: (player: IPlayer) => void;
   [ServerInternalEventName.PlayerQuit]: (
