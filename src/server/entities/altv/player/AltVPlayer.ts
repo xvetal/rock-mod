@@ -1,5 +1,5 @@
+import { type IWeaponState, type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { AltVEntity, type IAltVEntityOptions } from "../entity/AltVEntity";
-import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { type AltVVehicle } from "../vehicle/AltVVehicle";
 import { RockMod } from "../../../RockMod";
 import Player = AltVServer.Player;
@@ -171,6 +171,18 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
     return this.mpEntity.setWeaponAmmo(weapon, ammo);
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number): bigint {
+    throw new Error("[AltV:server] AltVPlayer.equipWeapon: unsupported operation");
+  }
+
+  public addWeaponAmmo(_weapon: string, _ammo: number, _revision: bigint): void {
+    throw new Error("[AltV:server] AltVPlayer.addWeaponAmmo: unsupported operation");
+  }
+
+  public getWeaponState(_weapon: string): IWeaponState {
+    throw new Error("[AltV:server] AltVPlayer.getWeaponState: unsupported operation");
   }
 
   public giveWeapon(weapon: string, ammo: number): void {

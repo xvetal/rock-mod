@@ -1,4 +1,4 @@
-import { type IPlayer } from "../../common/player/IPlayer";
+import { type IWeaponState, type IPlayer } from "../../common/player/IPlayer";
 import { MockEntity, type IMockEntityOptions } from "../entity/MockEntity";
 import { type Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { RockMod } from "../../../RockMod";
@@ -204,6 +204,18 @@ export class MockPlayer extends MockEntity implements IPlayer {
   public setWeaponAmmo(weapon: string, ammo: number): void {
     this._playerData.weapon = RockMod.instance.utils.hash(weapon);
     this._playerData.weaponAmmo = ammo;
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number): bigint {
+    throw new Error("[Mock:server] MockPlayer.equipWeapon: unsupported operation");
+  }
+
+  public addWeaponAmmo(_weapon: string, _ammo: number, _revision: bigint): void {
+    throw new Error("[Mock:server] MockPlayer.addWeaponAmmo: unsupported operation");
+  }
+
+  public getWeaponState(_weapon: string): IWeaponState {
+    throw new Error("[Mock:server] MockPlayer.getWeaponState: unsupported operation");
   }
 
   public giveWeapon(weapon: string, ammo: number): void {

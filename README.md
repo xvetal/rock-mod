@@ -1,6 +1,6 @@
 # Rock-Mod
 
-Current RockSandbox compatibility: **ABI 30 / protocol 31 / CEF IPC 2**.
+Current RockSandbox compatibility: **ABI 31 / protocol 31 / CEF IPC 2**.
 Protocol 31 adds native weapon ownership and finite reserves. Rebuild server,
 addon and clients together. Later sections retain the
 compatibility values of their original validation runs.
@@ -1045,6 +1045,18 @@ Ammo assignments are absolute finite totals (magazine + reserve); 1000 means
 1000 rounds. The three supported weapon aliases retain the existing SDK names.
 Removed weapons cannot fire or reload; host-managed inventory survives respawn.
 The existing standalone arsenal remains until explicitly changed. Other GTA
-weapons, components, client ammo setters and reload integration remain separate.
-Compatibility is ABI 30 / protocol 31 / CEF IPC 2. GPU/Android device checks
+weapons, components and client ammo setters remain separate; native RP inventory
+reload is described below.
+Compatibility is ABI 31 / protocol 31 / CEF IPC 2. GPU/Android device checks
 remain deferred. Earlier recorded diagnostics retain their original versions.
+
+## Authoritative inventory weapons
+
+RockSandbox now exposes frozen per-weapon state, exclusive `equipWeapon()`
+issuance identities and additive `addWeaponAmmo()` credits. Accepted server shots
+carry historical bigint context; client shot notifications come only from local
+authoritative results. SDK bridges remain direct. Gamemod uses one inventory SQL
+transaction per instantaneous RP reload and persists accepted shots before
+logout. See [the API, lifecycle and reproducible check](../rock-sandbox/docs/inventory-weapons.md).
+Current compatibility is **ABI 31 / protocol 31 / CEF IPC 2**; rebuild server,
+addon, clients, SDK and bundles. GPU and Android device checks remain deferred.

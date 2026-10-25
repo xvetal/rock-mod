@@ -8,9 +8,15 @@ const bridgedHosts = new WeakSet<RockSandboxClient>();
 
 export class RockSandboxEventsManager implements IEventsManager {
   private _installBridges(api: RockSandboxClient, names: string[]): void {
-    if (names.some((name) => name === "rm::render" || name === "rm::browserDomReady") && !bridgedHosts.has(api)) {
+    if (
+      names.some(
+        (name) => name === "rm::render" || name === "rm::browserDomReady" || name === "rm::playerWeaponShot",
+      ) &&
+      !bridgedHosts.has(api)
+    ) {
       api.on("render", () => api.emit<string>("rm::render"));
       api.on("browserDomReady", () => api.emit<string>("rm::browserDomReady"));
+      api.on("playerWeaponShot", () => api.emit<string>("rm::playerWeaponShot"));
       bridgedHosts.add(api);
     }
   }

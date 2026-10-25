@@ -1,5 +1,5 @@
+import { type IWeaponState, type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
-import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { RockMod } from "../../../RockMod";
 import { type RageVehicle } from "../vehicle/RageVehicle";
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
@@ -164,6 +164,18 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
     return this.mpEntity.setWeaponAmmo(mp.joaat(weapon), ammo);
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number): bigint {
+    throw new Error("[Rage:server] RagePlayer.equipWeapon: unsupported operation");
+  }
+
+  public addWeaponAmmo(_weapon: string, _ammo: number, _revision: bigint): void {
+    throw new Error("[Rage:server] RagePlayer.addWeaponAmmo: unsupported operation");
+  }
+
+  public getWeaponState(_weapon: string): IWeaponState {
+    throw new Error("[Rage:server] RagePlayer.getWeaponState: unsupported operation");
   }
 
   public giveWeapon(weapon: string, ammo: number): void {

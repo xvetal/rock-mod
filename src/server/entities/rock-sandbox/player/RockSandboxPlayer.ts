@@ -1,4 +1,4 @@
-import { type IPlayer, type ICustomization } from "../../common/player/IPlayer";
+import { type IWeaponState, type IPlayer, type ICustomization } from "../../common/player/IPlayer";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 import { type IServerToClientEvents } from "../../../../shared";
@@ -195,6 +195,18 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
     this._nativePlayer.setWeaponAmmo(weapon, ammo);
+  }
+
+  public equipWeapon(weapon: string, ammo: number): bigint {
+    return this._nativePlayer.equipWeapon(weapon, ammo);
+  }
+
+  public addWeaponAmmo(weapon: string, ammo: number, revision: bigint): void {
+    this._nativePlayer.addWeaponAmmo(weapon, ammo, revision);
+  }
+
+  public getWeaponState(weapon: string): IWeaponState {
+    return this._nativePlayer.getWeaponState(weapon);
   }
 
   public giveWeapon(weapon: string, ammo: number): void {

@@ -1698,3 +1698,23 @@ test("appearance methods delegate unchanged to native ped/player handles, includ
     delete globalThis.rockSandbox;
   }
 });
+
+test("confirmed local shot bridge delegates without predicted or remote synthesis", () => {
+  const subscriptions = [],
+    calls = [];
+  const handler = () => {};
+  globalThis.rockSandbox = {
+    on: (...args) => subscriptions.push(args),
+    off: (...args) => calls.push(["off", ...args]),
+    emit: (...args) => calls.push(["emit", ...args]),
+  };
+  mod.net.events.onInternal({ "rm::playerWeaponShot": handler });
+  mod.net.events.onInternal({ "rm::playerWeaponShot": handler });
+  const bridges = subscriptions.filter(([name]) => name === "playerWeaponShot");
+  assert.equal(bridges.length, 1);
+  assert.equal(subscriptions.find(([name]) => name === "rm::playerWeaponShot")[1], handler);
+  bridges[0][1]({ id: 1 }, Object.freeze({ request: 1n }));
+  assert.deepEqual(calls.shift(), ["emit", "rm::playerWeaponShot"]);
+  mod.net.events.offInternal("rm::playerWeaponShot", handler);
+  assert.deepEqual(calls.shift(), ["off", "rm::playerWeaponShot", handler]);
+});

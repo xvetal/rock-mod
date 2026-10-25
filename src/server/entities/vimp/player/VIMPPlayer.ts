@@ -1,5 +1,5 @@
+import { type IWeaponState, type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { VIMPEntity } from "../entity/VIMPEntity";
-import { type ICustomization, type IPlayer } from "../../common/player/IPlayer";
 import { type VIMPVehicle } from "../vehicle/VIMPVehicle";
 import { BaseObjectType, type IServerToClientEvents } from "../../../../shared";
 import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
@@ -222,6 +222,18 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
     this._vimpPlayer.setWeaponAmmo(RockMod.instance.utils.hash(weapon), ammo);
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number): bigint {
+    throw new Error("[VIMP:server] VIMPPlayer.equipWeapon: unsupported operation");
+  }
+
+  public addWeaponAmmo(_weapon: string, _ammo: number, _revision: bigint): void {
+    throw new Error("[VIMP:server] VIMPPlayer.addWeaponAmmo: unsupported operation");
+  }
+
+  public getWeaponState(_weapon: string): IWeaponState {
+    throw new Error("[VIMP:server] VIMPPlayer.getWeaponState: unsupported operation");
   }
 
   public giveWeapon(weapon: string, ammo: number): void {
