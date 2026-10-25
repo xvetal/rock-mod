@@ -874,7 +874,7 @@ test("streamed player wrappers and data callbacks share identity and delegate me
   assert.equal(player.isExists, false);
   assert.equal(mod.players.findByRemoteId(17), null);
   assert.throws(() => mod.players.getByRemoteId(17), /not found/);
-  assert.throws(() => player.armour, /not implemented/);
+  assert.equal(player.armour, native.armour);
   assert.throws(() => mod.players.iterator.dimension(0), /not implemented/);
   const failure = Error("callback original");
   mod.net.dataHandler.addDataHandler("throws", () => {

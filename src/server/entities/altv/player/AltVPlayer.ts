@@ -1,4 +1,9 @@
-import { type IWeaponState, type ICustomization, type IPlayer } from "../../common/player/IPlayer";
+import {
+  type IWeaponDamageProfile,
+  type IWeaponState,
+  type ICustomization,
+  type IPlayer,
+} from "../../common/player/IPlayer";
 import { AltVEntity, type IAltVEntityOptions } from "../entity/AltVEntity";
 import { type AltVVehicle } from "../vehicle/AltVVehicle";
 import { RockMod } from "../../../RockMod";
@@ -173,7 +178,15 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     return this.mpEntity.setWeaponAmmo(weapon, ammo);
   }
 
-  public equipWeapon(_weapon: string, _ammo: number): bigint {
+  public get passiveMode(): boolean {
+    throw new Error("[AltV:server] AltVPlayer.passiveMode: unsupported operation");
+  }
+
+  public setPassiveMode(_enabled: boolean): void {
+    throw new Error("[AltV:server] AltVPlayer.setPassiveMode: unsupported operation");
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number, _damage?: IWeaponDamageProfile): bigint {
     throw new Error("[AltV:server] AltVPlayer.equipWeapon: unsupported operation");
   }
 

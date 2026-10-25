@@ -1060,3 +1060,14 @@ transaction per instantaneous RP reload and persists accepted shots before
 logout. See [the API, lifecycle and reproducible check](../rock-sandbox/docs/inventory-weapons.md).
 Current compatibility is **ABI 31 / protocol 31 / CEF IPC 2**; rebuild server,
 addon, clients, SDK and bundles. GPU and Android device checks remain deferred.
+
+## RockSandbox RP damage
+
+Compatibility: **ABI 32 / protocol 32 / CEF IPC 2**. The server player directly
+passes the optional `equipWeapon` damage profile, `setArmour` and passive policy
+to native API. `rm::playerDamage(player, healthLoss, armourLoss, attacker?, context?)`
+preserves the original three arguments and appends native historical details.
+The context is passed unchanged; handlers keep native registry identity. The
+death bridge still has three arguments. Client `armour` reads the published state.
+Other server platforms explicitly reject the new passive policy while keeping
+their existing damage/armour behavior. [Native rules](../rock-sandbox/docs/server-rp-damage.md).

@@ -23,6 +23,14 @@ export interface ICustomization {
 
 export interface IPlayerOptions extends IEntityOptions {}
 
+export interface IWeaponDamageProfile {
+  readonly baseDamage: number;
+  readonly maxRange: number;
+  readonly minHitIntervalMs: number;
+  readonly armorPenetration: number;
+  readonly multipliers: Readonly<{ torso: number; head: number; arms: number; legs: number }>;
+}
+
 export interface IWeaponState {
   readonly weapon: number;
   readonly ammoInClip: number;
@@ -34,7 +42,7 @@ export interface IWeaponState {
 
 export interface IPlayer extends IEntity {
   /** Native authoritative inventory operations. Unsupported backends throw. */
-  equipWeapon(weapon: string, ammo: number): bigint;
+  equipWeapon(weapon: string, ammo: number, damage?: IWeaponDamageProfile): bigint;
   addWeaponAmmo(weapon: string, ammo: number, revision: bigint): void;
   getWeaponState(weapon: string): IWeaponState;
   get name(): string;
@@ -49,6 +57,8 @@ export interface IPlayer extends IEntity {
   get collisionWithPlayers(): boolean;
   /** Host-owned combat protection; unsupported platforms throw. */
   get invincible(): boolean;
+  get passiveMode(): boolean;
+  setPassiveMode(enabled: boolean): void;
   /** Published host locomotion lock; unsupported platforms throw. */
   get clientTransformEnabled(): boolean;
   setClientTransformEnabled(enabled: boolean): void;

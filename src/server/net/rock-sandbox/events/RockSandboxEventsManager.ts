@@ -27,6 +27,16 @@ function bridgePlayers(api: RockSandboxServer): void {
     api.emit(ServerInternalEventName.PlayerQuit, wrapped, context.exitType, context.reason, snapshot);
     api.emit(ServerInternalEventName.PlayerDisconnected, wrapped);
   });
+  api.on("playerDamage", (player, attacker, context) =>
+    api.emit(
+      ServerInternalEventName.PlayerDamage,
+      wrapPlayer(player),
+      context.healthLoss,
+      context.armourLoss,
+      wrapPlayer(attacker),
+      context,
+    ),
+  );
   api.on("playerWeaponShot", (player, context) =>
     api.emit(ServerInternalEventName.PlayerWeaponShot, wrapPlayer(player), context),
   );
@@ -66,6 +76,7 @@ export class RockSandboxEventsManager implements IEventsManager {
       ServerInternalEventName.PlayerQuit in events ||
       ServerInternalEventName.PlayerDeath in events ||
       ServerInternalEventName.PlayerWeaponShot in events ||
+      ServerInternalEventName.PlayerDamage in events ||
       ServerInternalEventName.PlayerEnteredColshape in events ||
       ServerInternalEventName.PlayerLeftColshape in events
     ) {

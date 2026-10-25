@@ -105,7 +105,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get armour(): number {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.armour");
+    return this._nativePlayer.armour;
   }
 
   public get isDead(): boolean {

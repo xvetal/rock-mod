@@ -11,6 +11,25 @@ export interface IPlayerQuitSnapshot {
   readonly dimension: number;
 }
 
+export interface IPlayerDamageContext {
+  readonly weapon: number;
+  readonly revision: bigint;
+  readonly request: bigint;
+  readonly life: bigint;
+  readonly attackerLife: bigint;
+  readonly tick: bigint;
+  readonly previousHealth: number;
+  readonly health: number;
+  readonly healthLoss: number;
+  readonly previousArmour: number;
+  readonly armour: number;
+  readonly armourLoss: number;
+  readonly totalDamage: number;
+  readonly baseDamage: number;
+  readonly multiplier: number;
+  readonly hits: Readonly<{ torso: number; head: number; arms: number; legs: number }>;
+}
+
 export interface IPlayerWeaponShot {
   readonly weapon: number;
   readonly ammoInClip: number;
@@ -48,7 +67,13 @@ export interface IServerInternalEvents {
     snapshot?: IPlayerQuitSnapshot,
   ) => void;
   [ServerInternalEventName.PlayerDeath]: (player: IPlayer, reason: number, killer: IPlayer | null) => void;
-  [ServerInternalEventName.PlayerDamage]: (player: IPlayer, healthLoss: number, armourLoss: number) => void;
+  [ServerInternalEventName.PlayerDamage]: (
+    player: IPlayer,
+    healthLoss: number,
+    armourLoss: number,
+    attacker?: IPlayer | null,
+    context?: IPlayerDamageContext,
+  ) => void;
   [ServerInternalEventName.PlayerEnterVehicle]: (player: IPlayer, vehicle: IVehicle, seat: number) => void;
   [ServerInternalEventName.PlayerExitVehicle]: (player: IPlayer, vehicle: IVehicle) => void;
   [ServerInternalEventName.PlayerEnteredColshape]: (player: IPlayer, colshape: IColshape) => void;
