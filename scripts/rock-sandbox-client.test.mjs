@@ -512,7 +512,7 @@ test("native exceptions propagate and unrelated APIs remain unsupported", () => 
     () => mod.net.events.emitServer("request"),
     (e) => e === original,
   );
-  assert.throws(() => mod.vehicles.findByID(1), /not implemented/);
+  assert.throws(() => mod.vehicles.create({}), /not implemented/);
 });
 
 test("camera and focus wrappers delegate native state, identity, transforms and errors", () => {
@@ -1717,4 +1717,59 @@ test("confirmed local shot bridge delegates without predicted or remote synthesi
   assert.deepEqual(calls.shift(), ["emit", "rm::playerWeaponShot"]);
   mod.net.events.offInternal("rm::playerWeaponShot", handler);
   assert.deepEqual(calls.shift(), ["off", "rm::playerWeaponShot", handler]);
+});
+
+test("streamed vehicles and player occupancy share native identities and tokens", () => {
+  const nativePlayer = { id: 8, handle: 88 };
+  const native = {
+    id: 1,
+    handle: 700,
+    isExists: true,
+    modelHash: 12,
+    heading: 35,
+    position: { x: 1, y: 2, z: 3 },
+    rotation: { x: 4, y: 5, z: 6 },
+    dimension: 9,
+    engineOn: true,
+    isLocked: false,
+    numberPlate: "PORT33",
+    speed: 5,
+    maxPassengers: 3,
+    getPlayerInSeat: (seat) => (seat === 0 ? nativePlayer : null),
+  };
+  nativePlayer.vehicle = native;
+  const failure = new Error("native lookup");
+  let fail = false;
+  globalThis.rockSandbox = {
+    vehicles: {
+      getById: (id) => {
+        if (fail) throw failure;
+        return id === 1 ? native : null;
+      },
+      all: () => [native],
+      getModelName: (hash) => {
+        assert.equal(hash, 12);
+        return "riverside";
+      },
+    },
+    players: { local: nativePlayer, getById: () => nativePlayer, all: () => [nativePlayer] },
+  };
+  const v = mod.vehicles.getByID(1);
+  assert.equal(v, mod.vehicles.getByRemoteID(1));
+  assert.equal(v, [...mod.vehicles.iterator.all()][0]);
+  assert.equal(mod.players.getLocalPlayer().vehicle, v);
+  assert.equal(v.handle, 700);
+  assert.equal(v.remoteId, 1);
+  assert.equal(v.getPedInSeat(-1), 88);
+  assert.equal(v.getPedInSeat(0), 0);
+  assert.equal(v.maxNumberOfPassengers, 3);
+  assert.equal(v.isEngineRunning, true);
+  assert.equal(mod.vehicles.getDisplayNameFromVehicleModel(12), "riverside");
+  assert.deepEqual([v.position.x, v.position.y, v.position.z], [1, -3, 2]);
+  assert.throws(() => v.setEngineOn(false, true, true), /not implemented/);
+  fail = true;
+  assert.throws(
+    () => mod.vehicles.findByID(1),
+    (e) => e === failure,
+  );
 });

@@ -1,6 +1,7 @@
 import { type IPlayer } from "../../common/player/IPlayer";
 import { type IVehicle } from "../../common/vehicle";
 import { type IVector3D } from "../../../../shared/common/utils";
+import { wrapVehicle } from "../vehicle/RockSandboxVehicle";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { type RockSandboxPlayer as NativePlayer } from "@rock-sandbox/types/client";
@@ -113,7 +114,8 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get vehicle(): IVehicle | null {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.vehicle");
+    const vehicle = this._nativePlayer.vehicle;
+    return vehicle === null ? null : wrapVehicle(vehicle);
   }
 
   public get isVoice3DEnabled(): boolean {

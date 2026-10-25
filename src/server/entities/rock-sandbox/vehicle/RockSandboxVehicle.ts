@@ -4,7 +4,61 @@ import { type IPlayer } from "../../common/player";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 
+import { type RockSandboxVehicle as NativeVehicle } from "@rock-sandbox/types/server";
+import { BaseObjectType } from "../../../../shared";
+import { Vector3D, type IVector3D } from "../../../../shared/common/utils/math/Vectors";
+import { wrapPlayer } from "../player/RockSandboxPlayer";
 export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
+  public constructor(private readonly _nativeVehicle: NativeVehicle) {
+    super();
+  }
+
+  public override get id(): number {
+    return this._nativeVehicle.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Vehicle;
+  }
+
+  public override get isExists(): boolean {
+    return this._nativeVehicle.isExists;
+  }
+
+  public override get model(): number {
+    return this._nativeVehicle.modelHash;
+  }
+
+  public override get position(): IVector3D {
+    const { x, y, z } = this._nativeVehicle.position;
+    return new Vector3D(x, -z, y);
+  }
+
+  public override get rotation(): IVector3D {
+    const { x, y, z } = this._nativeVehicle.rotation;
+    return new Vector3D(x, -z, y);
+  }
+
+  public override get dimension(): number {
+    return this._nativeVehicle.dimension;
+  }
+
+  public override setPosition(value: IVector3D): void {
+    this._nativeVehicle.setPosition({ x: value.x, y: value.z, z: -value.y });
+  }
+
+  public override setRotation(value: IVector3D): void {
+    this._nativeVehicle.setRotation({ x: value.x, y: value.z, z: -value.y });
+  }
+
+  public override setDimension(value: number): void {
+    this._nativeVehicle.setDimension(value);
+  }
+
+  public override destroy(): void {
+    this._nativeVehicle.destroy();
+  }
+
   public get bodyHealth(): number {
     return rockSandboxNotImplemented("server", "RockSandboxVehicle.bodyHealth");
   }
@@ -14,11 +68,11 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get numberPlate(): string {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.numberPlate");
+    return this._nativeVehicle.numberPlate;
   }
 
   public get isLocked(): boolean {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.isLocked");
+    return this._nativeVehicle.isLocked;
   }
 
   public get isDead(): boolean {
@@ -42,11 +96,12 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get driver(): IPlayer | null {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.driver");
+    const player = this._nativeVehicle.driver;
+    return player === null ? null : wrapPlayer(player);
   }
 
   public get passengers(): Set<IPlayer> {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.passengers");
+    return new Set(this._nativeVehicle.passengers.map(wrapPlayer));
   }
 
   public setBodyHealth(_value: number): void {
@@ -57,16 +112,16 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     return rockSandboxNotImplemented("server", "RockSandboxVehicle.setEngineHealth");
   }
 
-  public setEngineOn(_value: boolean): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setEngineOn");
+  public setEngineOn(value: boolean): void {
+    this._nativeVehicle.setEngineOn(value);
   }
 
-  public setNumberPlate(_value: string): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setNumberPlate");
+  public setNumberPlate(value: string): void {
+    this._nativeVehicle.setNumberPlate(value);
   }
 
-  public setLocked(_value: boolean): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setLocked");
+  public setLocked(value: boolean): void {
+    this._nativeVehicle.setLocked(value);
   }
 
   public setPrimaryColor(_value: number): void {
@@ -120,4 +175,13 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   public repair(): void {
     return rockSandboxNotImplemented("server", "RockSandboxVehicle.repair");
   }
+}
+
+const wrappers = new WeakMap<NativeVehicle, RockSandboxVehicle>();
+export function wrapVehicle(vehicle: NativeVehicle): RockSandboxVehicle {
+  const old = wrappers.get(vehicle);
+  if (old) return old;
+  const wrapper = new RockSandboxVehicle(vehicle);
+  wrappers.set(vehicle, wrapper);
+  return wrapper;
 }

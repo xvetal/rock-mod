@@ -1751,3 +1751,91 @@ test("RP profile, armour and passive policy delegate exact native arguments and 
   ])
     assert.throws(operation, (e) => e === failure);
 });
+
+test("vehicle collection and mutations directly delegate native state with identity", () => {
+  const calls = [],
+    failure = new Error("native vehicle failure");
+  let throws = false;
+  const nativePlayer = { id: 8 };
+  const native = {
+    id: 5,
+    isExists: true,
+    modelHash: 99,
+    position: { x: 1, y: 2, z: 3 },
+    rotation: { x: 4, y: 5, z: 6 },
+    dimension: 12,
+    engineOn: true,
+    isLocked: true,
+    numberPlate: "PORT33",
+    driver: nativePlayer,
+    passengers: [nativePlayer],
+    setPosition: (v) => calls.push(["position", v]),
+    setRotation: (v) => calls.push(["rotation", v]),
+    setDimension: (v) => calls.push(["dimension", v]),
+    setEngineOn: (v) => {
+      if (throws) throw failure;
+      calls.push(["engine", v]);
+    },
+    setLocked: (v) => calls.push(["locked", v]),
+    setNumberPlate: (v) => calls.push(["plate", v]),
+    destroy: () => calls.push(["destroy"]),
+  };
+  let options;
+  globalThis.rockSandbox = {
+    vehicles: {
+      create: (o) => {
+        options = o;
+        return native;
+      },
+      getById: (id) => (id === 5 ? native : null),
+      all: () => [native],
+    },
+    players: { getById: (id) => (id === 8 ? nativePlayer : null), all: () => [nativePlayer] },
+  };
+  const v = mod.vehicles.create({
+    model: "riverside",
+    position: { x: 1, y: 2, z: 3 },
+    rotation: { x: 4, y: 5, z: 6 },
+    dimension: 12,
+    engine: true,
+    locked: true,
+    numberPlate: "PORT33",
+  });
+  assert.deepEqual(options, {
+    model: "riverside",
+    position: { x: 1, y: 3, z: -2 },
+    rotation: { x: 4, y: 6, z: -5 },
+    dimension: 12,
+    engineOn: true,
+    locked: true,
+    numberPlate: "PORT33",
+  });
+  assert.equal(v, mod.vehicles.getByID(5));
+  assert.equal(v, [...mod.vehicles.iterator.all()][0]);
+  assert.equal(v.driver, mod.players.getByID(8));
+  assert.equal([...v.passengers][0], v.driver);
+  assert.equal(v.model, 99);
+  assert.deepEqual([v.position.x, v.position.y, v.position.z], [1, -3, 2]);
+  v.setPosition({ x: 7, y: 8, z: 9 });
+  v.setRotation({ x: 10, y: 11, z: 12 });
+  v.setDimension(0);
+  v.setEngineOn(false);
+  v.setLocked(false);
+  v.setNumberPlate("new");
+  v.destroy();
+  assert.deepEqual(calls, [
+    ["position", { x: 7, y: 9, z: -8 }],
+    ["rotation", { x: 10, y: 12, z: -11 }],
+    ["dimension", 0],
+    ["engine", false],
+    ["locked", false],
+    ["plate", "new"],
+    ["destroy"],
+  ]);
+  throws = true;
+  assert.throws(
+    () => v.setEngineOn(true),
+    (e) => e === failure,
+  );
+  assert.throws(() => v.setBodyHealth(10), /not implemented/);
+});

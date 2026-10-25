@@ -3,7 +3,60 @@ import { type IRGB } from "../../../../shared/common/utils";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 
+import { type RockSandboxVehicle as NativeVehicle } from "@rock-sandbox/types/client";
+import { BaseObjectType } from "../../../../shared";
+import { Vector3D, type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
+  public constructor(private readonly _nativeVehicle: NativeVehicle) {
+    super();
+  }
+
+  public override get id(): number {
+    return this._nativeVehicle.id;
+  }
+
+  public override get type(): BaseObjectType {
+    return BaseObjectType.Vehicle;
+  }
+
+  public override get isExists(): boolean {
+    return this._nativeVehicle.isExists;
+  }
+
+  public override get model(): number {
+    return this._nativeVehicle.modelHash;
+  }
+
+  public override get position(): IVector3D {
+    const { x, y, z } = this._nativeVehicle.position;
+    return new Vector3D(x, -z, y);
+  }
+
+  public override get rotation(): IVector3D {
+    const { x, y, z } = this._nativeVehicle.rotation;
+    return new Vector3D(x, -z, y);
+  }
+
+  public override get dimension(): number {
+    return this._nativeVehicle.dimension;
+  }
+
+  public override get remoteId(): number {
+    return this._nativeVehicle.id;
+  }
+
+  public override get handle(): number {
+    return this._nativeVehicle.handle;
+  }
+
+  public override get heading(): number {
+    return this._nativeVehicle.heading;
+  }
+
+  public override getSpeed(): number {
+    return this._nativeVehicle.speed;
+  }
+
   public get bodyHealth(): number {
     return rockSandboxNotImplemented("client", "RockSandboxVehicle.bodyHealth");
   }
@@ -13,7 +66,7 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get numberPlate(): string {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.numberPlate");
+    return this._nativeVehicle.numberPlate;
   }
 
   public get isDead(): boolean {
@@ -36,8 +89,8 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     return rockSandboxNotImplemented("client", "RockSandboxVehicle.explode");
   }
 
-  public getPedInSeat(_seat: number): number {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.getPedInSeat");
+  public getPedInSeat(seat: number): number {
+    return this._nativeVehicle.getPlayerInSeat(seat + 1)?.handle ?? 0;
   }
 
   public setUndriveable(_toggle: boolean): void {
@@ -45,7 +98,7 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get maxNumberOfPassengers(): number {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.maxNumberOfPassengers");
+    return this._nativeVehicle.maxPassengers;
   }
 
   public get gear(): number {
@@ -53,11 +106,11 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get speed(): number {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.speed");
+    return this._nativeVehicle.speed;
   }
 
   public get isEngineRunning(): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.isEngineRunning");
+    return this._nativeVehicle.engineOn;
   }
 
   public setEngineOn(_toggle: boolean, _instantly: boolean, _otherwise: boolean): void {
@@ -69,7 +122,7 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get isLocked(): boolean {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.isLocked");
+    return this._nativeVehicle.isLocked;
   }
 
   public setIsLocked(_value: boolean): void {
@@ -211,4 +264,13 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   public getModelMaxSpeed(): number {
     return rockSandboxNotImplemented("client", "RockSandboxVehicle.getModelMaxSpeed");
   }
+}
+
+const wrappers = new WeakMap<NativeVehicle, RockSandboxVehicle>();
+export function wrapVehicle(vehicle: NativeVehicle): RockSandboxVehicle {
+  const old = wrappers.get(vehicle);
+  if (old) return old;
+  const wrapper = new RockSandboxVehicle(vehicle);
+  wrappers.set(vehicle, wrapper);
+  return wrapper;
 }
