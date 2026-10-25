@@ -2,6 +2,7 @@ import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IServerToClientEvents, type IClientToServerEvents } from "../../../../shared/net/common/events/types";
 import { type IClientInternalEvents } from "../../common/events/types";
 import { type RockSandboxClient } from "@rock-sandbox/types/client";
+import { wrapVehicle } from "../../../entities/rock-sandbox/vehicle/RockSandboxVehicle";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 const bridgedHosts = new WeakSet<RockSandboxClient>();
@@ -10,13 +11,24 @@ export class RockSandboxEventsManager implements IEventsManager {
   private _installBridges(api: RockSandboxClient, names: string[]): void {
     if (
       names.some(
-        (name) => name === "rm::render" || name === "rm::browserDomReady" || name === "rm::playerWeaponShot",
+        (name) =>
+          name === "rm::render" ||
+          name === "rm::browserDomReady" ||
+          name === "rm::playerWeaponShot" ||
+          name === "rm::playerEnterVehicle" ||
+          name === "rm::playerLeaveVehicle",
       ) &&
       !bridgedHosts.has(api)
     ) {
       api.on("render", () => api.emit<string>("rm::render"));
       api.on("browserDomReady", () => api.emit<string>("rm::browserDomReady"));
       api.on("playerWeaponShot", () => api.emit<string>("rm::playerWeaponShot"));
+      api.on("playerEnterVehicle", (vehicle, seat) =>
+        api.emit<string>("rm::playerEnterVehicle", wrapVehicle(vehicle), seat - 1),
+      );
+      api.on("playerExitVehicle", (vehicle, seat) =>
+        api.emit<string>("rm::playerLeaveVehicle", wrapVehicle(vehicle), seat - 1),
+      );
       bridgedHosts.add(api);
     }
   }

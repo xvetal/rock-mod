@@ -13,6 +13,14 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     super();
   }
 
+  public override getNetData(name: string): unknown {
+    return this._nativeVehicle.getNetData(name);
+  }
+
+  public override setNetData(name: string, value: unknown): void {
+    this._nativeVehicle.setNetData(name, value);
+  }
+
   public override get id(): number {
     return this._nativeVehicle.id;
   }
@@ -60,11 +68,11 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get bodyHealth(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.bodyHealth");
+    return this._nativeVehicle.bodyHealth;
   }
 
   public get engineHealth(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.engineHealth");
+    return this._nativeVehicle.engineHealth;
   }
 
   public get numberPlate(): string {
@@ -104,12 +112,12 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     return new Set(this._nativeVehicle.passengers.map(wrapPlayer));
   }
 
-  public setBodyHealth(_value: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setBodyHealth");
+  public setBodyHealth(value: number): void {
+    this._nativeVehicle.setBodyHealth(value);
   }
 
-  public setEngineHealth(_value: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setEngineHealth");
+  public setEngineHealth(value: number): void {
+    this._nativeVehicle.setEngineHealth(value);
   }
 
   public setEngineOn(value: boolean): void {
@@ -173,7 +181,7 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public repair(): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.repair");
+    this._nativeVehicle.repair();
   }
 }
 

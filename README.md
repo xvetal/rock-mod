@@ -1077,6 +1077,42 @@ their existing damage/armour behavior. [Native rules](../rock-sandbox/docs/serve
 Vehicle creation/lookup, iterator, transforms, dimensions, locks and plates directly
 wrap native handles. Player occupancy shares wrapper identity. Client vehicles are
 read-only; SDK seats -1..2 translate to native 0..3 and return native player handles.
-Positions/rotations use the existing coordinate conversion. Unsupported metadata,
-health, tuning and client mutation still throw. See [the native contract](../rock-sandbox/docs/server-vehicles.md).
-Rebuild against **ABI 33 / protocol 33 / CEF IPC 2**.
+Positions/rotations use the existing coordinate conversion. Server health/repair and client health reads are native; tuning and client mutation still throw. See [the native contract](../rock-sandbox/docs/server-vehicles.md).
+Rebuild against **ABI 34 / protocol 34 / CEF IPC 2**.
+
+## RockSandbox vehicle metadata
+
+Server vehicle `getNetData/setNetData` and client
+`getVariable/getSyncedMeta/hasSyncedMeta` directly delegate to native API.
+Data handlers wrap the native player or vehicle according to `entityType`, with
+independent identity even when numeric IDs coincide. JSON, limits, queues,
+readiness and notifications belong to RockSandbox. Engine metadata does not
+control physics. Other platforms keep their behavior. Requires **ABI 34 /
+protocol 34 / CEF IPC 2**; rebuild bundles.
+[Rules and diagnostics](../rock-sandbox/docs/vehicle-metadata.md).
+
+## RockSandbox vehicle seat events
+
+Requires **ABI 35 / protocol 35 / CEF IPC 2**; rebuild server, addon, clients and
+bundles. Native host-only `playerEnterVehicle/playerExitVehicle` carry
+`(player, vehicle, seat)` on the server and `(vehicle, seat)` for the local player
+on the client. A seat transfer is exit(old) then enter(new). Getters read current
+state, so delayed handles can already be absent. Prediction and streaming do not
+create events; late subscriptions do not replay history.
+
+rock-mod directly bridges server `rm::playerEnterVehicle/playerExitVehicle` and
+client `rm::playerEnterVehicle/playerLeaveVehicle` once per host, preserving native
+handles and original handlers. Native/server seats are 0..3, SDK client seats
+-1..2. Queues, validation and authoritative transitions belong to RockSandbox.
+[Delivery, lifetime and tests](../rock-sandbox/docs/vehicle-seat-events.md).
+
+## RockSandbox vehicle health and repair
+
+Requires **ABI 36 / protocol 36 / CEF IPC 2** and joint server/addon/client/bundle
+rebuild. Native server `bodyHealth/engineHealth` start at 1000. Setters accept
+primitive finite numbers 0..1000 (fractions use f32); `repair()` restores both to
+1000 as one deferred FIFO command. Repair preserves pose, motion, seats and the
+engine switch. Zero engine health gates native traction. Client access is
+readonly, and SDK methods directly delegate without validation or state.
+Automatic damage, deformation and destruction remain unsupported. See
+[the complete native contract](../rock-sandbox/docs/vehicle-health.md).

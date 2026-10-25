@@ -1837,5 +1837,113 @@ test("vehicle collection and mutations directly delegate native state with ident
     () => v.setEngineOn(true),
     (e) => e === failure,
   );
-  assert.throws(() => v.setBodyHealth(10), /not implemented/);
+  assert.throws(() => v.setPrimaryColor(10), /not implemented/);
+});
+
+test("server vehicle metadata delegates serialization and errors to native API", () => {
+  const value = { unchanged: true },
+    failure = Error("native vehicle metadata"),
+    calls = [];
+  let fail = false;
+  const native = {
+    id: 1,
+    getNetData(key) {
+      if (fail) throw failure;
+      calls.push(["get", key]);
+      return value;
+    },
+    setNetData(key, data) {
+      if (fail) throw failure;
+      calls.push(["set", key, data]);
+    },
+  };
+  globalThis.rockSandbox = { vehicles: { getById: () => native } };
+  const vehicle = mod.vehicles.getByID(1);
+  assert.equal(vehicle.getNetData("key"), value);
+  vehicle.setNetData("key", value);
+  vehicle.setNetData("key", undefined);
+  assert.deepEqual(calls, [
+    ["get", "key"],
+    ["set", "key", value],
+    ["set", "key", undefined],
+  ]);
+  fail = true;
+  assert.throws(
+    () => vehicle.getNetData("key"),
+    (e) => e === failure,
+  );
+  assert.throws(
+    () => vehicle.setNetData("key", value),
+    (e) => e === failure,
+  );
+});
+
+test("vehicle lifecycle bridges preserve server identities, seat numbers and native handlers", () => {
+  const callbacks = [],
+    emitted = [],
+    player = { id: 901 },
+    vehicle = { id: 902 };
+  globalThis.rockSandbox = {
+    on: (name, handler) => callbacks.push([name, handler]),
+    off: (...args) => emitted.push(["off", ...args]),
+    emit: (...args) => emitted.push(args),
+    players: { getById: () => player },
+    vehicles: { getById: () => vehicle },
+  };
+  const handler = () => {};
+  mod.net.events.onInternal({ "rm::playerEnterVehicle": handler });
+  mod.net.events.onInternal({ "rm::playerExitVehicle": handler });
+  for (const name of ["playerEnterVehicle", "playerExitVehicle"])
+    assert.equal(callbacks.filter(([event]) => event === name).length, 1);
+  callbacks.find(([name]) => name === "playerEnterVehicle")[1](player, vehicle, 3);
+  assert.deepEqual(emitted.at(-1), ["rm::playerEnterVehicle", mod.players.getByID(901), mod.vehicles.getByID(902), 3]);
+  callbacks.find(([name]) => name === "playerExitVehicle")[1](player, vehicle, 3);
+  assert.deepEqual(emitted.at(-1), ["rm::playerExitVehicle", mod.players.getByID(901), mod.vehicles.getByID(902)]);
+  assert.equal(callbacks.find(([name]) => name === "rm::playerExitVehicle")[1], handler);
+  mod.net.events.offInternal("rm::playerExitVehicle", handler);
+  assert.deepEqual(emitted.at(-1), ["off", "rm::playerExitVehicle", handler]);
+});
+
+test("vehicle health and repair delegate native primitives and original errors without SDK limits", () => {
+  const calls = [],
+    native = {
+      id: 912,
+      bodyHealth: 875.25,
+      engineHealth: 1000,
+      setBodyHealth: (v) => calls.push(["body", v]),
+      setEngineHealth: (v) => calls.push(["engine", v]),
+      repair: () => calls.push(["repair"]),
+    };
+  globalThis.rockSandbox = { vehicles: { getById: () => native } };
+  const v = mod.vehicles.getByID(912);
+  assert.equal(v.bodyHealth, 875.25);
+  assert.equal(v.engineHealth, 1000);
+  v.setBodyHealth(-1);
+  v.setEngineHealth("invalid");
+  v.repair();
+  assert.deepEqual(calls, [["body", -1], ["engine", "invalid"], ["repair"]]);
+  const error = Error("native vehicle health");
+  native.repair = () => {
+    throw error;
+  };
+  native.setBodyHealth = () => {
+    throw error;
+  };
+  assert.throws(
+    () => v.repair(),
+    (e) => e === error,
+  );
+  assert.throws(
+    () => v.setBodyHealth(1),
+    (e) => e === error,
+  );
+  Object.defineProperty(native, "bodyHealth", {
+    get() {
+      throw error;
+    },
+  });
+  assert.throws(
+    () => v.bodyHealth,
+    (e) => e === error,
+  );
 });
