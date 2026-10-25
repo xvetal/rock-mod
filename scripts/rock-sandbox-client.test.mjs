@@ -1773,3 +1773,105 @@ test("streamed vehicles and player occupancy share native identities and tokens"
     (e) => e === failure,
   );
 });
+
+test("vehicle metadata and typed data handlers directly wrap the native entity without merging ID pools", () => {
+  const registrations = [],
+    value = Object.freeze({ nested: Object.freeze([1]) }),
+    failure = Error("native vehicle metadata");
+  let fail = false;
+  const native = {
+    id: 1,
+    entityType: "vehicle",
+    getNetData(key) {
+      if (fail) throw failure;
+      return key === "key" ? value : undefined;
+    },
+  };
+  const nativePlayer = { id: 1, entityType: "player" };
+  globalThis.rockSandbox = {
+    vehicles: { getById: () => native, all: () => [native] },
+    players: { getById: () => nativePlayer, all: () => [nativePlayer] },
+    dataHandler: { addDataHandler: (...args) => registrations.push(args) },
+  };
+  const vehicle = mod.vehicles.getByID(1),
+    player = mod.players.getByID(1);
+  assert.notEqual(vehicle, player);
+  assert.equal(vehicle.getVariable("key"), value);
+  assert.equal(vehicle.getSyncedMeta("key"), value);
+  assert.equal(vehicle.hasSyncedMeta("missing"), false);
+  const seen = [];
+  mod.net.dataHandler.addDataHandler("key", (...args) => seen.push(args));
+  registrations[0][1](native, value, undefined);
+  registrations[0][1](nativePlayer, 7, 6);
+  assert.deepEqual(seen, [
+    [vehicle, value, undefined],
+    [player, 7, 6],
+  ]);
+  fail = true;
+  assert.throws(
+    () => vehicle.getVariable("key"),
+    (e) => e === failure,
+  );
+});
+
+test("vehicle seat bridges wrap once and translate client seats without reading stale state", () => {
+  const callbacks = [],
+    emitted = [],
+    vehicle = {
+      id: 922,
+      get position() {
+        throw Error("streamed out");
+      },
+    };
+  globalThis.rockSandbox = {
+    on: (name, handler) => callbacks.push([name, handler]),
+    onServer: () => {},
+    off: (...args) => emitted.push(["off", ...args]),
+    emit: (...args) => emitted.push(args),
+    vehicles: { getById: () => vehicle },
+  };
+  const handler = () => {};
+  mod.net.events.onInternal({ "rm::playerEnterVehicle": handler });
+  mod.net.events.onInternal({ "rm::playerLeaveVehicle": handler });
+  mod.net.events.register("rm::playerEnterVehicle", handler);
+  for (const [name, target, seat] of [
+    ["playerEnterVehicle", "rm::playerEnterVehicle", 0],
+    ["playerExitVehicle", "rm::playerLeaveVehicle", 3],
+  ]) {
+    const bridge = callbacks.filter(([event]) => event === name);
+    assert.equal(bridge.length, 1);
+    bridge[0][1](vehicle, seat);
+    assert.deepEqual(emitted.at(-1), [target, mod.vehicles.getByID(922), seat - 1]);
+  }
+  assert.equal(callbacks.find(([name]) => name === "rm::playerEnterVehicle")[1], handler);
+  mod.net.events.offInternal("rm::playerEnterVehicle", handler);
+  assert.deepEqual(emitted.at(-1), ["off", "rm::playerEnterVehicle", handler]);
+  const error = Error("original host handler");
+  globalThis.rockSandbox.emit = () => {
+    throw error;
+  };
+  assert.throws(
+    () => callbacks.find(([name]) => name === "playerExitVehicle")[1](vehicle, 0),
+    (e) => e === error,
+  );
+});
+
+test("client vehicle health reads native state while client writes remain unsupported", () => {
+  const native = { id: 913, bodyHealth: 600.5, engineHealth: 125.25 };
+  globalThis.rockSandbox = { vehicles: { getById: () => native } };
+  const v = mod.vehicles.getByID(913);
+  assert.equal(v.bodyHealth, 600.5);
+  assert.equal(v.engineHealth, 125.25);
+  assert.throws(() => v.setBodyHealth(1000), /not implemented/);
+  assert.throws(() => v.setEngineHealth(1000), /not implemented/);
+  const error = Error("native absent health");
+  Object.defineProperty(native, "engineHealth", {
+    get() {
+      throw error;
+    },
+  });
+  assert.throws(
+    () => v.engineHealth,
+    (e) => e === error,
+  );
+});

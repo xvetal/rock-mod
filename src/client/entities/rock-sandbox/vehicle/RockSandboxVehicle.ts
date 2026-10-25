@@ -11,6 +11,18 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     super();
   }
 
+  public override getVariable(name: string): unknown {
+    return this._nativeVehicle.getNetData(name);
+  }
+
+  public override getSyncedMeta(name: string): unknown {
+    return this._nativeVehicle.getNetData(name);
+  }
+
+  public override hasSyncedMeta(name: string): boolean {
+    return this._nativeVehicle.getNetData(name) !== undefined;
+  }
+
   public override get id(): number {
     return this._nativeVehicle.id;
   }
@@ -58,11 +70,11 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get bodyHealth(): number {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.bodyHealth");
+    return this._nativeVehicle.bodyHealth;
   }
 
   public get engineHealth(): number {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.engineHealth");
+    return this._nativeVehicle.engineHealth;
   }
 
   public get numberPlate(): string {
