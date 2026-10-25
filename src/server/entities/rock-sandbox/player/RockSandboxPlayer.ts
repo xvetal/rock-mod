@@ -8,6 +8,7 @@ import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 import { type IServerToClientEvents } from "../../../../shared";
 import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
+import { wrapVehicle } from "../vehicle/RockSandboxVehicle";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { type RockSandboxPlayer as NativePlayer } from "@rock-sandbox/types/server";
@@ -145,11 +146,12 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get vehicle(): IVehicle | null {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.vehicle");
+    const vehicle = this._nativePlayer.vehicle;
+    return vehicle === null ? null : wrapVehicle(vehicle);
   }
 
   public get seat(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.seat");
+    return this._nativePlayer.seat;
   }
 
   public get weapon(): number {

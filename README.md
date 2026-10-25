@@ -1071,3 +1071,12 @@ The context is passed unchanged; handlers keep native registry identity. The
 death bridge still has three arguments. Client `armour` reads the published state.
 Other server platforms explicitly reject the new passive policy while keeping
 their existing damage/armour behavior. [Native rules](../rock-sandbox/docs/server-rp-damage.md).
+
+## RockSandbox vehicles
+
+Vehicle creation/lookup, iterator, transforms, dimensions, locks and plates directly
+wrap native handles. Player occupancy shares wrapper identity. Client vehicles are
+read-only; SDK seats -1..2 translate to native 0..3 and return native player handles.
+Positions/rotations use the existing coordinate conversion. Unsupported metadata,
+health, tuning and client mutation still throw. See [the native contract](../rock-sandbox/docs/server-vehicles.md).
+Rebuild against **ABI 33 / protocol 33 / CEF IPC 2**.
