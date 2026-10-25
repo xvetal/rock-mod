@@ -23,3 +23,6 @@ export * from "./testing";
 export { type IPlayerWeaponShot as IRockModPlayerWeaponShot } from "./net/common/events/types";
 export { type IWeaponState as IRockModWeaponState } from "./entities/common/player/IPlayer";
 export { type IPlayerQuitSnapshot as IRockModPlayerQuitSnapshot } from "./net/common/events/types";
+
+export { type IPlayerDamageContext as IRockModPlayerDamageContext } from "./net/common/events/types";
+export { type IWeaponDamageProfile as IRockModWeaponDamageProfile } from "./entities/common/player/IPlayer";

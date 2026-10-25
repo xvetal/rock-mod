@@ -1,4 +1,9 @@
-import { type IWeaponState, type IPlayer, type ICustomization } from "../../common/player/IPlayer";
+import {
+  type IWeaponDamageProfile,
+  type IWeaponState,
+  type IPlayer,
+  type ICustomization,
+} from "../../common/player/IPlayer";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 import { type IServerToClientEvents } from "../../../../shared";
@@ -72,7 +77,7 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get armour(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.armour");
+    return this._nativePlayer.armour;
   }
 
   public get autoRespawn(): boolean {
@@ -101,6 +106,14 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
 
   public freezePosition(frozen: boolean): void {
     this._nativePlayer.freezePosition(frozen);
+  }
+
+  public get passiveMode(): boolean {
+    return this._nativePlayer.passiveMode;
+  }
+
+  public setPassiveMode(enabled: boolean): void {
+    this._nativePlayer.setPassiveMode(enabled);
   }
 
   public get invincible(): boolean {
@@ -189,16 +202,16 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     this._nativePlayer.setHealth(value);
   }
 
-  public setArmour(_value: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.setArmour");
+  public setArmour(value: number): void {
+    this._nativePlayer.setArmour(value);
   }
 
   public setWeaponAmmo(weapon: string, ammo: number): void {
     this._nativePlayer.setWeaponAmmo(weapon, ammo);
   }
 
-  public equipWeapon(weapon: string, ammo: number): bigint {
-    return this._nativePlayer.equipWeapon(weapon, ammo);
+  public equipWeapon(weapon: string, ammo: number, damage?: IWeaponDamageProfile): bigint {
+    return this._nativePlayer.equipWeapon(weapon, ammo, damage);
   }
 
   public addWeaponAmmo(weapon: string, ammo: number, revision: bigint): void {

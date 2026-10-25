@@ -318,7 +318,7 @@ test("unsupported gameplay operations retain diagnostic stubs", () => {
   host();
   const player = mod.players.getByID(1);
   for (const operation of [
-    () => player.armour,
+    () => player.serial,
     () => player.destroy(),
     () => mod.players.getBySocialClub("value"),
     () => mod.players.iterator.range3D(player.position, 10),
@@ -1621,7 +1621,7 @@ test("inventory weapon operations delegate issuance tokens and immutable native 
   assert.equal(p.addWeaponAmmo("pistol", 1, state.revision), undefined);
   assert.equal(p.getWeaponState("pistol"), state);
   assert.deepEqual(calls, [
-    ["equipWeapon", "pistol", 2],
+    ["equipWeapon", "pistol", 2, undefined],
     ["addWeaponAmmo", "pistol", 1, state.revision],
     ["getWeaponState", "pistol"],
   ]);
@@ -1681,7 +1681,7 @@ test("legacy server adapters explicitly reject authoritative inventory operation
       ["mock", "Mock"],
     ]) {
       const Class = require(`../dist/server/entities/${platform}/player/${name}Player`)[`${name}Player`];
-      for (const member of ["equipWeapon", "addWeaponAmmo", "getWeaponState"])
+      for (const member of ["equipWeapon", "addWeaponAmmo", "getWeaponState", "setPassiveMode"])
         assert.throws(
           () => Class.prototype[member].call(undefined, "pistol", 1, 1n),
           new RegExp(`${name}Player.${member}: unsupported operation`),
@@ -1691,4 +1691,63 @@ test("legacy server adapters explicitly reject authoritative inventory operation
     delete globalThis.AltVShared;
     delete globalThis.AltVServer;
   }
+});
+
+test("RP profile, armour and passive policy delegate exact native arguments and original errors", () => {
+  const Class = require("../dist/server/entities/rock-sandbox/player/RockSandboxPlayer").RockSandboxPlayer;
+  const calls = [],
+    failure = Error("native combat failure");
+  let fail = false,
+    armour = 37,
+    passiveMode = false;
+  const native = {
+    get armour() {
+      if (fail) throw failure;
+      return armour;
+    },
+    get passiveMode() {
+      if (fail) throw failure;
+      return passiveMode;
+    },
+    setArmour(value) {
+      assert.equal(this, native);
+      if (fail) throw failure;
+      calls.push(["armour", value]);
+      armour = value;
+    },
+    setPassiveMode(value) {
+      assert.equal(this, native);
+      if (fail) throw failure;
+      calls.push(["passive", value]);
+      passiveMode = value;
+    },
+    equipWeapon(...args) {
+      assert.equal(this, native);
+      if (fail) throw failure;
+      calls.push(["equip", ...args]);
+      return 9007199254740993n;
+    },
+  };
+  const player = new Class(native),
+    profile = Object.freeze({ arbitrary: "native validation owns this" });
+  assert.equal(player.armour, 37);
+  assert.equal(player.passiveMode, false);
+  player.setArmour(1000);
+  player.setPassiveMode("native validates");
+  assert.equal(player.equipWeapon("pistol", 3, profile), 9007199254740993n);
+  assert.deepEqual(calls, [
+    ["armour", 1000],
+    ["passive", "native validates"],
+    ["equip", "pistol", 3, profile],
+  ]);
+  assert.equal(calls[2][3], profile);
+  fail = true;
+  for (const operation of [
+    () => player.armour,
+    () => player.passiveMode,
+    () => player.setArmour(0),
+    () => player.setPassiveMode(false),
+    () => player.equipWeapon("pistol", 0, profile),
+  ])
+    assert.throws(operation, (e) => e === failure);
 });

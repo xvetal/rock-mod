@@ -1,4 +1,9 @@
-import { type IWeaponState, type ICustomization, type IPlayer } from "../../common/player/IPlayer";
+import {
+  type IWeaponDamageProfile,
+  type IWeaponState,
+  type ICustomization,
+  type IPlayer,
+} from "../../common/player/IPlayer";
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { RockMod } from "../../../RockMod";
 import { type RageVehicle } from "../vehicle/RageVehicle";
@@ -166,7 +171,15 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     return this.mpEntity.setWeaponAmmo(mp.joaat(weapon), ammo);
   }
 
-  public equipWeapon(_weapon: string, _ammo: number): bigint {
+  public get passiveMode(): boolean {
+    throw new Error("[Rage:server] RagePlayer.passiveMode: unsupported operation");
+  }
+
+  public setPassiveMode(_enabled: boolean): void {
+    throw new Error("[Rage:server] RagePlayer.setPassiveMode: unsupported operation");
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number, _damage?: IWeaponDamageProfile): bigint {
     throw new Error("[Rage:server] RagePlayer.equipWeapon: unsupported operation");
   }
 
