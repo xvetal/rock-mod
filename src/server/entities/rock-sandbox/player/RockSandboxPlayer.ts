@@ -140,11 +140,11 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   }
 
   public get weapon(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.weapon");
+    return this._nativePlayer.weapon;
   }
 
   public get weaponAmmo(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.weaponAmmo");
+    return this._nativePlayer.weaponAmmo;
   }
 
   public get eyeColor(): number {
@@ -193,16 +193,16 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.setArmour");
   }
 
-  public setWeaponAmmo(_weapon: string, _ammo: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.setWeaponAmmo");
+  public setWeaponAmmo(weapon: string, ammo: number): void {
+    this._nativePlayer.setWeaponAmmo(weapon, ammo);
   }
 
-  public giveWeapon(_weapon: string, _ammo: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.giveWeapon");
+  public giveWeapon(weapon: string, ammo: number): void {
+    this._nativePlayer.giveWeapon(weapon, ammo);
   }
 
-  public removeWeapon(_weapon: string): void {
-    return rockSandboxNotImplemented("server", "RockSandboxPlayer.removeWeapon");
+  public removeWeapon(weapon: string): void {
+    this._nativePlayer.removeWeapon(weapon);
   }
 
   public enableVoiceTo(_player: IPlayer): void {

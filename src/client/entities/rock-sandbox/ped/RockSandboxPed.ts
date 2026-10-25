@@ -93,73 +93,74 @@ export class RockSandboxPed extends RockSandboxEntity implements IPed {
     this._nativePed.destroy();
   }
 
-  public setDecoration(_collection: string, _overlay: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setDecoration");
+  public setDecoration(collection: string, overlay: string): void {
+    this._nativePed.setDecoration(collection, overlay);
   }
 
-  public removeDecoration(_collection: string, _overlay: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.removeDecoration");
+  public removeDecoration(collection: string, overlay: string): void {
+    this._nativePed.removeDecoration(collection, overlay);
   }
 
   public clearDecorations(): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.clearDecorations");
+    this._nativePed.clearDecorations();
   }
 
   public setHeadBlendData(
-    _shapeFirstId: number,
-    _shapeSecondId: number,
-    _shapeThirdId: number,
-    _skinFirstId: number,
-    _skinSecondId: number,
-    _skinThirdId: number,
-    _shapeMix: number,
-    _skinMix: number,
-    _thirdMix: number,
-    _isParent: boolean,
+    shapeFirstId: number,
+    shapeSecondId: number,
+    shapeThirdId: number,
+    skinFirstId: number,
+    skinSecondId: number,
+    skinThirdId: number,
+    shapeMix: number,
+    skinMix: number,
+    thirdMix: number,
+    isParent: boolean,
   ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setHeadBlendData");
+    this._nativePed.setHeadBlendData(
+      shapeFirstId,
+      shapeSecondId,
+      shapeThirdId,
+      skinFirstId,
+      skinSecondId,
+      skinThirdId,
+      shapeMix,
+      skinMix,
+      thirdMix,
+      isParent,
+    );
   }
 
-  public setFaceFeature(_index: number, _value: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setFaceFeature");
+  public setFaceFeature(index: number, value: number): void {
+    this._nativePed.setFaceFeature(index, value);
   }
 
-  public setHeadOverlay(_overlayId: number, _index: number, _opacity: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setHeadOverlay");
+  public setHeadOverlay(overlayId: number, index: number, opacity: number): void {
+    this._nativePed.setHeadOverlay(overlayId, index, opacity);
   }
 
-  public setHeadOverlayColor(
-    _overlayId: number,
-    _colorTypeId: number,
-    _firstColor: number,
-    _secondColor: number,
-  ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setHeadOverlayColor");
+  public setHeadOverlayColor(overlayId: number, colorTypeId: number, firstColor: number, secondColor: number): void {
+    this._nativePed.setHeadOverlayColor(overlayId, colorTypeId, firstColor, secondColor);
   }
 
-  public setEyeColor(_eyeColor: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setEyeColor");
+  public setEyeColor(eyeColor: number): void {
+    this._nativePed.setEyeColor(eyeColor);
   }
 
-  public setHairColor(_colorId: number, _highlightColorId: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setHairColor");
+  public setHairColor(colorId: number, highlightColorId: number): void {
+    this._nativePed.setHairColor(colorId, highlightColorId);
   }
 
-  public setComponentVariation(
-    _componentId: number,
-    _drawableId: number,
-    _textureId: number,
-    _paletteId: number,
-  ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setComponentVariation");
+  public setComponentVariation(componentId: number, drawableId: number, textureId: number, paletteId: number): void {
+    this._nativePed.setComponentVariation(componentId, drawableId, textureId, paletteId);
   }
 
-  public setPropertyVariation(_componentId: number, _drawableId: number, _textureId: number, _attach: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.setPropertyVariation");
+  public setPropertyVariation(componentId: number, drawableId: number, textureId: number, attach: boolean): void {
+    this._nativePed.setPropertyVariation(componentId, drawableId, textureId, attach);
   }
 
-  public clearProp(_componentId: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPed.clearProp");
+  public clearProp(componentId: number): void {
+    this._nativePed.clearProp(componentId);
   }
 
   public getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D {

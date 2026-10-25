@@ -61,6 +61,54 @@ function host() {
   });
 }
 
+test("server weapon getters and commands delegate unchanged and preserve native errors", () => {
+  const calls = [];
+  const error = new Error("native weapon error");
+  let fail = false;
+  const native = {
+    id: 73,
+    get weapon() {
+      if (fail) throw error;
+      return 324215364;
+    },
+    get weaponAmmo() {
+      if (fail) throw error;
+      return 1000;
+    },
+  };
+  for (const member of ["giveWeapon", "setWeaponAmmo", "removeWeapon"])
+    native[member] = (...args) => {
+      if (fail) throw error;
+      calls.push([member, ...args]);
+    };
+  Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
+  const p = mod.players.getByID(73);
+  assert.equal(p.weapon, 324215364);
+  assert.equal(p.weaponAmmo, 1000);
+  for (const weapon of ["mp5", "weapon_smg", "unsupported", 1, undefined]) {
+    assert.equal(p.giveWeapon(weapon, 1000), undefined);
+    assert.equal(p.setWeaponAmmo(weapon, -1), undefined);
+    assert.equal(p.removeWeapon(weapon), undefined);
+  }
+  assert.deepEqual(
+    calls,
+    ["mp5", "weapon_smg", "unsupported", 1, undefined].flatMap((w) => [
+      ["giveWeapon", w, 1000],
+      ["setWeaponAmmo", w, -1],
+      ["removeWeapon", w],
+    ]),
+  );
+  fail = true;
+  for (const call of [
+    () => p.weapon,
+    () => p.weaponAmmo,
+    () => p.giveWeapon("mp5", 3),
+    () => p.setWeaponAmmo("mp5", 3),
+    () => p.removeWeapon("mp5"),
+  ])
+    assert.throws(call, (e) => e === error);
+});
+
 test("client events install one native bridge and delegate handlers and sends unchanged", () => {
   const calls = [];
   const subscriptions = [];
