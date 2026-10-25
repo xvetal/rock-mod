@@ -8,6 +8,7 @@ import {
 } from "../../common/events/types";
 import { type IPlayer } from "../../../entities";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
+import { wrapVehicle } from "../../../entities/rock-sandbox/vehicle/RockSandboxVehicle";
 import { wrapPlayer } from "../../../entities/rock-sandbox/player/RockSandboxPlayer";
 
 import { wrapColshape } from "../../../entities/rock-sandbox/colshape/RockSandboxCylinderColshape";
@@ -54,6 +55,12 @@ function bridgePlayers(api: RockSandboxServer): void {
   api.on("playerLeftColshape", (player, colshape) =>
     api.emit(ServerInternalEventName.PlayerLeftColshape, wrapPlayer(player), wrapColshape(colshape)),
   );
+  api.on("playerEnterVehicle", (player, vehicle, seat) =>
+    api.emit(ServerInternalEventName.PlayerEnterVehicle, wrapPlayer(player), wrapVehicle(vehicle), seat),
+  );
+  api.on("playerExitVehicle", (player, vehicle) =>
+    api.emit(ServerInternalEventName.PlayerExitVehicle, wrapPlayer(player), wrapVehicle(vehicle)),
+  );
   bridgedHosts.add(api);
 }
 
@@ -78,7 +85,9 @@ export class RockSandboxEventsManager implements IEventsManager {
       ServerInternalEventName.PlayerWeaponShot in events ||
       ServerInternalEventName.PlayerDamage in events ||
       ServerInternalEventName.PlayerEnteredColshape in events ||
-      ServerInternalEventName.PlayerLeftColshape in events
+      ServerInternalEventName.PlayerLeftColshape in events ||
+      ServerInternalEventName.PlayerEnterVehicle in events ||
+      ServerInternalEventName.PlayerExitVehicle in events
     ) {
       bridgePlayers(api);
     }
