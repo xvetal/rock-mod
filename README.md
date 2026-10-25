@@ -1,8 +1,8 @@
 # Rock-Mod
 
-Current RockSandbox compatibility: **ABI 29 / protocol 30 / CEF IPC 2**.
-Protocol 30 combines the aircraft changes from `dev` with native scripting and
-streaming; rebuild clients and servers together. Later sections retain the
+Current RockSandbox compatibility: **ABI 30 / protocol 31 / CEF IPC 2**.
+Protocol 31 adds native weapon ownership and finite reserves. Rebuild server,
+addon and clients together. Later sections retain the
 compatibility values of their original validation runs.
 Server `player.collisionWithPlayers` and `setCollisionWithPlayers(enabled)`
 delegate directly to native code. Other server adapters throw for these APIs.
@@ -621,8 +621,9 @@ snapshot and nested position are frozen. No player state is cached in the SDK.
 
 Values were captured natively immediately before removal, including preceding
 queued commands without a physical tick. Live handles remain absent and their
-state getters still throw. Weapon ammo is the selected weapon's magazine even
-when holstered; this does not implement the live `weaponAmmo` getter.
+state getters still throw. The historical quit snapshot retains the selected
+weapon's magazine even when holstered. The live `weaponAmmo` getter now includes
+finite reserves; the quit snapshot's persistence contract is unchanged.
 
 The bridge is installed lazily once per host, including quit-only subscriptions.
 Original listener identity, duplicates, `off()` and exceptions are preserved.
@@ -947,8 +948,8 @@ stubs and platforms are unchanged. See
 ABI 24 / protocol 24 / CEF IPC 2 stay unchanged.
 
 Client player `getWeaponAmmo(hash)` now directly delegates to RockSandbox's
-native query. The current combat model stores magazines only, so total and clip
-counts currently match; the SDK does not derive either value or track reserves.
+native query. Host-managed totals now include finite reserves; the clip query
+remains separate. The SDK does not derive either value or track reserves.
 See [native ammunition](../rock-sandbox/docs/client-weapon-ammo.md). The existing
 `WeaponService` gamemod path and other platforms stay unchanged. ABI 24 /
 protocol 24 / CEF IPC 2 stay unchanged.
@@ -1023,3 +1024,27 @@ rotation use `(x,y,z) → (x,z,-y)`. Model identity/aliases, ownership, the 64-o
 limit, rendering and lifecycle remain native. Both freemode aliases temporarily
 use Streetwear. See [the contract and actual gamemod service check](../rock-sandbox/docs/client-local-peds.md).
 ABI 29 / protocol 29 / CEF IPC 2 stay unchanged; rebuild SDK/client bundles.
+
+## Temporary client appearance
+
+RockSandbox player and local preview-ped cosmetic methods now delegate to
+[visible native placeholders](../rock-sandbox/docs/client-appearance-placeholders.md).
+Face/hair, overlays, clothing, props and tattoos retain the base model, return
+`undefined` and produce a persistent native notice with one warning per
+class/method per runtime. Native code owns argument/lifecycle checks and cleanup;
+SDK wrappers add no state, validation or logging. Authored NPCs remain read-only;
+other unsupported APIs still throw. Freemode aliases still share Streetwear.
+This does not establish actual character customization or GPU/device behavior.
+Rebuild client binaries, SDK and bundles for ABI 29 / protocol 30 / CEF IPC 2.
+
+## Native server weapon control
+
+RockSandbox now supports `giveWeapon`, `setWeaponAmmo`, `removeWeapon`,
+`weapon` and `weaponAmmo` through direct SDK delegation. See [the native contract](../rock-sandbox/docs/server-weapons.md).
+Ammo assignments are absolute finite totals (magazine + reserve); 1000 means
+1000 rounds. The three supported weapon aliases retain the existing SDK names.
+Removed weapons cannot fire or reload; host-managed inventory survives respawn.
+The existing standalone arsenal remains until explicitly changed. Other GTA
+weapons, components, client ammo setters and reload integration remain separate.
+Compatibility is ABI 30 / protocol 31 / CEF IPC 2. GPU/Android device checks
+remain deferred. Earlier recorded diagnostics retain their original versions.
