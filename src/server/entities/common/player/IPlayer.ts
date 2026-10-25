@@ -23,7 +23,20 @@ export interface ICustomization {
 
 export interface IPlayerOptions extends IEntityOptions {}
 
+export interface IWeaponState {
+  readonly weapon: number;
+  readonly ammoInClip: number;
+  readonly ammo: number;
+  readonly capacity: number;
+  readonly owned: boolean;
+  readonly revision: bigint;
+}
+
 export interface IPlayer extends IEntity {
+  /** Native authoritative inventory operations. Unsupported backends throw. */
+  equipWeapon(weapon: string, ammo: number): bigint;
+  addWeaponAmmo(weapon: string, ammo: number, revision: bigint): void;
+  getWeaponState(weapon: string): IWeaponState;
   get name(): string;
   get socialClub(): string;
   get heading(): number;
