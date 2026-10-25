@@ -1,4 +1,4 @@
-import { type IWeaponState, type IPlayer } from "../../common/player/IPlayer";
+import { type IWeaponDamageProfile, type IWeaponState, type IPlayer } from "../../common/player/IPlayer";
 import { MockEntity, type IMockEntityOptions } from "../entity/MockEntity";
 import { type Vector3D } from "../../../../shared/common/utils/math/Vectors";
 import { RockMod } from "../../../RockMod";
@@ -206,7 +206,15 @@ export class MockPlayer extends MockEntity implements IPlayer {
     this._playerData.weaponAmmo = ammo;
   }
 
-  public equipWeapon(_weapon: string, _ammo: number): bigint {
+  public get passiveMode(): boolean {
+    throw new Error("[Mock:server] MockPlayer.passiveMode: unsupported operation");
+  }
+
+  public setPassiveMode(_enabled: boolean): void {
+    throw new Error("[Mock:server] MockPlayer.setPassiveMode: unsupported operation");
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number, _damage?: IWeaponDamageProfile): bigint {
     throw new Error("[Mock:server] MockPlayer.equipWeapon: unsupported operation");
   }
 

@@ -1,4 +1,9 @@
-import { type IWeaponState, type ICustomization, type IPlayer } from "../../common/player/IPlayer";
+import {
+  type IWeaponDamageProfile,
+  type IWeaponState,
+  type ICustomization,
+  type IPlayer,
+} from "../../common/player/IPlayer";
 import { VIMPEntity } from "../entity/VIMPEntity";
 import { type VIMPVehicle } from "../vehicle/VIMPVehicle";
 import { BaseObjectType, type IServerToClientEvents } from "../../../../shared";
@@ -224,7 +229,15 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     this._vimpPlayer.setWeaponAmmo(RockMod.instance.utils.hash(weapon), ammo);
   }
 
-  public equipWeapon(_weapon: string, _ammo: number): bigint {
+  public get passiveMode(): boolean {
+    throw new Error("[VIMP:server] VIMPPlayer.passiveMode: unsupported operation");
+  }
+
+  public setPassiveMode(_enabled: boolean): void {
+    throw new Error("[VIMP:server] VIMPPlayer.setPassiveMode: unsupported operation");
+  }
+
+  public equipWeapon(_weapon: string, _ammo: number, _damage?: IWeaponDamageProfile): bigint {
     throw new Error("[VIMP:server] VIMPPlayer.equipWeapon: unsupported operation");
   }
 
