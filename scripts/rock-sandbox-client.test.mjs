@@ -1630,8 +1630,70 @@ test("local preview peds delegate creation, mutation, lookup and deletion withou
       () => p.setModel("bad"),
       (e) => e === failure,
     );
-    assert.throws(() => p.setHeadBlendData(), /RockSandboxPed.setHeadBlendData/);
+    native.setHeadBlendData = () => {
+      throw failure;
+    };
+    assert.throws(
+      () => p.setHeadBlendData(),
+      (e) => e === failure,
+    );
     assert.throws(() => p.setCollision(true, true), /not implemented/);
+  } finally {
+    delete globalThis.rockSandbox;
+  }
+});
+
+test("appearance methods delegate unchanged to native ped/player handles, including errors", () => {
+  const methods = [
+    ["setDecoration", ["collection", "overlay"]],
+    ["removeDecoration", ["a", "b"]],
+    ["clearDecorations", []],
+    ["setHeadBlendData", [1, 2, 0, 3, 4, 0, 0.2, 0.5, 0, false]],
+    ["setFaceFeature", [0, 0.5]],
+    ["setHeadOverlay", [0, 255, 0.5]],
+    ["setHeadOverlayColor", [0, 1, 2, 3]],
+    ["setEyeColor", [1]],
+    ["setHairColor", [1, 2]],
+    ["setComponentVariation", [2, 0, 0, 0]],
+    ["setPropertyVariation", [1, 0, 0, true]],
+    ["clearProp", [1]],
+  ];
+  const native = { id: 91 };
+  globalThis.rockSandbox = { peds: { getById: () => native }, players: { getById: () => native } };
+  try {
+    for (const target of [mod.peds.getByID(91), mod.players.getByID(91)]) {
+      for (const [name, base] of methods) {
+        const args = name === "setHeadOverlay" && target === mod.players.getByID(91) ? [...base, 4, 5] : base;
+        // SDK does not validate or normalize even deliberately malformed input.
+        for (const values of [args, [undefined, NaN, {}, "bad"]]) {
+          let received;
+          native[name] = (...values) => {
+            received = values;
+          };
+          assert.equal(target[name](...values), undefined);
+          const count =
+            name === "setHeadOverlay"
+              ? target === mod.players.getByID(91)
+                ? 5
+                : 3
+              : name === "setHeadBlendData"
+                ? 10
+                : base.length;
+          assert.deepEqual(
+            received,
+            Array.from({ length: count }, (_, i) => values[i]),
+          );
+          const failure = Error("original native appearance error");
+          native[name] = () => {
+            throw failure;
+          };
+          assert.throws(
+            () => target[name](...values),
+            (e) => e === failure,
+          );
+        }
+      }
+    }
   } finally {
     delete globalThis.rockSandbox;
   }

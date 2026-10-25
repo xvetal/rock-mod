@@ -156,79 +156,80 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     return rockSandboxNotImplemented("client", "RockSandboxPlayer.getBoneIndex");
   }
 
-  public setDecoration(_collection: string, _overlay: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setDecoration");
+  public setDecoration(collection: string, overlay: string): void {
+    this._nativePlayer.setDecoration(collection, overlay);
   }
 
-  public removeDecoration(_collection: string, _overlay: string): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.removeDecoration");
+  public removeDecoration(collection: string, overlay: string): void {
+    this._nativePlayer.removeDecoration(collection, overlay);
   }
 
   public clearDecorations(): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.clearDecorations");
+    this._nativePlayer.clearDecorations();
   }
 
   public setHeadBlendData(
-    _shapeFirstId: number,
-    _shapeSecondId: number,
-    _shapeThirdId: number,
-    _skinFirstId: number,
-    _skinSecondId: number,
-    _skinThirdId: number,
-    _shapeMix: number,
-    _skinMix: number,
-    _thirdMix: number,
-    _isParent: boolean,
+    shapeFirstId: number,
+    shapeSecondId: number,
+    shapeThirdId: number,
+    skinFirstId: number,
+    skinSecondId: number,
+    skinThirdId: number,
+    shapeMix: number,
+    skinMix: number,
+    thirdMix: number,
+    isParent: boolean,
   ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setHeadBlendData");
+    this._nativePlayer.setHeadBlendData(
+      shapeFirstId,
+      shapeSecondId,
+      shapeThirdId,
+      skinFirstId,
+      skinSecondId,
+      skinThirdId,
+      shapeMix,
+      skinMix,
+      thirdMix,
+      isParent,
+    );
   }
 
-  public setFaceFeature(_index: number, _value: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setFaceFeature");
+  public setFaceFeature(index: number, value: number): void {
+    this._nativePlayer.setFaceFeature(index, value);
   }
 
   public setHeadOverlay(
-    _overlayId: number,
-    _index: number,
-    _opacity: number,
-    _firstColor: number,
-    _secondColor: number,
+    overlayId: number,
+    index: number,
+    opacity: number,
+    firstColor: number,
+    secondColor: number,
   ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setHeadOverlay");
+    this._nativePlayer.setHeadOverlay(overlayId, index, opacity, firstColor, secondColor);
   }
 
-  public setHeadOverlayColor(
-    _overlayId: number,
-    _colorTypeId: number,
-    _firstColor: number,
-    _secondColor: number,
-  ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setHeadOverlayColor");
+  public setHeadOverlayColor(overlayId: number, colorTypeId: number, firstColor: number, secondColor: number): void {
+    this._nativePlayer.setHeadOverlayColor(overlayId, colorTypeId, firstColor, secondColor);
   }
 
-  public setEyeColor(_eyeColor: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setEyeColor");
+  public setEyeColor(eyeColor: number): void {
+    this._nativePlayer.setEyeColor(eyeColor);
   }
 
-  public setHairColor(_colorId: number, _highlightColorId: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setHairColor");
+  public setHairColor(colorId: number, highlightColorId: number): void {
+    this._nativePlayer.setHairColor(colorId, highlightColorId);
   }
 
-  public setComponentVariation(
-    _componentId: number,
-    _drawableId: number,
-    _textureId: number,
-    _paletteId: number,
-  ): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setComponentVariation");
+  public setComponentVariation(componentId: number, drawableId: number, textureId: number, paletteId: number): void {
+    this._nativePlayer.setComponentVariation(componentId, drawableId, textureId, paletteId);
   }
 
-  public setPropertyVariation(_componentId: number, _drawableId: number, _textureId: number, _attach: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.setPropertyVariation");
+  public setPropertyVariation(componentId: number, drawableId: number, textureId: number, attach: boolean): void {
+    this._nativePlayer.setPropertyVariation(componentId, drawableId, textureId, attach);
   }
 
-  public clearProp(_componentId: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxPlayer.clearProp");
+  public clearProp(componentId: number): void {
+    this._nativePlayer.clearProp(componentId);
   }
 
   public get isLocalPlayer(): boolean {
