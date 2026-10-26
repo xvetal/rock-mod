@@ -31,10 +31,11 @@ export interface IVehicle extends IEntity {
   get numberPlate(): string;
   get isLocked(): boolean;
   get isDead(): boolean;
+  /** RockSandbox uses -1 when the model retains its authored base paint. */
   get primaryColor(): number;
   get secondaryColor(): number;
-  get customPrimaryColor(): IRGBA;
-  get customSecondaryColor(): IRGBA;
+  get customPrimaryColor(): IRGBA | null;
+  get customSecondaryColor(): IRGBA | null;
   get driver(): IPlayer | null;
   get passengers(): Set<IPlayer>;
   setBodyHealth(value: number): void;
