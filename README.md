@@ -1133,3 +1133,9 @@ engine switch. Zero engine health gates native traction. Client access is
 readonly, and SDK methods directly delegate without validation or state.
 Automatic damage, deformation and destruction remain unsupported. See
 [the complete native contract](../rock-sandbox/docs/vehicle-health.md).
+
+
+RockSandbox's `RockSandboxPlayerPropsManager` client extension delegates native
+visual props on player bone IDs with the usual SDK axis conversion. It does not
+create GTA bone indices, maintain render state or expose GameObject handles.
+See [the native contract](../rock-sandbox/docs/player-props.md).
