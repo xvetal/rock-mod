@@ -28,7 +28,7 @@ const bundle = await rollup({ input: entry, plugins: [nodeResolve(), commonjs()]
 const file = join(directory, "client.cjs");
 await bundle.write({ file, format: "cjs", inlineDynamicImports: true });
 await bundle.close();
-const { RockMod, RagePlayersManager, VIMPPlayersManager, RageUiManager, VIMPUiManager } = createRequire(
+const { RockSandboxPlayerPropsManager, RockMod, RagePlayersManager, VIMPPlayersManager, RageUiManager, VIMPUiManager } = createRequire(
   import.meta.url,
 )(file);
 assert.equal("mp" in globalThis, false);
@@ -1899,4 +1899,17 @@ test("ground height queries use native collision surfaces, convert height and re
   const failure = Error("physics source is unavailable");
   globalThis.rockSandbox.raycasting.testPointToPoint = () => { throw failure; };
   assert.throws(() => gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, false), error => error === failure);
+});
+
+
+test("player prop extension delegates IDs, axes, replacement and native errors without owning visual state", () => {
+  const calls=[];
+  globalThis.rockSandbox={ playerProps: { replace: (...args) => calls.push(args), clear: id => calls.push(['clear',id]) } };
+  const props=new RockSandboxPlayerPropsManager();
+  props.replace(7,[{id:3,model:'quarry.rock',boneId:57005,offset:{x:1,y:2,z:3},rotation:{x:10,y:20,z:30}}]);
+  props.clear(7);
+  assert.deepEqual(calls,[[7,[{id:3,model:'quarry.rock',bone:57005,offset:{x:1,y:3,z:-2},rotation:{x:10,y:30,z:-20}}]],['clear',7]]);
+  const failure=Error('unsupported native model');
+  globalThis.rockSandbox.playerProps.replace=() => {throw failure};
+  assert.throws(() => props.replace(7,[]),e => e===failure);
 });
