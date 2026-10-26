@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { VIMPEntity } from "../entity/VIMPEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IRGBA, RGBA } from "../../../../shared/common/utils";
@@ -17,6 +18,14 @@ type VimpVehicleWithNumberPlate = VimpVehicle & {
 };
 
 export class VIMPVehicle extends VIMPEntity implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    throw new Error("Vehicle.headlightMode is only available on RockSandbox");
+  }
+  public setHeadlightMode(mode: VehicleHeadlightMode): void {
+    void mode;
+    throw new Error("Vehicle.setHeadlightMode is only available on RockSandbox");
+  }
+
   private static readonly _customPrimaryColorMeta = "rockMod:customPrimaryColor";
 
   private static readonly _customSecondaryColorMeta = "rockMod:customSecondaryColor";

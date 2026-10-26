@@ -1134,8 +1134,17 @@ readonly, and SDK methods directly delegate without validation or state.
 Automatic damage, deformation and destruction remain unsupported. See
 [the complete native contract](../rock-sandbox/docs/vehicle-health.md).
 
-
 RockSandbox's `RockSandboxPlayerPropsManager` client extension delegates native
 visual props on player bone IDs with the usual SDK axis conversion. It does not
 create GTA bone indices, maintain render state or expose GameObject handles.
 See [the native contract](../rock-sandbox/docs/player-props.md).
+
+## RockSandbox headlights
+
+**ABI 38 / protocol 38 / CEF IPC 2** adds server `headlightMode` and
+`setHeadlightMode("auto" | "off" | "low_beam" | "high_beam")`, plus readonly
+client `headlightMode` and `lightsState` derived from native published state.
+The SDK delegates without caching desired modes, coercion or error replacement.
+Other platforms explicitly reject the new mode API. Existing backend lighting
+behavior is unchanged. Rebuild native server/addon/clients and SDK bundles together.
+[Policy and checks](../rock-sandbox/docs/vehicle-headlights.md).

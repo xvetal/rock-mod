@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { type Vehicle as VimpVehicle } from "@vimp-mp/types/client";
 import { BaseObjectType } from "@shared/entities";
@@ -12,6 +13,10 @@ type VimpVehicleWithNumberPlateType = VimpVehicle & {
 };
 
 export class VIMPVehicle implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    throw new Error("Vehicle.headlightMode is only available on RockSandbox");
+  }
+
   private _destroyed = false;
 
   public constructor(
