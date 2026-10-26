@@ -2010,3 +2010,37 @@ test("vehicle paint delegates published nullable colors, setters and native erro
   ])
     assert.throws(call, (e) => e === error);
 });
+
+test("headlight mode delegates writes and retains the published native state and errors", () => {
+  let mode = "auto",
+    fail = false;
+  const calls = [],
+    error = Error("native headlights");
+  const native = {
+    id: 73,
+    get headlightMode() {
+      if (fail) throw error;
+      return mode;
+    },
+    setHeadlightMode(value) {
+      if (fail) throw error;
+      calls.push(value);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { vehicles: { getById: () => native } });
+  const car = mod.vehicles.getByID(73);
+  car.setHeadlightMode("high_beam");
+  assert.deepEqual(calls, ["high_beam"]);
+  assert.equal(car.headlightMode, "auto");
+  mode = "high_beam";
+  assert.equal(car.headlightMode, "high_beam");
+  fail = true;
+  assert.throws(
+    () => car.headlightMode,
+    (e) => e === error,
+  );
+  assert.throws(
+    () => car.setHeadlightMode("off"),
+    (e) => e === error,
+  );
+});

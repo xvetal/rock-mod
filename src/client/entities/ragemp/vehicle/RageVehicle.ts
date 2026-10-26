@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { type ILightState, type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IRGB, RGBA } from "@shared/index";
@@ -5,6 +6,10 @@ import { type IRGB, RGBA } from "@shared/index";
 export interface IRageVehicleOptions extends IRageEntityOptions<VehicleMp> {}
 
 export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    throw new Error("Vehicle.headlightMode is only available on RockSandbox");
+  }
+
   public get bodyHealth(): number {
     return this.mpEntity.getBodyHealth();
   }

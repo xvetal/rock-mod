@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { type IRageEntityOptions, RageEntity } from "../entity/RageEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { RGBA } from "../../../../shared/common/utils";
@@ -8,6 +9,14 @@ import { MathClamp } from "../../../../shared/common/utils/math/Math";
 export interface IRageVehicleOptions extends IRageEntityOptions<VehicleMp> {}
 
 export class RageVehicle extends RageEntity<VehicleMp> implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    throw new Error("Vehicle.headlightMode is only available on RockSandbox");
+  }
+  public setHeadlightMode(mode: VehicleHeadlightMode): void {
+    void mode;
+    throw new Error("Vehicle.setHeadlightMode is only available on RockSandbox");
+  }
+
   private static readonly _minColorId = 0;
 
   private static readonly _maxColorId = 159;

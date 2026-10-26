@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IRGBA } from "../../../../shared/common/utils";
 import { type IPlayer } from "../../common/player";
@@ -9,6 +10,13 @@ import { BaseObjectType } from "../../../../shared";
 import { Vector3D, type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 import { wrapPlayer } from "../player/RockSandboxPlayer";
 export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    return this._nativeVehicle.headlightMode;
+  }
+  public setHeadlightMode(mode: VehicleHeadlightMode): void {
+    this._nativeVehicle.setHeadlightMode(mode);
+  }
+
   public constructor(private readonly _nativeVehicle: NativeVehicle) {
     super();
   }
