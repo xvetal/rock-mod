@@ -910,6 +910,15 @@ and native errors are preserved. Physical/category/dimension filtering remains
 native. See [the native raycast contract](../rock-sandbox/docs/client-raycast.md),
 including supported flags and local engine build instructions.
 
+`game.gameplay.getGroundZFor3dCoord` casts downward against those physical world
+and object surfaces, from one meter above the supplied SDK position to 1000 meters
+below it. It excludes actors/vehicles and returns the native hit height converted
+to SDK Z. Misses, invalid coordinates and native query failures throw; there is
+no fallback height. Native physics has no separate water-height source, so
+`waterLevelCheck=true` explicitly throws and `ignoreWater` does not change these
+collision-only results. Full Mac gamemod inventory checks exercised this path
+through the ordinary drop-position RPC. No native ABI/protocol change is needed.
+
 RockSandbox `game.graphics.drawText(text, position, options?)` directly delegates
 to native `screen.drawText`, preserving the original arguments and exceptions.
 Defaults, validation, frame limits, formatting and rendering stay native.
