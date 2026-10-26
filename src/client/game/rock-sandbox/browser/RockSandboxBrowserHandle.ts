@@ -19,6 +19,10 @@ export class RockSandboxBrowserHandle implements IBrowserHandle {
   public setOrderId(orderId: number): void {
     this._nativeBrowser.setOrderId(orderId);
   }
+
+  public setInputEnabled(enabled: boolean): void {
+    this._nativeBrowser.setInputEnabled(enabled);
+  }
 }
 
 const handles = new WeakMap<RockSandboxBrowser, RockSandboxBrowserHandle>();
