@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { MockEntity, type IMockEntityOptions } from "../entity/MockEntity";
 import { type IRGBA, RGBA } from "../../../../shared/common/utils";
@@ -10,6 +11,14 @@ export interface IMockVehicleOptions extends IMockEntityOptions {
 }
 
 export class MockVehicle extends MockEntity implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    throw new Error("Vehicle.headlightMode is only available on RockSandbox");
+  }
+  public setHeadlightMode(mode: VehicleHeadlightMode): void {
+    void mode;
+    throw new Error("Vehicle.setHeadlightMode is only available on RockSandbox");
+  }
+
   private _bodyHealth: number;
 
   private _engineHealth: number;

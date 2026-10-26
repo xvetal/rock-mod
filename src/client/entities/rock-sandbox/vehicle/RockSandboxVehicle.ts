@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { type IVehicle, type ILightState } from "../../common/vehicle/IVehicle";
 import { type IRGB } from "../../../../shared/common/utils";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
@@ -7,6 +8,10 @@ import { type RockSandboxVehicle as NativeVehicle } from "@rock-sandbox/types/cl
 import { BaseObjectType } from "../../../../shared";
 import { Vector3D, type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    return this._nativeVehicle.headlightMode;
+  }
+
   public constructor(private readonly _nativeVehicle: NativeVehicle) {
     super();
   }
@@ -130,7 +135,8 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get lightsState(): ILightState {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.lightsState");
+    const state = this._nativeVehicle.headlightState;
+    return { lightsOn: state !== "off", highbeamsOn: state === "high_beam" };
   }
 
   public get isLocked(): boolean {

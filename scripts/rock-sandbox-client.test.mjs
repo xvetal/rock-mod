@@ -1913,3 +1913,40 @@ test("player prop extension delegates IDs, axes, replacement and native errors w
   globalThis.rockSandbox.playerProps.replace=() => {throw failure};
   assert.throws(() => props.replace(7,[]),e => e===failure);
 });
+
+test("client headlights expose published mode and resolved lamps without a client setter", () => {
+  let mode = "auto",
+    state = "off",
+    fail = false;
+  const error = Error("native headlights"),
+    native = {
+      id: 918,
+      get headlightMode() {
+        if (fail) throw error;
+        return mode;
+      },
+      get headlightState() {
+        if (fail) throw error;
+        return state;
+      },
+    };
+  globalThis.rockSandbox = { vehicles: { getById: () => native } };
+  const car = mod.vehicles.getByID(918);
+  assert.equal(car.headlightMode, "auto");
+  assert.deepEqual(car.lightsState, { lightsOn: false, highbeamsOn: false });
+  for (const next of ["low_beam", "high_beam"]) {
+    mode = state = next;
+    assert.equal(car.headlightMode, next);
+    assert.deepEqual(car.lightsState, { lightsOn: true, highbeamsOn: next === "high_beam" });
+  }
+  assert.equal(car.setHeadlightMode, undefined);
+  fail = true;
+  assert.throws(
+    () => car.headlightMode,
+    (e) => e === error,
+  );
+  assert.throws(
+    () => car.lightsState,
+    (e) => e === error,
+  );
+});

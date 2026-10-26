@@ -1,3 +1,4 @@
+import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { AltVEntity, type IAltVEntityOptions } from "../entity/AltVEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import Vehicle = AltVServer.Vehicle;
@@ -10,6 +11,14 @@ import { MathClamp } from "../../../../shared/common/utils/math/Math";
 export interface IAltVVehicleOptions extends IAltVEntityOptions<Vehicle> {}
 
 export class AltVVehicle extends AltVEntity<Vehicle> implements IVehicle {
+  public get headlightMode(): VehicleHeadlightMode {
+    throw new Error("Vehicle.headlightMode is only available on RockSandbox");
+  }
+  public setHeadlightMode(mode: VehicleHeadlightMode): void {
+    void mode;
+    throw new Error("Vehicle.setHeadlightMode is only available on RockSandbox");
+  }
+
   private static readonly _minColorId = 0;
 
   private static readonly _maxColorId = 159;
