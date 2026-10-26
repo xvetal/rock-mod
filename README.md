@@ -875,6 +875,14 @@ false closes/blocks the Rust menu; true permits opening without opening it.
 No input policy or state is stored in the SDK. Other platforms keep their calls.
 See [native input semantics and checks](../rock-sandbox/docs/client-input.md).
 
+RockSandbox browser handles also expose optional `setInputEnabled(enabled)`;
+it delegates the input gate without changing page visibility. After a successful
+`game.cursor.show` call, the SDK emits its local `rm::cursorVisibilityChanged`
+notification with the visible flag. Gamemod consumes it to switch only its own
+application browser between an interactive menu and a HUD that lets input reach
+the game. Other browser owners keep their own input flags. This adds no native
+API or protocol version; the handle method remains optional for other backends.
+
 RockSandbox `game.camera.screenFadeIn/Out(duration)` directly calls native
 `screen.fadeIn/Out(duration)`. Required integer milliseconds, interpolation,
 interruptions, layer ordering, closed-host checks and reset are native. The SDK

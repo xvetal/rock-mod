@@ -1459,8 +1459,10 @@ test("screen fading delegates duration and preserves native errors", () => {
 
 test("cursor and pause menu delegate without SDK state and preserve errors", () => {
   const calls = [],
+    notifications = [],
     original = Error("native input error");
   globalThis.rockSandbox = {
+    emit: (...args) => notifications.push(args),
     cursor: {
       setVisible: (...args) => calls.push(["cursor", ...args]),
       getPosition: () => Object.freeze({ x: 123.5, y: 456.25 }),
@@ -1486,6 +1488,10 @@ test("cursor and pause menu delegate without SDK state and preserve errors", () 
     ["menu", false],
     ["menu", false],
     ["menu", true],
+  ]);
+  assert.deepEqual(notifications, [
+    ["rm::cursorVisibilityChanged", true], ["rm::cursorVisibilityChanged", true],
+    ["rm::cursorVisibilityChanged", false], ["rm::cursorVisibilityChanged", false],
   ]);
   globalThis.rockSandbox = {
     cursor: {
