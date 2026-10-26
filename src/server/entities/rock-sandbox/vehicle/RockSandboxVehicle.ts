@@ -88,19 +88,19 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public get primaryColor(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.primaryColor");
+    return this._nativeVehicle.primaryColor ?? -1;
   }
 
   public get secondaryColor(): number {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.secondaryColor");
+    return this._nativeVehicle.secondaryColor ?? -1;
   }
 
-  public get customPrimaryColor(): IRGBA {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.customPrimaryColor");
+  public get customPrimaryColor(): IRGBA | null {
+    return this._nativeVehicle.customPrimaryColor;
   }
 
-  public get customSecondaryColor(): IRGBA {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.customSecondaryColor");
+  public get customSecondaryColor(): IRGBA | null {
+    return this._nativeVehicle.customSecondaryColor;
   }
 
   public get driver(): IPlayer | null {
@@ -132,20 +132,20 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     this._nativeVehicle.setLocked(value);
   }
 
-  public setPrimaryColor(_value: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setPrimaryColor");
+  public setPrimaryColor(value: number): void {
+    this._nativeVehicle.setPrimaryColor(value);
   }
 
-  public setSecondaryColor(_value: number): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setSecondaryColor");
+  public setSecondaryColor(value: number): void {
+    this._nativeVehicle.setSecondaryColor(value);
   }
 
-  public setCustomPrimaryColor(_value: IRGBA): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setCustomPrimaryColor");
+  public setCustomPrimaryColor(value: IRGBA): void {
+    this._nativeVehicle.setCustomPrimaryColor({ r: value.r, g: value.g, b: value.b, a: value.a ?? 255 });
   }
 
-  public setCustomSecondaryColor(_value: IRGBA): void {
-    return rockSandboxNotImplemented("server", "RockSandboxVehicle.setCustomSecondaryColor");
+  public setCustomSecondaryColor(value: IRGBA): void {
+    this._nativeVehicle.setCustomSecondaryColor({ r: value.r, g: value.g, b: value.b, a: value.a ?? 255 });
   }
 
   public setMod(_modType: number, _modIndex: number): void {

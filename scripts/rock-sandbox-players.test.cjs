@@ -1837,7 +1837,7 @@ test("vehicle collection and mutations directly delegate native state with ident
     () => v.setEngineOn(true),
     (e) => e === failure,
   );
-  assert.throws(() => v.setPrimaryColor(10), /not implemented/);
+  assert.throws(() => v.setWindowTint(10), /not implemented/);
 });
 
 test("server vehicle metadata delegates serialization and errors to native API", () => {
@@ -1946,4 +1946,67 @@ test("vehicle health and repair delegate native primitives and original errors w
     () => v.bodyHealth,
     (e) => e === error,
   );
+});
+
+test("vehicle paint delegates published nullable colors, setters and native errors", () => {
+  const calls = [];
+  const error = Error("native paint");
+  let fail = false;
+  const rgba = Object.freeze({ r: 0, g: 0, b: 0, a: 91 });
+  let indexed = 27;
+  const native = {
+    id: 73,
+    get primaryColor() {
+      if (fail) throw error;
+      return indexed;
+    },
+    get secondaryColor() {
+      if (fail) throw error;
+      return 159;
+    },
+    get customPrimaryColor() {
+      if (fail) throw error;
+      return rgba;
+    },
+    get customSecondaryColor() {
+      if (fail) throw error;
+      return null;
+    },
+  };
+  for (const key of ["setPrimaryColor", "setSecondaryColor", "setCustomPrimaryColor", "setCustomSecondaryColor"])
+    native[key] = (value) => {
+      if (fail) throw error;
+      calls.push([key, value]);
+    };
+  Reflect.set(globalThis, "rockSandbox", { vehicles: { getById: () => native } });
+  const car = mod.vehicles.getByID(73);
+  assert.equal(car.primaryColor, 27);
+  assert.equal(car.secondaryColor, 159);
+  assert.equal(car.customPrimaryColor, rgba);
+  assert.equal(car.customSecondaryColor, null);
+  indexed = null;
+  assert.equal(car.primaryColor, -1);
+  indexed = 27;
+  car.setPrimaryColor(64);
+  car.setSecondaryColor(89);
+  car.setCustomPrimaryColor({ r: 0, g: 0, b: 0 });
+  car.setCustomSecondaryColor(rgba);
+  assert.deepEqual(calls, [
+    ["setPrimaryColor", 64],
+    ["setSecondaryColor", 89],
+    ["setCustomPrimaryColor", { r: 0, g: 0, b: 0, a: 255 }],
+    ["setCustomSecondaryColor", rgba],
+  ]);
+  fail = true;
+  for (const call of [
+    () => car.primaryColor,
+    () => car.secondaryColor,
+    () => car.customPrimaryColor,
+    () => car.customSecondaryColor,
+    () => car.setPrimaryColor(27),
+    () => car.setSecondaryColor(0),
+    () => car.setCustomPrimaryColor(rgba),
+    () => car.setCustomSecondaryColor(rgba),
+  ])
+    assert.throws(call, (e) => e === error);
 });
