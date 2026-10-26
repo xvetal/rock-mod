@@ -1881,3 +1881,22 @@ test("client vehicle health reads native state while client writes remain unsupp
     (e) => e === error,
   );
 });
+
+test("ground height queries use native collision surfaces, convert height and reject misses/water/errors", () => {
+  const calls = [];
+  let hit = { entityHandle: 0, position: { x: 4, y: 2.5, z: -5 }, surfaceNormal: { x: 0, y: 1, z: 0 } };
+  globalThis.rockSandbox = { raycasting: { testPointToPoint: (...args) => { calls.push(args); return hit; } } };
+  const gameplay = mod.game.gameplay;
+  assert.equal(gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, false), 2.5);
+  assert.deepEqual(calls[0], [{ x: 4, y: 9, z: -5 }, { x: 4, y: -992, z: -5 }, undefined, 17]);
+  assert.equal(gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, true, false), 2.5);
+  hit = null;
+  assert.throws(() => gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, false), /no ground surface/);
+  const count = calls.length;
+  assert.throws(() => gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, true), /water level queries/);
+  assert.throws(() => gameplay.getGroundZFor3dCoord({ x: NaN, y: 5, z: 8 }, false, false), /invalid position/);
+  assert.equal(calls.length, count);
+  const failure = Error("physics source is unavailable");
+  globalThis.rockSandbox.raycasting.testPointToPoint = () => { throw failure; };
+  assert.throws(() => gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, false), error => error === failure);
+});
