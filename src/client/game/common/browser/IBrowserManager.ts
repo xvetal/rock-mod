@@ -3,6 +3,8 @@ export interface IBrowserHandle {
   execute(code: string): void;
   destroy(): void;
   setOrderId?(orderId: number): void;
+  /** Optional native overlay input gate; visibility is unchanged. */
+  setInputEnabled?(enabled: boolean): void;
 }
 
 export interface IBrowserManager {
