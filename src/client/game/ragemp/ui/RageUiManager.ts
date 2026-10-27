@@ -38,6 +38,12 @@ export class RageUiManager implements IUiManager {
     mp.game.ui.deleteWaypoint();
   }
 
+  public getWaypointCoords(): IVector3D | null {
+    if (!mp.game.ui.isWaypointActive()) return null;
+    const blip = mp.game.ui.getFirstBlipInfoId(8);
+    return mp.game.ui.doesBlipExist(blip) ? this.getBlipInfoIdCoord(blip) : null;
+  }
+
   public getBlipInfoIdCoord(blip: number): IVector3D {
     const { x, y, z } = mp.game.ui.getBlipInfoIdCoord(blip);
     return new Vector3D(x, y, z);
