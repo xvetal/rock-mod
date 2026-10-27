@@ -16,6 +16,14 @@ import { BaseObjectType } from "../../../../shared";
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
 export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
+  public override get model(): number {
+    return this._nativePlayer.modelHash;
+  }
+
+  public override setModel(value: string): void {
+    this._nativePlayer.setModel(value);
+  }
+
   public override getNetData(name: string): unknown {
     return this._nativePlayer.getNetData(name);
   }
