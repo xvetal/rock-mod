@@ -3,6 +3,7 @@ import { type IVehicle, type ILightState } from "../../common/vehicle/IVehicle";
 import { type IRGB } from "../../../../shared/common/utils";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { gameVehicleRotation, nativeVehicleOffset, vehicleHeading } from "../../../../shared/internal/rockSandboxVehicleAxes";
 
 import { type RockSandboxVehicle as NativeVehicle } from "@rock-sandbox/types/client";
 import { BaseObjectType } from "../../../../shared";
@@ -57,8 +58,8 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public override get rotation(): IVector3D {
-    const { x, y, z } = this._nativeVehicle.rotation;
-    return new Vector3D(x, -z, y);
+    const { x, y, z } = gameVehicleRotation(this._nativeVehicle.rotation);
+    return new Vector3D(x, y, z);
   }
 
   public override get dimension(): number {
@@ -74,7 +75,13 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public override get heading(): number {
-    return this._nativeVehicle.heading;
+    return vehicleHeading(this._nativeVehicle.heading);
+  }
+
+  public override getOffsetFromInWorldCoords(offsetX: number, offsetY: number, offsetZ: number): IVector3D {
+    const offset = nativeVehicleOffset(offsetX, offsetY, offsetZ);
+    const { x, y, z } = this._nativeVehicle.getOffsetFromInWorldCoords(offset.x, offset.y, offset.z);
+    return new Vector3D(x, -z, y);
   }
 
   public override getSpeed(): number {

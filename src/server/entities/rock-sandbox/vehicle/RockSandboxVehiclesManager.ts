@@ -3,6 +3,7 @@ import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { RockSandboxEntitiesManager } from "../entity/RockSandboxEntitiesManager";
 
 import { getRockSandbox } from "../../../internal/getRockSandbox";
+import { nativeVehicleRotation } from "../../../../shared/internal/rockSandboxVehicleAxes";
 import { wrapVehicle, type RockSandboxVehicle } from "./RockSandboxVehicle";
 import { RockSandboxVehiclesIterator } from "./RockSandboxVehiclesIterator";
 export class RockSandboxVehiclesManager extends RockSandboxEntitiesManager<IVehicle> implements IVehiclesManager {
@@ -37,7 +38,7 @@ export class RockSandboxVehiclesManager extends RockSandboxEntitiesManager<IVehi
       getRockSandbox().vehicles.create({
         model: options.model,
         position: { x: options.position.x, y: options.position.z, z: -options.position.y },
-        rotation: { x: options.rotation.x, y: options.rotation.z, z: -options.rotation.y },
+        rotation: nativeVehicleRotation(options.rotation),
         dimension: options.dimension,
         engineOn: options.engine,
         locked: options.locked,
