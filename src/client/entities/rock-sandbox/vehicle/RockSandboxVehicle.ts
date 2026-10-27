@@ -84,6 +84,15 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     return new Vector3D(x, -z, y);
   }
 
+  public override getBoneIndexByName(boneName: string): number {
+    return this._nativeVehicle.getBoneIndexByName(boneName);
+  }
+
+  public override getWorldPositionOfBone(boneIndex: number): IVector3D {
+    const { x, y, z } = this._nativeVehicle.getWorldPositionOfBone(boneIndex);
+    return new Vector3D(x, -z, y);
+  }
+
   public override getSpeed(): number {
     return this._nativeVehicle.speed;
   }
@@ -221,12 +230,15 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
     return rockSandboxNotImplemented("client", "RockSandboxVehicle.numberPlateType");
   }
 
-  public setDoorOpen(_doorIndex: number, _loose: boolean, _openInstantly: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.setDoorOpen");
+  public setDoorOpen(doorIndex: number, loose: boolean, openInstantly: boolean): void {
+    if (loose !== false) {
+      throw new TypeError("[RockSandbox:client] RockSandboxVehicle.setDoorOpen: loose doors are not supported; loose must be false");
+    }
+    this._nativeVehicle.setDoorState(doorIndex, true, openInstantly);
   }
 
-  public setDoorShut(_doorIndex: number, _instantly: boolean): void {
-    return rockSandboxNotImplemented("client", "RockSandboxVehicle.setDoorShut");
+  public setDoorShut(doorIndex: number, instantly: boolean): void {
+    this._nativeVehicle.setDoorState(doorIndex, false, instantly);
   }
 
   public setHandling(_field: string, _value: number): void {
