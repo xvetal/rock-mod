@@ -1,13 +1,53 @@
 import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IServerToClientEvents, type IClientToServerEvents } from "../../../../shared/net/common/events/types";
 import { type IClientInternalEvents } from "../../common/events/types";
-import { type RockSandboxClient } from "@rock-sandbox/types/client";
+import { type RockSandboxClient, type RockSandboxPlayerLifecycle } from "@rock-sandbox/types/client";
 import { wrapVehicle } from "../../../entities/rock-sandbox/vehicle/RockSandboxVehicle";
+import { wrapPlayer } from "../../../entities/rock-sandbox/player/RockSandboxPlayer";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 const bridgedHosts = new WeakSet<RockSandboxClient>();
+const lifecycleNames = new Map<string, RockSandboxPlayerLifecycle["type"]>([
+  ["rm::playerConnected", "connected"],
+  ["rm::playerDisconnected", "disconnected"],
+  ["rm::playerReady", "ready"],
+  ["rm::entityStreamIn", "streamIn"],
+  ["rm::entityStreamOut", "streamOut"],
+]);
+type Handler = (...args: never[]) => void;
+type Subscription = { handler: Handler; dispose: () => void };
+const lifecycleSubscriptions = new WeakMap<RockSandboxClient, Map<string, Subscription[]>>();
 
 export class RockSandboxEventsManager implements IEventsManager {
+  private _subscribe(api: RockSandboxClient, event: string, handler: Handler): void {
+    const type = lifecycleNames.get(event);
+    if (!type) {
+      api.on<string, never[]>(event, handler);
+      return;
+    }
+    const dispose = api.players.observeLifecycle((value) => {
+      if (value.type === type) Reflect.apply(handler, undefined, [wrapPlayer(value.player)]);
+    });
+    api.on<string, never[]>(event, handler);
+    let subscriptions = lifecycleSubscriptions.get(api);
+    if (!subscriptions) lifecycleSubscriptions.set(api, (subscriptions = new Map()));
+    subscriptions.set(event, [...(subscriptions.get(event) ?? []), { handler, dispose }]);
+  }
+
+  private _unsubscribe(api: RockSandboxClient, event: string, handler?: Handler): void {
+    const subscriptions = lifecycleSubscriptions.get(api);
+    const entries = subscriptions?.get(event);
+    if (!entries) return;
+    if (handler === undefined) {
+      for (const entry of entries) entry.dispose();
+      subscriptions?.delete(event);
+    } else {
+      const index = entries.map((entry) => entry.handler).lastIndexOf(handler);
+      if (index >= 0) entries.splice(index, 1)[0]?.dispose();
+      if (!entries.length) subscriptions?.delete(event);
+    }
+  }
+
   private _installBridges(api: RockSandboxClient, names: string[]): void {
     if (
       names.some(
@@ -45,11 +85,13 @@ export class RockSandboxEventsManager implements IEventsManager {
   public onInternal(events: Partial<IClientInternalEvents>): void {
     const api = getRockSandbox();
     this._installBridges(api, Object.keys(events));
-    for (const [name, handler] of Object.entries(events)) api.on<string, never[]>(name, handler);
+    for (const [name, handler] of Object.entries(events)) this._subscribe(api, name, handler);
   }
 
   public offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener?: IClientInternalEvents[K]): void {
-    getRockSandbox().off<string, never[]>(eventName, listener);
+    const api = getRockSandbox();
+    this._unsubscribe(api, eventName, listener);
+    api.off<string, never[]>(eventName, listener);
   }
 
   public emitInternal<K extends keyof IClientInternalEvents>(
@@ -78,12 +120,13 @@ export class RockSandboxEventsManager implements IEventsManager {
   public register(event: string, listener: (...args: unknown[]) => void): void {
     const api = getRockSandbox();
     this._installBridges(api, [event]);
-    api.on<string, unknown[]>(event, listener);
+    this._subscribe(api, event, listener);
     api.onServer<string, unknown[]>(event, listener);
   }
 
   public unregister(event: string): void {
     const api = getRockSandbox();
+    this._unsubscribe(api, event);
     api.off<string, unknown[]>(event);
     api.offServer<string, unknown[]>(event);
   }

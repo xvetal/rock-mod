@@ -1157,3 +1157,16 @@ behavior is unchanged. Rebuild native server/addon/clients and SDK bundles toget
 and native streaming owns lifetime. Other backends retain their current behavior
 and explicitly reject the new mode API. Rebuild all native and SDK/RP bundles.
 [Signal policy and checks](../rock-sandbox/docs/vehicle-indicators.md).
+
+## RockSandbox player lifecycle
+
+Player lookup and iteration use the accepted native connection roster, including
+players outside current visibility. `isExists` still requires stream membership;
+position and other physical state are never synthesized. Name/model identity
+remains readable for connected players. Native lifecycle observations provide
+`rm::playerConnected`, `rm::playerDisconnected`, `rm::playerReady` and player
+`rm::entityStreamIn/Out`, including a baseline for late subscribers. Unsubscribing
+releases its exact native observer. A model replacement or visibility reset emits
+out/in without a fake disconnection. Native readiness does not assert UI readiness.
+Rebuild native clients and SDK/RP bundles together; server protocol/addon/CEF IPC
+are unchanged. [Contract and checks](../rock-sandbox/docs/client-player-lifecycle.md).
