@@ -28,9 +28,8 @@ const bundle = await rollup({ input: entry, plugins: [nodeResolve(), commonjs()]
 const file = join(directory, "client.cjs");
 await bundle.write({ file, format: "cjs", inlineDynamicImports: true });
 await bundle.close();
-const { RockSandboxPlayerPropsManager, RockMod, RagePlayersManager, VIMPPlayersManager, RageUiManager, VIMPUiManager } = createRequire(
-  import.meta.url,
-)(file);
+const { RockSandboxPlayerPropsManager, RockMod, RagePlayersManager, VIMPPlayersManager, RageUiManager, VIMPUiManager } =
+  createRequire(import.meta.url)(file);
 assert.equal("mp" in globalThis, false);
 assert.equal("vimp" in globalThis, false);
 const mod = await RockMod.create({ multiplayer: "RockSandbox" });
@@ -1490,8 +1489,10 @@ test("cursor and pause menu delegate without SDK state and preserve errors", () 
     ["menu", true],
   ]);
   assert.deepEqual(notifications, [
-    ["rm::cursorVisibilityChanged", true], ["rm::cursorVisibilityChanged", true],
-    ["rm::cursorVisibilityChanged", false], ["rm::cursorVisibilityChanged", false],
+    ["rm::cursorVisibilityChanged", true],
+    ["rm::cursorVisibilityChanged", true],
+    ["rm::cursorVisibilityChanged", false],
+    ["rm::cursorVisibilityChanged", false],
   ]);
   globalThis.rockSandbox = {
     cursor: {
@@ -1770,7 +1771,7 @@ test("streamed vehicles and player occupancy share native identities and tokens"
   assert.equal(v.getPedInSeat(0), 0);
   assert.equal(v.maxNumberOfPassengers, 3);
   assert.equal(v.heading, 215);
-  assert.deepEqual([v.rotation.x,v.rotation.y,v.rotation.z],[-4,6,185]);
+  assert.deepEqual([v.rotation.x, v.rotation.y, v.rotation.z], [-4, 6, 185]);
   assert.equal(v.isEngineRunning, true);
   assert.equal(mod.vehicles.getDisplayNameFromVehicleModel(12), "riverside");
   assert.deepEqual([v.position.x, v.position.y, v.position.z], [1, -3, 2]);
@@ -1952,7 +1953,14 @@ test("client vehicle health reads native state while client writes remain unsupp
 test("ground height queries use native collision surfaces, convert height and reject misses/water/errors", () => {
   const calls = [];
   let hit = { entityHandle: 0, position: { x: 4, y: 2.5, z: -5 }, surfaceNormal: { x: 0, y: 1, z: 0 } };
-  globalThis.rockSandbox = { raycasting: { testPointToPoint: (...args) => { calls.push(args); return hit; } } };
+  globalThis.rockSandbox = {
+    raycasting: {
+      testPointToPoint: (...args) => {
+        calls.push(args);
+        return hit;
+      },
+    },
+  };
   const gameplay = mod.game.gameplay;
   assert.equal(gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, false), 2.5);
   assert.deepEqual(calls[0], [{ x: 4, y: 9, z: -5 }, { x: 4, y: -992, z: -5 }, undefined, 17]);
@@ -1964,21 +1972,40 @@ test("ground height queries use native collision surfaces, convert height and re
   assert.throws(() => gameplay.getGroundZFor3dCoord({ x: NaN, y: 5, z: 8 }, false, false), /invalid position/);
   assert.equal(calls.length, count);
   const failure = Error("physics source is unavailable");
-  globalThis.rockSandbox.raycasting.testPointToPoint = () => { throw failure; };
-  assert.throws(() => gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, false), error => error === failure);
+  globalThis.rockSandbox.raycasting.testPointToPoint = () => {
+    throw failure;
+  };
+  assert.throws(
+    () => gameplay.getGroundZFor3dCoord({ x: 4, y: 5, z: 8 }, false, false),
+    (error) => error === failure,
+  );
 });
 
-
 test("player prop extension delegates IDs, axes, replacement and native errors without owning visual state", () => {
-  const calls=[];
-  globalThis.rockSandbox={ playerProps: { replace: (...args) => calls.push(args), clear: id => calls.push(['clear',id]) } };
-  const props=new RockSandboxPlayerPropsManager();
-  props.replace(7,[{id:3,model:'quarry.rock',boneId:57005,offset:{x:1,y:2,z:3},rotation:{x:10,y:20,z:30}}]);
+  const calls = [];
+  globalThis.rockSandbox = {
+    playerProps: { replace: (...args) => calls.push(args), clear: (id) => calls.push(["clear", id]) },
+  };
+  const props = new RockSandboxPlayerPropsManager();
+  props.replace(7, [
+    { id: 3, model: "quarry.rock", boneId: 57005, offset: { x: 1, y: 2, z: 3 }, rotation: { x: 10, y: 20, z: 30 } },
+  ]);
   props.clear(7);
-  assert.deepEqual(calls,[[7,[{id:3,model:'quarry.rock',bone:57005,offset:{x:1,y:3,z:-2},rotation:{x:10,y:30,z:-20}}]],['clear',7]]);
-  const failure=Error('unsupported native model');
-  globalThis.rockSandbox.playerProps.replace=() => {throw failure};
-  assert.throws(() => props.replace(7,[]),e => e===failure);
+  assert.deepEqual(calls, [
+    [
+      7,
+      [{ id: 3, model: "quarry.rock", bone: 57005, offset: { x: 1, y: 3, z: -2 }, rotation: { x: 10, y: 30, z: -20 } }],
+    ],
+    ["clear", 7],
+  ]);
+  const failure = Error("unsupported native model");
+  globalThis.rockSandbox.playerProps.replace = () => {
+    throw failure;
+  };
+  assert.throws(
+    () => props.replace(7, []),
+    (e) => e === failure,
+  );
 });
 
 test("client headlights expose published mode and resolved lamps without a client setter", () => {
@@ -2102,4 +2129,74 @@ test("vehicle posed bones and rigid door commands delegate with RP world coordin
     () => car.setDoorShut(5, false),
   ])
     assert.throws(invoke, (e) => e === error);
+});
+
+test("native waypoint methods convert RP axes and preserve native null/errors", () => {
+  const calls = [];
+  let point = Object.freeze({ x: 12, y: 0, z: -34 });
+  globalThis.rockSandbox = {
+    map: {
+      setWaypoint: (...args) => calls.push(["set", ...args]),
+      clearWaypoint: () => calls.push(["clear"]),
+      getWaypoint: () => point,
+    },
+  };
+  mod.game.ui.setWaypoint(12, 34);
+  const result = mod.game.ui.getWaypointCoords();
+  assert.deepEqual([result.x, result.y, result.z], [12, 34, 0]);
+  mod.game.ui.deleteWaypoint();
+  assert.deepEqual(calls, [["set", 12, -34], ["clear"]]);
+  point = null;
+  assert.equal(mod.game.ui.getWaypointCoords(), null);
+  const original = Error("native missing surface");
+  for (const [method, operation] of [
+    ["setWaypoint", () => mod.game.ui.setWaypoint(1, 2)],
+    ["clearWaypoint", () => mod.game.ui.deleteWaypoint()],
+    ["getWaypoint", () => mod.game.ui.getWaypointCoords()],
+  ]) {
+    const saved = globalThis.rockSandbox.map[method];
+    globalThis.rockSandbox.map[method] = () => {
+      throw original;
+    };
+    assert.throws(operation, (e) => e === original);
+    globalThis.rockSandbox.map[method] = saved;
+  }
+});
+
+test("legacy waypoint reads use the actual waypoint blip and do not invent a missing point", (t) => {
+  t.after(() => {
+    Reflect.deleteProperty(globalThis, "mp");
+    Reflect.deleteProperty(globalThis, "vimp");
+  });
+  for (const platform of ["rage", "vimp"]) {
+    let active = false,
+      exists = true;
+    const calls = [];
+    const api = {
+      isWaypointActive: () => active,
+      getFirstBlipInfoId: (sprite) => {
+        calls.push(sprite);
+        return 7;
+      },
+      doesBlipExist: (id) => {
+        assert.equal(id, 7);
+        return exists;
+      },
+      getBlipInfoIdCoord: (id) => {
+        assert.equal(id, 7);
+        return { x: 1, y: 2, z: 3 };
+      },
+    };
+    globalThis.mp = { game: { ui: api } };
+    globalThis.vimp = { natives: { hud: api } };
+    const ui = platform === "rage" ? new RageUiManager() : new VIMPUiManager();
+    assert.equal(ui.getWaypointCoords(), null);
+    assert.deepEqual(calls, []);
+    active = true;
+    const p = ui.getWaypointCoords();
+    assert.deepEqual([p.x, p.y, p.z], [1, 2, 3]);
+    assert.deepEqual(calls, [8]);
+    exists = false;
+    assert.equal(ui.getWaypointCoords(), null);
+  }
 });

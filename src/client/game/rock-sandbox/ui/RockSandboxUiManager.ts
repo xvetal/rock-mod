@@ -1,5 +1,5 @@
 import { type IUiManager, type IRadarScreenBounds } from "../../common/ui/IUiManager";
-import { type IVector3D } from "../../../../shared/common/utils";
+import { type IVector3D, Vector3D } from "../../../../shared/common/utils";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 
@@ -28,12 +28,17 @@ export class RockSandboxUiManager implements IUiManager {
     getRockSandbox().ui.setPauseMenuEnabled(toggle);
   }
 
-  public setWaypoint(_x: number, _y: number): void {
-    return rockSandboxNotImplemented("client", "RockSandboxUiManager.setWaypoint");
+  public setWaypoint(x: number, y: number): void {
+    getRockSandbox().map.setWaypoint(x, -y);
   }
 
   public deleteWaypoint(): void {
-    return rockSandboxNotImplemented("client", "RockSandboxUiManager.deleteWaypoint");
+    getRockSandbox().map.clearWaypoint();
+  }
+
+  public getWaypointCoords(): IVector3D | null {
+    const point = getRockSandbox().map.getWaypoint();
+    return point === null ? null : new Vector3D(point.x, -point.z, point.y);
   }
 
   public getBlipInfoIdCoord(_blip: number): IVector3D {

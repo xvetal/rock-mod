@@ -16,5 +16,6 @@ export interface IUiManager {
   setPauseMenuActive(toggle: boolean): void;
   setWaypoint(x: number, y: number): void;
   deleteWaypoint(): void;
+  getWaypointCoords(): IVector3D | null;
   getBlipInfoIdCoord(blip: number): IVector3D;
 }

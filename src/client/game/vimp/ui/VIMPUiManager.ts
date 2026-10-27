@@ -44,6 +44,12 @@ export class VIMPUiManager implements IUiManager {
     vimp.natives.hud.setWaypointOff();
   }
 
+  public getWaypointCoords(): IVector3D | null {
+    if (!vimp.natives.hud.isWaypointActive()) return null;
+    const blip = vimp.natives.hud.getFirstBlipInfoId(8);
+    return vimp.natives.hud.doesBlipExist(blip) ? this.getBlipInfoIdCoord(blip) : null;
+  }
+
   public getBlipInfoIdCoord(blip: number): IVector3D {
     const { x, y, z } = vimp.natives.hud.getBlipInfoIdCoord(blip);
     return new Vector3D(x, y, z);
