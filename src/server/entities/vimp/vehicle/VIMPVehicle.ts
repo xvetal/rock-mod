@@ -1,4 +1,4 @@
-import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
+import { type VehicleIndicatorMode, type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { VIMPEntity } from "../entity/VIMPEntity";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IRGBA, RGBA } from "../../../../shared/common/utils";
@@ -18,6 +18,17 @@ type VimpVehicleWithNumberPlate = VimpVehicle & {
 };
 
 export class VIMPVehicle extends VIMPEntity implements IVehicle {
+  public get indicatorMode(): VehicleIndicatorMode {
+    throw new Error("Vehicle.indicatorMode is only available on RockSandbox");
+  }
+  public get indicatorPhaseOn(): boolean {
+    throw new Error("Vehicle.indicatorPhaseOn is only available on RockSandbox");
+  }
+  public setIndicatorMode(mode: VehicleIndicatorMode): void {
+    void mode;
+    throw new Error("Vehicle.setIndicatorMode is only available on RockSandbox");
+  }
+
   public get headlightMode(): VehicleHeadlightMode {
     throw new Error("Vehicle.headlightMode is only available on RockSandbox");
   }

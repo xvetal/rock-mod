@@ -1,6 +1,6 @@
 import { type IEntity, type IEntityOptions } from "../entity/IEntity";
 import { type IRGB } from "@shared/common/utils";
-import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
+import { type VehicleIndicatorMode, type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 
 export interface IVehicleOptions extends IEntityOptions {}
 
@@ -10,6 +10,8 @@ export interface ILightState {
 }
 
 export interface IVehicle extends IEntity {
+  get indicatorMode(): VehicleIndicatorMode;
+  get indicatorPhaseOn(): boolean;
   get headlightMode(): VehicleHeadlightMode;
   get bodyHealth(): number;
   get engineHealth(): number;

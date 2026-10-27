@@ -1148,3 +1148,12 @@ The SDK delegates without caching desired modes, coercion or error replacement.
 Other platforms explicitly reject the new mode API. Existing backend lighting
 behavior is unchanged. Rebuild native server/addon/clients and SDK bundles together.
 [Policy and checks](../rock-sandbox/docs/vehicle-headlights.md).
+
+## RockSandbox indicators
+
+**ABI 39 / protocol 39 / CEF IPC 2** adds server `setIndicatorMode` with
+`off | left | right | hazard`, and readonly server/client `indicatorMode` and
+`indicatorPhaseOn`. The SDK delegates directly; the native clock owns blinking
+and native streaming owns lifetime. Other backends retain their current behavior
+and explicitly reject the new mode API. Rebuild all native and SDK/RP bundles.
+[Signal policy and checks](../rock-sandbox/docs/vehicle-indicators.md).
