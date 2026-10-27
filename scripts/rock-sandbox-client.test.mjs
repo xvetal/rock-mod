@@ -2051,3 +2051,55 @@ test("client indicator mode and phase delegate without a client setter or timer"
     (e) => e === error,
   );
 });
+
+test("vehicle posed bones and rigid door commands delegate with RP world coordinates and preserve errors", () => {
+  const calls = [],
+    error = Error("native missing panel");
+  let retired = false;
+  const native = {
+    id: 997,
+    getBoneIndexByName(name) {
+      assert.equal(this, native);
+      if (retired) throw error;
+      calls.push(["bone", name]);
+      return name === "boot" ? 10 : -1;
+    },
+    getWorldPositionOfBone(id) {
+      assert.equal(this, native);
+      if (retired) throw error;
+      calls.push(["point", id]);
+      return Object.freeze({ x: 7, y: 8, z: 9 });
+    },
+    setDoorState(...args) {
+      assert.equal(this, native);
+      if (retired) throw error;
+      calls.push(["door", ...args]);
+    },
+  };
+  globalThis.rockSandbox = { vehicles: { getById: () => native } };
+  const car = mod.vehicles.getByID(native.id);
+  assert.equal(car.getBoneIndexByName("boot"), 10);
+  assert.equal(car.getBoneIndexByName("no_actual_joint"), -1);
+  const p = car.getWorldPositionOfBone(10);
+  assert.deepEqual([p.x, p.y, p.z], [7, -9, 8]);
+  car.setDoorOpen(5, false, false);
+  car.setDoorShut(5, true);
+  assert.deepEqual(calls, [
+    ["bone", "boot"],
+    ["bone", "no_actual_joint"],
+    ["point", 10],
+    ["door", 5, true, false],
+    ["door", 5, false, true],
+  ]);
+  for (const loose of [undefined, null, true, 0, "false", {}])
+    assert.throws(() => car.setDoorOpen(5, loose, false), /loose must be false/);
+  assert.equal(calls.length, 5);
+  retired = true;
+  for (const invoke of [
+    () => car.getBoneIndexByName("boot"),
+    () => car.getWorldPositionOfBone(10),
+    () => car.setDoorOpen(5, false, false),
+    () => car.setDoorShut(5, false),
+  ])
+    assert.throws(invoke, (e) => e === error);
+});
