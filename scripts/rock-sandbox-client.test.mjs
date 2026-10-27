@@ -1769,6 +1769,8 @@ test("streamed vehicles and player occupancy share native identities and tokens"
   assert.equal(v.getPedInSeat(-1), 88);
   assert.equal(v.getPedInSeat(0), 0);
   assert.equal(v.maxNumberOfPassengers, 3);
+  assert.equal(v.heading, 215);
+  assert.deepEqual([v.rotation.x,v.rotation.y,v.rotation.z],[-4,6,185]);
   assert.equal(v.isEngineRunning, true);
   assert.equal(mod.vehicles.getDisplayNameFromVehicleModel(12), "riverside");
   assert.deepEqual([v.position.x, v.position.y, v.position.z], [1, -3, 2]);
@@ -1778,6 +1780,71 @@ test("streamed vehicles and player occupancy share native identities and tokens"
     () => mod.vehicles.findByID(1),
     (e) => e === failure,
   );
+});
+
+test("vehicle local axes and full Euler rotations preserve the original RP frame on slopes", () => {
+  const { nativeVehicleRotation } = createRequire(import.meta.url)("../dist/shared/internal/rockSandboxVehicleAxes.js");
+  const rotate = ([x, y, z], axis, degrees) => {
+    const a = (degrees * Math.PI) / 180,
+      c = Math.cos(a),
+      s = Math.sin(a);
+    if (axis === "x") return [x, c * y - s * z, s * y + c * z];
+    if (axis === "y") return [c * x + s * z, y, -s * x + c * z];
+    return [c * x - s * y, s * x + c * y, z];
+  };
+  let id = 990;
+  for (const rotation of [
+    { x: 0, y: 0, z: 0 },
+    { x: 12, y: -27, z: 43 },
+    { x: 90, y: 20, z: 270 },
+    { x: -45, y: 80, z: 180 },
+  ]) {
+    const nativeRotation = nativeVehicleRotation(rotation),
+      calls = [],
+      error = Error("retired native body");
+    let closed = false;
+    const native = {
+      id: ++id,
+      rotation: nativeRotation,
+      heading: nativeRotation.y,
+      getOffsetFromInWorldCoords(x, y, z) {
+        assert.equal(this, native);
+        if (closed) throw error;
+        calls.push([x, y, z]);
+        const p = rotate(
+          rotate(rotate([x, y, z], "z", nativeRotation.z), "x", nativeRotation.x),
+          "y",
+          nativeRotation.y,
+        );
+        return Object.freeze({ x: 10 + p[0], y: 20 + p[1], z: 30 + p[2] });
+      },
+    };
+    globalThis.rockSandbox = { vehicles: { getById: () => native } };
+    const car = mod.vehicles.getByID(native.id),
+      p = car.getOffsetFromInWorldCoords(1, 2, 3);
+    // Original GTA local frame uses ZXY; this independent calculation never
+    // converts through native rotation or car-local axes.
+    const expected = rotate(rotate(rotate([1, 2, 3], "y", rotation.y), "x", rotation.x), "z", rotation.z);
+    for (const [actual, want] of [
+      [p.x, 10 + expected[0]],
+      [p.y, -30 + expected[1]],
+      [p.z, 20 + expected[2]],
+    ])
+      assert.ok(Math.abs(actual - want) < 1e-9, `${actual} != ${want}`);
+    assert.deepEqual(calls, [[-1, 3, 2]]);
+    assert.equal(car.heading, rotation.z);
+    assert.deepEqual([car.rotation.x, car.rotation.y, car.rotation.z], [rotation.x, rotation.y, rotation.z]);
+    for (const bad of [undefined, null, true, "1", NaN, Infinity, 1n, Number.MAX_VALUE]) {
+      assert.throws(() => car.getOffsetFromInWorldCoords(bad, 0, 0), /finite f32/);
+      assert.throws(() => car.getOffsetFromInWorldCoords(0, bad, 0), /finite f32/);
+      assert.throws(() => car.getOffsetFromInWorldCoords(0, 0, bad), /finite f32/);
+    }
+    closed = true;
+    assert.throws(
+      () => car.getOffsetFromInWorldCoords(0, 0, 0),
+      (e) => e === error,
+    );
+  }
 });
 
 test("vehicle metadata and typed data handlers directly wrap the native entity without merging ID pools", () => {
