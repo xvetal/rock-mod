@@ -1,6 +1,11 @@
 # Rock-Mod
 
-Current RockSandbox compatibility: **ABI 31 / protocol 31 / CEF IPC 2**.
+Current RockSandbox compatibility: **ABI 41 / protocol 42 / CEF IPC 2**.
+
+Server player `model` delegates the published native model hash and
+`setModel(name)` delegates authoritative assignment without caching or
+rewriting arguments. Freemode aliases retain exact identity with the accepted
+temporary Streetwear geometry. See [native model ownership](../rock-sandbox/docs/server-player-model.md).
 Protocol 31 adds native weapon ownership and finite reserves. Rebuild server,
 addon and clients together. Later sections retain the
 compatibility values of their original validation runs.
