@@ -35,7 +35,7 @@ assert.equal("vimp" in globalThis, false);
 const mod = await RockMod.create({ multiplayer: "RockSandbox" });
 
 test("native lifecycle subscriptions wrap stable players and dispose exact handlers without removing other observers", () => {
-  const native = { id: 70, isExists: false, isConnected: true, name: "Вне зоны" };
+  const native = { id: 70, entityType: "player", isExists: false, isConnected: true, name: "Вне зоны" };
   const observers = new Set(),
     listeners = new Map(),
     seen = [];
@@ -43,6 +43,12 @@ test("native lifecycle subscriptions wrap stable players and dispose exact handl
     players: {
       connected: () => [native],
       getConnectedById: (id) => (id === 70 ? native : null),
+      observeLifecycle(callback) {
+        observers.add(callback);
+        return () => observers.delete(callback);
+      },
+    },
+    entities: {
       observeLifecycle(callback) {
         observers.add(callback);
         return () => observers.delete(callback);
@@ -70,7 +76,7 @@ test("native lifecycle subscriptions wrap stable players and dispose exact handl
   mod.net.events.onInternal({ "rm::playerConnected": first, "rm::entityStreamIn": second });
   mod.net.events.onInternal({ "rm::playerConnected": first });
   const deliver = (type) => {
-    for (const observer of [...observers]) observer({ type, player: native });
+    for (const observer of [...observers]) observer({ type, player: native, entity: native });
   };
   deliver("connected");
   assert.deepEqual(seen, [
@@ -103,6 +109,92 @@ test("native lifecycle subscriptions wrap stable players and dispose exact handl
     (e) => e === original,
   );
   assert.equal(listeners.get("rm::playerConnected"), undefined);
+});
+
+test("native remote objects delegate current transforms, metadata, physical handles and original failures", () => {
+  let exists = true,
+    value = { nested: [1] },
+    failure;
+  const calls = [];
+  const native = {
+    id: 1,
+    remoteId: 1,
+    entityType: "object",
+    get isExists() {
+      return exists;
+    },
+    handle: 1234,
+    modelHash: 7654,
+    dimension: 3,
+    alpha: 128,
+    get position() {
+      if (failure) throw failure;
+      return { x: 1, y: 2, z: 3 };
+    },
+    rotation: { x: 4, y: 5, z: 6 },
+    getNetData: (key) => (key === "payload" ? value : undefined),
+    getNetDataKeys: () => ["payload"],
+    getOffsetFromInWorldCoords(...args) {
+      calls.push(args);
+      return { x: 7, y: 8, z: 9 };
+    },
+  };
+  const observers = new Set(),
+    seen = [];
+  globalThis.rockSandbox = {
+    objects: { all: () => (exists ? [native] : []), getById: (id) => (exists && id === 1 ? native : null) },
+    entities: {
+      observeLifecycle(callback) {
+        observers.add(callback);
+        return () => observers.delete(callback);
+      },
+    },
+    on() {},
+    off() {},
+  };
+  const object = mod.objects.getByRemoteID(1);
+  assert.equal(mod.objects.getByID(1), object);
+  assert.equal([...mod.objects.iterator.all()][0], object);
+  assert.equal(object.type, "object");
+  assert.equal(object.remoteId, 1);
+  assert.equal(object.handle, 1234);
+  assert.equal(object.model, 7654);
+  assert.equal(object.alpha, 128);
+  assert.deepEqual([object.position.x, object.position.y, object.position.z], [1, -3, 2]);
+  assert.deepEqual([object.rotation.x, object.rotation.y, object.rotation.z], [4, -6, 5]);
+  assert.equal(object.heading, 5);
+  assert.equal(object.dimension, 3);
+  assert.equal(object.getVariable("payload"), value);
+  assert.equal(object.getSyncedMeta("payload"), value);
+  assert.equal(object.hasSyncedMeta("payload"), true);
+  assert.equal(object.hasSyncedMeta("missing"), false);
+  assert.deepEqual(object.getSyncedMetaKeys(), ["payload"]);
+  value = null;
+  assert.equal(object.getNetData("payload"), null);
+  const point = object.getOffsetFromInWorldCoords(1, 2, 3);
+  assert.deepEqual(calls, [[1, 3, -2]]);
+  assert.deepEqual([point.x, point.y, point.z], [7, -9, 8]);
+  mod.net.events.onInternal({
+    "rm::entityStreamIn": (p) => seen.push(["in", p]),
+    "rm::entityStreamOut": (p) => seen.push(["out", p]),
+  });
+  for (const observer of [...observers]) observer({ type: "streamIn", entity: native });
+  exists = false;
+  for (const observer of [...observers]) observer({ type: "streamOut", entity: native });
+  assert.deepEqual(seen, [
+    ["in", object],
+    ["out", object],
+  ]);
+  assert.equal(mod.objects.findByID(1), null);
+  assert.equal(object.isExists, false);
+  failure = Error("original object position failure");
+  assert.throws(
+    () => object.position,
+    (e) => e === failure,
+  );
+  mod.net.events.offInternal("rm::entityStreamIn");
+  mod.net.events.offInternal("rm::entityStreamOut");
+  assert.equal(observers.size, 0);
 });
 
 test("radar bounds delegate the native snapshot, null and original errors without safezone calculations", () => {

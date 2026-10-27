@@ -1,9 +1,15 @@
 import { type IEventsManager } from "../../common/events/IEventsManager";
 import { type IServerToClientEvents, type IClientToServerEvents } from "../../../../shared/net/common/events/types";
 import { type IClientInternalEvents } from "../../common/events/types";
-import { type RockSandboxClient, type RockSandboxPlayerLifecycle } from "@rock-sandbox/types/client";
+import {
+  type RockSandboxClient,
+  type RockSandboxPlayerLifecycle,
+  type RockSandboxEntityLifecycle,
+} from "@rock-sandbox/types/client";
 import { wrapVehicle } from "../../../entities/rock-sandbox/vehicle/RockSandboxVehicle";
 import { wrapPlayer } from "../../../entities/rock-sandbox/player/RockSandboxPlayer";
+import { wrapPed } from "../../../entities/rock-sandbox/ped/RockSandboxPed";
+import { wrapObject } from "../../../entities/rock-sandbox/object/RockSandboxObject";
 import { getRockSandbox } from "../../../internal/getRockSandbox";
 
 const bridgedHosts = new WeakSet<RockSandboxClient>();
@@ -11,9 +17,23 @@ const lifecycleNames = new Map<string, RockSandboxPlayerLifecycle["type"]>([
   ["rm::playerConnected", "connected"],
   ["rm::playerDisconnected", "disconnected"],
   ["rm::playerReady", "ready"],
+]);
+const streamNames = new Map<string, RockSandboxEntityLifecycle["type"]>([
   ["rm::entityStreamIn", "streamIn"],
   ["rm::entityStreamOut", "streamOut"],
 ]);
+function wrapEntity(entity: RockSandboxEntityLifecycle["entity"]) {
+  switch (entity.entityType) {
+    case "player":
+      return wrapPlayer(entity);
+    case "vehicle":
+      return wrapVehicle(entity);
+    case "ped":
+      return wrapPed(entity);
+    case "object":
+      return wrapObject(entity);
+  }
+}
 type Handler = (...args: never[]) => void;
 type Subscription = { handler: Handler; dispose: () => void };
 const lifecycleSubscriptions = new WeakMap<RockSandboxClient, Map<string, Subscription[]>>();
@@ -21,13 +41,18 @@ const lifecycleSubscriptions = new WeakMap<RockSandboxClient, Map<string, Subscr
 export class RockSandboxEventsManager implements IEventsManager {
   private _subscribe(api: RockSandboxClient, event: string, handler: Handler): void {
     const type = lifecycleNames.get(event);
-    if (!type) {
+    const stream = streamNames.get(event);
+    if (!type && !stream) {
       api.on<string, never[]>(event, handler);
       return;
     }
-    const dispose = api.players.observeLifecycle((value) => {
-      if (value.type === type) Reflect.apply(handler, undefined, [wrapPlayer(value.player)]);
-    });
+    const dispose = stream
+      ? api.entities.observeLifecycle((value) => {
+          if (value.type === stream) Reflect.apply(handler, undefined, [wrapEntity(value.entity)]);
+        })
+      : api.players.observeLifecycle((value) => {
+          if (value.type === type) Reflect.apply(handler, undefined, [wrapPlayer(value.player)]);
+        });
     api.on<string, never[]>(event, handler);
     let subscriptions = lifecycleSubscriptions.get(api);
     if (!subscriptions) lifecycleSubscriptions.set(api, (subscriptions = new Map()));
