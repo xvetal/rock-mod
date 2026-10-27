@@ -2044,3 +2044,38 @@ test("headlight mode delegates writes and retains the published native state and
     (e) => e === error,
   );
 });
+
+test("indicator setters directly delegate and getters wait for native publication and errors", () => {
+  let mode = "off",
+    pulse = false,
+    fail = false;
+  const calls = [],
+    error = Error("native indicators");
+  const native = {
+    id: 73,
+    get indicatorMode() {
+      if (fail) throw error;
+      return mode;
+    },
+    get indicatorPhaseOn() {
+      if (fail) throw error;
+      return pulse;
+    },
+    setIndicatorMode(value) {
+      if (fail) throw error;
+      calls.push(value);
+    },
+  };
+  Reflect.set(globalThis, "rockSandbox", { vehicles: { getById: () => native } });
+  const car = mod.vehicles.getByID(73);
+  car.setIndicatorMode("hazard");
+  assert.equal(car.indicatorMode, "off");
+  assert.deepEqual(calls, ["hazard"]);
+  mode = "hazard";
+  pulse = true;
+  assert.equal(car.indicatorMode, "hazard");
+  assert.equal(car.indicatorPhaseOn, true);
+  fail = true;
+  for (const call of [() => car.indicatorMode, () => car.indicatorPhaseOn, () => car.setIndicatorMode("off")])
+    assert.throws(call, (e) => e === error);
+});

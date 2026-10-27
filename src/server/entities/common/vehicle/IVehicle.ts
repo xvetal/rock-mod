@@ -1,7 +1,7 @@
 import { type IEntity, type IEntityOptions } from "../entity/IEntity";
 import { type IRGBA } from "../../../../shared/common/utils";
 import { type IPlayer } from "../player";
-import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
+import { type VehicleIndicatorMode, type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 
 export enum VehicleSeat {
   NONE = 255,
@@ -28,6 +28,9 @@ export interface IVehicleOptions extends IEntityOptions {}
 
 export interface IVehicle extends IEntity {
   /** Native headlight modes; unsupported on the legacy backends. */
+  get indicatorMode(): VehicleIndicatorMode;
+  get indicatorPhaseOn(): boolean;
+  setIndicatorMode(mode: VehicleIndicatorMode): void;
   get headlightMode(): VehicleHeadlightMode;
   setHeadlightMode(mode: VehicleHeadlightMode): void;
   get bodyHealth(): number;

@@ -1950,3 +1950,37 @@ test("client headlights expose published mode and resolved lamps without a clien
     (e) => e === error,
   );
 });
+
+test("client indicator mode and phase delegate without a client setter or timer", () => {
+  let mode = "hazard",
+    phase = true,
+    fail = false;
+  const error = Error("native indicators"),
+    native = {
+      id: 919,
+      get indicatorMode() {
+        if (fail) throw error;
+        return mode;
+      },
+      get indicatorPhaseOn() {
+        if (fail) throw error;
+        return phase;
+      },
+    };
+  globalThis.rockSandbox = { vehicles: { getById: () => native } };
+  const car = mod.vehicles.getByID(919);
+  assert.equal(car.indicatorMode, "hazard");
+  assert.equal(car.indicatorPhaseOn, true);
+  phase = false;
+  assert.equal(car.indicatorPhaseOn, false);
+  assert.equal(car.setIndicatorMode, undefined);
+  fail = true;
+  assert.throws(
+    () => car.indicatorMode,
+    (e) => e === error,
+  );
+  assert.throws(
+    () => car.indicatorPhaseOn,
+    (e) => e === error,
+  );
+});

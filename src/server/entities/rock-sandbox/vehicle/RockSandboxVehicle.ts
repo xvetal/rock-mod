@@ -1,4 +1,4 @@
-import { type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
+import { type VehicleIndicatorMode, type VehicleHeadlightMode } from "../../../../shared/common/vehicle-lights";
 import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IRGBA } from "../../../../shared/common/utils";
 import { type IPlayer } from "../../common/player";
@@ -10,6 +10,16 @@ import { BaseObjectType } from "../../../../shared";
 import { Vector3D, type IVector3D } from "../../../../shared/common/utils/math/Vectors";
 import { wrapPlayer } from "../player/RockSandboxPlayer";
 export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
+  public get indicatorMode(): VehicleIndicatorMode {
+    return this._nativeVehicle.indicatorMode;
+  }
+  public get indicatorPhaseOn(): boolean {
+    return this._nativeVehicle.indicatorPhaseOn;
+  }
+  public setIndicatorMode(mode: VehicleIndicatorMode): void {
+    this._nativeVehicle.setIndicatorMode(mode);
+  }
+
   public get headlightMode(): VehicleHeadlightMode {
     return this._nativeVehicle.headlightMode;
   }
