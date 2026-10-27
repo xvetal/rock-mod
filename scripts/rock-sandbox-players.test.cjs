@@ -1804,7 +1804,7 @@ test("vehicle collection and mutations directly delegate native state with ident
   assert.deepEqual(options, {
     model: "riverside",
     position: { x: 1, y: 3, z: -2 },
-    rotation: { x: 4, y: 6, z: -5 },
+    rotation: { x: -4, y: 186, z: 5 },
     dimension: 12,
     engineOn: true,
     locked: true,
@@ -1825,7 +1825,7 @@ test("vehicle collection and mutations directly delegate native state with ident
   v.destroy();
   assert.deepEqual(calls, [
     ["position", { x: 7, y: 9, z: -8 }],
-    ["rotation", { x: 10, y: 12, z: -11 }],
+    ["rotation", { x: -10, y: 192, z: 11 }],
     ["dimension", 0],
     ["engine", false],
     ["locked", false],

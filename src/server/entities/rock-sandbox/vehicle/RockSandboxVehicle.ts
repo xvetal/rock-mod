@@ -4,6 +4,7 @@ import { type IRGBA } from "../../../../shared/common/utils";
 import { type IPlayer } from "../../common/player";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { gameVehicleRotation, nativeVehicleRotation } from "../../../../shared/internal/rockSandboxVehicleAxes";
 
 import { type RockSandboxVehicle as NativeVehicle } from "@rock-sandbox/types/server";
 import { BaseObjectType } from "../../../../shared";
@@ -61,8 +62,8 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public override get rotation(): IVector3D {
-    const { x, y, z } = this._nativeVehicle.rotation;
-    return new Vector3D(x, -z, y);
+    const { x, y, z } = gameVehicleRotation(this._nativeVehicle.rotation);
+    return new Vector3D(x, y, z);
   }
 
   public override get dimension(): number {
@@ -74,7 +75,7 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   }
 
   public override setRotation(value: IVector3D): void {
-    this._nativeVehicle.setRotation({ x: value.x, y: value.z, z: -value.y });
+    this._nativeVehicle.setRotation(nativeVehicleRotation(value));
   }
 
   public override setDimension(value: number): void {
