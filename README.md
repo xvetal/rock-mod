@@ -1170,3 +1170,16 @@ releases its exact native observer. A model replacement or visibility reset emit
 out/in without a fake disconnection. Native readiness does not assert UI readiness.
 Rebuild native clients and SDK/RP bundles together; server protocol/addon/CEF IPC
 are unchanged. [Contract and checks](../rock-sandbox/docs/client-player-lifecycle.md).
+
+## RockSandbox entity lifecycle and client objects
+
+`rm::entityStreamIn/Out` also delegates actual vehicle, authored ped and server
+object stream leases. Native IDs are namespaced by entity type; local preview peds
+are excluded. Late subscribers get a current baseline, replacement bodies/models
+release the old lease first, and ordinary state updates do not restream.
+The client object iterator/lookups expose accepted native server objects with
+readonly model, transform, alpha, metadata, physical handles and offset queries.
+SDK axis conversion and native error identity are preserved. Local object
+creation and client mutation/attachments remain explicitly unsupported.
+No wire/ABI/IPC change; rebuild native clients, types, SDK and RP together.
+[Contract and checks](../rock-sandbox/docs/client-entity-lifecycle.md).
