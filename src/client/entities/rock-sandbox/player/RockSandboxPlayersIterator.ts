@@ -4,6 +4,6 @@ import { type RockSandboxPlayer, wrapPlayer } from "./RockSandboxPlayer";
 
 export class RockSandboxPlayersIterator extends RockSandboxWorldObjectsIterator<RockSandboxPlayer> {
   public override all(): IterableIterator<RockSandboxPlayer> {
-    return getRockSandbox().players.all().map(wrapPlayer).values();
+    return getRockSandbox().players.connected().map(wrapPlayer).values();
   }
 }

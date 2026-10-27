@@ -17,7 +17,7 @@ export class RockSandboxPlayersManager
   }
 
   public override findByID(id: number): RockSandboxPlayer | null {
-    const player = getRockSandbox().players.getById(id);
+    const player = getRockSandbox().players.getConnectedById(id);
     return player === null ? null : wrapPlayer(player);
   }
 

@@ -34,6 +34,77 @@ assert.equal("mp" in globalThis, false);
 assert.equal("vimp" in globalThis, false);
 const mod = await RockMod.create({ multiplayer: "RockSandbox" });
 
+test("native lifecycle subscriptions wrap stable players and dispose exact handlers without removing other observers", () => {
+  const native = { id: 70, isExists: false, isConnected: true, name: "Вне зоны" };
+  const observers = new Set(),
+    listeners = new Map(),
+    seen = [];
+  globalThis.rockSandbox = {
+    players: {
+      connected: () => [native],
+      getConnectedById: (id) => (id === 70 ? native : null),
+      observeLifecycle(callback) {
+        observers.add(callback);
+        return () => observers.delete(callback);
+      },
+    },
+    on(name, callback) {
+      listeners.set(name, [...(listeners.get(name) ?? []), callback]);
+    },
+    off(name, callback) {
+      if (!callback) listeners.delete(name);
+      else {
+        const list = listeners.get(name) ?? [];
+        const i = list.lastIndexOf(callback);
+        if (i >= 0) list.splice(i, 1);
+      }
+    },
+    onServer() {},
+    offServer() {},
+  };
+  const player = mod.players.getByID(70);
+  assert.equal(player.isExists, false);
+  assert.equal([...mod.players.iterator.all()][0], player);
+  const first = (p) => seen.push(["first", p]),
+    second = (p) => seen.push(["second", p]);
+  mod.net.events.onInternal({ "rm::playerConnected": first, "rm::entityStreamIn": second });
+  mod.net.events.onInternal({ "rm::playerConnected": first });
+  const deliver = (type) => {
+    for (const observer of [...observers]) observer({ type, player: native });
+  };
+  deliver("connected");
+  assert.deepEqual(seen, [
+    ["first", player],
+    ["first", player],
+  ]);
+  mod.net.events.offInternal("rm::playerConnected", first);
+  assert.equal(observers.size, 2);
+  seen.length = 0;
+  deliver("connected");
+  deliver("streamIn");
+  assert.deepEqual(seen, [
+    ["first", player],
+    ["second", player],
+  ]);
+  mod.net.events.offInternal("rm::playerConnected");
+  assert.equal(observers.size, 1);
+  mod.net.events.offInternal("rm::entityStreamIn", second);
+  assert.equal(observers.size, 0);
+  mod.net.events.register("rm::playerReady", first);
+  assert.equal(observers.size, 1);
+  mod.net.events.unregister("rm::playerReady");
+  assert.equal(observers.size, 0);
+  const original = Error("native lifecycle source failed");
+  globalThis.rockSandbox.players.observeLifecycle = () => {
+    throw original;
+  };
+  assert.throws(
+    () => mod.net.events.onInternal({ "rm::playerConnected": first }),
+    (e) => e === original,
+  );
+  assert.equal(listeners.get("rm::playerConnected"), undefined);
+});
+
 test("radar bounds delegate the native snapshot, null and original errors without safezone calculations", () => {
   let bounds = Object.freeze({ x: 32, y: 648, width: 416, height: 416 });
   globalThis.rockSandbox = { hud: { getRadarScreenBounds: () => bounds } };
@@ -280,7 +351,7 @@ test("RockSandbox local lookup reads native membership directly without a pool s
     all() {
       throw Error("unexpected full pool scan");
     },
-    getById: (id) => (local?.id === id ? local : null),
+    getConnectedById: (id) => (local?.id === id ? local : null),
   };
   globalThis.rockSandbox = { players };
   assert.equal(mod.players.findLocalPlayer(), null);
@@ -842,7 +913,7 @@ test("streamed player wrappers and data callbacks share identity and delegate me
     },
   };
   globalThis.rockSandbox = {
-    players: { local: native, all: () => [native], getById: (id) => (id === native.id ? native : null) },
+    players: { local: native, connected: () => [native], getConnectedById: (id) => (id === native.id ? native : null) },
     dataHandler: { addDataHandler: (...args) => registrations.push(args) },
   };
   const player = mod.players.getLocalPlayer();
@@ -883,7 +954,7 @@ test("streamed player wrappers and data callbacks share identity and delegate me
     () => registrations.at(-1)[1](native, 1, 0),
     (e) => e === failure,
   );
-  globalThis.rockSandbox.players.getById = () => {
+  globalThis.rockSandbox.players.getConnectedById = () => {
     throw failure;
   };
   assert.throws(
@@ -1061,7 +1132,7 @@ test("player collision exclusions delegate original handles, lifetime and failur
       if (fail) throw failure;
     },
   };
-  globalThis.rockSandbox = { players: { getById: () => native } };
+  globalThis.rockSandbox = { players: { getConnectedById: () => native } };
   const player = mod.players.findByRemoteId(native.id);
   for (const frame of [true, true, false]) assert.equal(player.setNoCollision(987, frame), undefined);
   const invalid = {};
@@ -1097,7 +1168,7 @@ test("client player presentation delegates values, receiver and errors without S
       calls.push([method, ...args]);
       if (failure) throw failure;
     };
-  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  globalThis.rockSandbox = { players: { getConnectedById: (id) => (id === native.id ? native : null) } };
   const player = mod.players.findByRemoteId(native.id);
   assert.equal(player.alpha, 255);
   assert.equal(player.setAlpha(128), undefined);
@@ -1147,7 +1218,7 @@ test("client player world offsets delegate both axis conversions without calcula
       return result;
     },
   };
-  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  globalThis.rockSandbox = { players: { getConnectedById: (id) => (id === native.id ? native : null) } };
   const player = mod.players.findByRemoteId(715);
   const first = player.getOffsetFromInWorldCoords(1, 2, 3);
   assert.deepEqual(calls, [[1, 3, -2]]);
@@ -1178,7 +1249,7 @@ test("client player model delegates its unsigned native hash without lookup or c
       throw Error("SDK must read modelHash directly");
     },
   };
-  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  globalThis.rockSandbox = { players: { getConnectedById: (id) => (id === native.id ? native : null) } };
   const player = mod.players.findByRemoteId(714);
   assert.equal(player.model, 4294967295);
   modelHash = 123;
@@ -1202,7 +1273,7 @@ test("client name directly follows native rename and preserves original errors",
       return name;
     },
   };
-  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  globalThis.rockSandbox = { players: { getConnectedById: (id) => (id === native.id ? native : null) } };
   const player = mod.players.findByRemoteId(713);
   assert.equal(player.name, "Игрок Alex");
   name = "Новое имя Σ🙂";
@@ -1231,7 +1302,7 @@ test("client health and isDead delegate separately without deriving state or cac
       return dead;
     },
   };
-  globalThis.rockSandbox = { players: { getById: (id) => (id === native.id ? native : null) } };
+  globalThis.rockSandbox = { players: { getConnectedById: (id) => (id === native.id ? native : null) } };
   const player = mod.players.findByRemoteId(712);
   assert.equal(player.health, 37);
   assert.equal(player.isDead, true);
@@ -1262,7 +1333,7 @@ test("player dimension and orientation read native snapshots without SDK state",
   const native = { id: 4294967295, isExists: true };
   for (const key of ["dimension", "heading", "position", "rotation", "forwardVector"])
     Object.defineProperty(native, key, { configurable: true, get: () => state[key] });
-  globalThis.rockSandbox = { players: { getById: () => native, all: () => [native], local: native } };
+  globalThis.rockSandbox = { players: { getConnectedById: () => native, connected: () => [native], local: native } };
   const player = mod.players.getByID(native.id);
   assert.equal(mod.players.getByID(native.id), player);
   assert.equal(mod.players.getLocalPlayer(), player);
@@ -1666,7 +1737,7 @@ test("appearance methods delegate unchanged to native ped/player handles, includ
     ["clearProp", [1]],
   ];
   const native = { id: 91 };
-  globalThis.rockSandbox = { peds: { getById: () => native }, players: { getById: () => native } };
+  globalThis.rockSandbox = { peds: { getById: () => native }, players: { getConnectedById: () => native } };
   try {
     for (const target of [mod.peds.getByID(91), mod.players.getByID(91)]) {
       for (const [name, base] of methods) {
@@ -1759,7 +1830,7 @@ test("streamed vehicles and player occupancy share native identities and tokens"
         return "riverside";
       },
     },
-    players: { local: nativePlayer, getById: () => nativePlayer, all: () => [nativePlayer] },
+    players: { local: nativePlayer, getConnectedById: () => nativePlayer, connected: () => [nativePlayer] },
   };
   const v = mod.vehicles.getByID(1);
   assert.equal(v, mod.vehicles.getByRemoteID(1));
@@ -1864,7 +1935,7 @@ test("vehicle metadata and typed data handlers directly wrap the native entity w
   const nativePlayer = { id: 1, entityType: "player" };
   globalThis.rockSandbox = {
     vehicles: { getById: () => native, all: () => [native] },
-    players: { getById: () => nativePlayer, all: () => [nativePlayer] },
+    players: { getConnectedById: () => nativePlayer, connected: () => [nativePlayer] },
     dataHandler: { addDataHandler: (...args) => registrations.push(args) },
   };
   const vehicle = mod.vehicles.getByID(1),
