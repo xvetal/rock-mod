@@ -4,6 +4,8 @@ import { type IVector3D } from "@shared/common/utils";
 export interface IPedOptions extends IEntityOptions {}
 
 export interface IPed extends IEntity {
+  /** False when model/transform changes arrive through native server replication. */
+  readonly isClientMutable?: boolean;
   setDecoration(collection: string, overlay: string): void;
   removeDecoration(collection: string, overlay: string): void;
   clearDecorations(): void;
