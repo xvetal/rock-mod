@@ -19,6 +19,10 @@ export class RockSandboxPed extends RockSandboxEntity implements IPed {
     return this._nativePed.remoteId;
   }
 
+  public get isClientMutable(): boolean {
+    return this._nativePed.isLocal;
+  }
+
   public override get type(): BaseObjectType {
     return BaseObjectType.Ped;
   }
@@ -29,6 +33,26 @@ export class RockSandboxPed extends RockSandboxEntity implements IPed {
 
   public override get model(): number {
     return this._nativePed.modelHash;
+  }
+
+  public getNetData(name: string): unknown {
+    return this._nativePed.getNetData(name);
+  }
+
+  public override getVariable(name: string): unknown {
+    return this._nativePed.getNetData(name);
+  }
+
+  public override getSyncedMeta(name: string): unknown {
+    return this._nativePed.getNetData(name);
+  }
+
+  public override hasSyncedMeta(name: string): boolean {
+    return this._nativePed.getNetData(name) !== undefined;
+  }
+
+  public override getSyncedMetaKeys(): readonly string[] {
+    return this._nativePed.getNetDataKeys();
   }
 
   public override get dimension(): number {
