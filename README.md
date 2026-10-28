@@ -1,6 +1,11 @@
 # Rock-Mod
 
-Current RockSandbox compatibility: **ABI 41 / protocol 42 / CEF IPC 2**.
+Current source RockSandbox compatibility: **ABI 42 / protocol 44 / CEF IPC 2**.
+
+Server `peds` now delegate physical NPC creation, native readers/commands,
+metadata and destruction. Iterators query native membership and convert RP
+coordinates. See [the server NPC contract](../rock-sandbox/docs/server-peds.md)
+for supported models, queued state and remaining client/render integration.
 
 Server player `model` delegates the published native model hash and
 `setModel(name)` delegates authoritative assignment without caching or
