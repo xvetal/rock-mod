@@ -465,6 +465,11 @@ export class VIMPPlayer implements IPlayer {
     this._getNativePlayer()?.setNoCollision(otherHandle, thisFrameOnly);
   }
 
+  public tryGetBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D | null {
+    const point = this._getNativePlayer()?.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
+    return point ? new Vector3D(point.x, point.y, point.z) : null;
+  }
+
   private _getNativePlayer(): VimpPlayer | null {
     try {
       const player = vimp.players.getById(this._id);

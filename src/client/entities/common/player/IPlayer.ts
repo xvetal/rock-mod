@@ -73,6 +73,8 @@ export interface IPlayer extends IEntity {
   resetMovementClipset(blendDuration: number): void;
 
   getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D;
+  /** A real posed joint, or null while presentation is loading. Native errors propagate. */
+  tryGetBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D | null;
 
   setNoCollision(otherHandle: number, thisFrameOnly: boolean): void;
 }
