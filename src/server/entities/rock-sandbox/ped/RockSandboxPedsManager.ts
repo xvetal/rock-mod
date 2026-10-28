@@ -1,10 +1,39 @@
 import { type IPedsManager, type IPedCreateOptions } from "../../common/ped/IPedsManager";
 import { type IPed } from "../../common/ped/IPed";
 import { RockSandboxEntitiesManager } from "../entity/RockSandboxEntitiesManager";
-import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
+import { getRockSandbox } from "../../../internal/getRockSandbox";
+import { RockSandboxPedsIterator } from "./RockSandboxPedsIterator";
+import { wrapPed } from "./RockSandboxPed";
 
 export class RockSandboxPedsManager extends RockSandboxEntitiesManager<IPed> implements IPedsManager {
-  public create(_options: IPedCreateOptions): IPed {
-    return rockSandboxNotImplemented("server", "RockSandboxPedsManager.create");
+  private readonly _pedsIterator = new RockSandboxPedsIterator();
+
+  public override get iterator(): RockSandboxPedsIterator {
+    return this._pedsIterator;
+  }
+
+  public override findByID(id: number): IPed | null {
+    const ped = getRockSandbox().peds.getById(id);
+    return ped === null ? null : wrapPed(ped);
+  }
+
+  public override getByID(id: number): IPed {
+    const ped = this.findByID(id);
+    if (ped === null) throw new Error(`[RockSandbox:server] RockSandboxPedsManager.getByID: NPC ${id} not found`);
+    return ped;
+  }
+
+  public create(options: IPedCreateOptions): IPed {
+    return wrapPed(
+      getRockSandbox().peds.create({
+        model: options.model,
+        position: { x: options.position.x, y: options.position.z, z: -options.position.y },
+        rotation: { x: options.rotation.x, y: options.rotation.z, z: -options.rotation.y },
+        dimension: options.dimension,
+        frozen: options.frozen,
+        invincible: options.invincible ?? false,
+        placeOnGround: options.placeOnGround ?? false,
+      }),
+    );
   }
 }
