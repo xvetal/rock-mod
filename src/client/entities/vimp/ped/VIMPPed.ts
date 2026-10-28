@@ -292,6 +292,10 @@ export class VIMPPed implements IPed {
     return new Vector3D(x, y, z);
   }
 
+  public tryGetBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D | null {
+    return this.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
+  }
+
   public clearTasks(): void {
     this._vimpPed.clearTasks();
   }

@@ -22,7 +22,9 @@ const streamNames = new Map<string, RockSandboxEntityLifecycle["type"]>([
   ["rm::entityStreamIn", "streamIn"],
   ["rm::entityStreamOut", "streamOut"],
 ]);
-function wrapEntity(entity: RockSandboxEntityLifecycle["entity"]) {
+function wrapEntity(
+  entity: RockSandboxEntityLifecycle["entity"],
+): ReturnType<typeof wrapPlayer | typeof wrapVehicle | typeof wrapPed | typeof wrapObject> {
   switch (entity.entityType) {
     case "player":
       return wrapPlayer(entity);

@@ -168,6 +168,11 @@ export class RockSandboxPed extends RockSandboxEntity implements IPed {
     return new Vector3D(x, -z, y);
   }
 
+  public tryGetBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D | null {
+    const point = this._nativePed.tryGetBoneCoords(boneId, offsetX, offsetZ, -offsetY);
+    return point ? new Vector3D(point.x, -point.z, point.y) : null;
+  }
+
   public clearTasks(): void {
     return rockSandboxNotImplemented("client", "RockSandboxPed.clearTasks");
   }
