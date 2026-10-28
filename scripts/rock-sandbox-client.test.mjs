@@ -34,6 +34,44 @@ assert.equal("mp" in globalThis, false);
 assert.equal("vimp" in globalThis, false);
 const mod = await RockMod.create({ multiplayer: "RockSandbox" });
 
+test("NPC metadata and client mutability delegate native ownership and original errors", () => {
+  const value = Object.freeze({ nested: Object.freeze([1]) }),
+    keys = Object.freeze(["payload"]);
+  const error = new Error("native NPC metadata error");
+  let failed = false;
+  const native = {
+    id: 77,
+    isLocal: false,
+    getNetData(key) {
+      if (failed) throw error;
+      return key === "payload" ? value : undefined;
+    },
+    getNetDataKeys() {
+      if (failed) throw error;
+      return keys;
+    },
+  };
+  globalThis.rockSandbox = { peds: { getById: () => native } };
+  const ped = mod.peds.getByID(77);
+  assert.equal(ped.isClientMutable, false);
+  native.isLocal = true;
+  assert.equal(ped.isClientMutable, true);
+  assert.equal(ped.getNetData("payload"), value);
+  assert.equal(ped.getVariable("payload"), value);
+  assert.equal(ped.getSyncedMeta("payload"), value);
+  assert.equal(ped.getSyncedMetaKeys(), keys);
+  assert.equal(ped.hasSyncedMeta("payload"), true);
+  assert.equal(ped.hasSyncedMeta("missing"), false);
+  failed = true;
+  for (const action of [
+    () => ped.getNetData("payload"),
+    () => ped.getVariable("payload"),
+    () => ped.getSyncedMetaKeys(),
+    () => ped.hasSyncedMeta("payload"),
+  ])
+    assert.throws(action, (e) => e === error);
+});
+
 test("native lifecycle subscriptions wrap stable players and dispose exact handlers without removing other observers", () => {
   const native = { id: 70, entityType: "player", isExists: false, isConnected: true, name: "Вне зоны" };
   const observers = new Set(),
