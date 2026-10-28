@@ -1157,6 +1157,34 @@ test("bone coordinates delegate native joint queries and transform both offset a
     );
 });
 
+test("optional bone queries wait for a real pose and preserve native validation failures", () => {
+  let point = null;
+  const calls = [],
+    original = Error("unsupported bone ID");
+  const native = {
+    id: 89,
+    tryGetBoneCoords(...args) {
+      calls.push(args);
+      if (args[0] === 999) throw original;
+      return point;
+    },
+  };
+  globalThis.rockSandbox = { players: { local: native }, peds: { getById: () => native } };
+  const actors = [mod.players.getLocalPlayer(), mod.peds.getByID(89)];
+  Reflect.deleteProperty(globalThis, "rockSandbox");
+  for (const actor of actors) assert.equal(actor.tryGetBoneCoords(12844, 1, 2, 3), null);
+  point = { x: 10, y: 20, z: 30 };
+  for (const actor of actors) {
+    const value = actor.tryGetBoneCoords(12844, 1, 2, 3);
+    assert.deepEqual([value.x, value.y, value.z], [10, -30, 20]);
+    assert.throws(
+      () => actor.tryGetBoneCoords(999, 0, 0, 0),
+      (e) => e === original,
+    );
+  }
+  assert.deepEqual(calls[0], [12844, 1, 3, -2]);
+});
+
 test("HUD hiding delegates each frame request and preserves native errors", () => {
   const calls = [],
     original = Error("native HUD failure");

@@ -296,6 +296,11 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   public setNoCollision(otherHandle: number, thisFrameOnly: boolean): void {
     this._nativePlayer.setNoCollision(otherHandle, thisFrameOnly);
   }
+
+  public tryGetBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D | null {
+    const point = this._nativePlayer.tryGetBoneCoords(boneId, offsetX, offsetZ, -offsetY);
+    return point ? new Vector3D(point.x, -point.z, point.y) : null;
+  }
 }
 
 const wrappers = new WeakMap<NativePlayer, RockSandboxPlayer>();
