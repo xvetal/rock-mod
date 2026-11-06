@@ -33,22 +33,16 @@ To get started, simply install the package:
 npm install rock-mod
 ```
 
-To build this checkout locally, keep the compatible `rock-sandbox-types` checkout
-beside `rock-mod`, then install dependencies and build:
+To build this checkout locally, install dependencies and build:
 
 ```sh
-npm --prefix ../rock-sandbox-types ci
 npm ci
 npm run build
 ```
 
-The unpublished `@rock-sandbox/types` package is a dependency through
-`file:../rock-sandbox-types`. Its declarations are consumed directly; there is
-no separate types build. The SDK imports named types from `/server` without
-installing global RockSandbox declarations. Platform wrapper declarations refer
-to these types, so consumers need the package installed; compiled JavaScript
-does not load it. Existing CI and release
-automation need a follow-up change to provide the neighboring checkout.
+`@rock-sandbox/types` is installed from npm. The SDK imports its named types
+from `/server` without installing global RockSandbox declarations. The package
+is a dependency because the SDK's generated declarations refer to its types.
 
 ### Usage
 

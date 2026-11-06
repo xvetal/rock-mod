@@ -85,7 +85,7 @@
   "author": "xvetal",
   "license": "MIT",
   "dependencies": {
-    "@rock-sandbox/types": "file:../rock-sandbox-types",
+    "@rock-sandbox/types": "0.1.0",
     "@swc/helpers": "^0.5.15",
     "tslib": "^2.8.1"
   },

@@ -3,7 +3,11 @@ import { type IVehicle, type ILightState } from "../../common/vehicle/IVehicle";
 import { type IRGB } from "../../../../shared/common/utils";
 import { RockSandboxEntity } from "../entity/RockSandboxEntity";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
-import { gameVehicleRotation, nativeVehicleOffset, vehicleHeading } from "../../../../shared/internal/rockSandboxVehicleAxes";
+import {
+  gameVehicleRotation,
+  nativeVehicleOffset,
+  vehicleHeading,
+} from "../../../../shared/internal/rockSandboxVehicleAxes";
 
 import { type RockSandboxVehicle as NativeVehicle } from "@rock-sandbox/types/client";
 import { BaseObjectType } from "../../../../shared";
@@ -12,6 +16,7 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
   public get indicatorMode(): VehicleIndicatorMode {
     return this._nativeVehicle.indicatorMode;
   }
+
   public get indicatorPhaseOn(): boolean {
     return this._nativeVehicle.indicatorPhaseOn;
   }
@@ -232,7 +237,9 @@ export class RockSandboxVehicle extends RockSandboxEntity implements IVehicle {
 
   public setDoorOpen(doorIndex: number, loose: boolean, openInstantly: boolean): void {
     if (loose !== false) {
-      throw new TypeError("[RockSandbox:client] RockSandboxVehicle.setDoorOpen: loose doors are not supported; loose must be false");
+      throw new TypeError(
+        "[RockSandbox:client] RockSandboxVehicle.setDoorOpen: loose doors are not supported; loose must be false",
+      );
     }
     this._nativeVehicle.setDoorState(doorIndex, true, openInstantly);
   }

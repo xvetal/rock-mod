@@ -16,6 +16,7 @@ export class VIMPVehicle implements IVehicle {
   public get indicatorMode(): VehicleIndicatorMode {
     throw new Error("Vehicle.indicatorMode is only available on RockSandbox");
   }
+
   public get indicatorPhaseOn(): boolean {
     throw new Error("Vehicle.indicatorPhaseOn is only available on RockSandbox");
   }
