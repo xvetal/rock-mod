@@ -1,4 +1,4 @@
-import { type MockPlayer } from "entities/mock/player/MockPlayer";
+import { type MockPlayer } from "./entities/mock/player/MockPlayer";
 import { RockMod } from "./RockMod";
 import { IMockPlayerConnectOptions, type MockPlayersManager } from "./entities/mock/player/MockPlayersManager";
 

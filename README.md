@@ -327,15 +327,16 @@ rockMod.net.rpc.register("getPlayerInfo", (player) => {
 Example using Mock mode for testing:
 
 ```typescript
-import { TestRockMod } from "rock-mod/testing";
+import { RockMod } from "rock-mod";
+import { RockModTesting } from "rock-mod/testing";
 
 // Initialize test environment
-const rockMod = await TestRockMod.create({
+await RockMod.create({
   multiplayer: "Mock",
 });
 
 // Simulate player connection
-const player = rockMod.simulatePlayerConnect({
+const player = RockModTesting.simulatePlayerConnect({
   name: "TestPlayer",
   position: { x: 0, y: 0, z: 0 },
   health: 100,
@@ -345,7 +346,7 @@ const player = rockMod.simulatePlayerConnect({
 // ...
 
 // Simulate player disconnection
-rockMod.simulatePlayerDisconnect(player);
+RockModTesting.simulatePlayerDisconnect(player);
 ```
 
 ### Features
