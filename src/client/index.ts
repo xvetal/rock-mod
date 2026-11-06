@@ -1,7 +1,10 @@
 import { RockMod } from "./RockMod";
 
 export { RockMod };
-export { RockSandboxPlayerPropsManager, type IRockSandboxPlayerProp } from "./entities/rock-sandbox/player/RockSandboxPlayerPropsManager";
+export {
+  RockSandboxPlayerPropsManager,
+  type IRockSandboxPlayerProp,
+} from "./entities/rock-sandbox/player/RockSandboxPlayerPropsManager";
 export {
   IBaseObject as IRockModBaseObject,
   IBlip as IRockModBlip,
