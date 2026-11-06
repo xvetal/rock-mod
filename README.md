@@ -280,10 +280,6 @@ methods propagate unchanged. The gamemod bootstrap validates runtime
 compatibility before initialization. Creating RockMod and accessing the
 iterator never queries the host.
 
-Run `npm run test:rock-sandbox` for focused adapter checks using Node's built-in
-test runner. For the real-UDP embedded Node check, see the neighboring
-`rock-sandbox/docs/nodejs-server.md` and its `ROCK_PLAYERS_TEST_SDK` option.
-
 Unimplemented methods returning `Promise` also throw synchronously when called.
 The scaffold does not simulate game state or automatically subscribe to host
 events during construction.
@@ -528,8 +524,8 @@ RGB throw synchronously.
 Supported sprite mappings: 1 point, 40 house, 52 basket, 59 building, 71 scissors,
 72 gear, 73 shirt, 75 needle, 93 glass, 225 steeringWheel, 326 car, 350 houseSale,
 361 fuelPump, 437 flag, 446 wrench, 921 pistol. Palette indices: 0, 1, 2, 3, 4, 5,
-17, 27, 29, 51, 83. The fixture covers all 25 current gamemod presets. Other
-iterator filters and client JS remain throwing stubs. Ground forms use the native marker API below.
+17, 27, 29, 51, 83. Other iterator filters and client JS remain throwing stubs.
+Ground forms use the native marker API below.
 
 Native changes publish after the next successful server pass, including without
 a physics tick. Local blips stream by world cells; global bypasses distance but
@@ -715,7 +711,7 @@ Corrupt files and writer failures report errors without automatic reset.
 Creating RockMod without a host remains supported. Other platforms retain their
 existing storage implementations. Gamemod cache/auth integration is a later stage.
 Requires optional Linux `client-js`; ABI 24 / protocol 24 / CEF IPC 2 stay unchanged.
-See [the native contract and reproducible UDP check](../rock-sandbox/docs/client-storage.md).
+See [the native storage contract](../rock-sandbox/docs/client-storage.md).
 
 RockSandbox client `game.keys.isDown/isUp/bind/unbind` directly delegate to
 `rockSandbox.keys`. The SDK has no key state, handler registry or repeat logic.
@@ -761,16 +757,11 @@ RockSandbox keeps its direct native `players.local` lookup with WeakMap identity
 no SDK pool, scan, polling or extra state is added. Its explicit legacy pool-sync
 method remains unsupported. Native read errors propagate unchanged.
 
-`npm run test:rock-sandbox` includes CPU contracts for the actual compiled player
-managers with explicit RageMP/VIMP/native-host fixtures: lookup without manual
-sync, remote refresh, identity, late readiness and reconnect. These fixtures do
-not qualify a running RageMP/VIMP client.
-
 Client `player.isLocalPlayer` now delegates directly to the native handle. The
 runtime identifies its admitted owner; the SDK adds no ownership state or pool
 lookup. Streamed remotes return false; absent/closed handles throw the native
-error. CPU contracts verify direct reads and unchanged error identity. Native V8
-and real two-client UDP checks cover stream-out, dimension reentry and reconnect.
+error. Native V8 and real two-client UDP checks cover stream-out, dimension
+reentry and reconnect.
 The preceding real gamemod/MySQL report
 `../gamemod/rock-sandbox-server/diagnostics/connections/20261023-204227-eacc1b71/report.json`
 passes this getter and reaches `RockSandboxControlsManager.disableControlAction`
