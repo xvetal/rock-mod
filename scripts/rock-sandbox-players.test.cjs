@@ -62,11 +62,19 @@ function host() {
 }
 
 test("server model reads and assignment delegate exact names and preserve native errors", () => {
-  const calls = [], error = new Error("native model error");
+  const calls = [],
+    error = new Error("native model error");
   let fail = false;
-  const native = { id: 74,
-    get modelHash() { if (fail) throw error; return 2627665880; },
-    setModel(value) { if (fail) throw error; calls.push(value); },
+  const native = {
+    id: 74,
+    get modelHash() {
+      if (fail) throw error;
+      return 2627665880;
+    },
+    setModel(value) {
+      if (fail) throw error;
+      calls.push(value);
+    },
   };
   Reflect.set(globalThis, "rockSandbox", { players: { getById: () => native } });
   const player = mod.players.getByID(74);
@@ -75,8 +83,14 @@ test("server model reads and assignment delegate exact names and preserve native
     assert.equal(player.setModel(value), undefined);
   assert.deepEqual(calls, ["mp_m_freemode_01", "mp_f_freemode_01", "unknown", 1, undefined]);
   fail = true;
-  assert.throws(() => player.model, (e) => e === error);
-  assert.throws(() => player.setModel("streetwear"), (e) => e === error);
+  assert.throws(
+    () => player.model,
+    (e) => e === error,
+  );
+  assert.throws(
+    () => player.setModel("streetwear"),
+    (e) => e === error,
+  );
 });
 
 test("server weapon getters and commands delegate unchanged and preserve native errors", () => {
