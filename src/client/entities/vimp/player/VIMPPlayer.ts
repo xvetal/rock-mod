@@ -94,7 +94,9 @@ export class VIMPPlayer implements IPlayer {
   }
 
   public get dimension(): number {
-    return 0;
+    // VIMP exposes the server-assigned dimension on the client player; @vimp-mp/types does not declare it yet.
+    const player = this._getNativePlayer() as (VimpPlayer & { readonly dimension?: number }) | null;
+    return player?.dimension ?? 0;
   }
 
   public setPosition(value: IVector3D): void {
