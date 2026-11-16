@@ -100,7 +100,16 @@ export class VIMPColshapesManager extends VIMPWorldObjectsManager<VIMPColshape> 
     const { position, range, height, dimension, key } = options;
     const extras = key === undefined ? { dimension } : { dimension, key };
 
-    const vimpColshape = vimp.colshapes.createCylinder(position.x, position.y, position.z, range, height, extras);
+    // The facade cylinder rises from `position` by `height`; VIMP centers it on Z (|dz| <= height / 2).
+    const centerOffsetZ = height / 2;
+    const vimpColshape = vimp.colshapes.createCylinder(
+      position.x,
+      position.y,
+      position.z + centerOffsetZ,
+      range,
+      height,
+      extras,
+    );
     if (!vimpColshape) {
       throw new Error("VIMPColshapesManager.createCylinder: vimp.colshapes.createCylinder failed (server full?)");
     }
@@ -108,6 +117,7 @@ export class VIMPColshapesManager extends VIMPWorldObjectsManager<VIMPColshape> 
     const colshape = new VIMPCylinderColshape({
       vimpColshape,
       onDestroy: (c): void => this.unregisterBaseObject(c),
+      centerOffsetZ,
     });
     this.registerBaseObject(colshape);
 
