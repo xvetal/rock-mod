@@ -8,6 +8,9 @@ import { type IVehicle } from "../../common/vehicle/IVehicle";
 import { type IVector3D, Vector3D } from "@shared/common/utils";
 
 const ZERO_VECTOR: IVector3D = new Vector3D(0, 0, 0);
+const PED_HEALTH_OFFSET = 100;
+const CLIPSET_LOAD_POLL_MS = 50;
+const CLIPSET_LOAD_TIMEOUT_MS = 5000;
 
 export interface IVIMPPlayerOptions {
   /** Network id of the player (same as remoteId — VIMP exposes only one id). */
@@ -40,6 +43,9 @@ export class VIMPPlayer implements IPlayer {
 
   /** Compatibility state; VIMP selects spatialization from the active voice route. */
   private _isVoice3DEnabled = true;
+
+  /** Bumped on every clipset change so a slow load cannot override a newer set/reset. */
+  private _clipsetRequest = 0;
 
   public constructor(options: IVIMPPlayerOptions) {
     this._id = options.id;
@@ -253,15 +259,21 @@ export class VIMPPlayer implements IPlayer {
   }
 
   public get health(): number {
-    return 100;
+    const handle = this._getHandle();
+    if (!handle) return 100;
+    // GTA ped health is offset by 100 (200 = full); the facade uses the same 0-100 scale as RageMP and the server.
+    return Math.max(0, vimp.natives.entity.getEntityHealth(handle) - PED_HEALTH_OFFSET);
   }
 
   public get armour(): number {
-    return 0;
+    const handle = this._getHandle();
+    return handle ? vimp.natives.ped.getPedArmour(handle) : 0;
   }
 
   public get isDead(): boolean {
-    return false;
+    const handle = this._getHandle();
+    if (!handle) return false;
+    return vimp.natives.entity.isEntityDead(handle, false) || this.health <= 0;
   }
 
   public get vehicle(): IVehicle | null {
@@ -296,19 +308,23 @@ export class VIMPPlayer implements IPlayer {
   }
 
   public get isReloading(): boolean {
-    return false;
+    const handle = this._getHandle();
+    return handle ? vimp.natives.ped.isPedReloading(handle) : false;
   }
 
   public get weapon(): number {
-    return 0;
+    const handle = this._getHandle();
+    return handle ? vimp.natives.weapon.getSelectedPedWeapon(handle) : 0;
   }
 
-  public getAmmoInClip(_weapon: number): number {
-    return 0;
+  public getAmmoInClip(weapon: number): number {
+    const handle = this._getHandle();
+    return handle ? vimp.natives.weapon.getAmmoInClip(handle, weapon).ammo : 0;
   }
 
-  public getWeaponAmmo(_weapon: number): number {
-    return 0;
+  public getWeaponAmmo(weapon: number): number {
+    const handle = this._getHandle();
+    return handle ? vimp.natives.weapon.getAmmoInPedWeapon(handle, weapon) : 0;
   }
 
   public getBoneIndex(boneId: number): number {
@@ -448,12 +464,34 @@ export class VIMPPlayer implements IPlayer {
     this._getNativePlayer()?.stopAnim(dictionary, name, blendOutSpeed);
   }
 
-  public setMovementClipset(_clipset: string, _speed: number): void {
-    this._warnOnce("setMovementClipset");
+  public setMovementClipset(clipset: string, speed: number): void {
+    // Callers do not preload the clipset, so request it and apply once streamed in; a newer call supersedes this one.
+    const request = ++this._clipsetRequest;
+    vimp.natives.streaming.requestClipSet(clipset);
+    const startedAt = Date.now();
+
+    const apply = (): void => {
+      if (request !== this._clipsetRequest) return;
+      const handle = this._getHandle();
+      if (!handle) return;
+
+      if (vimp.natives.streaming.hasClipSetLoaded(clipset)) {
+        vimp.natives.ped.setPedMovementClipset(handle, clipset, speed);
+        return;
+      }
+      if (Date.now() - startedAt < CLIPSET_LOAD_TIMEOUT_MS) {
+        setTimeout(apply, CLIPSET_LOAD_POLL_MS);
+      }
+    };
+    apply();
   }
 
-  public resetMovementClipset(_blendDuration: number): void {
-    this._warnOnce("resetMovementClipset");
+  public resetMovementClipset(blendDuration: number): void {
+    this._clipsetRequest++;
+    const handle = this._getHandle();
+    if (handle) {
+      vimp.natives.ped.resetPedMovementClipset(handle, blendDuration);
+    }
   }
 
   public getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D {
@@ -482,6 +520,11 @@ export class VIMPPlayer implements IPlayer {
     } catch {
       return null;
     }
+  }
+
+  /** GTA handle of the streamed ped, or 0 when the player is not streamed in. */
+  private _getHandle(): number {
+    return this._getNativePlayer()?.handle ?? 0;
   }
 
   private _warnOnce(method: string): void {
