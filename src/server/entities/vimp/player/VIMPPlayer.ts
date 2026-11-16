@@ -13,6 +13,9 @@ import { MathClamp } from "../../../../shared/common/utils/math/Math";
 import { RockMod } from "../../../RockMod";
 import type { Player as VimpPlayer } from "@vimp-mp/types/server";
 
+/** Full health on the facade 0-100 scale, what a RageMP spawn restores. */
+const PLAYER_SPAWN_HEALTH = 100;
+
 const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
@@ -201,8 +204,10 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     return RockMod.instance.net.rpc.emitClient(this, rpcName, ...args);
   }
 
-  public spawn(_position: Vector3D): void {
-    notImplemented("VIMPPlayer.spawn");
+  public spawn(position: Vector3D): void {
+    // VIMP has no spawn call: place the ped and restore full health, as a RageMP spawn does.
+    this._vimpPlayer.teleport(position.x, position.y, position.z, this._vimpPlayer.heading);
+    this._vimpPlayer.health = PLAYER_SPAWN_HEALTH;
   }
 
   public setName(name: string): void {
