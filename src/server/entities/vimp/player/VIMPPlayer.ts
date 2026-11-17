@@ -20,6 +20,13 @@ const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
+/** Player members of the VIMP combat API; absent on servers without it. */
+export interface IVIMPCombatPlayer {
+  autoRespawn?: boolean;
+  deathFade?: boolean;
+  spawn?: (position: { x: number; y: number; z: number }, heading?: number, health?: number) => boolean;
+}
+
 export interface IVIMPPlayerOptions {
   vimpPlayer: VimpPlayer;
 }
@@ -205,7 +212,19 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
   }
 
   public spawn(position: Vector3D): void {
-    // VIMP has no spawn call: place the ped and restore full health, as a RageMP spawn does.
+    const { spawn } = this._vimpPlayer as unknown as IVIMPCombatPlayer;
+    if (typeof spawn === "function") {
+      const spawned = spawn.call(
+        this._vimpPlayer,
+        { x: position.x, y: position.y, z: position.z },
+        this._vimpPlayer.heading,
+        PLAYER_SPAWN_HEALTH,
+      );
+      if (spawned) return;
+      console.warn(`[rock-mod] VIMP spawn rejected for player ${this.id}, falling back to teleport`);
+    }
+
+    // Without the combat API: place the ped and restore full health, as a RageMP spawn does.
     this._vimpPlayer.teleport(position.x, position.y, position.z, this._vimpPlayer.heading);
     this._vimpPlayer.health = PLAYER_SPAWN_HEALTH;
   }

@@ -14,10 +14,34 @@ export interface IVIMPServerVehicleEvents {
   playerExitVehicle: (player: VimpServerPlayer, vehicle: VimpServerVehicle, seat: number) => void;
 }
 
+export type VIMPPlayerDeathCause =
+  | "weapon"
+  | "melee"
+  | "explosion"
+  | "fall"
+  | "fire"
+  | "drown"
+  | "vehicle"
+  | "npc"
+  | "other"
+  | "script";
+
+export interface IVIMPPlayerDeath {
+  readonly killer: VimpServerPlayer | null;
+  readonly weapon: number | null;
+  readonly cause: VIMPPlayerDeathCause;
+}
+
+// VIMP combat API, not in the published @vimp-mp/types yet; servers without it never emit it.
+export interface IVIMPServerCombatEvents {
+  playerDeath: (player: VimpServerPlayer, death: IVIMPPlayerDeath) => void;
+}
+
 export interface IVIMPServerInternalEvents
   extends IServerInternalEvents,
     VimpServerBuiltinEvents,
-    IVIMPServerVehicleEvents {}
+    IVIMPServerVehicleEvents,
+    IVIMPServerCombatEvents {}
 
 export class VIMPEventsManager implements IEventsManager {
   public onInternal(events: Partial<IVIMPServerInternalEvents>): void {
