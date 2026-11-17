@@ -1,4 +1,4 @@
-/// <reference types="@vimp-mp/types/client" />
+import type { Player as VimpClientPlayer } from "@vimp-mp/types/client";
 import { type VIMPEventsManager } from "@RockMod/client/net/vimp/events/VIMPEventsManager";
 import { ClientInternalEventName } from "@RockMod/client/net/common/events/types";
 import { type Vector2D, type Vector3D } from "@shared/common/utils";
@@ -257,6 +257,34 @@ export class VIMPPlayersManager implements IPlayersManager {
       player.releaseMovementClipsets();
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, player);
     });
+
+    // Older VIMP clients never emit these local-player events.
+    vimp.on("playerDeath", (vimpPlayer): void => {
+      const player = this._resolveLocalPlayer(vimpPlayer);
+      if (!player) {
+        return;
+      }
+      this._events.emitInternal(ClientInternalEventName.PlayerDeath, player);
+    });
+    vimp.on("playerSpawn", (vimpPlayer): void => {
+      const player = this._resolveLocalPlayer(vimpPlayer);
+      if (!player) {
+        return;
+      }
+      this._events.emitInternal(ClientInternalEventName.PlayerSpawn, player);
+    });
+  }
+
+  /**
+   * The local player for a local-player event. Goes through `findLocalPlayer`, which
+   * registers the player (and emits `rm::playerReady`) when the event beats the reconnect.
+   */
+  private _resolveLocalPlayer(vimpPlayer: VimpClientPlayer): VIMPPlayer | null {
+    const player = this.findLocalPlayer();
+    if (!player || player.id !== vimpPlayer.id) {
+      return null;
+    }
+    return player;
   }
 
   private _syncRemotePlayersFromRuntime(): void {
