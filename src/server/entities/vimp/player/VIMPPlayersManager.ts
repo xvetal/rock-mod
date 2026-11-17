@@ -4,6 +4,22 @@ import { VIMPPlayer } from "./VIMPPlayer";
 import { type VIMPNetManager } from "../../../net/vimp/VIMPNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 import { RockMod } from "../../../RockMod";
+import type { PlayerDeath, PlayerDeathCause } from "@vimp-mp/types/server";
+
+/** GTA death-cause hashes (joaat), as RAGE reports them when no weapon is involved. */
+const DEATH_CAUSE_HASH: Partial<Record<PlayerDeathCause, number>> = {
+  drown: 0xff58c4fb, // WEAPON_DROWNING
+  fall: 0xcdc174b0, // WEAPON_FALL
+  fire: 0xdf8e89eb, // WEAPON_FIRE
+  explosion: 0x2024f4e8, // WEAPON_EXPLOSION
+  vehicle: 0xa36d413e, // WEAPON_RUN_OVER_BY_CAR
+  melee: 0xa2719263, // WEAPON_UNARMED
+};
+
+const getDeathReason = (death: PlayerDeath): number => {
+  if (typeof death.weapon === "number") return death.weapon;
+  return DEATH_CAUSE_HASH[death.cause] ?? 0;
+};
 
 export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implements IPlayersManager {
   public constructor(net: VIMPNetManager) {
@@ -56,6 +72,8 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
   private _init(net: VIMPNetManager): void {
     net.events.onInternal({
       playerConnected: (vimpPlayer) => {
+        if ("autoRespawn" in vimpPlayer) vimpPlayer.autoRespawn = false;
+        if ("deathFade" in vimpPlayer) vimpPlayer.deathFade = false;
         const player = new VIMPPlayer({ vimpPlayer });
         this.registerBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
@@ -65,6 +83,13 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
         net.events.emitInternal(ServerInternalEventName.PlayerQuit, player, "disconnect", "");
         this.unregisterBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
+      },
+      playerDeath: (vimpPlayer, death) => {
+        const player = this.findByID(vimpPlayer.id);
+        if (!player) return;
+        const killer = death.killer ? this.findByID(death.killer.id) : null;
+
+        net.events.emitInternal(ServerInternalEventName.PlayerDeath, player, getDeathReason(death), killer);
       },
       playerDimensionChange: (vimpPlayer, oldDim, newDim) => {
         const player = this.findByID(vimpPlayer.id);
