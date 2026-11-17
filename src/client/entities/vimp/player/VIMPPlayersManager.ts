@@ -256,6 +256,34 @@ export class VIMPPlayersManager implements IPlayersManager {
         this._ensurePlayer(vimpPlayer.id, vimpPlayer.name ?? "", /* isLocal */ false);
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, player);
     });
+
+    // Local-player events missing from the published `@vimp-mp/types`; older clients never emit them.
+    vimp.on("playerDeath", (vimpPlayer: IVIMPNativePlayer): void => {
+      const player = this._resolveLocalPlayer(vimpPlayer);
+      if (!player) {
+        return;
+      }
+      this._events.emitInternal(ClientInternalEventName.PlayerDeath, player);
+    });
+    vimp.on("playerSpawn", (vimpPlayer: IVIMPNativePlayer): void => {
+      const player = this._resolveLocalPlayer(vimpPlayer);
+      if (!player) {
+        return;
+      }
+      this._events.emitInternal(ClientInternalEventName.PlayerSpawn, player);
+    });
+  }
+
+  /**
+   * The local player for a local-player event. Goes through `findLocalPlayer`, which
+   * registers the player (and emits `rm::playerReady`) when the event beats the reconnect.
+   */
+  private _resolveLocalPlayer(vimpPlayer: IVIMPNativePlayer): VIMPPlayer | null {
+    const player = this.findLocalPlayer();
+    if (!player || player.id !== vimpPlayer.id) {
+      return null;
+    }
+    return player;
   }
 
   private _syncRemotePlayersFromRuntime(): void {
