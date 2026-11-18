@@ -133,6 +133,14 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     this._nativePlayer.setInvincible(enabled);
   }
 
+  public get healthRecharge(): number | null {
+    return null;
+  }
+
+  public setHealthRecharge(_multiplier: number): boolean {
+    return false;
+  }
+
   public get collisionWithPlayers(): boolean {
     return this._nativePlayer.collisionWithPlayers;
   }
@@ -238,6 +246,29 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
 
   public removeWeapon(weapon: string): void {
     this._nativePlayer.removeWeapon(weapon);
+  }
+
+  /** RockSandbox addresses weapons by name only; hashes and unknown names give `null`. */
+  public getWeaponAmmo(weapon: string | number): number | null {
+    if (typeof weapon !== "string") return null;
+    try {
+      const state = this._nativePlayer.getWeaponState(weapon);
+      return state.owned ? state.ammo : null;
+    } catch {
+      return null;
+    }
+  }
+
+  public setCurrentWeapon(_weapon: string | number): boolean {
+    return false;
+  }
+
+  public giveWeaponComponent(_weapon: string | number, _component: string | number): boolean {
+    return false;
+  }
+
+  public removeWeaponComponent(_weapon: string | number, _component: string | number): boolean {
+    return false;
   }
 
   public enableVoiceTo(_player: IPlayer): void {

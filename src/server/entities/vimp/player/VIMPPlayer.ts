@@ -12,6 +12,7 @@ import { type IVector3D, Vector3D } from "../../../../shared/common/utils/math/V
 import { MathClamp } from "../../../../shared/common/utils/math/Math";
 import { RockMod } from "../../../RockMod";
 import type { Player as VimpPlayer } from "@vimp-mp/types/server";
+import { asVIMPCombatPlayer, type IVIMPCombatPlayer } from "./VIMPCombatApi";
 
 /** Full health on the facade 0-100 scale, what a RageMP spawn restores. */
 const PLAYER_SPAWN_HEALTH = 100;
@@ -20,12 +21,8 @@ const notImplemented = (name: string): never => {
   throw new Error(`Not implemented yet: ${name}`);
 };
 
-/** Player members of the VIMP combat API; absent on servers without it. */
-export interface IVIMPCombatPlayer {
-  autoRespawn?: boolean;
-  deathFade?: boolean;
-  spawn?: (position: { x: number; y: number; z: number }, heading?: number, health?: number) => boolean;
-}
+const toHash = (value: string | number): number =>
+  typeof value === "number" ? value : RockMod.instance.utils.hash(value);
 
 export interface IVIMPPlayerOptions {
   vimpPlayer: VimpPlayer;
@@ -85,8 +82,10 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     return this._vimpPlayer.armour;
   }
 
+  /** Without the combat API the platform revives the dead by itself. */
   public get autoRespawn(): boolean {
-    throw new Error("Not implemented: VIMPPlayer.autoRespawn");
+    const { autoRespawn } = this._combat;
+    return typeof autoRespawn === "boolean" ? autoRespawn : true;
   }
 
   public get clientTransformEnabled(): boolean {
@@ -114,11 +113,25 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
   }
 
   public get invincible(): boolean {
-    throw new Error("Not implemented: VIMPPlayer.invincible");
+    return this._combat.invincible === true;
   }
 
-  public setInvincible(_enabled: boolean): void {
-    throw new Error("Not implemented: VIMPPlayer.setInvincible");
+  /** No-op without the combat API (`capabilities.combat.invincible`). */
+  public setInvincible(enabled: boolean): void {
+    const combat = this._combat;
+    if ("invincible" in combat) combat.invincible = enabled;
+  }
+
+  public get healthRecharge(): number | null {
+    const { healthRecharge } = this._combat;
+    return typeof healthRecharge === "number" ? healthRecharge : null;
+  }
+
+  public setHealthRecharge(multiplier: number): boolean {
+    const combat = this._combat;
+    if (!("healthRecharge" in combat) || !Number.isFinite(multiplier) || multiplier < 0) return false;
+    combat.healthRecharge = multiplier;
+    return true;
   }
 
   public get collisionWithPlayers(): boolean {
@@ -161,6 +174,10 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
 
   protected override get vimpMeta(): VimpPlayer {
     return this._vimpPlayer;
+  }
+
+  private get _combat(): IVIMPCombatPlayer {
+    return asVIMPCombatPlayer(this._vimpPlayer);
   }
 
   public get eyeColor(): number {
@@ -212,7 +229,7 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
   }
 
   public spawn(position: Vector3D): void {
-    const { spawn } = this._vimpPlayer as unknown as IVIMPCombatPlayer;
+    const { spawn } = this._combat;
     if (typeof spawn === "function") {
       const spawned = spawn.call(
         this._vimpPlayer,
@@ -237,8 +254,10 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     this._vimpPlayer.heading = value;
   }
 
-  public setAutoRespawn(_enabled: boolean): void {
-    throw new Error("Not implemented: VIMPPlayer.setAutoRespawn");
+  /** No-op without the combat API (`capabilities.combat.autoRespawn`). */
+  public setAutoRespawn(enabled: boolean): void {
+    const combat = this._combat;
+    if ("autoRespawn" in combat) combat.autoRespawn = enabled;
   }
 
   public setHealth(value: number): void {
@@ -279,6 +298,32 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
 
   public removeWeapon(weapon: string): void {
     this._vimpPlayer.removeWeapon(RockMod.instance.utils.hash(weapon));
+  }
+
+  /** May lag a shot by one sync frame; count shots with `rm::playerWeaponShot`. */
+  public getWeaponAmmo(weapon: string | number): number | null {
+    const { getWeaponAmmo } = this._combat;
+    if (typeof getWeaponAmmo !== "function") return null;
+    return getWeaponAmmo.call(this._vimpPlayer, toHash(weapon));
+  }
+
+  public setCurrentWeapon(weapon: string | number): boolean {
+    const { setCurrentWeapon } = this._combat;
+    if (typeof setCurrentWeapon !== "function") return false;
+    return setCurrentWeapon.call(this._vimpPlayer, toHash(weapon));
+  }
+
+  /** Only the owner sees a component given from the VIMP server. */
+  public giveWeaponComponent(weapon: string | number, component: string | number): boolean {
+    const { giveWeaponComponent } = this._combat;
+    if (typeof giveWeaponComponent !== "function") return false;
+    return giveWeaponComponent.call(this._vimpPlayer, toHash(weapon), toHash(component));
+  }
+
+  public removeWeaponComponent(weapon: string | number, component: string | number): boolean {
+    const { removeWeaponComponent } = this._combat;
+    if (typeof removeWeaponComponent !== "function") return false;
+    return removeWeaponComponent.call(this._vimpPlayer, toHash(weapon), toHash(component));
   }
 
   public enableVoiceTo(_player: VIMPPlayer): void {

@@ -11,6 +11,7 @@ import {
 import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
 import { type IWorldManager } from "./world";
+import { type IServerCapabilities } from "./capabilities/ICapabilities";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock" | "VIMP" | "RockSandbox";
 
@@ -88,6 +89,8 @@ export class RockMod {
 
   private readonly _world: IWorldManager;
 
+  private readonly _capabilities: IServerCapabilities;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -128,6 +131,11 @@ export class RockMod {
     return this._world;
   }
 
+  /** What the platform supports; check it instead of the platform name. */
+  public get capabilities(): IServerCapabilities {
+    return this._capabilities;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -139,5 +147,6 @@ export class RockMod {
     this._utils = managersFactory.createUtilsManager();
     this._vehicles = managersFactory.createVehiclesManager();
     this._world = managersFactory.createWorldManager();
+    this._capabilities = managersFactory.createCapabilities();
   }
 }

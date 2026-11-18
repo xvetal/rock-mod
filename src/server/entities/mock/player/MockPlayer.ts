@@ -90,6 +90,14 @@ export class MockPlayer extends MockEntity implements IPlayer {
     throw new Error("Not implemented: MockPlayer.setInvincible");
   }
 
+  public get healthRecharge(): number | null {
+    return null;
+  }
+
+  public setHealthRecharge(_multiplier: number): boolean {
+    return false;
+  }
+
   public get collisionWithPlayers(): boolean {
     throw new Error("Not implemented: MockPlayer.collisionWithPlayers");
   }
@@ -228,6 +236,28 @@ export class MockPlayer extends MockEntity implements IPlayer {
 
   public giveWeapon(weapon: string, ammo: number): void {
     this.setWeaponAmmo(weapon, ammo);
+  }
+
+  /** The mock tracks one weapon: the last one given. */
+  public getWeaponAmmo(weapon: string | number): number | null {
+    return this._ownsWeapon(weapon) ? this._playerData.weaponAmmo : null;
+  }
+
+  public setCurrentWeapon(weapon: string | number): boolean {
+    return this._ownsWeapon(weapon);
+  }
+
+  public giveWeaponComponent(_weapon: string | number, _component: string | number): boolean {
+    return false;
+  }
+
+  public removeWeaponComponent(_weapon: string | number, _component: string | number): boolean {
+    return false;
+  }
+
+  private _ownsWeapon(weapon: string | number): boolean {
+    const hash = typeof weapon === "number" ? weapon : RockMod.instance.utils.hash(weapon);
+    return this._playerData.weapon !== 0 && this._playerData.weapon === hash;
   }
 
   public removeWeapon(weapon: string): void {

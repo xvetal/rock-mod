@@ -1,4 +1,5 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IServerCapabilities } from "../../capabilities/ICapabilities";
 import { AltVNetManager } from "../../net/altv/AltVNetManager";
 import { AltVBlipsManager } from "../../entities/altv/blip/AltVBlipsManager";
 import { AltVColshapesManager } from "../../entities/altv/colshape/AltVColshapesManager";
@@ -49,5 +50,18 @@ export class AltVManagersFactory implements IManagersFactory {
 
   public createWorldManager(): AltVWorldManager {
     return new AltVWorldManager();
+  }
+
+  public createCapabilities(): IServerCapabilities {
+    return Object.freeze({
+      combat: Object.freeze({
+        weaponAmmo: true,
+        currentWeapon: true,
+        weaponComponents: true,
+        healthRecharge: false,
+        invincible: false,
+        autoRespawn: false,
+      }),
+    });
   }
 }

@@ -1,4 +1,6 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IServerCapabilities, type IServerCombatCapabilities } from "../../capabilities/ICapabilities";
+import { getVIMPCombatCapabilities } from "../../entities/vimp/player/VIMPCombatApi";
 import { VIMPNetManager } from "../../net/vimp/VIMPNetManager";
 import { VIMPBlipsManager } from "../../entities/vimp/blip/VIMPBlipsManager";
 import { VIMPColshapesManager } from "../../entities/vimp/colshape/VIMPColshapesManager";
@@ -49,5 +51,13 @@ export class VIMPManagersFactory implements IManagersFactory {
 
   public createWorldManager(): VIMPWorldManager {
     return new VIMPWorldManager();
+  }
+
+  public createCapabilities(): IServerCapabilities {
+    return {
+      get combat(): IServerCombatCapabilities {
+        return getVIMPCombatCapabilities();
+      },
+    };
   }
 }

@@ -1,4 +1,5 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IServerCapabilities } from "../../capabilities/ICapabilities";
 import { MockNetManager } from "../../net/mock/MockNetManager";
 import { MockPlayersManager } from "../../entities/mock/player/MockPlayersManager";
 import { MockBlipsManager } from "../../entities/mock/blip/MockBlipsManager";
@@ -49,5 +50,18 @@ export class MockManagersFactory implements IManagersFactory {
 
   public createWorldManager(): MockWorldManager {
     return new MockWorldManager();
+  }
+
+  public createCapabilities(): IServerCapabilities {
+    return Object.freeze({
+      combat: Object.freeze({
+        weaponAmmo: true,
+        currentWeapon: true,
+        weaponComponents: false,
+        healthRecharge: false,
+        invincible: false,
+        autoRespawn: false,
+      }),
+    });
   }
 }

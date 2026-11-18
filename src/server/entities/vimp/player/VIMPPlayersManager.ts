@@ -5,7 +5,7 @@ import { type VIMPNetManager } from "../../../net/vimp/VIMPNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 import { RockMod } from "../../../RockMod";
 import { type IVIMPPlayerDeath, type VIMPPlayerDeathCause } from "../../../net/vimp/events/VIMPEventsManager";
-import { type IVIMPCombatPlayer } from "./VIMPPlayer";
+import { asVIMPCombatPlayer, detectVIMPCombatCapabilities } from "./VIMPCombatApi";
 
 /** GTA death-cause hashes (joaat), as RAGE reports them when no weapon is involved. */
 const DEATH_CAUSE_HASH: Partial<Record<VIMPPlayerDeathCause, number>> = {
@@ -74,7 +74,8 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
     net.events.onInternal({
       playerConnected: (vimpPlayer) => {
         // Match RAGE: the platform neither revives nor fades out the dead, the script decides (no-op without the combat API).
-        const combatPlayer = vimpPlayer as unknown as IVIMPCombatPlayer;
+        detectVIMPCombatCapabilities(vimpPlayer);
+        const combatPlayer = asVIMPCombatPlayer(vimpPlayer);
         if ("autoRespawn" in combatPlayer) combatPlayer.autoRespawn = false;
         if ("deathFade" in combatPlayer) combatPlayer.deathFade = false;
         const player = new VIMPPlayer({ vimpPlayer });

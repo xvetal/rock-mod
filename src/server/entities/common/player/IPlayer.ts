@@ -57,6 +57,8 @@ export interface IPlayer extends IEntity {
   get collisionWithPlayers(): boolean;
   /** Host-owned combat protection; unsupported platforms throw. */
   get invincible(): boolean;
+  /** Health regeneration multiplier (`0` turns it off), or `null` where the server does not control it. */
+  get healthRecharge(): number | null;
   get passiveMode(): boolean;
   setPassiveMode(enabled: boolean): void;
   /** Published host locomotion lock; unsupported platforms throw. */
@@ -89,9 +91,23 @@ export interface IPlayer extends IEntity {
   setInvincible(enabled: boolean): void;
   freezePosition(frozen: boolean): void;
   setArmour(value: number): void;
+  /** Sets the exact total ammunition of the weapon (clip included); it does not add to the current amount. */
   setWeaponAmmo(weapon: string, ammo: number): void;
   giveWeapon(weapon: string, ammo: number): void;
   removeWeapon(weapon: string): void;
+  /**
+   * Total ammunition of an owned weapon (clip included), or `null` when it is not owned or the
+   * platform does not report it. Weapons are names (`"weapon_pistol"`) or hashes.
+   */
+  getWeaponAmmo(weapon: string | number): number | null;
+  /** Puts an owned weapon in hand; `false` when it is not owned or the platform cannot do it. */
+  setCurrentWeapon(weapon: string | number): boolean;
+  /** Attaches a component (`"COMPONENT_..."` or hash) to an owned weapon; `false` when not applied. */
+  giveWeaponComponent(weapon: string | number, component: string | number): boolean;
+  /** Detaches a component from an owned weapon; `false` when not applied. */
+  removeWeaponComponent(weapon: string | number, component: string | number): boolean;
+  /** Sets the health regeneration multiplier (finite, `>= 0`); `false` when not applied. */
+  setHealthRecharge(multiplier: number): boolean;
   enableVoiceTo(player: IPlayer): void;
   disableVoiceTo(player: IPlayer): void;
   putIntoVehicle(vehicle: IVehicle, seat?: number): void;

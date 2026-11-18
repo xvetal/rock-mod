@@ -10,6 +10,7 @@ import {
 } from "../../entities";
 import { type IUtilsManager } from "../../utils";
 import { type IWorldManager } from "../../world";
+import { type IServerCapabilities } from "../../capabilities/ICapabilities";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;
@@ -22,4 +23,5 @@ export interface IManagersFactory {
   createUtilsManager(): IUtilsManager;
   createVehiclesManager(): IVehiclesManager;
   createWorldManager(): IWorldManager;
+  createCapabilities(): IServerCapabilities;
 }
