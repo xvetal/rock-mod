@@ -1,6 +1,6 @@
 import { type IPlayer } from "../../../entities";
 import { type IPlayerDamageRequest } from "../../common/events/types";
-import { type IVIMPPlayerDamage } from "./VIMPEventsManager";
+import type { PlayerDamage } from "@vimp-mp/types/server";
 
 /** Final answer of the handlers. */
 interface IVIMPDamageAnswer {
@@ -20,7 +20,7 @@ export interface IVIMPDamageRequestHandle {
  * Wraps the VIMP damage argument, which is valid only while its handlers run. `cancel()` is final
  * here (VIMP itself lets a later `setDamage` undo it), and `lethal` follows the replaced amounts.
  */
-export function createVIMPDamageRequest(damage: IVIMPPlayerDamage, attacker: IPlayer | null): IVIMPDamageRequestHandle {
+export function createVIMPDamageRequest(damage: PlayerDamage, attacker: IPlayer | null): IVIMPDamageRequestHandle {
   let answer: IVIMPDamageAnswer | null = null;
   let replaced = false;
   let warnedLate = false;

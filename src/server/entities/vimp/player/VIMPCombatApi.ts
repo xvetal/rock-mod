@@ -1,44 +1,24 @@
 import type { Player as VimpPlayer } from "@vimp-mp/types/server";
 import { type IServerCombatCapabilities } from "../../../capabilities/ICapabilities";
 
-/** Player members of the VIMP combat API, not in the published @vimp-mp/types yet; absent on servers without it. */
-export interface IVIMPCombatPlayer {
-  autoRespawn?: boolean;
-  deathFade?: boolean;
-  invincible?: boolean;
-  healthRecharge?: number;
-  spawn?: (position: { x: number; y: number; z: number }, heading?: number, health?: number) => boolean;
-  getWeaponAmmo?: (hash: number) => number | null;
-  getWeaponClip?: (hash: number) => number | null;
-  setWeaponClip?: (hash: number, clip: number) => boolean;
-  setCurrentWeapon?: (hash: number) => boolean;
-  giveWeaponComponent?: (weaponHash: number, componentHash: number) => boolean;
-  removeWeaponComponent?: (weaponHash: number, componentHash: number) => boolean;
-}
-
 let detected: IServerCombatCapabilities | null = null;
-
-export function asVIMPCombatPlayer(player: VimpPlayer): IVIMPCombatPlayer {
-  return player as unknown as IVIMPCombatPlayer;
-}
 
 /** Reads the server's combat API from a player object; the result is the same for every player. */
 export function detectVIMPCombatCapabilities(player: VimpPlayer): IServerCombatCapabilities {
   if (detected) return detected;
-  const combat = asVIMPCombatPlayer(player);
   detected = Object.freeze({
-    weaponAmmo: typeof combat.getWeaponAmmo === "function",
-    weaponClip: typeof combat.getWeaponClip === "function" && typeof combat.setWeaponClip === "function",
-    currentWeapon: typeof combat.setCurrentWeapon === "function",
+    weaponAmmo: typeof player.getWeaponAmmo === "function",
+    weaponClip: typeof player.getWeaponClip === "function" && typeof player.setWeaponClip === "function",
+    currentWeapon: typeof player.setCurrentWeapon === "function",
     weaponComponents:
-      typeof combat.giveWeaponComponent === "function" && typeof combat.removeWeaponComponent === "function",
-    healthRecharge: "healthRecharge" in combat,
-    invincible: "invincible" in combat,
-    autoRespawn: "autoRespawn" in combat,
+      typeof player.giveWeaponComponent === "function" && typeof player.removeWeaponComponent === "function",
+    healthRecharge: "healthRecharge" in player,
+    invincible: "invincible" in player,
+    autoRespawn: "autoRespawn" in player,
     // The damage and shot events came with the same protocol as the per-player combat members.
-    damageRequest: "healthRecharge" in combat,
+    damageRequest: "healthRecharge" in player,
     weaponShot: false,
-    weaponShotCheck: "healthRecharge" in combat,
+    weaponShotCheck: "healthRecharge" in player,
   });
   return detected;
 }

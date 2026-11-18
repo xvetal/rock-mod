@@ -28,7 +28,7 @@ import { VIMPStreamingManager } from "@RockMod/client/game/vimp/streaming/VIMPSt
 import { VIMPCursorManager } from "@RockMod/client/game/vimp/cursor/VIMPCursorManager";
 import { VIMPGameObjectManager } from "@RockMod/client/game/vimp/object/VIMPGameObjectManager";
 import { VIMPGameplayManager } from "@RockMod/client/game/vimp/gameplay/VIMPGameplayManager";
-import { VIMPWeaponManager, getVIMPGameSwitches } from "@RockMod/client/game/vimp/weapon/VIMPWeaponManager";
+import { VIMPWeaponManager } from "@RockMod/client/game/vimp/weapon/VIMPWeaponManager";
 import { VIMPVoiceChatManager } from "@RockMod/client/game/vimp/voiceChat/VIMPVoiceChatManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
@@ -243,7 +243,7 @@ export class VIMPManagersFactory implements IManagersFactory {
   }
 
   public createCapabilities(): IClientCapabilities {
-    const game = getVIMPGameSwitches();
+    const game = vimp.game;
     const combat: IClientCombatCapabilities = Object.freeze({
       noAutoReload: typeof game?.setWeaponsNoAutoReload === "function",
       noAutoSwap: typeof game?.setWeaponsNoAutoSwap === "function",

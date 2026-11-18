@@ -51,7 +51,7 @@ export interface IPlayer extends IEntity {
   get health(): number;
   get armour(): number;
   get isDead(): boolean;
-  /** Automatic respawn policy. Throws on RAGE, alt:V and Mock: check `capabilities.combat.autoRespawn` first. */
+  /** Automatic respawn policy. Throws where unsupported. Check `capabilities.combat.autoRespawn` first. */
   get autoRespawn(): boolean;
   /** Published player-vs-player collision policy; unsupported platforms throw. */
   get collisionWithPlayers(): boolean;
@@ -85,8 +85,8 @@ export interface IPlayer extends IEntity {
   setHeading(value: number): void;
   setHealth(value: number): void;
   /**
-   * Queue a respawn policy change. Throws on RAGE, alt:V and Mock and does nothing on VIMP without
-   * the combat API: call only when `capabilities.combat.autoRespawn` is `true`.
+   * Queue a respawn policy change. Throws where unsupported.
+   * Call only when `capabilities.combat.autoRespawn` is `true`.
    */
   setAutoRespawn(enabled: boolean): void;
   /** Queue a player collision policy change. Unsupported platforms throw. */
