@@ -62,6 +62,8 @@ export class RockSandboxManagersFactory implements IManagersFactory {
         healthRecharge: false,
         invincible: true,
         autoRespawn: true,
+        damageRequest: false,
+        weaponShot: true,
       }),
     });
   }
