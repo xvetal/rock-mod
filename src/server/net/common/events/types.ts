@@ -72,7 +72,10 @@ export interface IPlayerDamageRequest {
   /** Weapon hash the damage is attributed to, or `null` when unknown. */
   readonly weapon: number | null;
   readonly cause: PlayerDamageCause;
-  /** Bone id of the first hit, or `null` when unknown. */
+  /**
+   * Bone of the first hit, or `null` when unknown (most causes other than shots). On VIMP this is
+   * the GTA bone tag (`SKEL_*`), e.g. 31086 for the head or 24816 for the spine, not a body part.
+   */
   readonly bone: number | null;
   /** Metres between attacker and victim, or `null` without an attacker. */
   readonly distance: number | null;
@@ -82,14 +85,17 @@ export interface IPlayerDamageRequest {
   readonly health: number;
   /** Armour the victim will lose (0-100). */
   readonly armour: number;
-  /** The loss kills the victim. */
+  /**
+   * The loss kills the victim: the platform's estimate for the calculated damage, recalculated
+   * from the victim's health after `setDamage()`, and `false` after `cancel()`.
+   */
   readonly lethal: boolean;
   /** `health` and `armour` are the platform's best estimate. */
   readonly estimated: boolean;
   readonly cancelled: boolean;
-  /** Applies no damage at all. */
+  /** Applies no damage at all. Final: any later `setDamage()` is ignored and logged once. */
   cancel(): void;
-  /** Replaces the amounts to apply, clamped to 0-100; `armour` defaults to 0. */
+  /** Replaces the amounts to apply, clamped to 0-100; `armour` defaults to 0. Ignored after `cancel()`. */
   setDamage(health: number, armour?: number): void;
 }
 
@@ -128,6 +134,11 @@ export interface IServerInternalEvents {
     snapshot?: IPlayerQuitSnapshot,
   ) => void;
   [ServerInternalEventName.PlayerDeath]: (player: IPlayer, reason: number, killer: IPlayer | null) => void;
+  /**
+   * Damage that has been applied. On VIMP it fires on the next turn after the handlers of
+   * `rm::playerDamageRequest` answered, with the decided amounts and without `context`; damage the
+   * platform drops after a respawn is still reported.
+   */
   [ServerInternalEventName.PlayerDamage]: (
     player: IPlayer,
     healthLoss: number,
