@@ -4,7 +4,7 @@ import {
   type Vehicle as VimpServerVehicle,
 } from "@vimp-mp/types/server";
 import { type IEventsManager } from "../../common/events/IEventsManager";
-import { type IServerInternalEvents } from "../../common/events/types";
+import { ServerInternalEventName, type IServerInternalEvents } from "../../common/events/types";
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
 import { type VIMPPlayer } from "../../../entities/vimp/player/VIMPPlayer";
 import { RockMod } from "../../../RockMod";
@@ -19,18 +19,33 @@ export interface IVIMPServerInternalEvents
     VimpServerBuiltinEvents,
     IVIMPServerVehicleEvents {}
 
+type PlayerDeathListener = IServerInternalEvents[ServerInternalEventName.PlayerDeath];
+
 export class VIMPEventsManager implements IEventsManager {
   /** `vimp.on` callbacks registered by `onClient`, keyed by the Rock-Mod listener, so `offClient` can remove them. */
   private readonly _clientHandlers = new Map<string, Map<unknown, (player: unknown, ...args: unknown[]) => void>>();
 
+  // Keep the trusted death notification off VIMP's shared client and server event bus.
+  private readonly _playerDeathListeners: PlayerDeathListener[] = [];
+
   public onInternal(events: Partial<IVIMPServerInternalEvents>): void {
     for (const eventName of Object.keys(events)) {
+      if (eventName === ServerInternalEventName.PlayerDeath) {
+        const listener = events[eventName];
+        if (listener) this._playerDeathListeners.push(listener);
+        continue;
+      }
       // @ts-expect-error mixed VIMP built-in + rm:: keys typing
       vimp.on(eventName, events[eventName]);
     }
   }
 
   public offInternal<K extends keyof IServerInternalEvents>(eventName: K, listener: IServerInternalEvents[K]): void {
+    if (eventName === ServerInternalEventName.PlayerDeath) {
+      const index = this._playerDeathListeners.findIndex((handler) => handler === listener);
+      if (index !== -1) this._playerDeathListeners.splice(index, 1);
+      return;
+    }
     vimp.off(eventName, listener as (...args: unknown[]) => void);
   }
 
@@ -38,6 +53,17 @@ export class VIMPEventsManager implements IEventsManager {
     eventName: K,
     ...args: Parameters<IServerInternalEvents[K]>
   ): void {
+    if (eventName === ServerInternalEventName.PlayerDeath) {
+      const deathArgs = args as Parameters<PlayerDeathListener>;
+      for (const listener of this._playerDeathListeners) {
+        try {
+          listener(...deathArgs);
+        } catch (error) {
+          console.error(`[rock-mod] Handler error for "${eventName}":`, error);
+        }
+      }
+      return;
+    }
     vimp.emit(eventName, ...args);
   }
 

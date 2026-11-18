@@ -16,10 +16,7 @@ const DEATH_CAUSE_HASH: Partial<Record<PlayerDeathCause, number>> = {
   melee: 0xa2719263, // WEAPON_UNARMED
 };
 
-const getDeathReason = (death: PlayerDeath): number => {
-  if (typeof death.weapon === "number") return death.weapon;
-  return DEATH_CAUSE_HASH[death.cause] ?? 0;
-};
+const getDeathReason = (death: PlayerDeath): number => death.weapon ?? DEATH_CAUSE_HASH[death.cause] ?? 0;
 
 export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implements IPlayersManager {
   public constructor(net: VIMPNetManager) {
@@ -72,8 +69,6 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
   private _init(net: VIMPNetManager): void {
     net.events.onInternal({
       playerConnected: (vimpPlayer) => {
-        if ("autoRespawn" in vimpPlayer) vimpPlayer.autoRespawn = false;
-        if ("deathFade" in vimpPlayer) vimpPlayer.deathFade = false;
         const player = new VIMPPlayer({ vimpPlayer });
         this.registerBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
@@ -85,6 +80,9 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
         net.events.emitInternal(ServerInternalEventName.PlayerDisconnected, player);
       },
       playerDeath: (vimpPlayer, death) => {
+        // VIMP reserves playerDeath for server events starting with the combat API.
+        if (typeof vimpPlayer.spawn !== "function") return;
+
         const player = this.findByID(vimpPlayer.id);
         if (!player) return;
         const killer = death.killer ? this.findByID(death.killer.id) : null;
