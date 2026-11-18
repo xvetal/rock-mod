@@ -96,7 +96,7 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
         if (!player) return;
 
         net.events.emitInternal(
-          ServerInternalEventName.PlayerWeaponShot,
+          ServerInternalEventName.PlayerWeaponShotCheck,
           player,
           Object.freeze({
             weapon: shot.weapon,
