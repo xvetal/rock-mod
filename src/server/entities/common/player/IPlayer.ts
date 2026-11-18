@@ -107,6 +107,13 @@ export interface IPlayer extends IEntity {
    * platform does not report it. Weapons are names (`"weapon_pistol"`) or hashes.
    */
   getWeaponAmmo(weapon: string | number): number | null;
+  /** Rounds in the clip of an owned weapon, or `null` when it is not owned or the platform does not report it. */
+  getWeaponClip(weapon: string | number): number | null;
+  /**
+   * Sets the rounds in the clip of an owned weapon, never above its total ammunition; the total does
+   * not change. `false` when it is not owned or the platform cannot do it.
+   */
+  setWeaponClip(weapon: string | number, clip: number): boolean;
   /** Puts an owned weapon in hand; `false` when it is not owned or the platform cannot do it. */
   setCurrentWeapon(weapon: string | number): boolean;
   /** Attaches a component (`"COMPONENT_..."` or hash) to an owned weapon; `false` when not applied. */

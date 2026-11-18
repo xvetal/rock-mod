@@ -219,6 +219,15 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     return this.mpEntity.getWeaponAmmo(weapon);
   }
 
+  /** The alt:V server does not know the clip. */
+  public getWeaponClip(_weapon: string | number): number | null {
+    return null;
+  }
+
+  public setWeaponClip(_weapon: string | number, _clip: number): boolean {
+    return false;
+  }
+
   public setCurrentWeapon(weapon: string | number): boolean {
     if (!this.mpEntity.hasWeapon(weapon)) return false;
     this.mpEntity.currentWeapon = this._hash(weapon);

@@ -56,6 +56,7 @@ export class RageManagersFactory implements IManagersFactory {
     return Object.freeze({
       combat: Object.freeze({
         weaponAmmo: true,
+        weaponClip: false,
         currentWeapon: true,
         weaponComponents: false,
         healthRecharge: false,

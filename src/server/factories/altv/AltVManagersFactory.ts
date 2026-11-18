@@ -56,6 +56,7 @@ export class AltVManagersFactory implements IManagersFactory {
     return Object.freeze({
       combat: Object.freeze({
         weaponAmmo: true,
+        weaponClip: false,
         currentWeapon: true,
         weaponComponents: true,
         healthRecharge: false,

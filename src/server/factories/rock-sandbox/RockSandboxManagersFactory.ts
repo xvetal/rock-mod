@@ -57,6 +57,7 @@ export class RockSandboxManagersFactory implements IManagersFactory {
     return Object.freeze({
       combat: Object.freeze({
         weaponAmmo: true,
+        weaponClip: false,
         currentWeapon: false,
         weaponComponents: false,
         healthRecharge: false,
