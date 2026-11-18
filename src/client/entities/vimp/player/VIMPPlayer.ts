@@ -319,12 +319,17 @@ export class VIMPPlayer implements IPlayer {
 
   public get weapon(): number {
     const handle = this._getHandle();
-    return handle ? vimp.natives.weapon.getSelectedPedWeapon(handle) : 0;
+    return handle ? vimp.natives.weapon.getSelectedPedWeapon(handle) >>> 0 : 0;
   }
 
   public getAmmoInClip(weapon: number): number {
     const handle = this._getHandle();
-    return handle ? vimp.natives.weapon.getAmmoInClip(handle, weapon).ammo : 0;
+    if (!handle) return 0;
+
+    // The native may report the value as `{ ammo }` or as a bare number.
+    const result = vimp.natives.weapon.getAmmoInClip(handle, weapon) as unknown;
+    const ammo = typeof result === "number" ? result : (result as { ammo?: number } | null)?.ammo;
+    return typeof ammo === "number" ? ammo : 0;
   }
 
   public getWeaponAmmo(weapon: number): number {
