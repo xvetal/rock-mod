@@ -9,6 +9,8 @@ export interface IVIMPCombatPlayer {
   healthRecharge?: number;
   spawn?: (position: { x: number; y: number; z: number }, heading?: number, health?: number) => boolean;
   getWeaponAmmo?: (hash: number) => number | null;
+  getWeaponClip?: (hash: number) => number | null;
+  setWeaponClip?: (hash: number, clip: number) => boolean;
   setCurrentWeapon?: (hash: number) => boolean;
   giveWeaponComponent?: (weaponHash: number, componentHash: number) => boolean;
   removeWeaponComponent?: (weaponHash: number, componentHash: number) => boolean;
@@ -26,6 +28,7 @@ export function detectVIMPCombatCapabilities(player: VimpPlayer): IServerCombatC
   const combat = asVIMPCombatPlayer(player);
   detected = Object.freeze({
     weaponAmmo: typeof combat.getWeaponAmmo === "function",
+    weaponClip: typeof combat.getWeaponClip === "function" && typeof combat.setWeaponClip === "function",
     currentWeapon: typeof combat.setCurrentWeapon === "function",
     weaponComponents:
       typeof combat.giveWeaponComponent === "function" && typeof combat.removeWeaponComponent === "function",

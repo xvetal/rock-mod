@@ -7,6 +7,8 @@
 export interface IServerCombatCapabilities {
   /** `IPlayer.getWeaponAmmo` reports the owned weapon's total. */
   readonly weaponAmmo: boolean;
+  /** `IPlayer.setWeaponClip` and `getWeaponClip` both work. */
+  readonly weaponClip: boolean;
   /** `IPlayer.setCurrentWeapon` puts an owned weapon in hand. */
   readonly currentWeapon: boolean;
   /** `IPlayer.giveWeaponComponent` / `removeWeaponComponent`. */

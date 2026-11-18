@@ -292,6 +292,19 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     return getWeaponAmmo.call(this._vimpPlayer, toHash(weapon));
   }
 
+  public getWeaponClip(weapon: string | number): number | null {
+    const { getWeaponClip } = this._combat;
+    if (typeof getWeaponClip !== "function") return null;
+    return getWeaponClip.call(this._vimpPlayer, toHash(weapon));
+  }
+
+  /** A weapon not in hand may take its clip only when it is next held. */
+  public setWeaponClip(weapon: string | number, clip: number): boolean {
+    const { setWeaponClip } = this._combat;
+    if (typeof setWeaponClip !== "function") return false;
+    return setWeaponClip.call(this._vimpPlayer, toHash(weapon), clip);
+  }
+
   public setCurrentWeapon(weapon: string | number): boolean {
     const { setCurrentWeapon } = this._combat;
     if (typeof setCurrentWeapon !== "function") return false;

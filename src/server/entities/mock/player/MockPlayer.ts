@@ -243,6 +243,14 @@ export class MockPlayer extends MockEntity implements IPlayer {
     return this._ownsWeapon(weapon) ? this._playerData.weaponAmmo : null;
   }
 
+  public getWeaponClip(_weapon: string | number): number | null {
+    return null;
+  }
+
+  public setWeaponClip(_weapon: string | number, _clip: number): boolean {
+    return false;
+  }
+
   public setCurrentWeapon(weapon: string | number): boolean {
     return this._ownsWeapon(weapon);
   }

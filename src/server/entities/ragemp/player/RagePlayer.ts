@@ -15,6 +15,9 @@ interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 
 const WEAPON_UNARMED = 0xa2719263;
 
+/** Typed as `number[]`, but RAGE returns a `{ [hash]: ammo }` object; both shapes are accepted. */
+type RageOwnedWeapons = readonly number[] | Readonly<Record<string, number>>;
+
 const toHash = (value: string | number): number => (typeof value === "number" ? value : mp.joaat(value)) >>> 0;
 
 export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
@@ -218,6 +221,15 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     return this.mpEntity.getWeaponAmmo(hash);
   }
 
+  /** The RAGE server does not know the clip. */
+  public getWeaponClip(_weapon: string | number): number | null {
+    return null;
+  }
+
+  public setWeaponClip(_weapon: string | number, _clip: number): boolean {
+    return false;
+  }
+
   public setCurrentWeapon(weapon: string | number): boolean {
     const hash = toHash(weapon);
     if (!this._ownsWeapon(hash)) return false;
@@ -234,15 +246,13 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
     return false;
   }
 
-  /** `allWeapons` is typed as an array but RAGE returns a `{ [hash]: ammo }` object. */
+  /** Only weapons the server gave are known: one given by a client script does not count. */
   private _ownsWeapon(hash: number): boolean {
     if (hash === WEAPON_UNARMED) return true;
-    const owned = this.mpEntity.allWeapons as unknown;
-    if (Array.isArray(owned)) return owned.some((value) => Number(value) >>> 0 === hash);
-    if (owned !== null && typeof owned === "object") {
-      return Object.keys(owned).some((key) => Number(key) >>> 0 === hash);
-    }
-    return false;
+    const owned: RageOwnedWeapons | undefined = this.mpEntity.allWeapons;
+    if (!owned) return false;
+    const hashes: readonly (number | string)[] = Array.isArray(owned) ? owned : Object.keys(owned);
+    return hashes.some((value) => Number(value) >>> 0 === hash);
   }
 
   public enableVoiceTo(player: RagePlayer): void {
