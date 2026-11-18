@@ -33,6 +33,9 @@ export class VIMPPlayer implements IPlayer {
   /** Глобальный set для one-time warnings, чтобы не флудить лог. */
   private static readonly _warnedMethods = new Set<string>();
 
+  /** Pending and applied clipsets share the same native streaming request. */
+  private static readonly _movementClipsetRefs = new Map<string, number>();
+
   private readonly _id: number;
 
   private _name: string;
@@ -44,8 +47,9 @@ export class VIMPPlayer implements IPlayer {
   /** Compatibility state; VIMP selects spatialization from the active voice route. */
   private _isVoice3DEnabled = true;
 
-  /** Bumped on every clipset change so a slow load cannot override a newer set/reset. */
-  private _clipsetRequest = 0;
+  private _pendingMovementClipset: { name: string } | null = null;
+
+  private _activeMovementClipset: string | null = null;
 
   public constructor(options: IVIMPPlayerOptions) {
     this._id = options.id;
@@ -57,6 +61,7 @@ export class VIMPPlayer implements IPlayer {
   /** Помечает игрока как удалённого — вызывается из `VIMPPlayersManager`. */
   public markRemoved(): void {
     this._isExists = false;
+    this.releaseMovementClipsets();
   }
 
   /** Обновляет name (полезно если name приехал позже первого создания). */
@@ -273,7 +278,7 @@ export class VIMPPlayer implements IPlayer {
   public get isDead(): boolean {
     const handle = this._getHandle();
     if (!handle) return false;
-    return vimp.natives.entity.isEntityDead(handle, false) || this.health <= 0;
+    return vimp.natives.entity.isEntityDead(handle, false);
   }
 
   public get vehicle(): IVehicle | null {
@@ -465,33 +470,66 @@ export class VIMPPlayer implements IPlayer {
   }
 
   public setMovementClipset(clipset: string, speed: number): void {
-    // Callers do not preload the clipset, so request it and apply once streamed in; a newer call supersedes this one.
-    const request = ++this._clipsetRequest;
-    vimp.natives.streaming.requestClipSet(clipset);
+    if (!this._isExists) return;
+    if (!this._getHandle()) {
+      this.releaseMovementClipsets();
+      return;
+    }
+
+    const request = { name: clipset.toLowerCase() };
+    if (this._pendingMovementClipset?.name !== request.name) {
+      this._cancelMovementClipsetLoad();
+      const refs = VIMPPlayer._movementClipsetRefs.get(request.name) ?? 0;
+      if (refs === 0) {
+        vimp.natives.streaming.requestClipSet(request.name);
+      }
+      VIMPPlayer._movementClipsetRefs.set(request.name, refs + 1);
+    }
+    this._pendingMovementClipset = request;
     const startedAt = Date.now();
 
     const apply = (): void => {
-      if (request !== this._clipsetRequest) return;
+      if (this._pendingMovementClipset !== request) return;
       const handle = this._getHandle();
-      if (!handle) return;
-
-      if (vimp.natives.streaming.hasClipSetLoaded(clipset)) {
-        vimp.natives.ped.setPedMovementClipset(handle, clipset, speed);
+      if (!handle) {
+        this.releaseMovementClipsets();
         return;
       }
-      if (Date.now() - startedAt < CLIPSET_LOAD_TIMEOUT_MS) {
-        setTimeout(apply, CLIPSET_LOAD_POLL_MS);
+
+      try {
+        if (vimp.natives.streaming.hasClipSetLoaded(request.name)) {
+          vimp.natives.ped.setPedMovementClipset(handle, request.name, speed);
+          this._pendingMovementClipset = null;
+          this._replaceActiveMovementClipset(request.name);
+          return;
+        }
+        if (Date.now() - startedAt < CLIPSET_LOAD_TIMEOUT_MS) {
+          setTimeout(apply, CLIPSET_LOAD_POLL_MS);
+          return;
+        }
+      } catch (error) {
+        this._cancelMovementClipsetLoad();
+        throw error;
       }
+
+      this._cancelMovementClipsetLoad();
     };
     apply();
   }
 
   public resetMovementClipset(blendDuration: number): void {
-    this._clipsetRequest++;
+    this._cancelMovementClipsetLoad();
     const handle = this._getHandle();
     if (handle) {
       vimp.natives.ped.resetPedMovementClipset(handle, blendDuration);
     }
+    this._replaceActiveMovementClipset(null);
+  }
+
+  /** Releases this player's clipsets when its ped leaves the stream. */
+  public releaseMovementClipsets(): void {
+    this._cancelMovementClipsetLoad();
+    this._replaceActiveMovementClipset(null);
   }
 
   public getBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D {
@@ -506,6 +544,32 @@ export class VIMPPlayer implements IPlayer {
   public tryGetBoneCoords(boneId: number, offsetX: number, offsetY: number, offsetZ: number): IVector3D | null {
     const point = this._getNativePlayer()?.getBoneCoords(boneId, offsetX, offsetY, offsetZ);
     return point ? new Vector3D(point.x, point.y, point.z) : null;
+  }
+
+  private _cancelMovementClipsetLoad(): void {
+    const pending = this._pendingMovementClipset;
+    this._pendingMovementClipset = null;
+    if (pending) {
+      VIMPPlayer._releaseMovementClipset(pending.name);
+    }
+  }
+
+  private _replaceActiveMovementClipset(clipset: string | null): void {
+    const previous = this._activeMovementClipset;
+    this._activeMovementClipset = clipset;
+    if (previous !== null) {
+      VIMPPlayer._releaseMovementClipset(previous);
+    }
+  }
+
+  private static _releaseMovementClipset(clipset: string): void {
+    const refs = VIMPPlayer._movementClipsetRefs.get(clipset) ?? 0;
+    if (refs > 1) {
+      VIMPPlayer._movementClipsetRefs.set(clipset, refs - 1);
+    } else {
+      VIMPPlayer._movementClipsetRefs.delete(clipset);
+      vimp.natives.streaming.removeClipSet(clipset);
+    }
   }
 
   private _getNativePlayer(): VimpPlayer | null {
