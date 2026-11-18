@@ -92,6 +92,7 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
         net.events.emitInternal(ServerInternalEventName.PlayerDeath, player, getDeathReason(death), killer);
       },
       playerWeaponShot: (vimpPlayer, shot) => {
+        if (!detectVIMPCombatCapabilities(vimpPlayer).weaponShotCheck) return;
         const player = this.findByID(vimpPlayer.id);
         if (!player) return;
 

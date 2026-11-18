@@ -285,7 +285,7 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     this._vimpPlayer.removeWeapon(RockMod.instance.utils.hash(weapon));
   }
 
-  /** May lag a shot by one sync frame; count shots with `rm::playerWeaponShot`. */
+  /** May lag a shot by one sync frame; VIMP reports shots through `rm::playerWeaponShotCheck`. */
   public getWeaponAmmo(weapon: string | number): number | null {
     const { getWeaponAmmo } = this._combat;
     if (typeof getWeaponAmmo !== "function") return null;

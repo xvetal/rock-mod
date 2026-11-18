@@ -8,7 +8,7 @@ import { ServerInternalEventName, type IServerInternalEvents, type PlayerDamageC
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
 import { type VIMPPlayer } from "../../../entities/vimp/player/VIMPPlayer";
 import { RockMod } from "../../../RockMod";
-import { createVIMPDamageRequest, type IVIMPDamageAnswer } from "./VIMPDamageRequest";
+import { createVIMPDamageRequest } from "./VIMPDamageRequest";
 
 export interface IVIMPServerVehicleEvents {
   playerEnterVehicle: (player: VimpServerPlayer, vehicle: VimpServerVehicle, seat: number) => void;
@@ -33,17 +33,21 @@ export interface IVIMPPlayerDeath {
   readonly cause: VIMPPlayerDeathCause;
 }
 
-/** Argument of the VIMP `playerDamage` event; valid only while handlers run. */
-export interface IVIMPPlayerDamage {
+interface IVIMPPlayerDamageApplied {
   readonly attacker: VimpServerPlayer | null;
+  readonly health: number;
+  readonly armour: number;
+}
+
+/** Argument of the VIMP `playerDamage` event; valid only while handlers run. */
+export interface IVIMPPlayerDamage extends IVIMPPlayerDamageApplied {
   readonly weapon: number | null;
   readonly cause: PlayerDamageCause;
   readonly bone: number | null;
   readonly distance: number | null;
   readonly hits: number;
-  readonly health: number;
-  readonly armour: number;
   readonly lethal: boolean;
+  readonly replacementLethal?: boolean | null;
   readonly estimated: boolean;
   readonly cancelled: boolean;
   cancel(): void;
@@ -62,6 +66,7 @@ export interface IVIMPServerCombatEvents {
   playerDeath: (player: VimpServerPlayer, death: IVIMPPlayerDeath) => void;
   playerWeaponShot: (player: VimpServerPlayer, shot: IVIMPPlayerWeaponShot) => void;
   playerDamage: (victim: VimpServerPlayer, damage: IVIMPPlayerDamage) => void;
+  playerDamageApplied: (victim: VimpServerPlayer, damage: IVIMPPlayerDamageApplied) => void;
 }
 
 type AnyListener = (...args: unknown[]) => void;
@@ -69,71 +74,63 @@ type AnyListener = (...args: unknown[]) => void;
 const DAMAGE_REQUEST = ServerInternalEventName.PlayerDamageRequest;
 const DAMAGE = ServerInternalEventName.PlayerDamage;
 
-/** rock-mod events fed by the VIMP `playerDamage` bridge. */
-const DAMAGE_BRIDGE_EVENTS: ReadonlySet<string> = new Set([DAMAGE_REQUEST, DAMAGE]);
-
 export interface IVIMPServerInternalEvents
   extends IServerInternalEvents,
     VimpServerBuiltinEvents,
-    IVIMPServerVehicleEvents {}
-
-type PlayerDeathListener = IServerInternalEvents[ServerInternalEventName.PlayerDeath];
+    IVIMPServerVehicleEvents,
+    IVIMPServerCombatEvents {}
 
 export class VIMPEventsManager implements IEventsManager {
   /** `vimp.on` callbacks registered by `onClient`, keyed by the Rock-Mod listener, so `offClient` can remove them. */
   private readonly _clientHandlers = new Map<string, Map<unknown, (player: unknown, ...args: unknown[]) => void>>();
 
-  // Keep the trusted death notification off VIMP's shared client and server event bus.
-  private readonly _playerDeathListeners: PlayerDeathListener[] = [];
-
-  /**
-   * Listeners of the events fed by the damage bridge, by event. VIMP queues damage for the scripts'
-   * answer while it has a `playerDamage` handler, so the bridge is attached only while one exists.
-   */
-  private readonly _damageListeners = new Map<string, Map<AnyListener, number>>();
-
-  private _damageBridgeAttached = false;
+  // The VIMP event bus also receives client events. Keep rm:: listeners on the server.
+  private readonly _internalListeners = new Map<string, AnyListener[]>();
 
   public onInternal(events: Partial<IVIMPServerInternalEvents>): void {
     for (const eventName of Object.keys(events)) {
-      if (eventName === ServerInternalEventName.PlayerDeath) {
-        const listener = events[eventName];
-        if (listener) this._playerDeathListeners.push(listener);
+      const listener = events[eventName as keyof IVIMPServerInternalEvents] as AnyListener | undefined;
+      if (!listener) continue;
+      if (!eventName.startsWith("rm::")) {
+        vimp.on(eventName, listener);
         continue;
       }
-      // @ts-expect-error mixed VIMP built-in + rm:: keys typing
-      const listener = events[eventName] as AnyListener;
-      vimp.on(eventName, listener);
-      if (DAMAGE_BRIDGE_EVENTS.has(eventName)) this._addDamageListener(eventName, listener);
+      const listeners = this._internalListeners.get(eventName) ?? [];
+      listeners.push(listener);
+      this._internalListeners.set(eventName, listeners);
+      if (listeners.length === 1) {
+        if (eventName === DAMAGE_REQUEST) vimp.on("playerDamage", this._bridgeDamageRequest as AnyListener);
+        if (eventName === DAMAGE && (vimp as { supportsPlayerDamageApplied?: boolean }).supportsPlayerDamageApplied) {
+          vimp.on("playerDamageApplied", this._bridgeDamageApplied as AnyListener);
+        }
+      }
     }
   }
 
   public offInternal<K extends keyof IServerInternalEvents>(eventName: K, listener: IServerInternalEvents[K]): void {
-    if (eventName === ServerInternalEventName.PlayerDeath) {
-      const index = this._playerDeathListeners.findIndex((handler) => handler === listener);
-      if (index !== -1) this._playerDeathListeners.splice(index, 1);
-      return;
-    }
-    vimp.off(eventName, listener as AnyListener);
-    if (DAMAGE_BRIDGE_EVENTS.has(eventName)) this._removeDamageListener(eventName, listener as AnyListener);
+    const listeners = this._internalListeners.get(eventName);
+    const index = listeners?.indexOf(listener as AnyListener) ?? -1;
+    if (!listeners || index < 0) return;
+    listeners.splice(index, 1);
+    if (listeners.length) return;
+    this._internalListeners.delete(eventName);
+    if (eventName === DAMAGE_REQUEST) vimp.off("playerDamage", this._bridgeDamageRequest as AnyListener);
+    if (eventName === DAMAGE) vimp.off("playerDamageApplied", this._bridgeDamageApplied as AnyListener);
   }
 
   public emitInternal<K extends keyof IServerInternalEvents>(
     eventName: K,
     ...args: Parameters<IServerInternalEvents[K]>
   ): void {
-    if (eventName === ServerInternalEventName.PlayerDeath) {
-      const deathArgs = args as Parameters<PlayerDeathListener>;
-      for (const listener of this._playerDeathListeners) {
-        try {
-          listener(...deathArgs);
-        } catch (error) {
-          console.error(`[rock-mod] Handler error for "${eventName}":`, error);
-        }
+    const listeners = this._internalListeners.get(eventName);
+    if (!listeners) return;
+    for (const listener of [...listeners]) {
+      try {
+        listener(...args);
+      } catch (error) {
+        console.error(`[rock-mod] handler error for "${eventName}":`, error);
       }
-      return;
     }
-    vimp.emit(eventName, ...args);
   }
 
   public onClient(events: Partial<IClientToServerEvents>): void {
@@ -181,59 +178,26 @@ export class VIMPEventsManager implements IEventsManager {
     vimp.emitAllClients(eventName, ...args);
   }
 
-  private _addDamageListener(eventName: string, listener: AnyListener): void {
-    let listeners = this._damageListeners.get(eventName);
-    if (!listeners) {
-      listeners = new Map();
-      this._damageListeners.set(eventName, listeners);
-    }
-    listeners.set(listener, (listeners.get(listener) ?? 0) + 1);
-    if (this._damageBridgeAttached) return;
-    vimp.on("playerDamage", this._bridgeDamage as AnyListener);
-    this._damageBridgeAttached = true;
-  }
-
-  private _removeDamageListener(eventName: string, listener: AnyListener): void {
-    const listeners = this._damageListeners.get(eventName);
-    const count = listeners?.get(listener);
-    if (!listeners || count === undefined) return;
-    if (count > 1) {
-      listeners.set(listener, count - 1);
-      return;
-    }
-    listeners.delete(listener);
-    if (this._hasDamageListeners(DAMAGE_REQUEST) || this._hasDamageListeners(DAMAGE)) return;
-    if (!this._damageBridgeAttached) return;
-    vimp.off("playerDamage", this._bridgeDamage as AnyListener);
-    this._damageBridgeAttached = false;
-  }
-
-  private _hasDamageListeners(eventName: string): boolean {
-    return (this._damageListeners.get(eventName)?.size ?? 0) > 0;
-  }
-
-  private readonly _bridgeDamage = (victim: VimpServerPlayer, damage: IVIMPPlayerDamage): void => {
+  private readonly _bridgeDamageRequest = (victim: VimpServerPlayer, damage: IVIMPPlayerDamage): void => {
+    if (typeof damage?.cancel !== "function" || typeof damage.setDamage !== "function") return;
     const players = RockMod.instance.players;
     const player = players.findByID(victim.id);
     if (!player) return;
     const attacker = damage.attacker ? players.findByID(damage.attacker.id) : null;
-    const { request, seal } = createVIMPDamageRequest(damage, attacker, () => victim.health);
-    let answer: IVIMPDamageAnswer;
+    const { request, seal } = createVIMPDamageRequest(damage, attacker);
     try {
-      // vimp.emit catches and logs every handler's exception itself.
-      if (this._hasDamageListeners(DAMAGE_REQUEST)) vimp.emit(DAMAGE_REQUEST, player, request);
+      this.emitInternal(DAMAGE_REQUEST, player, request);
     } finally {
-      answer = seal();
+      seal();
     }
-    if (answer.cancelled || (answer.health <= 0 && answer.armour <= 0) || !this._hasDamageListeners(DAMAGE)) return;
+  };
 
-    // VIMP applies the answer once this handler has returned, so report it on the next turn.
-    const { health, armour } = answer;
-    setImmediate(() => {
-      if (!player.isExists) return;
-      const source = attacker && attacker.isExists ? attacker : null;
-      vimp.emit(DAMAGE, player, health, armour, source);
-    });
+  private readonly _bridgeDamageApplied = (victim: VimpServerPlayer, damage: IVIMPPlayerDamageApplied): void => {
+    const players = RockMod.instance.players;
+    const player = players.findByID(victim.id);
+    if (!player) return;
+    const attacker = damage.attacker ? players.findByID(damage.attacker.id) : null;
+    this.emitInternal(DAMAGE, player, damage.health, damage.armour, attacker);
   };
 
   private _getRockModPlayer(player: unknown): VIMPPlayer {
