@@ -3,10 +3,10 @@ import { type IPlayerDamageRequest } from "../../common/events/types";
 import { type IVIMPPlayerDamage } from "./VIMPEventsManager";
 
 /** Final answer of the handlers. */
-export interface IVIMPDamageAnswer {
+interface IVIMPDamageAnswer {
   readonly health: number;
   readonly armour: number;
-  readonly lethal: boolean;
+  readonly lethal: boolean | null;
   readonly cancelled: boolean;
 }
 
@@ -20,20 +20,16 @@ export interface IVIMPDamageRequestHandle {
  * Wraps the VIMP damage argument, which is valid only while its handlers run. `cancel()` is final
  * here (VIMP itself lets a later `setDamage` undo it), and `lethal` follows the replaced amounts.
  */
-export function createVIMPDamageRequest(
-  damage: IVIMPPlayerDamage,
-  attacker: IPlayer | null,
-  getVictimHealth: () => number,
-): IVIMPDamageRequestHandle {
+export function createVIMPDamageRequest(damage: IVIMPPlayerDamage, attacker: IPlayer | null): IVIMPDamageRequestHandle {
   let answer: IVIMPDamageAnswer | null = null;
   let replaced = false;
   let warnedLate = false;
   let warnedCancelled = false;
 
-  const readLethal = (): boolean => {
+  const readLethal = (): boolean | null => {
     if (damage.cancelled) return false;
     if (!replaced) return damage.lethal;
-    return damage.health > 0 && getVictimHealth() - damage.health <= 0;
+    return damage.replacementLethal ?? null;
   };
 
   const ignoreLate = (method: string): void => {
@@ -56,7 +52,7 @@ export function createVIMPDamageRequest(
     get armour(): number {
       return answer ? answer.armour : damage.armour;
     },
-    get lethal(): boolean {
+    get lethal(): boolean | null {
       return answer ? answer.lethal : readLethal();
     },
     get cancelled(): boolean {

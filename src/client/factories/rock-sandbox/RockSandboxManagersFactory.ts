@@ -167,7 +167,7 @@ export class RockSandboxManagersFactory implements IManagersFactory {
       combat: Object.freeze({
         noAutoReload: false,
         noAutoSwap: false,
-        weaponShot: false,
+        weaponShot: true,
         damageEvents: false,
       }),
     });

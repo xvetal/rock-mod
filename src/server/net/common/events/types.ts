@@ -86,10 +86,10 @@ export interface IPlayerDamageRequest {
   /** Armour the victim will lose (0-100). */
   readonly armour: number;
   /**
-   * The loss kills the victim: the platform's estimate for the calculated damage, recalculated
-   * from the victim's health after `setDamage()`, and `false` after `cancel()`.
+   * The platform's prediction for the current damage amounts, or `false` after cancellation.
+   * After `setDamage()`, `null` means the platform could not recalculate the prediction.
    */
-  readonly lethal: boolean;
+  readonly lethal: boolean | null;
   /** `health` and `armour` are the platform's best estimate. */
   readonly estimated: boolean;
   readonly cancelled: boolean;
@@ -135,9 +135,8 @@ export interface IServerInternalEvents {
   ) => void;
   [ServerInternalEventName.PlayerDeath]: (player: IPlayer, reason: number, killer: IPlayer | null) => void;
   /**
-   * Damage that has been applied. On VIMP it fires on the next turn after the handlers of
-   * `rm::playerDamageRequest` answered, with the decided amounts and without `context`; damage the
-   * platform drops after a respawn is still reported.
+   * Damage that has been applied. VIMP servers with `playerDamageApplied` report actual health
+   * and armour losses through this event, without `context`.
    */
   [ServerInternalEventName.PlayerDamage]: (
     player: IPlayer,
