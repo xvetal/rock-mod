@@ -254,6 +254,7 @@ export class VIMPPlayersManager implements IPlayersManager {
       const player =
         this._players.get(vimpPlayer.id) ??
         this._ensurePlayer(vimpPlayer.id, vimpPlayer.name ?? "", /* isLocal */ false);
+      player.releaseMovementClipsets();
       this._events.emitInternal(ClientInternalEventName.EntityStreamOut, player);
     });
   }
