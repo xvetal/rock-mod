@@ -8,7 +8,7 @@ import { ServerInternalEventName, type IServerInternalEvents, type PlayerDamageC
 import { type IClientToServerEvents, type IServerToClientEvents } from "../../../../shared";
 import { type VIMPPlayer } from "../../../entities/vimp/player/VIMPPlayer";
 import { RockMod } from "../../../RockMod";
-import { createVIMPDamageRequest } from "./VIMPDamageRequest";
+import { createVIMPDamageRequest, type IVIMPDamageAnswer } from "./VIMPDamageRequest";
 
 export interface IVIMPServerVehicleEvents {
   playerEnterVehicle: (player: VimpServerPlayer, vehicle: VimpServerVehicle, seat: number) => void;
@@ -67,6 +67,10 @@ export interface IVIMPServerCombatEvents {
 type AnyListener = (...args: unknown[]) => void;
 
 const DAMAGE_REQUEST = ServerInternalEventName.PlayerDamageRequest;
+const DAMAGE = ServerInternalEventName.PlayerDamage;
+
+/** rock-mod events fed by the VIMP `playerDamage` bridge. */
+const DAMAGE_BRIDGE_EVENTS: ReadonlySet<string> = new Set([DAMAGE_REQUEST, DAMAGE]);
 
 export interface IVIMPServerInternalEvents
   extends IServerInternalEvents,
@@ -75,8 +79,11 @@ export interface IVIMPServerInternalEvents
     IVIMPServerCombatEvents {}
 
 export class VIMPEventsManager implements IEventsManager {
-  /** Listeners of `rm::playerDamageRequest`; VIMP delays damage while it has a `playerDamage` handler. */
-  private readonly _damageRequestListeners = new Map<AnyListener, number>();
+  /**
+   * Listeners of the events fed by the damage bridge, by event. VIMP queues damage for the scripts'
+   * answer while it has a `playerDamage` handler, so the bridge is attached only while one exists.
+   */
+  private readonly _damageListeners = new Map<string, Map<AnyListener, number>>();
 
   private _damageBridgeAttached = false;
 
@@ -85,13 +92,13 @@ export class VIMPEventsManager implements IEventsManager {
       // @ts-expect-error mixed VIMP built-in + rm:: keys typing
       const listener = events[eventName] as AnyListener;
       vimp.on(eventName, listener);
-      if (eventName === DAMAGE_REQUEST) this._addDamageRequestListener(listener);
+      if (DAMAGE_BRIDGE_EVENTS.has(eventName)) this._addDamageListener(eventName, listener);
     }
   }
 
   public offInternal<K extends keyof IServerInternalEvents>(eventName: K, listener: IServerInternalEvents[K]): void {
     vimp.off(eventName, listener as AnyListener);
-    if (eventName === DAMAGE_REQUEST) this._removeDamageRequestListener(listener as AnyListener);
+    if (DAMAGE_BRIDGE_EVENTS.has(eventName)) this._removeDamageListener(eventName, listener as AnyListener);
   }
 
   public emitInternal<K extends keyof IServerInternalEvents>(
@@ -142,39 +149,59 @@ export class VIMPEventsManager implements IEventsManager {
     vimp.emitAllClients(eventName, args);
   }
 
-  private _addDamageRequestListener(listener: AnyListener): void {
-    this._damageRequestListeners.set(listener, (this._damageRequestListeners.get(listener) ?? 0) + 1);
+  private _addDamageListener(eventName: string, listener: AnyListener): void {
+    let listeners = this._damageListeners.get(eventName);
+    if (!listeners) {
+      listeners = new Map();
+      this._damageListeners.set(eventName, listeners);
+    }
+    listeners.set(listener, (listeners.get(listener) ?? 0) + 1);
     if (this._damageBridgeAttached) return;
-    vimp.on("playerDamage", this._bridgeDamageRequest as AnyListener);
+    vimp.on("playerDamage", this._bridgeDamage as AnyListener);
     this._damageBridgeAttached = true;
   }
 
-  private _removeDamageRequestListener(listener: AnyListener): void {
-    const count = this._damageRequestListeners.get(listener);
-    if (count === undefined) return;
+  private _removeDamageListener(eventName: string, listener: AnyListener): void {
+    const listeners = this._damageListeners.get(eventName);
+    const count = listeners?.get(listener);
+    if (!listeners || count === undefined) return;
     if (count > 1) {
-      this._damageRequestListeners.set(listener, count - 1);
+      listeners.set(listener, count - 1);
       return;
     }
-    this._damageRequestListeners.delete(listener);
-    if (this._damageRequestListeners.size > 0 || !this._damageBridgeAttached) return;
-    vimp.off("playerDamage", this._bridgeDamageRequest as AnyListener);
+    listeners.delete(listener);
+    if (this._hasDamageListeners(DAMAGE_REQUEST) || this._hasDamageListeners(DAMAGE)) return;
+    if (!this._damageBridgeAttached) return;
+    vimp.off("playerDamage", this._bridgeDamage as AnyListener);
     this._damageBridgeAttached = false;
   }
 
-  private readonly _bridgeDamageRequest = (victim: VimpServerPlayer, damage: IVIMPPlayerDamage): void => {
+  private _hasDamageListeners(eventName: string): boolean {
+    return (this._damageListeners.get(eventName)?.size ?? 0) > 0;
+  }
+
+  private readonly _bridgeDamage = (victim: VimpServerPlayer, damage: IVIMPPlayerDamage): void => {
     const players = RockMod.instance.players;
     const player = players.findByID(victim.id);
     if (!player) return;
     const attacker = damage.attacker ? players.findByID(damage.attacker.id) : null;
-    const { request, seal } = createVIMPDamageRequest(damage, attacker);
+    const { request, seal } = createVIMPDamageRequest(damage, attacker, () => victim.health);
+    let answer: IVIMPDamageAnswer;
     try {
-      vimp.emit(DAMAGE_REQUEST, player, request);
-    } catch (error) {
-      console.error("[rock-mod] rm::playerDamageRequest handler failed", error);
+      // vimp.emit catches and logs every handler's exception itself.
+      if (this._hasDamageListeners(DAMAGE_REQUEST)) vimp.emit(DAMAGE_REQUEST, player, request);
     } finally {
-      seal();
+      answer = seal();
     }
+    if (answer.cancelled || (answer.health <= 0 && answer.armour <= 0) || !this._hasDamageListeners(DAMAGE)) return;
+
+    // VIMP applies the answer once this handler has returned, so report it on the next turn.
+    const { health, armour } = answer;
+    setImmediate(() => {
+      if (!player.isExists) return;
+      const source = attacker && attacker.isExists ? attacker : null;
+      vimp.emit(DAMAGE, player, health, armour, source);
+    });
   };
 
   private _getRockModPlayer(player: unknown): VIMPPlayer {
