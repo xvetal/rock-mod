@@ -1,6 +1,7 @@
 /// <reference types="@vimp-mp/types/client" />
 import { type IEventsManager } from "../../common/events/IEventsManager";
-import { type IClientInternalEvents } from "../../common/events/types";
+import { ClientInternalEventName, type IClientInternalEvents } from "../../common/events/types";
+import { type IPlayer } from "@RockMod/client/entities";
 import { type IClientToServerEvents, type IServerToClientEvents } from "@shared/net/common/events/types";
 
 type Listener = (...args: unknown[]) => void;
@@ -16,12 +17,15 @@ type Listener = (...args: unknown[]) => void;
 export class VIMPEventsManager implements IEventsManager {
   private readonly _sticky = new Map<string, unknown[]>();
 
+  // VIMP dispatches the handlers. Track SDK spawn subscriptions to decide when to replay.
+  private readonly _playerSpawnListeners: Listener[] = [];
+
   public onRaw(events: Partial<IClientEvents>): void {
     this._onAll(events);
   }
 
   public offRaw<K extends keyof IClientEvents>(eventName: K, listener?: IClientEvents[K]): void {
-    vimp.off(eventName as string, listener as Listener | undefined);
+    this._off(eventName as string, listener as Listener | undefined);
   }
 
   public onInternal(events: Partial<IClientInternalEvents>): void {
@@ -29,7 +33,7 @@ export class VIMPEventsManager implements IEventsManager {
   }
 
   public offInternal<K extends keyof IClientInternalEvents>(eventName: K, listener?: IClientInternalEvents[K]): void {
-    vimp.off(eventName, listener as Listener | undefined);
+    this._off(eventName, listener as Listener | undefined);
   }
 
   public emitInternal<K extends keyof IClientInternalEvents>(
@@ -52,12 +56,23 @@ export class VIMPEventsManager implements IEventsManager {
     this._sticky.delete(eventName);
   }
 
+  public emitPlayerSpawn(player: IPlayer): void {
+    const event = ClientInternalEventName.PlayerSpawn;
+    if (this._playerSpawnListeners.length === 0) {
+      this.emitInternalSticky(event, player);
+      return;
+    }
+
+    this.clearInternalSticky(event);
+    this.emitInternal(event, player);
+  }
+
   public onServer(events: Partial<IServerToClientEvents>): void {
     this._onAll(events);
   }
 
   public offServer<K extends keyof IServerToClientEvents>(eventName: K, listener?: IServerToClientEvents[K]): void {
-    vimp.off(eventName, listener as unknown as Listener | undefined);
+    this._off(eventName, listener as unknown as Listener | undefined);
   }
 
   public emitServer<K extends keyof IClientToServerEvents>(
@@ -68,19 +83,41 @@ export class VIMPEventsManager implements IEventsManager {
   }
 
   public register(event: string, listener: Listener): void {
+    if (event === ClientInternalEventName.PlayerSpawn) {
+      this._onAll({ [event]: listener });
+      return;
+    }
     vimp.on(event, listener);
   }
 
   public unregister(event: string): void {
-    vimp.off(event);
+    this._off(event);
   }
 
   private _onAll(events: object): void {
     for (const [event, listener] of Object.entries(events) as [string, Listener | undefined][]) {
       if (!listener) continue;
       vimp.on(event, listener);
+      if (event === ClientInternalEventName.PlayerSpawn) {
+        this._playerSpawnListeners.push(listener);
+      }
       const sticky = this._sticky.get(event);
       if (sticky) listener(...sticky);
+    }
+  }
+
+  private _off(event: string, listener?: Listener): void {
+    vimp.off(event, listener);
+    if (event !== ClientInternalEventName.PlayerSpawn) return;
+
+    if (!listener) {
+      this._playerSpawnListeners.length = 0;
+      return;
+    }
+
+    const index = this._playerSpawnListeners.lastIndexOf(listener);
+    if (index !== -1) {
+      this._playerSpawnListeners.splice(index, 1);
     }
   }
 }

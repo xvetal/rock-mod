@@ -214,7 +214,7 @@ export class VIMPPlayersManager implements IPlayersManager {
     this._players.delete(id);
     if (this._localPlayer === player) {
       this._localPlayer = null;
-      this._events.clearInternalSticky(ClientInternalEventName.PlayerReady);
+      this._clearLocalPlayerEvents();
     }
     return player;
   }
@@ -240,7 +240,7 @@ export class VIMPPlayersManager implements IPlayersManager {
       this._players.delete(vimpPlayer.id);
       if (this._localPlayer === player) {
         this._localPlayer = null;
-        this._events.clearInternalSticky(ClientInternalEventName.PlayerReady);
+        this._clearLocalPlayerEvents();
       }
       this._events.emitInternal(ClientInternalEventName.PlayerDisconnected, player);
     });
@@ -264,6 +264,7 @@ export class VIMPPlayersManager implements IPlayersManager {
       if (!player) {
         return;
       }
+      this._events.clearInternalSticky(ClientInternalEventName.PlayerSpawn);
       this._events.emitInternal(ClientInternalEventName.PlayerDeath, player);
     });
     vimp.on("playerSpawn", (vimpPlayer): void => {
@@ -271,7 +272,7 @@ export class VIMPPlayersManager implements IPlayersManager {
       if (!player) {
         return;
       }
-      this._events.emitInternal(ClientInternalEventName.PlayerSpawn, player);
+      this._events.emitPlayerSpawn(player);
     });
   }
 
@@ -371,9 +372,12 @@ export class VIMPPlayersManager implements IPlayersManager {
       this._players.delete(this._localPlayer.id);
       this._localPlayer = null;
     }
-    // Чистим sticky-кэш — иначе новые подписчики после reconnect'а получат
-    // устаревший local-player stub с прошлым remoteId.
+    this._clearLocalPlayerEvents();
+  }
+
+  private _clearLocalPlayerEvents(): void {
     this._events.clearInternalSticky(ClientInternalEventName.PlayerReady);
+    this._events.clearInternalSticky(ClientInternalEventName.PlayerSpawn);
   }
 
   // Iterator реализован inline — у VIMP нет per-dimension/per-range
