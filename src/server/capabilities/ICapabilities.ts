@@ -21,6 +21,8 @@ export interface IServerCombatCapabilities {
   readonly damageRequest: boolean;
   /** `rm::playerWeaponShot` fires; without it the event never fires. */
   readonly weaponShot: boolean;
+  /** `rm::playerWeaponShotCheck` fires; without it the event never fires. */
+  readonly weaponShotCheck: boolean;
 }
 
 export interface IServerCapabilities {
