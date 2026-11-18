@@ -1,4 +1,5 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IServerCapabilities } from "../../capabilities/ICapabilities";
 import { RageNetManager } from "../../net/ragemp/RageNetManager";
 import { RageBlipsManager } from "../../entities/ragemp/blip/RageBlipsManager";
 import { RageColshapesManager } from "../../entities/ragemp/colshape/RageColshapesManager";
@@ -49,5 +50,18 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createWorldManager(): RageWorldManager {
     return new RageWorldManager();
+  }
+
+  public createCapabilities(): IServerCapabilities {
+    return Object.freeze({
+      combat: Object.freeze({
+        weaponAmmo: true,
+        currentWeapon: true,
+        weaponComponents: false,
+        healthRecharge: false,
+        invincible: false,
+        autoRespawn: false,
+      }),
+    });
   }
 }

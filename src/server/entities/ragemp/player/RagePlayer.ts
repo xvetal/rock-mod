@@ -13,6 +13,10 @@ import { type IClientRPCList } from "../../../../shared/net/common/rpc/types";
 
 interface IRagePlayerOptions extends IRageEntityOptions<PlayerMp> {}
 
+const WEAPON_UNARMED = 0xa2719263;
+
+const toHash = (value: string | number): number => (typeof value === "number" ? value : mp.joaat(value)) >>> 0;
+
 export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
   public get name(): string {
     return this.mpEntity.name;
@@ -68,6 +72,15 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
 
   public setInvincible(_enabled: boolean): void {
     throw new Error("Not implemented: RagePlayer.setInvincible");
+  }
+
+  /** The RAGE server has no regeneration control; the client native is up to scripts. */
+  public get healthRecharge(): number | null {
+    return null;
+  }
+
+  public setHealthRecharge(_multiplier: number): boolean {
+    return false;
   }
 
   public get collisionWithPlayers(): boolean {
@@ -197,6 +210,39 @@ export class RagePlayer extends RageEntity<PlayerMp> implements IPlayer {
 
   public removeWeapon(weapon: string): void {
     return this.mpEntity.removeWeapon(mp.joaat(weapon));
+  }
+
+  public getWeaponAmmo(weapon: string | number): number | null {
+    const hash = toHash(weapon);
+    if (!this._ownsWeapon(hash)) return null;
+    return this.mpEntity.getWeaponAmmo(hash);
+  }
+
+  public setCurrentWeapon(weapon: string | number): boolean {
+    const hash = toHash(weapon);
+    if (!this._ownsWeapon(hash)) return false;
+    this.mpEntity.weapon = hash;
+    return true;
+  }
+
+  /** The RAGE server has no weapon component API. */
+  public giveWeaponComponent(_weapon: string | number, _component: string | number): boolean {
+    return false;
+  }
+
+  public removeWeaponComponent(_weapon: string | number, _component: string | number): boolean {
+    return false;
+  }
+
+  /** `allWeapons` is typed as an array but RAGE returns a `{ [hash]: ammo }` object. */
+  private _ownsWeapon(hash: number): boolean {
+    if (hash === WEAPON_UNARMED) return true;
+    const owned = this.mpEntity.allWeapons as unknown;
+    if (Array.isArray(owned)) return owned.some((value) => Number(value) >>> 0 === hash);
+    if (owned !== null && typeof owned === "object") {
+      return Object.keys(owned).some((key) => Number(key) >>> 0 === hash);
+    }
+    return false;
   }
 
   public enableVoiceTo(player: RagePlayer): void {

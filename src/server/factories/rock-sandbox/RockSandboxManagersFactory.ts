@@ -1,4 +1,5 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IServerCapabilities } from "../../capabilities/ICapabilities";
 import { type INetManager } from "../../net/common/INetManager";
 import { RockSandboxNetManager } from "../../net/rock-sandbox/RockSandboxNetManager";
 import { RockSandboxBlipsManager } from "../../entities/rock-sandbox/blip/RockSandboxBlipsManager";
@@ -50,5 +51,18 @@ export class RockSandboxManagersFactory implements IManagersFactory {
 
   public createWorldManager(): RockSandboxWorldManager {
     return new RockSandboxWorldManager();
+  }
+
+  public createCapabilities(): IServerCapabilities {
+    return Object.freeze({
+      combat: Object.freeze({
+        weaponAmmo: true,
+        currentWeapon: false,
+        weaponComponents: false,
+        healthRecharge: false,
+        invincible: true,
+        autoRespawn: true,
+      }),
+    });
   }
 }

@@ -26,3 +26,7 @@ export { type IPlayerQuitSnapshot as IRockModPlayerQuitSnapshot } from "./net/co
 
 export { type IPlayerDamageContext as IRockModPlayerDamageContext } from "./net/common/events/types";
 export { type IWeaponDamageProfile as IRockModWeaponDamageProfile } from "./entities/common/player/IPlayer";
+export {
+  type IServerCapabilities as IRockModServerCapabilities,
+  type IServerCombatCapabilities as IRockModServerCombatCapabilities,
+} from "./capabilities/ICapabilities";
