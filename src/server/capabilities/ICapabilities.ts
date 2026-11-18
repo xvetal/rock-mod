@@ -1,8 +1,7 @@
 /**
  * Combat mechanisms the platform applies on the server. Where a flag is `false` the weapon and
- * health-recharge methods return `false` or `null`. `invincible` and `autoRespawn` throw on
- * RAGE, alt:V and Mock and do nothing on VIMP without the combat API: call them only when
- * their flag is `true`.
+ * health-recharge methods return `false` or `null`. Check `invincible` and `autoRespawn`
+ * before calling the corresponding methods.
  */
 export interface IServerCombatCapabilities {
   /** `IPlayer.getWeaponAmmo` reports the owned weapon's total. */
