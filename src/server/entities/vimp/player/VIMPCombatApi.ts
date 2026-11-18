@@ -14,17 +14,6 @@ export interface IVIMPCombatPlayer {
   removeWeaponComponent?: (weaponHash: number, componentHash: number) => boolean;
 }
 
-const NO_COMBAT_API: IServerCombatCapabilities = Object.freeze({
-  weaponAmmo: false,
-  currentWeapon: false,
-  weaponComponents: false,
-  healthRecharge: false,
-  invincible: false,
-  autoRespawn: false,
-  damageRequest: false,
-  weaponShot: false,
-});
-
 let detected: IServerCombatCapabilities | null = null;
 
 export function asVIMPCombatPlayer(player: VimpPlayer): IVIMPCombatPlayer {
@@ -50,9 +39,9 @@ export function detectVIMPCombatCapabilities(player: VimpPlayer): IServerCombatC
   return detected;
 }
 
-/** Known once a player has connected; all `false` before that. */
-export function getVIMPCombatCapabilities(): IServerCombatCapabilities {
+/** `null` until a player has connected: the server exposes no API version without one. */
+export function getVIMPCombatCapabilities(): IServerCombatCapabilities | null {
   if (detected) return detected;
   const player = vimp.players.all[0];
-  return player ? detectVIMPCombatCapabilities(player) : NO_COMBAT_API;
+  return player ? detectVIMPCombatCapabilities(player) : null;
 }

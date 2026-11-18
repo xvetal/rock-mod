@@ -125,8 +125,10 @@ export interface IServerInternalEvents {
     context?: IPlayerDamageContext,
   ) => void;
   /**
-   * Fires before damage is applied, only on platforms with `capabilities.combat.damageRequest`.
-   * The platform may delay damage while this event has listeners, so subscribe only when needed.
+   * Fires before damage is applied, on platforms with `capabilities.combat.damageRequest`.
+   * Subscribe unconditionally at startup: where the mechanism is missing the event never fires.
+   * On VIMP, while it has listeners, damage applies right after the handlers have answered instead
+   * of at once, and the calculated damage applies if they block for longer than one second.
    */
   [ServerInternalEventName.PlayerDamageRequest]: (victim: IPlayer, request: IPlayerDamageRequest) => void;
   [ServerInternalEventName.PlayerEnterVehicle]: (player: IPlayer, vehicle: IVehicle, seat: number) => void;
