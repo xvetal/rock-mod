@@ -76,7 +76,10 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
   }
 
   public get autoRespawn(): boolean {
-    throw new Error("Not implemented: VIMPPlayer.autoRespawn");
+    const { autoRespawn } = this._vimpPlayer;
+    if (typeof autoRespawn === "boolean") return autoRespawn;
+
+    return notImplemented("VIMPPlayer.autoRespawn");
   }
 
   public get clientTransformEnabled(): boolean {
@@ -215,8 +218,9 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
     this._vimpPlayer.heading = value;
   }
 
-  public setAutoRespawn(_enabled: boolean): void {
-    throw new Error("Not implemented: VIMPPlayer.setAutoRespawn");
+  public setAutoRespawn(enabled: boolean): void {
+    if (!("autoRespawn" in this._vimpPlayer)) notImplemented("VIMPPlayer.setAutoRespawn");
+    this._vimpPlayer.autoRespawn = enabled;
   }
 
   public setHealth(value: number): void {
