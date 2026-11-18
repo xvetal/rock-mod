@@ -1,4 +1,5 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IClientCapabilities } from "../../capabilities/ICapabilities";
 import { RageBlipsManager } from "@RockMod/client/entities/ragemp/blip/RageBlipsManager";
 import { RageColshapesManager } from "@RockMod/client/entities/ragemp/colshape/RageColshapesManager";
 import { RageMarkersManager } from "@RockMod/client/entities/ragemp/marker/RageMarkersManager";
@@ -159,5 +160,16 @@ export class RageManagersFactory implements IManagersFactory {
 
   public createConsoleManager(): RageConsoleManager {
     return new RageConsoleManager();
+  }
+
+  public createCapabilities(): IClientCapabilities {
+    return Object.freeze({
+      combat: Object.freeze({
+        noAutoReload: false,
+        noAutoSwap: false,
+        weaponShot: true,
+        damageEvents: true,
+      }),
+    });
   }
 }

@@ -34,6 +34,7 @@ import {
   type IZoneManager,
 } from "@RockMod/client/game";
 import { type IConsoleManager } from "@RockMod/client/console";
+import { type IClientCapabilities } from "../../capabilities/ICapabilities";
 
 export interface IManagersFactory {
   createNetManager(): INetManager;
@@ -68,4 +69,5 @@ export interface IManagersFactory {
   createWeaponManager(): IWeaponManager;
   createGameObjectManager(): IGameObjectManager;
   createConsoleManager(): IConsoleManager;
+  createCapabilities(): IClientCapabilities;
 }
