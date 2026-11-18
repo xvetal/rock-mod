@@ -3,7 +3,6 @@ import { VIMPConsoleForwarder } from "./VIMPConsoleForwarder";
 import { VIMPDataHandler } from "./dataHandler/VIMPDataHandler";
 import { VIMPEventsBridge } from "./events/VIMPEventsBridge";
 import { VIMPEventsManager } from "./events/VIMPEventsManager";
-import { VIMPRenderTicker } from "./events/VIMPRenderTicker";
 import { VIMPRPCManager } from "./rpc/VIMPRPCManager";
 
 export class VIMPNetManager implements INetManager {
@@ -14,8 +13,6 @@ export class VIMPNetManager implements INetManager {
   private readonly _dataHandler: VIMPDataHandler;
 
   private readonly _bridge: VIMPEventsBridge;
-
-  private readonly _renderTicker: VIMPRenderTicker;
 
   private readonly _consoleForwarder: VIMPConsoleForwarder;
 
@@ -39,10 +36,8 @@ export class VIMPNetManager implements INetManager {
     this._rpcManager = new VIMPRPCManager();
     this._dataHandler = new VIMPDataHandler(this._eventsManager);
     this._bridge = new VIMPEventsBridge(this._eventsManager);
-    this._renderTicker = new VIMPRenderTicker();
 
     this._bridge.registerRawEvents();
     this._bridge.registerServerEvents();
-    this._renderTicker.start(this._eventsManager);
   }
 }

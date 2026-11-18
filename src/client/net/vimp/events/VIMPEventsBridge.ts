@@ -23,6 +23,10 @@ export class VIMPEventsBridge implements IEventsBridge {
   public constructor(private readonly _events: VIMPEventsManager) {}
 
   public registerRawEvents(): void {
+    vimp.on("render", () => {
+      this._events.emitInternal(ClientInternalEventName.Render);
+    });
+
     this._events.register("playerEnterVehicle", (payload) => {
       const event = this._resolveVehicleEventPayload(payload);
       if (!event) return;

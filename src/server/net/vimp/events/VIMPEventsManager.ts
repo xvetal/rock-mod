@@ -20,6 +20,9 @@ export interface IVIMPServerInternalEvents
     IVIMPServerVehicleEvents {}
 
 export class VIMPEventsManager implements IEventsManager {
+  /** `vimp.on` callbacks registered by `onClient`, keyed by the Rock-Mod listener, so `offClient` can remove them. */
+  private readonly _clientHandlers = new Map<string, Map<unknown, (player: unknown, ...args: unknown[]) => void>>();
+
   public onInternal(events: Partial<IVIMPServerInternalEvents>): void {
     for (const eventName of Object.keys(events)) {
       // @ts-expect-error mixed VIMP built-in + rm:: keys typing
@@ -39,23 +42,27 @@ export class VIMPEventsManager implements IEventsManager {
   }
 
   public onClient(events: Partial<IClientToServerEvents>): void {
-    for (const eventName of Object.keys(events)) {
-      // @ts-expect-error generic event typing
-      const handler = events[eventName] as (player: unknown, ...args: unknown[]) => void;
-      // Клиент шлёт variadic args упакованными в массив через
-      // `vimp.emitServer(name, args)` (см. client VIMPEventsManager.emitServer).
-      // Разворачиваем массив обратно в позиционные аргументы. Скалярные/объектные
-      // payload'ы прокидываем как единственный аргумент.
-      vimp.on(eventName, (player: unknown, data: unknown) => {
-        const rockModPlayer = this._getRockModPlayer(player);
-        const args = Array.isArray(data) ? data : [data];
-        handler(rockModPlayer, ...args);
-      });
+    for (const [eventName, listener] of Object.entries(events)) {
+      if (!listener) continue;
+      const handler = listener as (player: VIMPPlayer, ...args: unknown[]) => void;
+      // Only the sender changes: VIMP passes its native player, handlers expect the Rock-Mod one.
+      const callback = (player: unknown, ...args: unknown[]): void => handler(this._getRockModPlayer(player), ...args);
+      let handlers = this._clientHandlers.get(eventName);
+      if (!handlers) {
+        handlers = new Map();
+        this._clientHandlers.set(eventName, handlers);
+      }
+      handlers.set(listener, callback);
+      vimp.on(eventName, callback);
     }
   }
 
   public offClient<K extends keyof IClientToServerEvents>(eventName: K, listener: IClientToServerEvents[K]): void {
-    vimp.off(eventName, listener as (...args: unknown[]) => void);
+    const handlers = this._clientHandlers.get(eventName);
+    const callback = handlers?.get(listener);
+    if (!handlers || !callback) return;
+    handlers.delete(listener);
+    vimp.off(eventName, callback);
   }
 
   public emitClient<K extends keyof IServerToClientEvents>(
@@ -69,14 +76,14 @@ export class VIMPEventsManager implements IEventsManager {
       throw new Error(`Player with id ${player.id} not found`);
     }
 
-    vimpPlayer.emit(eventName, args);
+    vimpPlayer.emit(eventName, ...args);
   }
 
   public emitAllClients<K extends keyof IServerToClientEvents>(
     eventName: K,
     ...args: Parameters<IServerToClientEvents[K]>
   ): void {
-    vimp.emitAllClients(eventName, args);
+    vimp.emitAllClients(eventName, ...args);
   }
 
   private _getRockModPlayer(player: unknown): VIMPPlayer {
