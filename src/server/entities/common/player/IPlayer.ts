@@ -51,11 +51,11 @@ export interface IPlayer extends IEntity {
   get health(): number;
   get armour(): number;
   get isDead(): boolean;
-  /** Published automatic respawn policy; unsupported platforms throw. */
+  /** Automatic respawn policy. Throws on RAGE, alt:V and Mock: check `capabilities.combat.autoRespawn` first. */
   get autoRespawn(): boolean;
   /** Published player-vs-player collision policy; unsupported platforms throw. */
   get collisionWithPlayers(): boolean;
-  /** Host-owned combat protection; unsupported platforms throw. */
+  /** Server-side damage protection. Throws on RAGE, alt:V and Mock: check `capabilities.combat.invincible` first. */
   get invincible(): boolean;
   /** Health regeneration multiplier (`0` turns it off), or `null` where the server does not control it. */
   get healthRecharge(): number | null;
@@ -84,10 +84,17 @@ export interface IPlayer extends IEntity {
   setName(name: string): void;
   setHeading(value: number): void;
   setHealth(value: number): void;
-  /** Queue a policy change. Unsupported platforms throw synchronously. */
+  /**
+   * Queue a respawn policy change. Throws on RAGE, alt:V and Mock and does nothing on VIMP without
+   * the combat API: call only when `capabilities.combat.autoRespawn` is `true`.
+   */
   setAutoRespawn(enabled: boolean): void;
   /** Queue a player collision policy change. Unsupported platforms throw. */
   setCollisionWithPlayers(enabled: boolean): void;
+  /**
+   * Blocks all damage to the player on the server. Throws on RAGE, alt:V and Mock and does nothing
+   * on VIMP without the combat API: call only when `capabilities.combat.invincible` is `true`.
+   */
   setInvincible(enabled: boolean): void;
   freezePosition(frozen: boolean): void;
   setArmour(value: number): void;
