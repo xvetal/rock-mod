@@ -296,19 +296,28 @@ export class VIMPPlayer implements IPlayer {
   }
 
   public get isReloading(): boolean {
-    return false;
+    const handle = this._getPedHandle();
+    return handle ? vimp.natives.ped.isPedReloading(handle) : false;
   }
 
   public get weapon(): number {
-    return 0;
+    const handle = this._getPedHandle();
+    return handle ? vimp.natives.weapon.getSelectedPedWeapon(handle) >>> 0 : 0;
   }
 
-  public getAmmoInClip(_weapon: number): number {
-    return 0;
+  public getAmmoInClip(weapon: number): number {
+    const handle = this._getPedHandle();
+    if (!handle) return 0;
+
+    // The native may report the value as `{ ammo }` or as a bare number.
+    const result = vimp.natives.weapon.getAmmoInClip(handle, weapon) as unknown;
+    const ammo = typeof result === "number" ? result : (result as { ammo?: number } | null)?.ammo;
+    return typeof ammo === "number" ? ammo : 0;
   }
 
-  public getWeaponAmmo(_weapon: number): number {
-    return 0;
+  public getWeaponAmmo(weapon: number): number {
+    const handle = this._getPedHandle();
+    return handle ? vimp.natives.weapon.getAmmoInPedWeapon(handle, weapon) : 0;
   }
 
   public getBoneIndex(boneId: number): number {
@@ -482,6 +491,11 @@ export class VIMPPlayer implements IPlayer {
     } catch {
       return null;
     }
+  }
+
+  /** Ped handle, or 0 while a remote player's ped is not streamed in. */
+  private _getPedHandle(): number {
+    return this._getNativePlayer()?.handle ?? 0;
   }
 
   private _warnOnce(method: string): void {
