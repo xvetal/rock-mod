@@ -30,3 +30,7 @@ export {
   type IServerCapabilities as IRockModServerCapabilities,
   type IServerCombatCapabilities as IRockModServerCombatCapabilities,
 } from "./capabilities/ICapabilities";
+export {
+  type IPlayerDamageRequest as IRockModPlayerDamageRequest,
+  type PlayerDamageCause as RockModPlayerDamageCause,
+} from "./net/common/events/types";

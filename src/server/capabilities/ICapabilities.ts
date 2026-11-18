@@ -15,6 +15,10 @@ export interface IServerCombatCapabilities {
   readonly invincible: boolean;
   /** `IPlayer.autoRespawn` / `setAutoRespawn`. */
   readonly autoRespawn: boolean;
+  /** `rm::playerDamageRequest` fires; without it the event never fires. */
+  readonly damageRequest: boolean;
+  /** `rm::playerWeaponShot` fires; without it the event never fires. */
+  readonly weaponShot: boolean;
 }
 
 export interface IServerCapabilities {

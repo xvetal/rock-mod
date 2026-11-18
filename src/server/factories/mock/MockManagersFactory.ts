@@ -61,6 +61,8 @@ export class MockManagersFactory implements IManagersFactory {
         healthRecharge: false,
         invincible: false,
         autoRespawn: false,
+        damageRequest: false,
+        weaponShot: false,
       }),
     });
   }

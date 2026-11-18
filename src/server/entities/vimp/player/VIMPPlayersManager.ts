@@ -91,6 +91,21 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
 
         net.events.emitInternal(ServerInternalEventName.PlayerDeath, player, getDeathReason(death), killer);
       },
+      playerWeaponShot: (vimpPlayer, shot) => {
+        const player = this.findByID(vimpPlayer.id);
+        if (!player) return;
+
+        net.events.emitInternal(
+          ServerInternalEventName.PlayerWeaponShot,
+          player,
+          Object.freeze({
+            weapon: shot.weapon,
+            ammoInClip: shot.clip,
+            accepted: shot.accepted,
+            rejection: shot.rejection,
+          }),
+        );
+      },
       playerDimensionChange: (vimpPlayer, oldDim, newDim) => {
         const player = this.findByID(vimpPlayer.id);
         if (!player) return;
