@@ -30,20 +30,25 @@ export interface IPlayerDamageContext {
   readonly hits: Readonly<{ torso: number; head: number; arms: number; legs: number }>;
 }
 
-/** Fields beyond `weapon` and `ammoInClip` are filled only by the platforms that know them. */
 export interface IPlayerWeaponShot {
   readonly weapon: number;
-  /** Rounds left in the clip right after the shot, or `null` when unknown. */
+  readonly ammoInClip: number;
+  readonly ammo: number;
+  readonly revision: bigint;
+  readonly request: bigint;
+  readonly life: bigint;
+  readonly tick: bigint;
+}
+
+/** A shot the server has checked, whether or not it calculated the shot's damage. */
+export interface IPlayerWeaponShotCheck {
+  readonly weapon: number;
+  /** Rounds left in the clip right after the shot, as the shooter's game measured it, or `null` when unknown. */
   readonly ammoInClip: number | null;
-  /** VIMP: the platform accepted the shot and calculated its damage. */
-  readonly accepted?: boolean;
-  /** VIMP: why no damage was calculated, `null` when accepted. */
-  readonly rejection?: string | null;
-  readonly ammo?: number;
-  readonly revision?: bigint;
-  readonly request?: bigint;
-  readonly life?: bigint;
-  readonly tick?: bigint;
+  /** The platform accepted the shot and calculated its damage. */
+  readonly accepted: boolean;
+  /** Why no damage was calculated, lower case (`cadence`, `geometry`, ...), or `null` when accepted. */
+  readonly rejection: string | null;
 }
 
 export type PlayerDamageCause =
@@ -90,6 +95,7 @@ export interface IPlayerDamageRequest {
 
 export enum ServerInternalEventName {
   PlayerWeaponShot = "rm::playerWeaponShot",
+  PlayerWeaponShotCheck = "rm::playerWeaponShotCheck",
   PlayerConnected = "rm::playerConnected",
   PlayerDisconnected = "rm::playerDisconnected",
   PlayerQuit = "rm::playerQuit",
@@ -106,8 +112,13 @@ export enum ServerInternalEventName {
 }
 
 export interface IServerInternalEvents {
-  /** Fires only on platforms with `capabilities.combat.weaponShot`; on VIMP for weapons the server gave. */
+  /** Fires only on platforms with `capabilities.combat.weaponShot`. */
   [ServerInternalEventName.PlayerWeaponShot]: (player: IPlayer, context: IPlayerWeaponShot) => void;
+  /**
+   * Fires for every shot the server checked, on platforms with `capabilities.combat.weaponShotCheck`.
+   * On VIMP only for weapons the server gave, and only for shots of the current life.
+   */
+  [ServerInternalEventName.PlayerWeaponShotCheck]: (player: IPlayer, shot: IPlayerWeaponShotCheck) => void;
   [ServerInternalEventName.PlayerConnected]: (player: IPlayer) => void;
   [ServerInternalEventName.PlayerDisconnected]: (player: IPlayer) => void;
   [ServerInternalEventName.PlayerQuit]: (

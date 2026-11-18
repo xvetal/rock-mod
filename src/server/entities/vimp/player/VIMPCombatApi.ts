@@ -34,7 +34,8 @@ export function detectVIMPCombatCapabilities(player: VimpPlayer): IServerCombatC
     autoRespawn: "autoRespawn" in combat,
     // The damage and shot events came with the same protocol as the per-player combat members.
     damageRequest: "healthRecharge" in combat,
-    weaponShot: "healthRecharge" in combat,
+    weaponShot: false,
+    weaponShotCheck: "healthRecharge" in combat,
   });
   return detected;
 }

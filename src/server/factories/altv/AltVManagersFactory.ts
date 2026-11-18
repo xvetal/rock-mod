@@ -63,6 +63,7 @@ export class AltVManagersFactory implements IManagersFactory {
         autoRespawn: false,
         damageRequest: false,
         weaponShot: false,
+        weaponShotCheck: false,
       }),
     });
   }
