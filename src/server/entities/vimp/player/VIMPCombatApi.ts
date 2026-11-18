@@ -21,6 +21,8 @@ const NO_COMBAT_API: IServerCombatCapabilities = Object.freeze({
   healthRecharge: false,
   invincible: false,
   autoRespawn: false,
+  damageRequest: false,
+  weaponShot: false,
 });
 
 let detected: IServerCombatCapabilities | null = null;
@@ -41,6 +43,9 @@ export function detectVIMPCombatCapabilities(player: VimpPlayer): IServerCombatC
     healthRecharge: "healthRecharge" in combat,
     invincible: "invincible" in combat,
     autoRespawn: "autoRespawn" in combat,
+    // The damage and shot events came with the same protocol as the per-player combat members.
+    damageRequest: "healthRecharge" in combat,
+    weaponShot: "healthRecharge" in combat,
   });
   return detected;
 }
