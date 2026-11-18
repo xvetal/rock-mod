@@ -326,10 +326,8 @@ export class VIMPPlayer implements IPlayer {
     const handle = this._getHandle();
     if (!handle) return 0;
 
-    // The native may report the value as `{ ammo }` or as a bare number.
-    const result = vimp.natives.weapon.getAmmoInClip(handle, weapon) as unknown;
-    const ammo = typeof result === "number" ? result : (result as { ammo?: number } | null)?.ammo;
-    return typeof ammo === "number" ? ammo : 0;
+    const { return: success, ammo } = vimp.natives.weapon.getAmmoInClip(handle, weapon);
+    return success ? ammo : 0;
   }
 
   public getWeaponAmmo(weapon: number): number {
