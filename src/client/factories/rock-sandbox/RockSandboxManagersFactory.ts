@@ -1,4 +1,5 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IClientCapabilities } from "../../capabilities/ICapabilities";
 import { RockSandboxNetManager } from "../../net/rock-sandbox/RockSandboxNetManager";
 import { RockSandboxBlipsManager } from "../../entities/rock-sandbox/blip/RockSandboxBlipsManager";
 import { RockSandboxColshapesManager } from "../../entities/rock-sandbox/colshape/RockSandboxColshapesManager";
@@ -159,5 +160,16 @@ export class RockSandboxManagersFactory implements IManagersFactory {
 
   public createConsoleManager(): RockSandboxConsoleManager {
     return new RockSandboxConsoleManager();
+  }
+
+  public createCapabilities(): IClientCapabilities {
+    return Object.freeze({
+      combat: Object.freeze({
+        noAutoReload: false,
+        noAutoSwap: false,
+        weaponShot: false,
+        damageEvents: false,
+      }),
+    });
   }
 }

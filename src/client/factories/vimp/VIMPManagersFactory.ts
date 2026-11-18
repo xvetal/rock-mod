@@ -1,4 +1,5 @@
 import { type IManagersFactory } from "../common/IManagersFactory";
+import { type IClientCapabilities, type IClientCombatCapabilities } from "../../capabilities/ICapabilities";
 import { VIMPNetManager } from "@RockMod/client/net/vimp/VIMPNetManager";
 import { VIMPBrowserManager } from "@RockMod/client/game/vimp/browser/VIMPBrowserManager";
 import { VIMPStorageManager } from "@RockMod/client/game/vimp/storage/VIMPStorageManager";
@@ -27,7 +28,7 @@ import { VIMPStreamingManager } from "@RockMod/client/game/vimp/streaming/VIMPSt
 import { VIMPCursorManager } from "@RockMod/client/game/vimp/cursor/VIMPCursorManager";
 import { VIMPGameObjectManager } from "@RockMod/client/game/vimp/object/VIMPGameObjectManager";
 import { VIMPGameplayManager } from "@RockMod/client/game/vimp/gameplay/VIMPGameplayManager";
-import { VIMPWeaponManager } from "@RockMod/client/game/vimp/weapon/VIMPWeaponManager";
+import { VIMPWeaponManager, getVIMPGameSwitches } from "@RockMod/client/game/vimp/weapon/VIMPWeaponManager";
 import { VIMPVoiceChatManager } from "@RockMod/client/game/vimp/voiceChat/VIMPVoiceChatManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
@@ -239,5 +240,19 @@ export class VIMPManagersFactory implements IManagersFactory {
 
   public createConsoleManager(): ManagerReturn<"createConsoleManager"> {
     return createNotImplementedProxy("VIMPConsoleManager");
+  }
+
+  public createCapabilities(): IClientCapabilities {
+    return {
+      get combat(): IClientCombatCapabilities {
+        const game = getVIMPGameSwitches();
+        return Object.freeze({
+          noAutoReload: typeof game?.setWeaponsNoAutoReload === "function",
+          noAutoSwap: typeof game?.setWeaponsNoAutoSwap === "function",
+          weaponShot: false,
+          damageEvents: false,
+        });
+      },
+    };
   }
 }

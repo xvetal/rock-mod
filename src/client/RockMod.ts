@@ -13,6 +13,7 @@ import { type IUtilsManager } from "./utils";
 import { type IManagersFactory } from "./factories/common/IManagersFactory";
 import { type IGameManagers } from "@RockMod/client/game";
 import { type IConsoleManager } from "@RockMod/client/console";
+import { type IClientCapabilities } from "./capabilities/ICapabilities";
 
 type MultiplayerType = "RageMP" | "AltV" | "Mock" | "VIMP" | "RockSandbox";
 
@@ -90,6 +91,8 @@ export class RockMod {
 
   private readonly _console: IConsoleManager;
 
+  private readonly _capabilities: IClientCapabilities;
+
   public get net(): INetManager {
     return this._net;
   }
@@ -138,6 +141,11 @@ export class RockMod {
     return this._console;
   }
 
+  /** What the platform supports; check it instead of the platform name. */
+  public get capabilities(): IClientCapabilities {
+    return this._capabilities;
+  }
+
   protected constructor(managersFactory: IManagersFactory) {
     this._net = managersFactory.createNetManager();
     this._blips = managersFactory.createBlipsManager();
@@ -150,6 +158,7 @@ export class RockMod {
     this._vehicles = managersFactory.createVehiclesManager();
     this._cameras = managersFactory.createCameraManager();
     this._console = managersFactory.createConsoleManager();
+    this._capabilities = managersFactory.createCapabilities();
 
     this._game = {
       browser: managersFactory.createBrowserManager(),

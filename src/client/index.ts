@@ -20,5 +20,9 @@ export {
 } from "./entities";
 export { type IOutgoingDamageEvent as IRockModOutgoingDamageEvent } from "./net/common/events/types";
 export { type IIncomingDamageEvent as IRockModIncomingDamageEvent } from "./net/common/events/types";
+export {
+  type IClientCapabilities as IRockModClientCapabilities,
+  type IClientCombatCapabilities as IRockModClientCombatCapabilities,
+} from "./capabilities/ICapabilities";
 export * from "./game";
 export * from "./console";
