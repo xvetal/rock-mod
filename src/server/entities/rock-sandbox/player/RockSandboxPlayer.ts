@@ -15,6 +15,16 @@ import { type RockSandboxPlayer as NativePlayer } from "@rock-sandbox/types/serv
 import { BaseObjectType } from "../../../../shared";
 import { Vector3D } from "../../../../shared/common/utils/math/Vectors";
 
+/** Weapon names RockSandbox supports, with their short forms. */
+const SANDBOX_WEAPONS: readonly string[] = [
+  "weapon_pistol",
+  "weapon_smg",
+  "weapon_pumpshotgun",
+  "pistol",
+  "mp5",
+  "shotgun",
+];
+
 export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
   public override get model(): number {
     return this._nativePlayer.modelHash;
@@ -248,15 +258,19 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
     this._nativePlayer.removeWeapon(weapon);
   }
 
-  /** RockSandbox addresses weapons by name only; hashes and unknown names give `null`. */
   public getWeaponAmmo(weapon: string | number): number | null {
-    if (typeof weapon !== "string") return null;
-    try {
-      const state = this._nativePlayer.getWeaponState(weapon);
-      return state.owned ? state.ammo : null;
-    } catch {
-      return null;
-    }
+    const state = this._findWeaponState(weapon);
+    return state && state.owned ? state.ammo : null;
+  }
+
+  /** Reads the clip; RockSandbox cannot set it. */
+  public getWeaponClip(weapon: string | number): number | null {
+    const state = this._findWeaponState(weapon);
+    return state && state.owned ? state.ammoInClip : null;
+  }
+
+  public setWeaponClip(_weapon: string | number, _clip: number): boolean {
+    return false;
   }
 
   public setCurrentWeapon(_weapon: string | number): boolean {
@@ -331,6 +345,19 @@ export class RockSandboxPlayer extends RockSandboxEntity implements IPlayer {
 
   public removeFromVehicle(): void {
     return rockSandboxNotImplemented("server", "RockSandboxPlayer.removeFromVehicle");
+  }
+
+  /** RockSandbox addresses weapons by name; a hash is matched against the weapons it supports. */
+  private _findWeaponState(weapon: string | number): IWeaponState | null {
+    if (typeof weapon === "string") {
+      return SANDBOX_WEAPONS.includes(weapon.toLowerCase()) ? this._nativePlayer.getWeaponState(weapon) : null;
+    }
+    const hash = weapon >>> 0;
+    for (const name of SANDBOX_WEAPONS) {
+      const state = this._nativePlayer.getWeaponState(name);
+      if (state.weapon >>> 0 === hash) return state;
+    }
+    return null;
   }
 }
 
