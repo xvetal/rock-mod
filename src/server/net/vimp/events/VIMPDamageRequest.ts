@@ -2,7 +2,8 @@ import { type IPlayer } from "../../../entities";
 import { type IPlayerDamageRequest } from "../../common/events/types";
 import { type IVIMPPlayerDamage } from "./VIMPEventsManager";
 
-interface IDamageAnswer {
+/** Final answer of the handlers. */
+export interface IVIMPDamageAnswer {
   readonly health: number;
   readonly armour: number;
   readonly lethal: boolean;
@@ -12,17 +13,32 @@ interface IDamageAnswer {
 export interface IVIMPDamageRequestHandle {
   readonly request: IPlayerDamageRequest;
   /** Ends the answer: keeps the final values, later calls are logged and ignored. */
-  readonly seal: () => void;
+  readonly seal: () => IVIMPDamageAnswer;
 }
 
-/** Wraps the VIMP damage argument, which is valid only while its handlers run. */
-export function createVIMPDamageRequest(damage: IVIMPPlayerDamage, attacker: IPlayer | null): IVIMPDamageRequestHandle {
-  let answer: IDamageAnswer | null = null;
-  let warned = false;
+/**
+ * Wraps the VIMP damage argument, which is valid only while its handlers run. `cancel()` is final
+ * here (VIMP itself lets a later `setDamage` undo it), and `lethal` follows the replaced amounts.
+ */
+export function createVIMPDamageRequest(
+  damage: IVIMPPlayerDamage,
+  attacker: IPlayer | null,
+  getVictimHealth: () => number,
+): IVIMPDamageRequestHandle {
+  let answer: IVIMPDamageAnswer | null = null;
+  let replaced = false;
+  let warnedLate = false;
+  let warnedCancelled = false;
+
+  const readLethal = (): boolean => {
+    if (damage.cancelled) return false;
+    if (!replaced) return damage.lethal;
+    return damage.health > 0 && getVictimHealth() - damage.health <= 0;
+  };
 
   const ignoreLate = (method: string): void => {
-    if (warned) return;
-    warned = true;
+    if (warnedLate) return;
+    warnedLate = true;
     console.warn(`[rock-mod] rm::playerDamageRequest.${method}() called after the handlers returned; ignored`);
   };
 
@@ -41,29 +57,45 @@ export function createVIMPDamageRequest(damage: IVIMPPlayerDamage, attacker: IPl
       return answer ? answer.armour : damage.armour;
     },
     get lethal(): boolean {
-      return answer ? answer.lethal : damage.lethal;
+      return answer ? answer.lethal : readLethal();
     },
     get cancelled(): boolean {
       return answer ? answer.cancelled : damage.cancelled;
     },
     cancel(): void {
-      if (answer) return ignoreLate("cancel");
+      if (answer) {
+        ignoreLate("cancel");
+        return;
+      }
       damage.cancel();
     },
     setDamage(health: number, armour?: number): void {
-      if (answer) return ignoreLate("setDamage");
+      if (answer) {
+        ignoreLate("setDamage");
+        return;
+      }
+      if (damage.cancelled) {
+        if (!warnedCancelled) {
+          warnedCancelled = true;
+          console.warn("[rock-mod] rm::playerDamageRequest.setDamage() called after cancel(); ignored");
+        }
+        return;
+      }
       damage.setDamage(health, armour);
+      replaced = true;
     },
   });
 
-  const seal = (): void => {
-    if (answer) return;
-    answer = Object.freeze({
-      health: damage.health,
-      armour: damage.armour,
-      lethal: damage.lethal,
-      cancelled: damage.cancelled,
-    });
+  const seal = (): IVIMPDamageAnswer => {
+    if (!answer) {
+      answer = Object.freeze({
+        health: damage.health,
+        armour: damage.armour,
+        lethal: readLethal(),
+        cancelled: damage.cancelled,
+      });
+    }
+    return answer;
   };
 
   return { request, seal };
