@@ -202,9 +202,6 @@ export class VIMPPlayer extends VIMPEntity implements IPlayer {
   }
 
   public spawn(position: IVector3D): void {
-    if (typeof this._vimpPlayer.spawn !== "function") {
-      throw new Error("[VIMP:server] VIMPPlayer.spawn requires a VIMP server with native player spawning");
-    }
     if (!this._vimpPlayer.spawn(position)) {
       throw new Error("[VIMP:server] VIMPPlayer.spawn failed");
     }
