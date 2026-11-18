@@ -75,6 +75,14 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
     throw new Error("Not implemented: AltVPlayer.setInvincible");
   }
 
+  public get healthRecharge(): number | null {
+    return null;
+  }
+
+  public setHealthRecharge(_multiplier: number): boolean {
+    return false;
+  }
+
   public get collisionWithPlayers(): boolean {
     throw new Error("Not implemented: AltVPlayer.collisionWithPlayers");
   }
@@ -204,6 +212,33 @@ export class AltVPlayer extends AltVEntity<Player> implements IPlayer {
 
   public removeWeapon(weapon: string): void {
     return this.mpEntity.removeWeapon(hash(weapon));
+  }
+
+  public getWeaponAmmo(weapon: string | number): number | null {
+    if (!this.mpEntity.hasWeapon(weapon)) return null;
+    return this.mpEntity.getWeaponAmmo(weapon);
+  }
+
+  public setCurrentWeapon(weapon: string | number): boolean {
+    if (!this.mpEntity.hasWeapon(weapon)) return false;
+    this.mpEntity.currentWeapon = this._hash(weapon);
+    return true;
+  }
+
+  public giveWeaponComponent(weapon: string | number, component: string | number): boolean {
+    if (!this.mpEntity.hasWeapon(weapon)) return false;
+    this.mpEntity.addWeaponComponent(this._hash(weapon), this._hash(component));
+    return true;
+  }
+
+  public removeWeaponComponent(weapon: string | number, component: string | number): boolean {
+    if (!this.mpEntity.hasWeapon(weapon)) return false;
+    this.mpEntity.removeWeaponComponent(this._hash(weapon), this._hash(component));
+    return true;
+  }
+
+  private _hash(value: string | number): number {
+    return typeof value === "number" ? value : hash(value);
   }
 
   public enableVoiceTo(player: AltVPlayer): void {

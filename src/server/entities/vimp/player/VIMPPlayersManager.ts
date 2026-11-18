@@ -5,6 +5,7 @@ import { type VIMPNetManager } from "../../../net/vimp/VIMPNetManager";
 import { ServerInternalEventName } from "../../../net/common/events/types";
 import { RockMod } from "../../../RockMod";
 import type { PlayerDeath, PlayerDeathCause } from "@vimp-mp/types/server";
+import { detectVIMPCombatCapabilities } from "./VIMPCombatApi";
 
 /** GTA death-cause hashes (joaat), as RAGE reports them when no weapon is involved. */
 const DEATH_CAUSE_HASH: Partial<Record<PlayerDeathCause, number>> = {
@@ -69,6 +70,7 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
   private _init(net: VIMPNetManager): void {
     net.events.onInternal({
       playerConnected: (vimpPlayer) => {
+        detectVIMPCombatCapabilities(vimpPlayer);
         const player = new VIMPPlayer({ vimpPlayer });
         this.registerBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
