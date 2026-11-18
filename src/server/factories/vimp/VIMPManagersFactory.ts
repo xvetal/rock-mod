@@ -54,10 +54,10 @@ export class VIMPManagersFactory implements IManagersFactory {
   }
 
   public createCapabilities(): IServerCapabilities {
-    return {
-      get combat(): IServerCombatCapabilities {
+    return Object.freeze({
+      get combat(): IServerCombatCapabilities | null {
         return getVIMPCombatCapabilities();
       },
-    };
+    });
   }
 }

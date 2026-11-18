@@ -243,16 +243,13 @@ export class VIMPManagersFactory implements IManagersFactory {
   }
 
   public createCapabilities(): IClientCapabilities {
-    return {
-      get combat(): IClientCombatCapabilities {
-        const game = getVIMPGameSwitches();
-        return Object.freeze({
-          noAutoReload: typeof game?.setWeaponsNoAutoReload === "function",
-          noAutoSwap: typeof game?.setWeaponsNoAutoSwap === "function",
-          weaponShot: false,
-          damageEvents: false,
-        });
-      },
-    };
+    const game = getVIMPGameSwitches();
+    const combat: IClientCombatCapabilities = Object.freeze({
+      noAutoReload: typeof game?.setWeaponsNoAutoReload === "function",
+      noAutoSwap: typeof game?.setWeaponsNoAutoSwap === "function",
+      weaponShot: false,
+      damageEvents: false,
+    });
+    return Object.freeze({ combat });
   }
 }
