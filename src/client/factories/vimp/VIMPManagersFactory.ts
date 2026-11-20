@@ -30,6 +30,7 @@ import { VIMPGameObjectManager } from "@RockMod/client/game/vimp/object/VIMPGame
 import { VIMPGameplayManager } from "@RockMod/client/game/vimp/gameplay/VIMPGameplayManager";
 import { VIMPWeaponManager } from "@RockMod/client/game/vimp/weapon/VIMPWeaponManager";
 import { VIMPVoiceChatManager } from "@RockMod/client/game/vimp/voiceChat/VIMPVoiceChatManager";
+import { VIMPLocalPlayerManager } from "@RockMod/client/game/vimp/localPlayer/VIMPLocalPlayerManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -195,7 +196,7 @@ export class VIMPManagersFactory implements IManagersFactory {
   }
 
   public createLocalPlayerManager(): ManagerReturn<"createLocalPlayerManager"> {
-    return createNotImplementedProxy("VIMPLocalPlayerManager");
+    return new VIMPLocalPlayerManager();
   }
 
   public createControlsManager(): ManagerReturn<"createControlsManager"> {
