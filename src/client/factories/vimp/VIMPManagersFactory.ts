@@ -31,6 +31,7 @@ import { VIMPGameplayManager } from "@RockMod/client/game/vimp/gameplay/VIMPGame
 import { VIMPWeaponManager, getVIMPGameSwitches } from "@RockMod/client/game/vimp/weapon/VIMPWeaponManager";
 import { VIMPVoiceChatManager } from "@RockMod/client/game/vimp/voiceChat/VIMPVoiceChatManager";
 import { VIMPLocalPlayerManager } from "@RockMod/client/game/vimp/localPlayer/VIMPLocalPlayerManager";
+import { VIMPGameCameraManager } from "@RockMod/client/game/vimp/camera/VIMPGameCameraManager";
 import { createNotImplementedProxy } from "./createNotImplementedProxy";
 
 type ManagerReturn<K extends keyof IManagersFactory> = IManagersFactory[K] extends (...args: never[]) => infer R
@@ -212,7 +213,7 @@ export class VIMPManagersFactory implements IManagersFactory {
   }
 
   public createGameCameraManager(): ManagerReturn<"createGameCameraManager"> {
-    return createNotImplementedProxy("VIMPGameCameraManager");
+    return new VIMPGameCameraManager();
   }
 
   public createUiManager(): ManagerReturn<"createUiManager"> {
