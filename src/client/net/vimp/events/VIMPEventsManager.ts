@@ -12,10 +12,13 @@ type Listener = (...args: unknown[]) => void;
  * VIMP delivers built-in, server and CEF events through one `vimp.on` registry
  * with `off` and a local `emit`, and network events carry every argument. So
  * each method maps directly onto `vimp.on`/`off`/`emit`/`emitServer`.
- * Handler exceptions propagate to the native runtime or to the `emitInternal` caller.
+ * Each handler is isolated as on RAGE: an exception is logged and the other handlers still run.
  */
 export class VIMPEventsManager implements IEventsManager {
   private readonly _sticky = new Map<string, unknown[]>();
+
+  /** Isolated wrappers by event and original listener; `off` pops the latest one, as `vimp.off` does. */
+  private readonly _wrapped = new Map<string, Map<Listener, Listener[]>>();
 
   // VIMP dispatches the handlers. Track SDK spawn subscriptions to decide when to replay.
   private readonly _playerSpawnListeners: Listener[] = [];
@@ -87,7 +90,7 @@ export class VIMPEventsManager implements IEventsManager {
       this._onAll({ [event]: listener });
       return;
     }
-    vimp.on(event, listener);
+    vimp.on(event, this._wrap(event, listener));
   }
 
   public unregister(event: string): void {
@@ -97,17 +100,26 @@ export class VIMPEventsManager implements IEventsManager {
   private _onAll(events: object): void {
     for (const [event, listener] of Object.entries(events) as [string, Listener | undefined][]) {
       if (!listener) continue;
-      vimp.on(event, listener);
+      const wrapped = this._wrap(event, listener);
+      vimp.on(event, wrapped);
       if (event === ClientInternalEventName.PlayerSpawn) {
         this._playerSpawnListeners.push(listener);
       }
       const sticky = this._sticky.get(event);
-      if (sticky) listener(...sticky);
+      if (sticky) wrapped(...sticky);
     }
   }
 
   private _off(event: string, listener?: Listener): void {
-    vimp.off(event, listener);
+    const wrappers = this._wrapped.get(event);
+    if (listener) {
+      const stack = wrappers?.get(listener);
+      vimp.off(event, stack?.pop() ?? listener);
+      if (stack?.length === 0) wrappers?.delete(listener);
+    } else {
+      vimp.off(event);
+      this._wrapped.delete(event);
+    }
     if (event !== ClientInternalEventName.PlayerSpawn) return;
 
     if (!listener) {
@@ -119,5 +131,24 @@ export class VIMPEventsManager implements IEventsManager {
     if (index !== -1) {
       this._playerSpawnListeners.splice(index, 1);
     }
+  }
+
+  private _wrap(event: string, listener: Listener): Listener {
+    const wrapped: Listener = (...args) => {
+      try {
+        listener(...args);
+      } catch (error) {
+        console.error(`[VIMPEventsManager] handler for "${event}" failed:`, error);
+      }
+    };
+    let wrappers = this._wrapped.get(event);
+    if (!wrappers) {
+      wrappers = new Map();
+      this._wrapped.set(event, wrappers);
+    }
+    const stack = wrappers.get(listener);
+    if (stack) stack.push(wrapped);
+    else wrappers.set(listener, [wrapped]);
+    return wrapped;
   }
 }
