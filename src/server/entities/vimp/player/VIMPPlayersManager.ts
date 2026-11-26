@@ -71,6 +71,9 @@ export class VIMPPlayersManager extends VIMPEntitiesManager<VIMPPlayer> implemen
     net.events.onInternal({
       playerConnected: (vimpPlayer) => {
         detectVIMPCombatCapabilities(vimpPlayer);
+        // Match RAGE: the platform neither revives nor fades out the dead, the script decides.
+        if ("autoRespawn" in vimpPlayer) vimpPlayer.autoRespawn = false;
+        if ("deathFade" in vimpPlayer) vimpPlayer.deathFade = false;
         const player = new VIMPPlayer({ vimpPlayer });
         this.registerBaseObject(player);
         net.events.emitInternal(ServerInternalEventName.PlayerConnected, player);
