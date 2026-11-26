@@ -54,7 +54,8 @@ export class VIMPColshapesManager implements IColshapesManager {
   }
 
   public createCylinder(options: ICylinderColshapeCreateOptions): VIMPColshape {
-    const vimpColshape = vimp.colshapes.createCylinder(options.position, options.range, options.height, {
+    // Same span as server cylinders: `height` above and below the position.
+    const vimpColshape = vimp.colshapes.createCylinder(options.position, options.range, options.height * 2, {
       dimension: options.dimension,
     });
     return this._register(vimpColshape);
