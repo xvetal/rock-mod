@@ -44,11 +44,8 @@ export class VIMPColshape implements IColshape {
   }
 
   public get position(): Vector3D {
-    const { position, isRemote, type, height } = this._vimpColshape;
-    const { x, y, z } = position;
-    // VIMP replicates the center of server cylinders, while the facade exposes their base.
-    const centerOffsetZ = isRemote && type === "cylinder" ? height / 2 : 0;
-    return new Vector3D(x, y, z - centerOffsetZ);
+    const { x, y, z } = this._vimpColshape.position;
+    return new Vector3D(x, y, z);
   }
 
   public get dimension(): number {

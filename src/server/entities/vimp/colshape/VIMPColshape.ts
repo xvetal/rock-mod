@@ -7,16 +7,12 @@ import type { Colshape as VimpColshape, Player as VimpPlayer } from "@vimp-mp/ty
 export interface IVIMPColshapeOptions {
   vimpColshape: VimpColshape;
   onDestroy: (colshape: VIMPColshape) => void;
-  /** Distance from the facade position (bottom) up to the VIMP shape center; 0 for shapes VIMP anchors the same way. */
-  centerOffsetZ?: number;
 }
 
 export abstract class VIMPColshape extends VIMPWorldObject implements IColshape {
   private readonly _vimpColshape: VimpColshape;
 
   private readonly _onDestroy: (colshape: VIMPColshape) => void;
-
-  private readonly _centerOffsetZ: number;
 
   public override get id(): number {
     return this._vimpColshape.id;
@@ -32,7 +28,7 @@ export abstract class VIMPColshape extends VIMPWorldObject implements IColshape 
 
   public override get position(): IVector3D {
     const p = this._vimpColshape.position;
-    return new Vector3D(p.x, p.y, p.z - this._centerOffsetZ);
+    return new Vector3D(p.x, p.y, p.z);
   }
 
   public override get dimension(): number {
@@ -59,7 +55,6 @@ export abstract class VIMPColshape extends VIMPWorldObject implements IColshape 
     super();
     this._vimpColshape = options.vimpColshape;
     this._onDestroy = options.onDestroy;
-    this._centerOffsetZ = options.centerOffsetZ ?? 0;
   }
 
   public override destroy(): void {
@@ -69,7 +64,7 @@ export abstract class VIMPColshape extends VIMPWorldObject implements IColshape 
   }
 
   public override setPosition(value: IVector3D): void {
-    this._vimpColshape.position = { x: value.x, y: value.y, z: value.z + this._centerOffsetZ };
+    this._vimpColshape.position = { x: value.x, y: value.y, z: value.z };
   }
 
   public override setDimension(value: number): void {
