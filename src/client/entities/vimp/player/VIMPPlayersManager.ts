@@ -40,8 +40,8 @@ interface IVIMPNativePlayer {
  *  2. **На `connectionStateChanged`** — fallback / handler реконнекта.
  *     Если на конструкторе local ещё не был валиден (handshake race),
  *     `connected = true` запустит retry fast-path. На `connected = false`
- *     чистим _localPlayer и sticky-кэш, чтобы при следующем connect'е
- *     эмитнуть с актуальным remoteId.
+ *     (приходит в новый рантайм после main.js) закрываем все записи
+ *     через `rm::playerDisconnected`, локального первым, и чистим sticky-кэш.
  *
  * `VIMPPlayer`-инстанс важен (а не структурный stub) потому что
  * `RockModStateAdapter` в геймоде хранит `rockModPlayer`-ссылку и через
@@ -367,12 +367,19 @@ export class VIMPPlayersManager implements IPlayersManager {
   }
 
   private _handleDisconnect(): void {
-    if (this._localPlayer) {
-      this._localPlayer.markRemoved();
-      this._players.delete(this._localPlayer.id);
-      this._localPlayer = null;
-    }
     this._clearLocalPlayerEvents();
+    // VIMP доставляет `connected = false` в новый рантайм уже после main.js, когда fast-path выпустил playerReady:
+    // закрываем все записи через rm::playerDisconnected, иначе геймод держит их после `connected = true`.
+    const local = this._localPlayer;
+    const players = local
+      ? [local, ...[...this._players.values()].filter((player) => player !== local)]
+      : [...this._players.values()];
+    this._players.clear();
+    this._localPlayer = null;
+    for (const player of players) {
+      player.markRemoved();
+      this._events.emitInternal(ClientInternalEventName.PlayerDisconnected, player);
+    }
   }
 
   private _clearLocalPlayerEvents(): void {
