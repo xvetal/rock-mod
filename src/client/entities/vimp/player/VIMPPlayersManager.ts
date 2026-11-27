@@ -40,8 +40,10 @@ interface IVIMPNativePlayer {
  *  2. **На `connectionStateChanged`** — fallback / handler реконнекта.
  *     Если на конструкторе local ещё не был валиден (handshake race),
  *     `connected = true` запустит retry fast-path. На `connected = false`
- *     (приходит в новый рантайм после main.js) закрываем все записи
- *     через `rm::playerDisconnected`, локального первым, и чистим sticky-кэш.
+ *     чистим _localPlayer и sticky-кэш, чтобы при следующем connect'е
+ *     эмитнуть с актуальным remoteId. Устаревший `false`, который VIMP-клиент
+ *     без исправления доставляет в рантайм уже новой сессии после main.js
+ *     (локальный игрок там уже валиден), игнорируем.
  *
  * `VIMPPlayer`-инстанс важен (а не структурный stub) потому что
  * `RockModStateAdapter` в геймоде хранит `rockModPlayer`-ссылку и через
@@ -299,12 +301,7 @@ export class VIMPPlayersManager implements IPlayersManager {
   }
 
   private _syncLocalPlayerFromRuntime(): void {
-    let nativeLocal: IVIMPNativePlayer | null;
-    try {
-      nativeLocal = vimp.players.local as unknown as IVIMPNativePlayer | null;
-    } catch {
-      return;
-    }
+    const nativeLocal = this._readNativeLocalPlayer();
     if (nativeLocal) {
       this._ensurePlayer(nativeLocal.id, nativeLocal.name ?? "", /* isLocal */ true);
     }
@@ -367,18 +364,24 @@ export class VIMPPlayersManager implements IPlayersManager {
   }
 
   private _handleDisconnect(): void {
+    // VIMP clears the local player id before it reports a real disconnect. A valid one means
+    // the event belongs to the previous session and reached this runtime after main.js.
+    if (this._readNativeLocalPlayer()) {
+      return;
+    }
+    if (this._localPlayer) {
+      this._localPlayer.markRemoved();
+      this._players.delete(this._localPlayer.id);
+      this._localPlayer = null;
+    }
     this._clearLocalPlayerEvents();
-    // VIMP доставляет `connected = false` в новый рантайм уже после main.js, когда fast-path выпустил playerReady:
-    // закрываем все записи через rm::playerDisconnected, иначе геймод держит их после `connected = true`.
-    const local = this._localPlayer;
-    const players = local
-      ? [local, ...[...this._players.values()].filter((player) => player !== local)]
-      : [...this._players.values()];
-    this._players.clear();
-    this._localPlayer = null;
-    for (const player of players) {
-      player.markRemoved();
-      this._events.emitInternal(ClientInternalEventName.PlayerDisconnected, player);
+  }
+
+  private _readNativeLocalPlayer(): IVIMPNativePlayer | null {
+    try {
+      return vimp.players.local as unknown as IVIMPNativePlayer | null;
+    } catch {
+      return null;
     }
   }
 
