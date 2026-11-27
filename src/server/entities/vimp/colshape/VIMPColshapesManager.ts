@@ -100,7 +100,7 @@ export class VIMPColshapesManager extends VIMPWorldObjectsManager<VIMPColshape> 
     const { position, range, height, dimension, key } = options;
     const extras = key === undefined ? { dimension } : { dimension, key };
 
-    // Like a RAGE tube, the zone spans `height` above and below `position`; VIMP takes the full height (|dz| <= height / 2).
+    // VIMP takes the full height (|dz| <= height / 2); the facade `height` is a half-extent.
     const vimpColshape = vimp.colshapes.createCylinder(position.x, position.y, position.z, range, height * 2, extras);
     if (!vimpColshape) {
       throw new Error("VIMPColshapesManager.createCylinder: vimp.colshapes.createCylinder failed (server full?)");

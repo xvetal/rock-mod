@@ -54,7 +54,7 @@ export class VIMPColshapesManager implements IColshapesManager {
   }
 
   public createCylinder(options: ICylinderColshapeCreateOptions): VIMPColshape {
-    // Same span as server cylinders: `height` above and below the position.
+    // VIMP takes the full height (|dz| <= height / 2); the facade `height` is a half-extent.
     const vimpColshape = vimp.colshapes.createCylinder(options.position, options.range, options.height * 2, {
       dimension: options.dimension,
     });
