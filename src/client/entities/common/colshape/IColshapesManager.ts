@@ -20,6 +20,7 @@ export interface ICuboidColshapeCreateOptions extends IWorldObjectCreateOptions 
 
 export interface ICylinderColshapeCreateOptions extends IWorldObjectCreateOptions {
   range: number;
+  /** Vertical half-extent: the zone spans `height` above and below `position` (like a RAGE tube). */
   height: number;
 }
 
