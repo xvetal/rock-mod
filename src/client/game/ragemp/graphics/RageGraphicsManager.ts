@@ -2,11 +2,45 @@ import {
   type IGraphicsManager,
   type ILoopedParticleFxAtCoordOptions,
   type IParticleFxAtCoordOptions,
+  type IRuntimeTextureResult,
   type IScreenTextOptions,
+  type ISpriteOptions,
 } from "@RockMod/client/game";
 import { type IVector3D, type IVector2D, Vector2D } from "@shared/index";
 
 export class RageGraphicsManager implements IGraphicsManager {
+  public readonly supportsRuntimeTextures = false;
+
+  public drawSprite(textureDict: string, textureName: string, options: ISpriteOptions): void {
+    const color = options.color;
+    mp.game.graphics.drawSprite(
+      textureDict,
+      textureName,
+      options.position.x,
+      options.position.y,
+      options.width,
+      options.height,
+      options.heading ?? 0,
+      color?.r ?? 255,
+      color?.g ?? 255,
+      color?.b ?? 255,
+      color?.a ?? 255,
+      false,
+    );
+  }
+
+  public setDrawOrigin(position: IVector3D): void {
+    mp.game.graphics.setDrawOrigin(position.x, position.y, position.z, 0);
+  }
+
+  public clearDrawOrigin(): void {
+    mp.game.graphics.clearDrawOrigin();
+  }
+
+  public createRuntimeTexture(): IRuntimeTextureResult {
+    throw new Error("[RageGraphicsManager] runtime textures from PNG are not supported");
+  }
+
   public drawText(text: string, position: IVector2D, options?: IScreenTextOptions): void {
     const arrayColor: RGBA = options?.color
       ? [options.color.r, options.color.g, options.color.b, options.color.a ?? 255]

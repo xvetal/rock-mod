@@ -24,8 +24,40 @@ export interface ILoopedParticleFxAtCoordOptions extends IParticleFxAtCoordOptio
   p11: boolean;
 }
 
+export interface ISpriteOptions {
+  /** Центр спрайта в нормализованных экранных координатах (0..1). */
+  position: IVector2D;
+  /** Размер в нормализованных долях экрана. */
+  width: number;
+  height: number;
+  heading?: number;
+  color?: IRGBA;
+}
+
+export interface IRuntimeTextureResult {
+  /** Текстура создана заново (false — обновлены пиксели существующей). */
+  created: boolean;
+  width: number;
+  height: number;
+}
+
 export interface IGraphicsManager {
+  /** Платформа умеет создавать текстуры из PNG во время игры. */
+  readonly supportsRuntimeTextures: boolean;
+
   drawText(text: string, position: IVector2D, options?: IScreenTextOptions): void;
+  drawSprite(textureDict: string, textureName: string, options: ISpriteOptions): void;
+  /**
+   * Привязывает экранные координаты следующих 2D-вызовов к точке в мире:
+   * игра проецирует её сама в момент отрисовки кадра. Закрывать `clearDrawOrigin`.
+   */
+  setDrawOrigin(position: IVector3D): void;
+  clearDrawOrigin(): void;
+  /**
+   * Создаёт или обновляет текстуру `textureName` в runtime-словаре `textureDict` из PNG.
+   * Повторный вызов с тем же именем допустим только с тем же размером картинки.
+   */
+  createRuntimeTexture(textureDict: string, textureName: string, png: Uint8Array): IRuntimeTextureResult;
   world3dToScreen2d(position: IVector3D): IVector2D | null;
   startScreenEffect(effectName: string, duration: number, looped: boolean): void;
   stopScreenEffect(effectName: string): void;

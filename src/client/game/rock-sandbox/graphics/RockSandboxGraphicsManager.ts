@@ -3,6 +3,8 @@ import {
   type IScreenTextOptions,
   type IParticleFxAtCoordOptions,
   type ILoopedParticleFxAtCoordOptions,
+  type IRuntimeTextureResult,
+  type ISpriteOptions,
 } from "../../common/graphics/IGraphicsManager";
 import { type IVector2D, type IVector3D } from "../../../../shared/common/utils";
 import { Vector2D } from "../../../../shared/common/utils";
@@ -10,6 +12,24 @@ import { getRockSandbox } from "../../../internal/getRockSandbox";
 import { rockSandboxNotImplemented } from "../../../../shared/internal/rockSandboxNotImplemented";
 
 export class RockSandboxGraphicsManager implements IGraphicsManager {
+  public readonly supportsRuntimeTextures = false;
+
+  public drawSprite(_textureDict: string, _textureName: string, _options: ISpriteOptions): void {
+    return rockSandboxNotImplemented("client", "RockSandboxGraphicsManager.drawSprite");
+  }
+
+  public setDrawOrigin(_position: IVector3D): void {
+    return rockSandboxNotImplemented("client", "RockSandboxGraphicsManager.setDrawOrigin");
+  }
+
+  public clearDrawOrigin(): void {
+    return rockSandboxNotImplemented("client", "RockSandboxGraphicsManager.clearDrawOrigin");
+  }
+
+  public createRuntimeTexture(_textureDict: string, _textureName: string, _png: Uint8Array): IRuntimeTextureResult {
+    return rockSandboxNotImplemented("client", "RockSandboxGraphicsManager.createRuntimeTexture");
+  }
+
   public drawText(text: string, position: IVector2D, options?: IScreenTextOptions): void {
     getRockSandbox().screen.drawText(text, position, options);
   }

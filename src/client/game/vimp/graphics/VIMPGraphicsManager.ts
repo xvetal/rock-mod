@@ -4,9 +4,21 @@ import {
   type IGraphicsManager,
   type ILoopedParticleFxAtCoordOptions,
   type IParticleFxAtCoordOptions,
+  type IRuntimeTextureResult,
   type IScreenTextOptions,
+  type ISpriteOptions,
 } from "../../common/graphics/IGraphicsManager";
 import { type IVector2D, type IVector3D, Vector2D } from "@shared/common/utils";
+
+// `vimp.textures` пока нет в опубликованных типах клиента.
+interface IVimpRuntimeTextures {
+  createTxd(name: string): unknown;
+  createTextureFromPng(txd: string, name: string, png: Uint8Array): IRuntimeTextureResult;
+}
+
+function getVimpTextures(): IVimpRuntimeTextures | undefined {
+  return (vimp as unknown as { textures?: IVimpRuntimeTextures }).textures;
+}
 
 /**
  * Реализация `IGraphicsManager` под VIMP.
@@ -53,6 +65,60 @@ import { type IVector2D, type IVector3D, Vector2D } from "@shared/common/utils";
  * `START_SCREEN_EFFECT`).
  */
 export class VIMPGraphicsManager implements IGraphicsManager {
+  private readonly _runtimeTxds = new Set<string>();
+
+  public get supportsRuntimeTextures(): boolean {
+    return getVimpTextures() !== undefined;
+  }
+
+  public drawSprite(textureDict: string, textureName: string, options: ISpriteOptions): void {
+    const color = options.color;
+    vimp.natives.graphics.drawSprite(
+      textureDict,
+      textureName,
+      options.position.x,
+      options.position.y,
+      options.width,
+      options.height,
+      options.heading ?? 0,
+      color?.r ?? 255,
+      color?.g ?? 255,
+      color?.b ?? 255,
+      color?.a ?? 255,
+      false,
+      0,
+    );
+  }
+
+  public setDrawOrigin(position: IVector3D): void {
+    vimp.natives.graphics.setDrawOrigin(position.x, position.y, position.z, false);
+  }
+
+  public clearDrawOrigin(): void {
+    vimp.natives.graphics.clearDrawOrigin();
+  }
+
+  public createRuntimeTexture(textureDict: string, textureName: string, png: Uint8Array): IRuntimeTextureResult {
+    const textures = getVimpTextures();
+    if (!textures) {
+      throw new Error("[VIMPGraphicsManager] runtime textures are not supported by this client");
+    }
+
+    if (!this._runtimeTxds.has(textureDict)) {
+      // Словарь живёт весь процесс игры и переживает переподключение. Ошибку создания
+      // не глушим насовсем: без словаря её повторит createTextureFromPng ниже.
+      try {
+        textures.createTxd(textureDict);
+      } catch {
+        // уже создан в прошлой сессии
+      }
+      this._runtimeTxds.add(textureDict);
+    }
+
+    const result = textures.createTextureFromPng(textureDict, textureName, png);
+    return { created: result.created, width: result.width, height: result.height };
+  }
+
   public drawText(text: string, position: IVector2D, options?: IScreenTextOptions): void {
     const font = options?.font ?? 0;
     const [scaleX, scaleY] = options?.scale ?? [0.3, 0.3];
